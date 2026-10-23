@@ -1,0 +1,6 @@
+{
+    "baseUrl": "https://demo.nuckty.com",
+    "rootTitle": "nuckty — live demo",
+    "bundles": ["page"],
+    "logPrefix": "nuckty-demo-en"
+}

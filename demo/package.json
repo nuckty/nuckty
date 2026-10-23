@@ -1,0 +1,49 @@
+{
+    "name": "nuckty-demo",
+    "version": "1.0.0-beta1",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:nuckty/nuckty-demo.git"
+    },
+    "private": true,
+    "description": "Interactive nuckty feature showcase and package integration consumer.",
+    "type": "module",
+    "scripts": {
+        "build": "nuckty build",
+        "serve": "nuckty serve --port 8092",
+        "stop": "nuckty stop",
+        "validate": "nuckty validate default && nuckty validate en",
+        "deploy-ftp": "nuckty deploy-ftp",
+        "test:package": "node scripts/package-smoke.mjs",
+        "test:clean-install": "node scripts/clean-install.mjs",
+        "test:copy-filter": "node --test scripts/copy-filter.test.mjs",
+        "test": "node --test test/*.test.mjs",
+        "lint": "tsc --noEmit -p config/config-ts.json",
+        "build:preview": "NUCKTY_PREVIEW=1 npm run build",
+        "serve:en": "nuckty serve en --port 8094",
+        "stop:en": "nuckty stop en"
+    },
+    "dependencies": {
+        "nuckty": "file:../nuckty",
+        "nuckty-ext-block-gallery": "file:../nuckty-ext-block-gallery",
+        "nuckty-ext-block-grid": "file:../nuckty-ext-block-grid",
+        "nuckty-ext-block-root": "file:../nuckty-ext-block-root",
+        "nuckty-ext-command-deploy-ftp": "file:../nuckty-ext-command-deploy-ftp",
+        "nuckty-ext-command-serve": "file:../nuckty-ext-command-serve",
+        "nuckty-ext-command-validate-vnu": "file:../nuckty-ext-command-validate-vnu",
+        "nuckty-ext-markdown-typography-ru": "file:../nuckty-ext-markdown-typography-ru"
+    },
+    "devDependencies": {
+        "@tanstack/highlight": "0.1.0",
+        "@types/node": "24.13.3",
+        "esbuild": "0.28.2",
+        "tsx": "4.23.12",
+        "typescript": "7.0.2"
+    },
+    "author": {
+        "name": "Vitaly Harisov",
+        "email": "vitaly@harisov.name"
+    }
+}
+
