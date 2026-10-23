@@ -2,6 +2,10 @@
 
 После успешного `CI` для пуша в `main` репозитория `nuckty` или `nuckty-docs` workflow `rebuild-sites.yml` запускает `CI` в `nuckty-site` и `nuckty-demo`. Оба проекта выбирают последние коммиты движка и документации, прошедшие CI для пуша в main. Перед публикацией выполняются существующие сборка, тесты и валидация; на сервер отправляется только статика. Пулреквесты и неуспешные проверки исходников не запускают потребителей.
 
+## Действующая установка
+
+App организации [nuckty-site-rebuild](https://github.com/organizations/nuckty/settings/installations/174584866), ID `5445873`, установлен только в `nuckty-site` и `nuckty-demo` с правами Actions read/write и Metadata read. Переменная App ID и секрет приватного ключа настроены в обоих исходных репозиториях. Приватный ключ хранится только в GitHub Secrets.
+
 ## Однократная настройка GitHub App
 
 1. Открой настройки организации nuckty → Developer settings → GitHub Apps → New GitHub App. Задай уникальное имя, например `nuckty-site-rebuild`, homepage `https://github.com/nuckty`, отключи webhooks. Callback URL и авторизация пользователей не нужны.

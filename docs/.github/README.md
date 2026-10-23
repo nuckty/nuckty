@@ -2,6 +2,10 @@
 
 After a successful `CI` run for a push to `main` in `nuckty` or `nuckty-docs`, `rebuild-sites.yml` dispatches `CI` in `nuckty-site` and `nuckty-demo`. Both consumers resolve the latest successful main-push CI commit of the engine and documentation. Their existing build, test, validation and static-only deployment steps remain the delivery gate. Pull requests and failed source checks do not dispatch consumers.
 
+## Active installation
+
+The organization-owned [nuckty-site-rebuild](https://github.com/organizations/nuckty/settings/installations/174584866) App (ID `5445873`) is installed only in `nuckty-site` and `nuckty-demo`, with Actions read/write and Metadata read. Both source repositories have the App ID variable and private-key secret configured. The private key belongs in GitHub Secrets only.
+
 ## One-time GitHub App setup
 
 1. Open the nuckty organization settings → Developer settings → GitHub Apps → New GitHub App. Use a unique name such as `nuckty-site-rebuild`, homepage `https://github.com/nuckty`, and disable webhooks. No callback URL or user authorization is needed.
