@@ -33,7 +33,7 @@ interface BemNode {
     bem?: boolean;           // генерировать ли БЭМ-классы (по умолчанию true)
     props?: Record<string, unknown>;  // данные для шаблонов; сами не сериализуются
     raw?: string;            // доверенная строка: не экранируется и не минимизируется
-    tightList?: boolean;
+    tightList?: boolean;     // совместимость; опускание li определяют правила HTML
 }
 ```
 

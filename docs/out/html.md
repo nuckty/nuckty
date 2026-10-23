@@ -9,10 +9,12 @@ The rules describe how the typed tree becomes minimal HTML. Structural validity 
 ### Document wrapper
 
 1. With `document: true`, the first bytes are `<!doctype html>`.
-2. If the tree contains `<html>`, its opening tag and attributes are emitted; **`</html>` is omitted when no following literal sibling requires it**.
-3. An HTML `<head>` start tag under `html` is omitted when it has no emitted attributes or classes and is empty or begins with an element, including through nested arrays and tag-false fragments. Initial text, whitespace and nonempty opaque `raw` keep the start tag; empty strings and empty `raw` do not block omission. Standalone and foreign-context `head` start tags remain explicit. `</head>` is omitted when no following literal sibling requires it.
-4. If the tree contains `<body>`, its opening tag and attributes are emitted; **`</body>` is omitted when no following literal sibling requires it**.
-5. With `document: true`, the engine appends two newlines. A fragment without that option does not receive them.
+2. The `<html>` start tag is omitted when it has no emitted attributes or classes and omission does not move a leading comment outside the root.
+3. The `<head>` start tag is omitted when it has no emitted attributes or classes and is empty or begins with an element.
+4. The `<body>` start tag is omitted when it has no emitted attributes or classes and is empty or begins with something other than ASCII whitespace, a comment, or `meta`, `noscript`, `link`, `script`, `style`, `template`.
+5. With `document: true`, the engine appends two newlines. A fragment without that option does not receive them. A required paragraph or empty-wrapper boundary remains explicit so those newlines do not move into another element.
+
+The serializer evaluates resolved children after flattening arrays and `tag: false` fragments; null positions and empty strings emit nothing. Attributes include BEM/mix classes, explicit `cls` and generated `data-bem`: an opening tag carrying any of them stays. Standalone `head`/`body` fragments retain their wrappers because their parent is unknown. Trusted `raw` is preserved verbatim; where its contents prevent proving omission safe, the neighboring tag stays explicit.
 
 ### Void elements
 
@@ -49,18 +51,27 @@ A logical `"`, `<`, or `>` becomes an HTML entity before this check and does not
 
 ### Omitting optional closing tags
 
-13. `</html>`, `</head>` and `</body>` are omitted in ordinary document structure; they remain before opaque raw/comment or text siblings. In particular, `head` closes before following literal whitespace.
-14. `</li>` — depends on the list:
-    - lists from Markdown (`article__list`) — omitted before the next `<li>`, **emitted** on the last item;
-    - template lists with `tightList: true` — omitted before the next `<li>` and at the end of the list; retained before any other sibling;
-    - regular template lists — **always emitted**.
-15. `</td>` and `</th>` are omitted before the next cell or at the end of a row; they remain before other siblings.
-16. `</tr>` is omitted before the next row or at the end of its table or row group; it remains before other siblings.
-17. `</thead>` is omitted only immediately before `tbody` or `tfoot`.
-18. `</tbody>` is omitted immediately before another `tbody` or `tfoot`, or at the end of the table. `</tfoot>` is omitted only at the end of the table. Literal text and raw comments are siblings, so they require the preceding group to close.
-19. `</p>` is omitted before the tags listed in the [HTML Standard](https://html.spec.whatwg.org/multipage/syntax.html#optional-tags) and at the end of an HTML parent other than `a`, `audio`, `del`, `ins`, `map`, `noscript`, `video` or a custom element. It remains before text, whitespace, inline elements and opaque `raw` content, inside SVG, and at the end of a fragment with no known parent. With `document: true`, a final paragraph directly inside `body` or `html` closes explicitly so the two formatting newlines stay outside it.
+13. `</html>` and `</body>` are omitted unless a following comment would move to another parent. `</head>` stays before ASCII whitespace or a comment. Opaque `raw` boundaries are handled conservatively.
+14. `</li>` is omitted before another `li` and at the end of `ul`, `ol` or `menu`. This applies equally to Markdown and template lists. The legacy `tightList` field no longer changes serialization.
+15. `</td>` and `</th>` are omitted before another `td`/`th` or at the end of a row.
+16. `</tr>` is omitted before another `tr` or at the end of its table or row group.
+17. `</thead>` is omitted immediately before `tbody` or `tfoot`.
+18. `</tbody>` is omitted before another `tbody` or `tfoot`, or at the end of its table. `</tfoot>` is omitted at the end of its table.
+19. `</p>` is omitted before the tags listed in the [HTML Standard](https://html.spec.whatwg.org/multipage/syntax.html#optional-tags) and at the end of a known HTML parent other than `a`, `audio`, `del`, `ins`, `map`, `noscript`, `video` or an autonomous custom element. It stays before text, whitespace, inline elements and opaque `raw`, in foreign content and in a fragment with an unknown parent. Document-formatting newlines stay outside a final paragraph.
+20. Other optional end tags follow the table below. Non-optional end tags remain explicit.
 
-20. The rest (`a, code, span, strong, ol, ul, table, div, section, pre, button, footer, video, svg, title, script, noscript, label, h1, …`) — both tags.
+| End tag | Omitted when followed by |
+| --- | --- |
+| `dt` | `dt` or `dd` |
+| `dd` | `dt`, `dd`, or the end of its definition group |
+| `rt`, `rp` | `rt`, `rp`, or the end of `ruby` |
+| `option` | `option`, `optgroup`, `hr`, or the end of its option container |
+| `optgroup` | `optgroup`, `hr`, or the end of its parent inside `select` |
+| `caption`, `colgroup` | Anything except ASCII whitespace or a comment; an unknown `raw` boundary keeps the tag |
+
+The `<colgroup>` start tag is omitted without emitted attributes only when the first child is `col` and the preceding sibling is not another `colgroup` with an omitted end tag. The `<tbody>` start tag is omitted without emitted attributes only when the first child is `tr` and the preceding sibling is not `thead`, `tbody` or `tfoot` with an omitted end tag. Empty groups and groups beginning with text or comments retain their start tags. These guards keep adjacent groups distinct.
+
+Optional-tag rules apply to HTML elements, not SVG or MathML elements. HTML descendants at SVG/MathML integration points use HTML rules again. Minimization assumes a conforming input tree; it does not repair an invalid content model. Regression tests compare the parsed structure, namespaces, attributes, text and comments against explicit-tag output.
 
 ### Whitespace and comments
 
