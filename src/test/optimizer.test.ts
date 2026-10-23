@@ -291,7 +291,7 @@ test('document wrapper ends preserve opaque comment sibling positions', () => {
         { raw: '<!--after-root-->' },
     ];
 
-    assert.equal(render(tree, { ...NO_TEMPLATES, document: true }), '<!doctype html><html><head><title>T</title></head><!--after-head--><body>X</body><!--after-body--></html><!--after-root-->\n\n');
+    assert.equal(render(tree, { ...NO_TEMPLATES, document: true }), '<!doctype html><html><title>T</title></head><!--after-head--><body>X</body><!--after-body--></html><!--after-root-->\n\n');
 });
 
 test('head closes before literal whitespace outside its content', () => {
@@ -299,7 +299,7 @@ test('head closes before literal whitespace outside its content', () => {
         { tag: 'head', content: { tag: 'title', content: 'T' } },
         ' ',
         { tag: 'body', content: 'X' },
-    ] }), '<html><head><title>T</title></head> <body>X');
+    ] }), '<html><title>T</title></head> <body>X');
 });
 
 test('HTML tag and boolean-attribute matching is ASCII case insensitive', () => {

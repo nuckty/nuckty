@@ -2,7 +2,7 @@
  * Pass 2 — serialize a resolved `BEMTree` to minimal HTML (openspec `templates`
  * spec). No templates are applied here; the tree is already resolved by
  * `renderToBemJson`. The serializer walks the tree emitting open tags, attrs,
- * and closing tags with contextual optional-end-tag omission rules.
+ * and closing tags with contextual optional-tag omission rules.
  * Tight-list `</li>` and paragraph `</p>` omission use the resolved sibling
  * and parent tags. Void elements, SVG void-shaped self-close, and the
  * `raw` passthrough live here too.
@@ -144,8 +144,20 @@ function emitChild(
         return open + '/>';
     }
 
+    let start = open + '>';
+
+    if (tagName === 'head' && parentTag === 'html' && !insideSvg && open === `<${tag}`) {
+        // Use resolved children, not parsed raw HTML; empty output is not a boundary.
+        const first = flattenChildren(child.content ?? null, block).find((node) => node !== '' && (typeof node === 'string' || node.raw !== ''));
+
+        if (inner === '' || (first !== undefined && typeof first !== 'string' && first.raw === undefined)) {
+            start = '';
+        }
+    }
+
     const close = shouldEmitClose(tagName!, nextSiblingTag, parentTag, parentIsArticleList, parentTightList, insideSvg, documentMode);
-    return open + '>' + inner + (close ? `</${tag}>` : '');
+
+    return start + inner + (close ? `</${tag}>` : '');
 }
 
 /** SVG child elements that self-close when empty (rule 7 — SVG void-shaped). */
