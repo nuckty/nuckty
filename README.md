@@ -46,6 +46,10 @@ Content hashes use truncated MD5 for filenames and change detection, not authent
 
 The project's MIT license covers its own code. Installed dependencies keep their licenses, including Lightning CSS (MPL-2.0) and sharp's native libvips (LGPL-3.0-or-later). Preserve applicable upstream notices and distribution obligations when redistributing them.
 
+## Public-site CI
+
+A successful CI run after a push to this repository's `main` automatically starts the website and demo CI through the organization GitHub App. Each consumer builds from verified source commits and deploys its static artifact only after its checks pass. See the [CI rebuild setup](https://github.com/nuckty/nuckty-docs/blob/main/.github/README.md).
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
