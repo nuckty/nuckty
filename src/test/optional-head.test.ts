@@ -66,6 +66,6 @@ test('omitting head start preserves a required head end before whitespace or com
     for (const following of [' ', { raw: '<!--outside-head-->' }] satisfies BEMTree[]) {
         const output = renderToHtml({ tag: 'html', content: [{ tag: 'head', content: meta }, following, { tag: 'body', content: 'Body' }] });
 
-        assert.ok(output.startsWith('<html><meta charset=utf-8></head>'), output);
+        assert.ok(output.startsWith('<meta charset=utf-8></head>'), output);
     }
 });

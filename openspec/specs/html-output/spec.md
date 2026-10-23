@@ -7,11 +7,11 @@ Specify the HTML serialization contract for resolved BEMJSON: contextual escapin
 ## Requirements
 
 ### Requirement: Document wrapper minimization
-With `document: true`, the serializer SHALL prepend lowercase `<!doctype html>` and append two newline characters. Without document mode it SHALL add neither. Wrapper nodes SHALL come from the supplied resolved tree: explicit `<html>` and `<body>` opening tags SHALL be retained; an HTML `<head>` opening tag under html SHALL be omitted only when it has no emitted attributes and is empty or begins with an element after fragment flattening, and a tree that intentionally omits an optional head wrapper SHALL not acquire one. For a conforming document tree, optional closing `</html>`, `</head>` and `</body>` tags MAY be omitted where that preserves the intended structure; required end tags SHALL remain before opaque raw or literal-text siblings. The serializer SHALL add no indentation; literal text and raw content MAY contain newlines.
+With `document: true`, the serializer SHALL prepend lowercase `<!doctype html>` and append two newline characters. Without document mode it SHALL add neither. Wrapper nodes SHALL come from the supplied resolved tree: attribute-free html/head/body start tags SHALL be omitted where HTML parsing preserves the supplied document tree, and a tree that intentionally omits an optional head wrapper SHALL not acquire one. For a conforming document tree, optional closing `</html>`, `</head>` and `</body>` tags MAY be omitted where that preserves the intended structure; required end tags SHALL remain at comment/whitespace boundaries and where opaque raw prevents proving omission safe. The serializer SHALL add no indentation; literal text and raw content MAY contain newlines.
 
 #### Scenario: Optional wrapper tags are omitted
 - **WHEN** a conforming document tree contains explicit html, head and body nodes and document mode is enabled
-- **THEN** html/body opening tags are retained, an eligible head opening tag is omitted, and their optional closing tags are absent when no following literal sibling requires them
+- **THEN** eligible attribute-free opening tags and optional closing tags are omitted without moving comments or authored whitespace
 - **AND** the output begins with `<!doctype html>` and ends with two newline characters
 
 #### Scenario: Fragment rendering has no document envelope
@@ -64,13 +64,28 @@ BEMJSON attribute values SHALL carry their logical, unescaped values. The serial
 - **AND** setting `bem:false` suppresses BEM and mix classes and data-bem, while preserving explicit `cls`
 
 ### Requirement: Closing-tag omission
-Closing-tag omission SHALL preserve the intended parent and sibling relationships of a conforming HTML tree. Non-tight ul/ol lists SHALL retain every li end tag. Article lists (`block: 'article', elem: 'list'`) SHALL omit li end tags only before another li and retain the trailing end tag. Other lists explicitly marked `tightList:true` SHALL omit li end tags before another li and at the end of the list, retaining them before script, text, raw or other siblings. Nested arrays and tag-false fragments SHALL participate in sibling lookahead without adding a wrapper. List policy SHALL belong to the immediate list parent. Paragraphs SHALL use the contextual HTML paragraph end-tag omission rules. Optional table cell, row and section end tags MAY be omitted where HTML parsing preserves the intended conforming table tree; non-optional end tags SHALL remain.
+The serializer SHALL apply HTML optional-end-tag rules to html, head, body, li, dt, dd, p, rt, rp, optgroup, option, colgroup, caption, thead, tbody, tfoot, tr, td and th in their HTML contexts. All lists SHALL use the same HTML rules regardless of block names or the legacy tightList field. Nested arrays and tag-false fragments SHALL participate in sibling lookahead. Omission SHALL preserve parsed structure, attributes, literal whitespace and comment placement; foreign elements SHALL retain their required tags. Document-formatting newlines SHALL not be absorbed into a final paragraph.
+
+#### Scenario: Optional list and definition tags
+- **WHEN** li, dt/dd, rt/rp or option/optgroup are followed by an eligible peer or reach an allowed parent tail
+- **THEN** their optional end tags are omitted
+- **AND** required ends remain before other siblings, whitespace and comments
+
+#### Scenario: Optional table tags
+- **WHEN** a table contains eligible colgroup/tbody nodes without emitted attributes
+- **THEN** their start tags are omitted only when first-child and preceding omitted-end constraints permit it
+- **AND** optional caption, colgroup, row-group, row and cell ends follow HTML rules without merging adjacent groups
+
+#### Scenario: Parse-tree regression
+- **WHEN** minimized documents and fragments are parsed as HTML alongside explicit-tag reference output
+- **THEN** element namespaces, attributes, text, comments and nesting match
+- **AND** wrappers with emitted attributes or BEM classes remain explicit
 
 #### Scenario: Optional closing tags are omitted
-- **WHEN** ordinary adjacent li children are rendered in an article list or an explicitly tight list
+- **WHEN** ordinary adjacent li children are rendered in any HTML list
 - **THEN** li end tags between adjacent li siblings are omitted
-- **AND** the trailing end tag is retained for the article list and omitted for the explicitly tight list
-- **AND** ordinary non-tight lists retain all li end tags
+- **AND** the trailing end tag is omitted at the list tail
+- **AND** ordinary non-tight lists use the same HTML omission rules
 
 #### Scenario: Mixed siblings preserve their parent
 - **WHEN** a tight ul has li, script and li children, including children supplied through fragments

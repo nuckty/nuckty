@@ -59,8 +59,8 @@ test('unknown fragment parent and foreign parents retain the paragraph close', (
 test('document newlines stay outside the final body paragraph', () => {
     const body = { tag: 'body', content: paragraph };
 
-    assert.equal(html(body), '<body><p>first');
-    assert.equal(html(body, true), '<!doctype html><body><p>first</p>\n\n');
-    assert.equal(html({ tag: 'html', content: body }, true), '<!doctype html><html><body><p>first</p>\n\n');
-    assert.equal(html({ tag: 'body', content: { tag: 'article', content: paragraph } }, true), '<!doctype html><body><article><p>first</article>\n\n');
+    assert.equal(html(body), '<body><p>first</body>');
+    assert.equal(html(body, true), '<!doctype html><body><p>first</p></body>\n\n');
+    assert.equal(html({ tag: 'html', content: body }, true), '<!doctype html><p>first</p>\n\n');
+    assert.equal(html({ tag: 'body', content: { tag: 'article', content: paragraph } }, true), '<!doctype html><body><article><p>first</article></body>\n\n');
 });

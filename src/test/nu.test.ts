@@ -35,7 +35,7 @@ test('block().elem() refines the predicate', () => {
         block('menu')({ tag: 'ul' });
         block('menu').elem('item')({ tag: 'li' });
     }, { block: 'menu', content: [{ block: 'menu', elem: 'item' }] });
-    assert.equal(html, '<ul class=menu><li class=menu__item></li></ul>');
+    assert.equal(html, '<ul class=menu><li class=menu__item></ul>');
 });
 
 test('mode function receives node', () => {
@@ -125,7 +125,7 @@ test('templates apply recursively to children', () => {
         block('list')({ tag: 'ul' });
         block('list').elem('item')({ tag: 'li' });
     }, { block: 'list', content: [{ block: 'list', elem: 'item', content: 'a' }, { block: 'list', elem: 'item', content: 'b' }] });
-    assert.equal(html, '<ul class=list><li class=list__item>a</li><li class=list__item>b</li></ul>');
+    assert.equal(html, '<ul class=list><li class=list__item>a<li class=list__item>b</ul>');
 });
 
 test('block("*") is a low-specificity default', () => {

@@ -62,11 +62,7 @@ test('rule 13: html/head/body close never emitted', () => {
     assert.equal(r(doc), '<html lang=ru><meta charset=utf-8><body class=page>hi');
 });
 
-test('rule 14: non-tight list keeps every </li> (menu, header__title)', () => {
-    // Non-tight template list (menu ul, header__title ol): keep </li> between
-    // siblings AND at the tail. Golden confirms menu/article/header all keep
-    // the trailing </li>. Only consumer-marked tight lists (nav-index,
-    // section__body) drop it.
+test('rule 14: ordinary lists omit eligible item end tags', () => {
     const list = {
         tag: 'ul',
         content: [
@@ -75,7 +71,7 @@ test('rule 14: non-tight list keeps every </li> (menu, header__title)', () => {
             { tag: 'li', content: 'c' },
         ],
     };
-    assert.equal(r(list), '<ul><li>a</li><li>b</li><li>c</li></ul>');
+    assert.equal(r(list), '<ul><li>a<li>b<li>c</ul>');
 });
 
 test('rule 14: tightList drops inter-sibling and trailing </li>', () => {
@@ -91,9 +87,7 @@ test('rule 14: tightList drops inter-sibling and trailing </li>', () => {
     assert.equal(r(list), '<ul><li>a<li>b<li>c</ul>');
 });
 
-test('rule 14: article__list </li> omitted between siblings, trailing kept', () => {
-    // article__list (markdown bridge): omit </li> between siblings (markdown.js
-    // optimization), keep the trailing one. `<li>a<li>b<li>c</li>`.
+test('rule 14: article lists use the same HTML omission rules', () => {
     const list = {
         tag: 'ul',
         block: 'article',
@@ -106,7 +100,7 @@ test('rule 14: article__list </li> omitted between siblings, trailing kept', () 
     };
     assert.equal(
         r(list),
-        '<ul class=article__list><li class=article__list-item>a<li class=article__list-item>b<li class=article__list-item>c</li></ul>',
+        '<ul class=article__list><li class=article__list-item>a<li class=article__list-item>b<li class=article__list-item>c</ul>',
     );
 });
 
@@ -122,7 +116,7 @@ test('rule 15-16: ordinary table cell and row closes can be omitted', () => {
             },
         ],
     };
-    assert.equal(r(table), '<table><tbody><tr><td>1<td>2</table>');
+    assert.equal(r(table), '<table><tr><td>1<td>2</table>');
 });
 
 test('rule 19: </p> omitted before a permitted block sibling', () => {
@@ -258,7 +252,7 @@ test('table cells close before script and raw comment siblings through fragments
         { tag: 'th', content: 'B' },
         { raw: '<!--cell-gap-->' },
         { tag: 'td', content: 'C' },
-    ] } } }), '<table><tbody><tr><td>A</td><script>void 0;</script><th>B</th><!--cell-gap--><td>C</table>');
+    ] } } }), '<table><tr><td>A</td><script>void 0;</script><th>B</th><!--cell-gap--><td>C</table>');
 });
 
 test('table rows close before literal comment siblings', () => {
@@ -266,7 +260,7 @@ test('table rows close before literal comment siblings', () => {
         { tag: 'tr', content: { tag: 'td', content: 'A' } },
         { raw: '<!--row-gap-->' },
         { tag: 'tr', content: { tag: 'td', content: 'B' } },
-    ] } }), '<table><tbody><tr><td>A</tr><!--row-gap--><tr><td>B</table>');
+    ] } }), '<table><tr><td>A</tr><!--row-gap--><tr><td>B</table>');
 });
 
 test('table sections close before literal whitespace and comment siblings', () => {
@@ -277,7 +271,7 @@ test('table sections close before literal whitespace and comment siblings', () =
         { raw: '<!--group-gap-->' },
         { tag: 'tfoot', content: { tag: 'tr', content: { tag: 'td', content: 'T' } } },
         ' ',
-    ] }), '<table><thead><tr><th>H</thead> <tbody><tr><td>A</tbody><!--group-gap--><tfoot><tr><td>T</tfoot> </table>');
+    ] }), '<table><thead><tr><th>H</thead> <tr><td>A</tbody><!--group-gap--><tfoot><tr><td>T</tfoot> </table>');
 });
 
 test('document wrapper ends preserve opaque comment sibling positions', () => {
@@ -291,7 +285,7 @@ test('document wrapper ends preserve opaque comment sibling positions', () => {
         { raw: '<!--after-root-->' },
     ];
 
-    assert.equal(render(tree, { ...NO_TEMPLATES, document: true }), '<!doctype html><html><title>T</title></head><!--after-head--><body>X</body><!--after-body--></html><!--after-root-->\n\n');
+    assert.equal(render(tree, { ...NO_TEMPLATES, document: true }), '<!doctype html><title>T</title></head><!--after-head-->X</body><!--after-body--></html><!--after-root-->\n\n');
 });
 
 test('head closes before literal whitespace outside its content', () => {
@@ -299,7 +293,7 @@ test('head closes before literal whitespace outside its content', () => {
         { tag: 'head', content: { tag: 'title', content: 'T' } },
         ' ',
         { tag: 'body', content: 'X' },
-    ] }), '<html><title>T</title></head> <body>X');
+    ] }), '<title>T</title></head> X');
 });
 
 test('HTML tag and boolean-attribute matching is ASCII case insensitive', () => {

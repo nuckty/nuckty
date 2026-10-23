@@ -66,6 +66,7 @@ export interface BemNode {
      * Prefer producing real BemNode children; use `raw` sparingly.
      */
     raw?: string;
+    /** Legacy compatibility field; optional li tags now always follow HTML rules. */
     tightList?: boolean;
 }
 

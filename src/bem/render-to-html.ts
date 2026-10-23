@@ -1,182 +1,262 @@
-/**
- * Pass 2 — serialize a resolved `BEMTree` to minimal HTML (openspec `templates`
- * spec). No templates are applied here; the tree is already resolved by
- * `renderToBemJson`. The serializer walks the tree emitting open tags, attrs,
- * and closing tags with contextual optional-tag omission rules.
- * Tight-list `</li>` and paragraph `</p>` omission use the resolved sibling
- * and parent tags. Void elements, SVG void-shaped self-close, and the
- * `raw` passthrough live here too.
- *
- * @module bem/render-to-html
- */
-
+/** Serialize resolved BEMJSON with structure-preserving HTML optional tags. */
 import type { BemNode, BEMTree } from './types.js';
 import { classify } from './naming.js';
 import { escapeText, escapeAttr, needsQuotes, VOID_TAGS, BOOLEAN_ATTRS, normalizeHtmlName } from './html/escape.js';
 
-export interface HtmlOptions {
-    /** When true, prepend `<!doctype html>` and append `\n\n` (document render). */
-    document?: boolean | undefined;
+type Namespace = 'html' | 'svg' | 'math';
+interface Context {
+    block: string;
+    parent: string | null;
+    parentNamespace: Namespace;
+    namespace: Namespace;
+    mathText: boolean;
+    document: boolean;
 }
-
-/** Serialize a resolved tree to minimal HTML. */
-export function renderToHtml(tree: BEMTree, opts: HtmlOptions = {}): string {
-    const html = serializeLevel(tree, '', null, false, null, false, false, opts.document === true);
-    return opts.document ? '<!doctype html>' + html + '\n\n' : html;
+interface Boundary {
+    kind: 'none' | 'element' | 'text' | 'space' | 'comment' | 'opaque';
+    tag?: string;
 }
-
-/** Sentinel tag for a text-string sibling (distinct from "no sibling"). */
-const TEXT_TAG = '#text';
-
-/**
- * Serialize one level. `nextSiblingTag` is the final tag of the next sibling
- * (for tight-list `</li>` omission); `insideSvg` switches descendants into SVG mode
- * (void-shaped children self-close); `parentTag`/`parentIsArticleList`/
- * `parentTightList` carry the list-context the omission rules need.
- */
-function serializeLevel(
-    tree: BEMTree,
-    parentBlock: string,
-    nextSiblingTag: string | null,
-    insideSvg: boolean,
-    parentTag: string | null,
-    parentIsArticleList: boolean,
-    parentTightList: boolean,
-    documentMode: boolean,
-): string {
-    if (tree === null || tree === undefined || tree === false) return '';
-    if (typeof tree === 'string') return escapeText(tree);
-    if (Array.isArray(tree) || tree.tag === false) {
-        const children = flattenChildren(tree, parentBlock);
-        return children.map((child, i) => emitChild(
-            child,
-            parentBlock,
-            i + 1 < children.length ? childTag(children[i + 1]!) : nextSiblingTag,
-            insideSvg,
-            parentTag,
-            parentIsArticleList,
-            parentTightList,
-            documentMode,
-        )).join('');
-    }
-    return emitChild(
-        tree as BemNode,
-        parentBlock,
-        nextSiblingTag,
-        insideSvg,
-        parentTag,
-        parentIsArticleList,
-        parentTightList,
-        documentMode,
-    );
+interface Following {
+    first: Boundary;
+    nonSpace: Boundary;
 }
-
-/** Flatten fragments before lookahead so omitted tags preserve sibling parents. */
-function flattenChildren(tree: BEMTree, parentBlock: string): Array<BemNode | string> {
-    if (tree === null || tree === undefined || tree === false) return [];
-    if (typeof tree === 'string') return [tree];
-    if (Array.isArray(tree)) return tree.flatMap((child) => flattenChildren(child, parentBlock));
-    const block = tree.block ?? parentBlock;
-    if (tree.tag === false && tree.raw === undefined) return flattenChildren(tree.content, block);
-    return [tree.block || !block ? tree : { ...tree, block }];
+interface Emission {
+    html: string;
+    tag: string | null;
+    omittedEnd: boolean;
+    opaque: boolean;
 }
-
-/** Resolve a child's tag for sibling-lookahead (default `div`; `tag:false` → null; string → `#text`). */
-function childTag(child: BemNode | string): string | null {
-    if (typeof child === 'string') return TEXT_TAG;
-    if (child.raw !== undefined) return '#raw';
-    return child.tag === false ? null : normalizeHtmlName(child.tag ?? 'div');
-}
-
-/** Emit one resolved child, recursing into its content. */
-function emitChild(
-    child: BemNode | string,
-    parentBlock: string,
-    nextSiblingTag: string | null,
-    insideSvg: boolean,
-    parentTag: string | null,
-    parentIsArticleList: boolean,
-    parentTightList: boolean,
-    documentMode: boolean,
-): string {
-    if (typeof child === 'string') {
-        // A text-string child: the TEXT_TAG sentinel only matters to the
-        // PREVIOUS sibling's omission; here we emit the text.
-        return escapeText(child);
-    }
-
-    if (child.raw !== undefined) return child.raw;
-
-    const block = child.block ?? parentBlock;
-    const tag = child.tag === false ? null : (child.tag ?? 'div');
-    const tagName = tag === null ? null : normalizeHtmlName(tag);
-
-    // Entering an <svg> switches descendants into SVG mode: void-shaped
-    // children (path/circle/rect/line/ellipse/polyline/polygon/use/stop) emit
-    // `/>` instead of `<tag></tag>` (rule 7 of the HTML-output spec).
-    const childInsideSvg = tagName === 'svg' || (insideSvg && tagName !== 'foreignobject');
-    // Tight-list propagation: article__list auto-tightens (markdown.js style);
-    // a consumer `tightList:true` flag on a <ul>/<ol> tightens too. article
-    // keeps the trailing `</li>`; non-article template lists drop it.
-    const isArticleList = child.block === 'article' && child.elem === 'list';
-    const isListTag = tagName === 'ul' || tagName === 'ol';
-    const childIsArticleList = isListTag && isArticleList;
-    const childIsTightList =
-        isListTag && (child.tightList === true || isArticleList);
-
-    const inner = serializeLevel(
-        child.content ?? null,
-        block,
-        null,
-        childInsideSvg,
-        tagName,
-        childIsArticleList,
-        childIsTightList,
-        documentMode,
-    );
-
-    if (!tag) return inner;
-    const open = openTag(tag, child);
-    if (VOID_TAGS.has(tagName!)) return open + '>';
-
-    // Inside SVG, an element with no content self-closes (`<path .../>`).
-    if (childInsideSvg && inner === '' && SVG_VOIDISH.has(tagName!)) {
-        return open + '/>';
-    }
-
-    let start = open + '>';
-
-    if (tagName === 'head' && parentTag === 'html' && !insideSvg && open === `<${tag}`) {
-        // Use resolved children, not parsed raw HTML; empty output is not a boundary.
-        const first = flattenChildren(child.content ?? null, block).find((node) => node !== '' && (typeof node === 'string' || node.raw !== ''));
-
-        if (inner === '' || (first !== undefined && typeof first !== 'string' && first.raw === undefined)) {
-            start = '';
-        }
-    }
-
-    const close = shouldEmitClose(tagName!, nextSiblingTag, parentTag, parentIsArticleList, parentTightList, insideSvg, documentMode);
-
-    return start + inner + (close ? `</${tag}>` : '');
-}
-
-/** SVG child elements that self-close when empty (rule 7 — SVG void-shaped). */
-const SVG_VOIDISH = new Set([
-    'path', 'circle', 'ellipse', 'line', 'polygon', 'polyline', 'rect', 'use', 'stop',
-]);
-
-/** HTML Standard, optional tags: only these successors implicitly close p. */
+const NONE: Boundary = { kind: 'none' };
+const SVG_VOIDISH = new Set(['path', 'circle', 'ellipse', 'line', 'polygon', 'polyline', 'rect', 'use', 'stop']);
+const BODY_METADATA = new Set(['meta', 'noscript', 'link', 'script', 'style', 'template']);
 const P_END_TAG_SUCCESSORS = new Set([
     'address', 'article', 'aside', 'blockquote', 'details', 'dialog', 'div', 'dl',
     'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'header', 'hgroup', 'hr', 'main', 'menu', 'nav', 'ol', 'p', 'pre', 'search', 'section', 'table', 'ul',
 ]);
+const P_END_TAG_REQUIRED_PARENTS = new Set(['a', 'audio', 'del', 'ins', 'map', 'noscript', 'video']);
+const ASCII_SPACE = /^[\t\n\f\r ]/;
 
-/** HTML exclusions and foreign integration points are not eligible tail parents. */
-const P_END_TAG_REQUIRED_PARENTS = new Set([
-    'a', 'audio', 'del', 'ins', 'map', 'noscript', 'video',
-    'foreignobject', 'math', 'mi', 'mo', 'mn', 'ms', 'mtext',
-]);
+export interface HtmlOptions {
+    /** Prepend the doctype and append two formatting newlines. */
+    document?: boolean | undefined;
+}
+
+export function renderToHtml(tree: BEMTree, opts: HtmlOptions = {}): string {
+    const html = serializeLevel(tree, { block: '', parent: null, parentNamespace: 'html', namespace: 'html', mathText: false, document: opts.document === true });
+
+    return opts.document ? '<!doctype html>' + html + '\n\n' : html;
+}
+
+/** Flatten transparent fragments and ignore positions that emit no bytes. */
+function flattenChildren(tree: BEMTree, parentBlock: string): Array<BemNode | string> {
+    if (tree === null || tree === undefined || tree === false || tree === '') {
+        return [];
+    }
+    if (typeof tree === 'string') {
+        return [tree];
+    }
+    if (Array.isArray(tree)) {
+        return tree.flatMap((child) => flattenChildren(child, parentBlock));
+    }
+    if (tree.raw === '') {
+        return [];
+    }
+    const block = tree.block ?? parentBlock;
+
+    if (tree.tag === false && tree.raw === undefined) {
+        return flattenChildren(tree.content, block);
+    }
+
+    return [tree.block || !block ? tree : { ...tree, block }];
+}
+
+function elementNamespace(tag: string, ctx: Context): Namespace {
+    if (ctx.mathText && (tag === 'mglyph' || tag === 'malignmark')) {
+        return 'math';
+    }
+    if (ctx.parentNamespace === 'math' && ctx.parent === 'annotation-xml' && tag === 'svg') {
+        return 'svg';
+    }
+    if (ctx.namespace === 'html') {
+        return tag === 'svg' ? 'svg' : tag === 'math' ? 'math' : 'html';
+    }
+
+    return ctx.namespace;
+}
+
+/** Raw bytes remain opaque except for unambiguous whitespace/comment prefixes. */
+function boundary(child: BemNode | string, ctx: Context, skipSpace = false): Boundary {
+    if (typeof child !== 'string' && child.raw === undefined) {
+        const tag = normalizeHtmlName(child.tag || 'div');
+
+        return elementNamespace(tag, ctx) === 'html' ? { kind: 'element', tag } : { kind: 'opaque' };
+    }
+    const raw = typeof child !== 'string';
+    let value = raw ? child.raw! : child;
+
+    if (skipSpace) {
+        value = value.replace(/^[\t\n\f\r ]+/, '');
+    }
+    if (value === '') {
+        return NONE;
+    }
+    if (ASCII_SPACE.test(value)) {
+        return { kind: 'space' };
+    }
+    if (raw) {
+        return { kind: value.startsWith('<!--') ? 'comment' : 'opaque' };
+    }
+
+    return { kind: 'text' };
+}
+
+function serializeLevel(tree: BEMTree, ctx: Context): string {
+    const children = flattenChildren(tree, ctx.block);
+    const boundaries = children.map((child) => boundary(child, ctx));
+    const nonSpaces: Boundary[] = [];
+    let nonSpace = NONE;
+
+    for (let i = children.length - 1; i >= 0; i--) {
+        const current = boundary(children[i]!, ctx, true);
+
+        if (current.kind !== 'none') {
+            nonSpace = current;
+        }
+        nonSpaces[i] = nonSpace;
+    }
+    let previous: Emission | null = null;
+    const output: string[] = [];
+
+    for (let i = 0; i < children.length; i++) {
+        const following = { first: boundaries[i + 1] ?? NONE, nonSpace: nonSpaces[i + 1] ?? NONE };
+        previous = emitChild(children[i]!, ctx, following, previous);
+        output.push(previous.html);
+    }
+
+    return output.join('');
+}
+
+function emitChild(child: BemNode | string, ctx: Context, following: Following, previous: Emission | null): Emission {
+    if (typeof child === 'string' || child.raw !== undefined) {
+        return { html: typeof child === 'string' ? escapeText(child) : child.raw!, tag: null, omittedEnd: false, opaque: typeof child !== 'string' && boundary(child, ctx).kind === 'opaque' };
+    }
+    const block = child.block ?? ctx.block;
+    const tag = child.tag || 'div';
+    const name = normalizeHtmlName(tag);
+    const namespace = elementNamespace(name, ctx);
+    const encoding = Object.entries(child.attrs ?? {}).find(([key]) => normalizeHtmlName(key) === 'encoding')?.[1];
+    const mathText = namespace === 'math' && ['mi', 'mo', 'mn', 'ms', 'mtext'].includes(name);
+    const integration = (namespace === 'svg' && ['foreignobject', 'desc', 'title'].includes(name)) || mathText ||
+        (namespace === 'math' && name === 'annotation-xml' && typeof encoding === 'string' && ['text/html', 'application/xhtml+xml'].includes(normalizeHtmlName(encoding)));
+    const childContext: Context = { block, parent: name, parentNamespace: namespace, namespace: integration ? 'html' : namespace, mathText, document: ctx.document };
+    const inner = serializeLevel(child.content ?? null, childContext);
+    const open = openTag(tag, child);
+
+    if (namespace === 'html' && VOID_TAGS.has(name)) {
+        return { html: open + '>', tag: name, omittedEnd: false, opaque: false };
+    }
+    if (namespace === 'svg' && inner === '' && SVG_VOIDISH.has(name)) {
+        return { html: open + '/>', tag: name, omittedEnd: false, opaque: false };
+    }
+    const first = flattenChildren(child.content ?? null, block)[0];
+    const firstBoundary = first === undefined ? NONE : boundary(first, childContext);
+    const canOmitStart = namespace === 'html' && open === `<${tag}` && omitStart(name, ctx, firstBoundary, inner, previous);
+    let close = namespace !== 'html' || emitClose(name, ctx, following);
+
+    // An explicit end establishes the implied empty body before formatter newlines.
+    if (ctx.document && inner === '' && ((name === 'body' && canOmitStart) || name === 'html')) {
+        close = true;
+    }
+
+    return { html: (canOmitStart ? '' : open + '>') + inner + (close ? `</${tag}>` : ''), tag: name, omittedEnd: !close, opaque: false };
+}
+
+function omitStart(tag: string, ctx: Context, first: Boundary, inner: string, previous: Emission | null): boolean {
+    if (tag === 'html') {
+        // Leading whitespace does not protect an html-child comment from moving out.
+        return ctx.parent === null && first.kind !== 'opaque' && !/^[\t\n\f\r ]*<!--/.test(inner);
+    }
+    if (ctx.parentNamespace !== 'html') {
+        return false;
+    }
+    if (tag === 'head') {
+        return ctx.parent === 'html' && (first.kind === 'none' || first.kind === 'element');
+    }
+    if (tag === 'body') {
+        return ctx.parent === 'html' && (first.kind === 'none' || first.kind === 'text' || (first.kind === 'element' && !BODY_METADATA.has(first.tag!)));
+    }
+    if (ctx.parent !== 'table' || previous?.opaque) {
+        return false;
+    }
+    if (tag === 'colgroup') {
+        return first.tag === 'col' && !(previous?.tag === 'colgroup' && previous.omittedEnd);
+    }
+    if (tag === 'tbody') {
+        return first.tag === 'tr' && !(previous?.omittedEnd && ['thead', 'tbody', 'tfoot'].includes(previous.tag ?? ''));
+    }
+
+    return false;
+}
+
+function emitClose(tag: string, ctx: Context, following: Following): boolean {
+    const next = following.first;
+    const peer = next.kind === 'element' ? next.tag : undefined;
+    const tail = next.kind === 'none';
+    const parent = ctx.parentNamespace === 'html' ? ctx.parent : null;
+
+    if (tag === 'html' || tag === 'body') {
+        return (tag === 'html' ? ctx.parent !== null : parent !== 'html') || following.nonSpace.kind === 'comment' || following.nonSpace.kind === 'opaque';
+    }
+    if (tag === 'head') {
+        return parent !== 'html' || next.kind === 'space' || next.kind === 'comment' || next.kind === 'opaque';
+    }
+    if (tag === 'li') {
+        return !['ul', 'ol', 'menu'].includes(parent ?? '') || !(peer === 'li' || tail);
+    }
+    if (tag === 'dt' || tag === 'dd') {
+        return !['dl', 'div'].includes(parent ?? '') || !(peer === 'dt' || peer === 'dd' || (tag === 'dd' && tail));
+    }
+    if (tag === 'rt' || tag === 'rp') {
+        return parent !== 'ruby' || !(peer === 'rt' || peer === 'rp' || tail);
+    }
+    if (tag === 'optgroup') {
+        return parent === null || !(peer === 'optgroup' || peer === 'hr' || tail);
+    }
+    if (tag === 'option') {
+        return parent === null || !(peer === 'option' || peer === 'optgroup' || peer === 'hr' || tail);
+    }
+    if (tag === 'colgroup' || tag === 'caption') {
+        return parent !== 'table' || next.kind === 'space' || next.kind === 'comment' || next.kind === 'opaque';
+    }
+    if (tag === 'td' || tag === 'th') {
+        return parent !== 'tr' || !(peer === 'td' || peer === 'th' || tail);
+    }
+    if (tag === 'tr') {
+        return !['table', 'thead', 'tbody', 'tfoot'].includes(parent ?? '') || !(peer === 'tr' || tail);
+    }
+    if (tag === 'thead') {
+        return parent !== 'table' || !(peer === 'tbody' || peer === 'tfoot');
+    }
+    if (tag === 'tbody') {
+        return parent !== 'table' || !(peer === 'tbody' || peer === 'tfoot' || tail);
+    }
+    if (tag === 'tfoot') {
+        return parent !== 'table' || !tail;
+    }
+    if (tag === 'p') {
+        if (!tail) {
+            return !P_END_TAG_SUCCESSORS.has(peer ?? '');
+        }
+        if (ctx.document && (parent === 'body' || parent === 'html')) {
+            return true;
+        }
+
+        return parent === null || parent.includes('-') || P_END_TAG_REQUIRED_PARENTS.has(parent);
+    }
+
+    return true;
+}
 
 function openTag(tag: string, node: BemNode): string {
     const cls = classify(node);
@@ -214,70 +294,3 @@ function quoteOrNot(value: string): string {
     return needsQuotes(value) ? `"${value}"` : value;
 }
 
-function shouldEmitClose(
-    tag: string,
-    nextSiblingTag: string | null,
-    parentTag: string | null,
-    parentIsArticleList = false,
-    parentTightList = false,
-    insideSvg = false,
-    documentMode = false,
-): boolean {
-    if (tag === 'html' || tag === 'head' || tag === 'body') {
-        return nextSiblingTag === '#raw' || nextSiblingTag === TEXT_TAG;
-    }
-    if (tag === 'td' || tag === 'th') {
-        return parentTag !== 'tr' || (nextSiblingTag !== null && nextSiblingTag !== 'td' && nextSiblingTag !== 'th');
-    }
-    if (tag === 'tr') {
-        const rowParent = parentTag === 'table' || parentTag === 'thead' || parentTag === 'tbody' || parentTag === 'tfoot';
-
-        return !rowParent || (nextSiblingTag !== null && nextSiblingTag !== 'tr');
-    }
-    if (tag === 'thead') {
-        return parentTag !== 'table' || (nextSiblingTag !== 'tbody' && nextSiblingTag !== 'tfoot');
-    }
-    if (tag === 'tbody') {
-        return parentTag !== 'table' || (nextSiblingTag !== null && nextSiblingTag !== 'tbody' && nextSiblingTag !== 'tfoot');
-    }
-    if (tag === 'tfoot') {
-        return parentTag !== 'table' || nextSiblingTag !== null;
-    }
-    if (tag === 'li' && parentTag !== 'ul' && parentTag !== 'ol') {
-        // Bare <li> (no list parent): always keep close.
-        return true;
-    }
-    if (tag === 'li' && parentIsArticleList) {
-        // markdown.js style: drop </li> before the next <li>, keep the trailing
-        // one (golden: `<li>a<li>b<li>c</li>` — last item keeps its close).
-        return nextSiblingTag !== 'li';
-    }
-    if (tag === 'li' && parentTightList) {
-        // Template-built tight list (nav-index/section__body): drop </li>
-        // between siblings AND at the tail — full removeOptionalTags parity.
-        return nextSiblingTag !== null && nextSiblingTag !== 'li';
-    }
-    if (tag === 'li' && (parentTag === 'ul' || parentTag === 'ol')) {
-        // Non-tight list (menu, article__list siblings, header__title):
-        // keep every </li> — between siblings AND at the tail. Golden confirms:
-        //   - <ul class=menu> and <ul class=article__list> keep trailing </li>;
-        //   - <ol class=header__title> keeps every </li>.
-        return true;
-    }
-    if (tag === 'p') {
-        if (insideSvg) {
-            return true;
-        }
-        if (nextSiblingTag !== null) {
-            return !P_END_TAG_SUCCESSORS.has(nextSiblingTag);
-        }
-        // With body/html end tags omitted, formatter newlines otherwise become
-        // part of the last paragraph instead of remaining outside it.
-        if (documentMode && (parentTag === 'body' || parentTag === 'html')) {
-            return true;
-        }
-
-        return parentTag === null || parentTag.includes('-') || P_END_TAG_REQUIRED_PARENTS.has(parentTag);
-    }
-    return true;
-}

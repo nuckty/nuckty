@@ -47,8 +47,7 @@ test('renderToBemJson applies templates and returns a tree (no HTML)', () => {
 });
 
 test('renderToHtml serializes a resolved tree with optional-tag omission', () => {
-    // A pre-resolved tree (no templates): pass 2 alone emits `</li>` omission
-    // before the next `<li>` but keeps the trailing one (article__list parity).
+    // A pre-resolved tree uses HTML item-end omission before peers and at the tail.
     const resolved: BemNode = {
         tag: 'ul',
         block: 'article',
@@ -60,7 +59,7 @@ test('renderToHtml serializes a resolved tree with optional-tag omission', () =>
         ],
     };
     const html = renderToHtml(resolved);
-    assert.equal(html, '<ul class=article__list><li class=article__list-item>a<li class=article__list-item>b<li class=article__list-item>c</li></ul>');
+    assert.equal(html, '<ul class=article__list><li class=article__list-item>a<li class=article__list-item>b<li class=article__list-item>c</ul>');
 });
 
 test('passes are independent: renderToHtml on a raw tree applies no templates', () => {
@@ -100,7 +99,7 @@ test('wrap result does NOT inherit the source block (BEM-inheritance guard)', ()
             ],
         }));
     }, { block: 'page', props: { page: { title: 'x' } }, content: [{ tag: 'p', content: 'hi' }] }) as string;
-    assert.ok(html.startsWith('<html'), html);
+    assert.ok(html.startsWith('<meta charset=utf-8>'), html);
     // Introduced children of the controlled result do NOT inherit the source block.
     assert.ok(!html.includes('<meta class=page'), `meta must not inherit page class: ${html}`);
     assert.ok(!html.includes('<head class=page'), `head must not inherit page class: ${html}`);
@@ -176,5 +175,5 @@ test('document render prepends doctype and appends the trailing blank lines', ()
     const html = withTemplates(() => {}, { tag: 'html', content: [{ tag: 'body', content: 'x' }] }, { document: true }) as string;
     // `</body>`/`</html>` are never emitted (omission rule 13); doctype leads,
     // the document terminates with the canonical `\n\n`.
-    assert.equal(html, '<!doctype html><html><body>x\n\n');
+    assert.equal(html, '<!doctype html>x\n\n');
 });

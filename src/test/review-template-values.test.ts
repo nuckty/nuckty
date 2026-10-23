@@ -79,7 +79,7 @@ test('wildcard element selectors refine elements without matching block roots', 
 
     block('menu')({ tag: 'ul' });
     block('menu').elem('*')({ tag: 'li' });
-    assert.equal(render({ block: 'menu', content: [{ elem: 'item', content: 'A' }, { elem: 'label', content: 'B' }] }, { templates }), '<ul class=menu><li class=menu__item>A</li><li class=menu__label>B</li></ul>');
+    assert.equal(render({ block: 'menu', content: [{ elem: 'item', content: 'A' }, { elem: 'label', content: 'B' }] }, { templates }), '<ul class=menu><li class=menu__item>A<li class=menu__label>B</ul>');
     assert.equal(render({ block: 'other', elem: 'item' }, { templates }), '<div class=other__item></div>');
     const global = new Templates();
 

@@ -44,9 +44,9 @@ test('paragraph: basic text', () => {
 
 test('list: unordered with items', () => {
     const html = mdToHtml('- a\n- b\n- c\n');
-    // First two </li> omitted (before next <li>); last </li> kept.
+    // HTML permits omission before each next item and at the list tail.
     assert.ok(html.includes('<ul class=article__list>'));
-    assert.ok(/<li class=article__list-item>a<li class=article__list-item>b<li class=article__list-item>c<\/li>/.test(html));
+    assert.ok(/<li class=article__list-item>a<li class=article__list-item>b<li class=article__list-item>c<\/ul>/.test(html));
 });
 
 test('list: ordered', () => {
@@ -57,7 +57,7 @@ test('list: ordered', () => {
 test('list: paragraph wrapper skipped inside list item', () => {
     const html = mdToHtml('- item text\n');
     // No <p> wrapping inside <li>.
-    assert.ok(html.includes('<li class=article__list-item>item text</li>'));
+    assert.ok(html.includes('<li class=article__list-item>item text</ul>'));
     assert.ok(!html.includes('<p'));
 });
 

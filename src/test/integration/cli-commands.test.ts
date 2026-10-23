@@ -268,7 +268,7 @@ test('CLI build honors a leading-dash target after -- and rejects an unknown one
         ));
         const declared = await runNuckty(['build', '--', '--preview'], dir);
         assert.equal(declared.code, 0, declared.stderr || declared.stdout);
-        assert.match(await readFile(path.join(dir, 'site-preview', 'html', 'index.html'), 'utf8'), /<html/);
+        assert.match(await readFile(path.join(dir, 'site-preview', 'html', 'index.html'), 'utf8'), /^<!doctype html>/);
 
         await writeFile(path.join(dir, 'site-preview', 'sentinel.txt'), 'preserve');
         const unknown = await runNuckty(['build', '-x'], dir);
