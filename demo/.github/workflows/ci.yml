@@ -23,12 +23,13 @@ jobs:
         with:
           persist-credentials: false
           path: nuckty-demo
-      - name: Resolve latest successfully verified engine and documentation
+      - name: Resolve latest successfully verified ecosystem sources
+        env:
+          NUCKTY_SOURCES: ${{ vars.NUCKTY_SOURCES }}
+          GH_TOKEN: ${{ github.token }}
         run: node nuckty-demo/.github/resolve-sources.mjs
       - name: Validate exact source set and pinned commit SHAs
         id: refs
-        env:
-          NUCKTY_SOURCES: ${{ vars.NUCKTY_SOURCES }}
         run: |
           node --input-type=module <<'NODE'
           const names = ["nuckty", "nuckty-ext-block-gallery", "nuckty-ext-block-grid", "nuckty-ext-block-root", "nuckty-ext-command-content-external", "nuckty-ext-command-convert-images", "nuckty-ext-command-deploy-ftp", "nuckty-ext-command-serve", "nuckty-ext-command-validate-vnu", "nuckty-ext-markdown-typography-ru", "nuckty-ext-markdown-video"];
@@ -41,7 +42,6 @@ jobs:
           if (!sources || typeof sources !== 'object' || Array.isArray(sources) || Object.keys(sources).sort().join() !== [...names].sort().join()) {
               throw new Error('NUCKTY_SOURCES must contain exactly these 11 package names: ' + names.join(', '));
           }
-          sources.nuckty.ref = process.env.NUCKTY_ENGINE_REF;
           for (const name of names) {
               const source = sources[name];
               if (!source || !/^[a-zA-Z0-9][\w.-]*\/[a-zA-Z0-9][\w.-]*$/.test(source.repository ?? '') || !/^[a-f0-9]{40}$/.test(source.ref ?? '')) {
