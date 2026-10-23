@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund --registry=https://registry.npmjs.org
+      - run: npm audit --package-lock-only --audit-level=low --registry=https://registry.npmjs.org
+      - run: npm run lint
+      - run: sudo apt-get update && sudo apt-get install --yes nginx apache2
+      - run: npm run test:coverage
+        env:
+          NUCKTY_HOSTING_HTTP: '1'

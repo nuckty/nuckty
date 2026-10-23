@@ -1,0 +1,25 @@
+{
+    "extends": "./config-ts.json",
+    "compilerOptions": {
+        "rootDir": "../src",
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "declarationMap": false,
+        "outDir": "../dist",
+        "noEmit": false
+    },
+    "include": [
+        "../src/index.ts",
+        "../src/bin/nuckty.ts",
+        "../src/bem/**/*.ts",
+        "../src/markdown/**/*.ts",
+        "../src/pipeline/**/*.ts",
+        "../src/env/**/*.ts",
+        "../src/validate/**/*.ts",
+        "../src/targets/**/*.ts",
+        "../src/utils/**/*.ts",
+        "../src/stages/**/*.ts",
+        "../src/types/**/*.d.ts"
+    ],
+    "exclude": ["../src/test/**/*.ts"]
+}

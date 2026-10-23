@@ -1,0 +1,5 @@
+// Root pointer only — the real compiler config lives in config/config-ts.json.
+// VS Code / TS server look for tsconfig.json at the root for IntelliSense.
+{
+    "extends": "./config/config-ts.json"
+}

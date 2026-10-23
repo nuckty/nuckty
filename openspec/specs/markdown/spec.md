@@ -1,0 +1,187 @@
+# nuckty — markdown (core) spec (1.0.0)
+
+## Purpose
+
+Specify the core Markdown pipeline: CommonMark and supported GFM features, hierarchical anchors, cross-link resolution, image mapping and trusted inline HTML. Typography and site-specific gallery, grid, callout or video constructs belong to extensions; generic directive parsing belongs to the core.
+
+## Requirements
+
+### Requirement: remark/unified parser
+The core SHALL parse Markdown with remark/unified and bridge mdast to BEMTree through the nu renderer. The parser SHALL not use markdown-it or marked. The HTML stage MAY serialize already rendered Markdown content into a trusted `raw` fragment before the consumer document handler builds the outer document; this boundary SHALL preserve literal code content and leave typography to an explicitly loaded extension.
+
+#### Scenario: Markdown flows through the renderer
+- **WHEN** a Markdown page is built
+- **THEN** remark produces mdast and the bridge produces BEMTree for rendering
+- **AND** the outer document receives the rendered content without an implicit typography pass
+
+### Requirement: CommonMark support
+The core SHALL map supported CommonMark and GFM constructs through mdast to BEMTree: headings, paragraphs, lists, links, images, tables, task items, deletion, autolinks, code, blockquotes and thematic breaks. Features beyond that base set, such as typography and site-specific directives, SHALL be registered as extensions.
+
+#### Scenario: Markdown content is preserved
+- **WHEN** a page contains a reference link, task item, table and code block
+- **THEN** each supported node retains its semantic content in the generated tree or HTML
+- **AND** absent optional extensions do not change typography
+
+### Requirement: Hierarchical anchors
+The engine SHALL assign heading ids by the hierarchical-anchor rule: a nested section's id is composed from its ancestors (`# Шины` → `шины`, `## Зимние` → `шины-зимние`). Cyrillic SHALL be preserved without transliteration or encoding; a trailing dot on numbered headings SHALL be dropped; a slash SHALL be replaced by the separator.
+
+#### Scenario: Nested heading gets a composed id
+- **WHEN** `### Шипованные` is nested under `## Зимние` under `# Шины`
+- **THEN** its id is `шины-зимние-шипованные`
+- **AND** the Cyrillic is kept verbatim in the id
+
+### Requirement: Source-relative cross-document links
+Authors MAY write Markdown links to `.md` files as on GitHub. The engine SHALL resolve source-relative paths against the current file relative to the selected content root, independently of that root's directory name. It SHALL map a known document through the sitemap md2url map, preserve queries, and map known heading fragments to their final ids. A missing or ambiguous target SHALL fail the build. Unknown fragments MAY refer to consumer markup and SHALL remain available for final artifact validation. Reciprocal links SHALL NOT be rejected as cycles. Standalone callers MAY supply sourceFile separately from inputPath; existing inputPath-only calls SHALL retain their behavior.
+
+#### Scenario: A Markdown document link resolves to a site URL
+- **WHEN** content links to a known `.md` document and heading fragment
+- **THEN** the link uses the target page URL and final heading id
+- **AND** a missing target document fails rather than producing a guessed URL
+
+#### Scenario: A fragment is not in the Markdown heading map
+- **WHEN** a link points at a fragment that may be supplied by consumer markup
+- **THEN** the fragment is preserved for final artifact validation rather than rejected as a graph cycle
+
+#### Scenario: Nested links work with any content root
+- **WHEN** docs/page.md links to ../other.md under a local, external or custom content root
+- **THEN** the output uses the sitemap URL for other.md
+- **AND** the query and heading fragment are preserved
+
+#### Scenario: Legacy standalone options remain valid
+- **WHEN** a standalone caller supplies inputPath without sourceFile
+- **THEN** the existing path resolution behavior is preserved
+- **AND** missing and ambiguous targets retain explicit diagnostics
+
+### Requirement: Image references use the shared mapping
+Markdown and raw HTML images SHALL use the shared image mapping, resolving source-relative paths against the file relative to its content root. inputPath SHALL remain available to existing callers and extensions. Exact normalized mapping keys SHALL win over basename fallback; ambiguous fallback SHALL fail. Raster families SHALL use /_i<family-hash> and SVG SHALL retain its mapped reference. The same mapping SHALL remain usable by gallery and CSS without requiring sourceFile.
+
+#### Scenario: Image reference is rewritten
+- **WHEN** content contains `![Caption](images/tyre.png)` and the mapping has that exact path
+- **THEN** the output image has one `src=/_i<family-hash>` reference and the logical alt text
+- **AND** CSS for that image uses the same reference
+
+#### Scenario: Relative image in a local content directory
+- **WHEN** docs/page.md refers to ../images/logo.png and images/logo.png is mapped
+- **THEN** Markdown and raw HTML use the mapped reference
+- **AND** custom and external roots produce the same result
+
+#### Scenario: Explicit mapping keys remain authoritative
+- **WHEN** an image URL directly names an existing mapping key
+- **THEN** that key wins over relative and basename lookup
+- **AND** ambiguous bare names fail instead of selecting an unrelated image
+
+### Requirement: Inline-HTML becomes raw
+Inline HTML authored in Markdown SHALL pass as a trusted `raw` fragment and SHALL not be sanitized or HTML-escaped by the BEM serializer. The targeted image-reference pass MAY rewrite a logical `<img src>` to the configured hashed image mapping before document assembly; other literal content and code whitespace SHALL be preserved. A consumer is responsible for validating its final HTML and links.
+
+#### Scenario: Inline content is preserved
+- **WHEN** the author supplies an inline span or preformatted code
+- **THEN** its literal content survives rendering
+- **AND** only declared image references may be rewritten through the shared mapping
+
+#### Scenario: Custom element names do not split paragraphs
+- **WHEN** inline HTML uses `pre-view`, `div-widget`, `p-note` or `h1-title` inside a paragraph
+- **THEN** the bridge matches complete element names and keeps the paragraph around those inline fragments
+- **AND** known block markup from extensions still renders outside paragraph wrappers
+
+### Requirement: Generic directives and custom Markdown transforms
+The core SHALL enable generic-directive parsing (remark-directive): text `:name`, leaf `::name`, and container `:::name`, each with an optional `[label]` and `{attributes}` (`#id`, `.class`, `key=val`). The core SHALL NOT know any specific construct (gallery, callout, grid, video) or typography — these belong to markdown extensions. Directive handlers MAY map a name to BEMJSON, while other syntax and transforms MAY use `env.markdown.use`. A directive with no registered mapping SHALL fall back to its plain content and SHALL NOT break the build.
+
+#### Scenario: Unknown directive falls back to plain content
+- **WHEN** content contains `:::gallery` and no gallery extension is loaded
+- **THEN** the engine emits its inner content as ordinary text/BEMJSON without a `gallery` block
+- **AND** loading the extension maps `:::gallery` to the `gallery` block
+
+### Requirement: Raw asset URL prefix ownership
+Raw-asset href rewriting SHALL require a nonempty configured literal prefix at the start of the URL and preserve the full remaining filename, query and fragment. A matching string inside an unrelated URL SHALL NOT cause rewriting. Empty configured prefixes SHALL leave text and URLs unchanged.
+
+#### Scenario: External URL contains an owned URL as data
+- **WHEN** an unrelated external href contains a configured raw URL inside its query or fragment
+- **THEN** the external href remains unchanged
+
+#### Scenario: Owned filename contains parentheses
+- **WHEN** an href starts with the configured prefix and its filename contains parentheses
+- **THEN** the whole filename and URI suffix remain available in the rewritten site-root href
+
+### Requirement: Heading metadata respects inline literals
+Custom heading IDs SHALL be recognized only in a terminal plain-text suffix. An ID-shaped string inside inline code, emphasis, a link or raw HTML SHALL remain heading content and SHALL NOT override the generated anchor. Recognized suffixes SHALL be removed consistently from visible content and heading metadata.
+
+#### Scenario: Two headings show the same code example
+- **WHEN** distinct headings end with the same inline-code ID-shaped string
+- **THEN** their generated anchors remain distinct and both retain their literal code content
+
+#### Scenario: Formatted heading has an explicit suffix
+- **WHEN** formatted heading content is followed by a plain-text custom ID suffix
+- **THEN** the explicit ID is used and the suffix is absent from visible text and metadata
+
+### Requirement: Raw HTML image token boundaries
+Raw image mapping SHALL target actual img src attributes with quoted or unquoted values. It SHALL preserve comments, complete non-image attributes, literal code and HTML raw-text content without treating embedded image-shaped strings as markup. Existing shared image resolution and query/fragment semantics SHALL remain unchanged.
+
+#### Scenario: Unquoted raw image source
+- **WHEN** a raw img has an unquoted logical source present in the mapping
+- **THEN** its source is rewritten to the mapped reference
+
+#### Scenario: Image-shaped text is literal
+- **WHEN** comments, attribute values, scripts, styles or textarea content contain an image-shaped string
+- **THEN** that literal content remains unchanged while a subsequent real image is still rewritten
+
+### Requirement: Literal slug separators
+Slug separators SHALL be treated as literal strings, including empty, multi-character, regex-significant, replacement-significant and Unicode values. Empty separators SHALL remove selected boundaries without constructing invalid regexes. Repetition and edge trimming SHALL operate on complete nonempty separator tokens. Existing case policy, slash policy and hierarchical level joining SHALL remain unchanged.
+
+#### Scenario: Empty or multi-character separator
+- **WHEN** Markdown is rendered with an empty separator or a separator containing multiple hyphens
+- **THEN** headings render without a regex error and use the supplied literal separator within each slug
+
+#### Scenario: Special separator text
+- **WHEN** a separator contains regex syntax, dollar replacement syntax or Unicode
+- **THEN** its characters remain literal in the resulting slug
+
+### Requirement: Leaf fallback regression evidence
+Markdown regression tests SHALL assert visible label preservation for unknown leaf directives and for registered handlers that decline them, rather than merely checking an article wrapper.
+
+#### Scenario: Unknown and declined leaf directive
+- **WHEN** a labelled leaf directive has no handler or its handler returns null
+- **THEN** tests verify the label remains in rendered content and no directive-specific block is emitted
+
+### Requirement: Raw image HTML character references
+Raw img src mapping SHALL decode numeric and named references using HTML attribute semantics before resolving the logical URL. Unmatched original attributes SHALL remain byte-identical. Rewritten URLs SHALL be escaped once and preserve logical query and fragment values.
+
+#### Scenario: Equivalent encoded image filenames
+- **WHEN** raw img src uses numeric or named references representing a mapped image filename
+- **THEN** each spelling resolves to the same artifact URL
+
+#### Scenario: Ambiguous attribute ampersand
+- **WHEN** an unterminated named reference is followed by an alphanumeric character or equals sign
+- **THEN** the URL retains its literal attribute meaning
+
+#### Scenario: Unmatched or literal input
+- **WHEN** an image has no mapping or appears inside literal content
+- **THEN** its authored bytes are preserved
+
+### Requirement: Literal heading text ownership
+Heading metadata and generated anchors SHALL retain textual content of inline code and escaped text even when it resembles HTML tags. Actual HTML nodes SHALL not contribute markup to metadata. Numbered-prefix cleanup and explicit terminal IDs SHALL retain their existing behavior.
+
+#### Scenario: Distinct component headings
+- **WHEN** headings contain inline-code One and Two in angle brackets
+- **THEN** metadata retains those literals and generated anchors remain distinct
+
+#### Scenario: Actual inline HTML
+- **WHEN** a heading wraps text in an HTML tag
+- **THEN** metadata and anchors contain the visible text, not the markup
+
+### Requirement: Literal code URL prefix ownership
+Raw asset rewriting in inline and fenced code SHALL match configured prefixes at the start of a complete URL token. An embedded raw URL inside an unrelated URL query SHALL remain unchanged. Direct owned URLs SHALL retain site-origin rewriting behavior.
+
+#### Scenario: Nested raw URL in code
+- **WHEN** a copied command contains an unrelated URL whose query embeds the configured raw URL
+- **THEN** the whole unrelated URL remains authored
+
+#### Scenario: Punctuation inside an external code URL
+- **WHEN** an unrelated code URL includes a closing parenthesis or apostrophe followed by a nested configured raw URL in its query
+- **THEN** the complete external token remains authored rather than rewriting the nested value
+- **AND** quoted direct owned URLs retain their full filename and quote delimiters
+
+#### Scenario: Logical inline code precedes HTML escaping
+- **WHEN** a configured URL prefix contains a valid ampersand path character
+- **THEN** inline and fenced code match the same logical prefix before serialization escaping
+- **AND** rewritten code is escaped once without losing its literal text
+

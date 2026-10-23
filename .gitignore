@@ -1,0 +1,46 @@
+# Build output
+.build/
+site/
+dist/
+
+# Test coverage (V8 raw output + c8 report working dir)
+.coverage/
+.coverage-source/
+coverage/
+
+# Dependencies
+node_modules/
+
+# External fetched repos (managed by setup)
+external/
+
+# Reference legacy engine (kept on disk during migration, NOT shipped)
+/lib/
+
+# Site-specific leftovers from the extraction (NOT shipped)
+/blocks/
+/content/
+
+# Logs
+*.log
+/tmp/
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/*
+!.vscode/settings.json
+.idea/
+
+# Generated and local files
+temp/
+.tmp/
+logs/
+
+
+# Local-only files
+*.tmp
+.claude/
+.zcode/
+/plans/

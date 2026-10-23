@@ -1,0 +1,21 @@
+{
+    "name": "braces",
+    "version": "3.0.4-nuckty.1",
+    "private": true,
+    "description": "Maintained local braces 3.0.3 compatibility fork with iterative AST traversal",
+    "main": "index.js",
+    "license": "MIT",
+    "files": [
+        "index.js",
+        "lib",
+        "LICENSE",
+        "SECURITY.md"
+    ],
+    "engines": {
+        "node": ">=8"
+    },
+    "dependencies": {
+        "fill-range": "7.1.1"
+    }
+}
+

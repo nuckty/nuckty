@@ -1,0 +1,72 @@
+{
+    "name": "nuckty",
+    "version": "1.0.0-beta1",
+    "description": "All static site generators suck. This one just sucks less. BEMJSON template engine, programmatic pipeline, multi-target builds.",
+    "license": "MIT",
+    "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:nuckty/nuckty.git"
+    },
+    "publishConfig": {
+        "registry": "https://registry.npmjs.org"
+    },
+    "homepage": "https://github.com/nuckty",
+    "bin": {
+        "nuckty": "dist/bin/nuckty.js"
+    },
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "engines": {
+        "node": ">=24"
+    },
+    "scripts": {
+        "build": "rm -rf dist && npm run build:types && npm run build:js",
+        "build:types": "tsc -p config/config-ts-types.json",
+        "build:js": "tsup --config config/config-tsup.ts",
+        "build:dev": "tsc --noEmit -p config/config-ts-test.json",
+        "test": "npm run build && npm run test:unit",
+        "test:unit": "node --test --import tsx src/test/*.test.ts src/test/integration/*.test.ts",
+        "test:core": "node config/run-core-tests.mjs",
+        "test:coverage": "npm run build && rm -rf .coverage && NODE_V8_COVERAGE=$PWD/.coverage node --test --import ./config/register-test-source.mjs src/test/*.test.ts src/test/integration/*.test.ts && node config/filter-coverage.mjs && c8 report --temp-directory .coverage-source --all --exclude-after-remap --include 'src/**/*.ts' --exclude 'src/test/**' --exclude 'src/**/*.d.ts' --exclude 'src/bem/template-types.ts' --exclude 'src/index.ts' --reporter text --reporter json-summary --reports-dir coverage && node config/check-coverage.mjs coverage/coverage-summary.json",
+        "lint": "tsc --noEmit -p config/config-ts-test.json && npm run lint:openspec",
+        "lint:openspec": "openspec validate --all --strict",
+        "prepack": "npm run build"
+    },
+    "dependencies": {
+        "entities": "7.0.0",
+        "esbuild": "0.28.2",
+        "lightningcss": "1.33.0",
+        "mdast-util-to-string": "4.0.0",
+        "remark-directive": "4.0.0",
+        "remark-gfm": "4.0.1",
+        "remark-parse": "11.0.0",
+        "unified": "11.0.5"
+    },
+    "devDependencies": {
+        "@fission-ai/openspec": "1.12.0",
+        "@types/mdast": "4.0.4",
+        "@types/node": "24.13.3",
+        "c8": "12.0.0",
+        "tsup": "8.5.1",
+        "tsx": "4.23.12",
+        "typescript": "7.0.2",
+        "braces": "file:./vendor/braces"
+    },
+    "overrides": {
+        "tsup": {
+            "esbuild": "$esbuild"
+        },
+        "braces": "$braces"
+    },
+    "author": {
+        "name": "Vitaly Harisov",
+        "email": "vitaly@harisov.name"
+    }
+}
+

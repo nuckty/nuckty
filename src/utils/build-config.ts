@@ -1,0 +1,61 @@
+/** Configuration captured once per target build, never shared between builds. */
+import path from 'node:path';
+import { readFileSync } from 'node:fs';
+import type { BuildContext } from '../pipeline/pipeline.js';
+import { loadConfig, type SiteConfig } from './site-config.js';
+
+export interface BuildConfigSnapshot {
+    site: SiteConfig;
+    levels: string[];
+    contentDir: string;
+    contentRelative: string;
+    externalUrls: string[] | undefined;
+}
+
+function readStrings(file: string, fallback: string[] | undefined): string[] | undefined {
+    try {
+        const value: unknown = JSON.parse(readFileSync(file, 'utf8'));
+        if (!Array.isArray(value) || !value.every((entry): entry is string => typeof entry === 'string')) {
+            throw new Error(`nuckty: ${file} must contain an array of strings`);
+        }
+        return value;
+    } catch (error) {
+        if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+            return fallback;
+        }
+        throw error;
+    }
+}
+
+export function loadBuildConfig(cwd: string, configDir: string): BuildConfigSnapshot {
+    const directory = path.resolve(cwd, configDir);
+    const levels = readStrings(path.join(directory, 'levels.json'), ['content', 'blocks'])!;
+    const contentDir = path.resolve(cwd, levels[0] ?? 'content');
+    const externalUrls = readStrings(path.join(directory, 'external.json'), undefined);
+
+    for (const [index, url] of (externalUrls ?? []).entries()) {
+        const name = url.replace(/\.git$/, '').split('/').pop() ?? '';
+
+        if (!name || name === '.' || name === '..' || /[\\\x00-\x1f\x7f]/.test(name)) {
+            throw new Error(`nuckty: Unsafe external repository directory at entry ${index + 1}`);
+        }
+    }
+    return {
+        site: loadConfig(cwd, directory),
+        levels,
+        contentDir,
+        contentRelative: `./${path.relative(cwd, contentDir).split(path.sep).join('/')}/`,
+        externalUrls,
+    };
+}
+
+export function getBuildConfig(ctx: Pick<BuildContext, 'cwd' | 'configDir' | 'store'>): BuildConfigSnapshot {
+    const existing = ctx.store['configSnapshot'] as BuildConfigSnapshot | undefined;
+    if (existing) {
+        return existing;
+    }
+    const snapshot = loadBuildConfig(ctx.cwd, ctx.configDir);
+    ctx.store['configSnapshot'] = snapshot;
+    return snapshot;
+}
+

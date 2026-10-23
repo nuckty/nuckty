@@ -1,0 +1,8 @@
+{
+    "global": {
+        "lines": 87.5,
+        "branches": 83.6,
+        "functions": 84.8
+    },
+    "perFileLines": 80
+}
