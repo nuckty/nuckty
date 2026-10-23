@@ -2,7 +2,7 @@
 - nuckty-* AGENTS.md MUST link to this file; project-specific stays local
 - AGENTS.md: minimal tokens, maximal meaning; rules, not descriptions
 - Brief and technical (NO EMOJI) English for code and comments; documentation may be Russian or English
-- End files with one empty line
+- End files with exactly one LF; no trailing blank lines
 - Markdown: one line per paragraph, no hard wraps
 
 # Skills
