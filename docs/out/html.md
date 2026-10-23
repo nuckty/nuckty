@@ -10,7 +10,7 @@ The rules describe how the typed tree becomes minimal HTML. Structural validity 
 
 1. With `document: true`, the first bytes are `<!doctype html>`.
 2. If the tree contains `<html>`, its opening tag and attributes are emitted; **`</html>` is omitted when no following literal sibling requires it**.
-3. `</head>` is omitted when no following literal sibling requires it; an opening `<head>` is emitted when present in the tree.
+3. An HTML `<head>` start tag under `html` is omitted when it has no emitted attributes or classes and is empty or begins with an element, including through nested arrays and tag-false fragments. Initial text, whitespace and nonempty opaque `raw` keep the start tag; empty strings and empty `raw` do not block omission. Standalone and foreign-context `head` start tags remain explicit. `</head>` is omitted when no following literal sibling requires it.
 4. If the tree contains `<body>`, its opening tag and attributes are emitted; **`</body>` is omitted when no following literal sibling requires it**.
 5. With `document: true`, the engine appends two newlines. A fragment without that option does not receive them.
 
