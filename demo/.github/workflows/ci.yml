@@ -14,6 +14,9 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  NUCKTY_ENGINE_REF: 818dec960cfa4cf9a5c95184a7b666eb47ef22cb
+
 jobs:
   verify:
     runs-on: ubuntu-24.04
@@ -39,6 +42,7 @@ jobs:
           if (!sources || typeof sources !== 'object' || Array.isArray(sources) || Object.keys(sources).sort().join() !== [...names].sort().join()) {
               throw new Error('NUCKTY_SOURCES must contain exactly these 11 package names: ' + names.join(', '));
           }
+          sources.nuckty.ref = process.env.NUCKTY_ENGINE_REF;
           for (const name of names) {
               const source = sources[name];
               if (!source || !/^[a-zA-Z0-9][\w.-]*\/[a-zA-Z0-9][\w.-]*$/.test(source.repository ?? '') || !/^[a-f0-9]{40}$/.test(source.ref ?? '')) {
