@@ -1,0 +1,16 @@
+{
+    "name": "nuckty-logo",
+    "private": true,
+    "license": "MIT",
+    "scripts": {
+        "optimize": "svgo --config config/config-svgo.js --folder . --exclude \"_(source|grid)[.]svg$\" --eol lf --final-newline"
+    },
+    "devDependencies": {
+        "svgo": "4.1.0"
+    },
+    "author": {
+        "name": "Vitaly Harisov",
+        "email": "vitaly@harisov.name"
+    }
+}
+
