@@ -109,6 +109,7 @@ for (const server of ['nginx', 'apache']) {
             binary = process.platform === 'darwin' ? '/opt/homebrew/bin/nginx' : '/usr/sbin/nginx';
             const generated = generateNginxConfig(out, 'fixture', path.join(root, 'nginx.pid'))
                 .replace('worker_processes auto;', 'worker_processes 1;')
+                .replace('http {', 'http {\n    gzip on;\n    gzip_min_length 0;\n    gzip_types text/css application/javascript image/svg+xml application/xml;')
                 .replace('listen 127.0.0.1:8080;', `listen 127.0.0.1:${port};`)
                 .replaceAll('/tmp/nginx-logs/', `${root}/`)
                 .replaceAll('/tmp/nginx_', `${root}/nginx_`);
@@ -157,7 +158,7 @@ Options FollowSymLinks
             }
             assert.ok(ready, `${server} did not start`);
             for (const [url, source] of [['/', 'html/index.html'], ['/a/b', 'html/a_b.html'], ['/aaaaaaaaaaaaaaaa.css', 'css/aaaaaaaaaaaaaaaa.css'], ['/bbbbbbbbbbbbbbbb.js', 'js/bbbbbbbbbbbbbbbb.js'], ['/cccccccccccccccc.svg', 'svg/cccccccccccccccc.svg'], ['/sitemap.xml', 'xml/sitemap.xml']]) {
-                for (const [encoding, expected] of [['identity', undefined], ['br', 'br'], ['gzip', 'gzip'], ['br;q=0, gzip;q=1', 'gzip'], ['br;q=0.000,gzip;q=0', undefined]]) {
+                for (const [encoding, expected] of [['identity', undefined], ['br', 'br'], ['gzip', 'gzip'], ['gzip, deflate, br', 'br'], ['br;q=0, gzip;q=1', 'gzip'], ['br;q=0.000,gzip;q=0', undefined]]) {
                     const response = await request(port, url!, { 'Accept-Encoding': encoding! });
                     assert.equal(response.status, 200, url);
                     assert.equal(response.body, files[source!], url);

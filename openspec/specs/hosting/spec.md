@@ -102,3 +102,10 @@ The nginx config writer SHALL reject a linked nginx.conf destination before modi
 - **WHEN** buildDir points to an owned workspace and nginx.conf is a regular destination
 - **THEN** the writer emits configuration in that real workspace
 
+### Requirement: Precompressed nginx responses avoid double compression
+The generated nginx server SHALL disable dynamic gzip regardless of inherited HTTP settings so precompressed artifacts retain a single matching Content-Encoding.
+
+#### Scenario: Parent HTTP context enables gzip
+- **WHEN** global gzip is enabled and a browser accepts gzip, deflate and br
+- **THEN** the generated server returns the Brotli artifact with only Content-Encoding br
+- **AND** decoding it once reproduces the original HTML or static asset

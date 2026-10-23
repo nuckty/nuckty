@@ -191,6 +191,9 @@ http {
     scgi_temp_path ${quoteNginxPath('/tmp/nginx_scgi_temp')};
 
     server {
+        # Artifacts are already compressed; do not inherit dynamic gzip.
+        gzip off;
+
         listen 127.0.0.1:${port};
         server_name localhost;
 
