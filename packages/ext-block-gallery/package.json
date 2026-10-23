@@ -1,0 +1,40 @@
+{
+    "name": "nuckty-ext-block-gallery",
+    "version": "1.0.0-beta1",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:nuckty/nuckty-ext-block-gallery.git"
+    },
+    "publishConfig": {
+        "registry": "https://registry.npmjs.org"
+    },
+    "description": "nuckty block+markdown-extension: image gallery with lightbox via :::gallery",
+    "type": "module",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "blocks"
+    ],
+    "scripts": {
+        "build": "rm -rf dist && tsc -p config/config-ts.json",
+        "test": "tsx --test src/test/**/*.test.ts",
+        "lint": "tsc --noEmit -p config/config-ts-test.json",
+        "prepack": "npm run build"
+    },
+    "devDependencies": {
+        "@types/node": "24.13.3",
+        "nuckty": "file:../nuckty",
+        "tsx": "4.23.12",
+        "typescript": "7.0.2"
+    },
+    "peerDependencies": {
+        "nuckty": "1.0.0-beta1"
+    },
+    "author": {
+        "name": "Vitaly Harisov",
+        "email": "vitaly@harisov.name"
+    }
+}
+
