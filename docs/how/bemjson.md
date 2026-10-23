@@ -66,6 +66,14 @@ The separators are the standard BEM ones: `__` before an element, `_` before a m
 
 ## The tree as data
 
+The exported recursive type is:
+
+```ts
+import type { BemNode } from 'nuckty';
+
+type BEMTree = BemNode | BEMTree[] | string | null | undefined | false;
+```
+
 The structural fields are JSON-like data. Values carried in `props` can include non-JSON objects such as `Map`; serialization requires the caller to handle them. You can save the tree, log it, cache it, or pass it to another tool. The `output: 'bemjson'` mode returns the finished tree instead of turning it into HTML. For details, see the [two-pass rendering decision](../why/render.md).
 
 ```ts

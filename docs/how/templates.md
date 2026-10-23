@@ -123,3 +123,5 @@ const templates = new Templates();
 runWithTemplates(templates, () => block('greeting')({ tag: 'p' }));
 const html = render({ block: 'greeting', content: 'Hello' }, { templates });
 ```
+
+The package root exports `render` for both HTML and resolved BEMJSON; the internal `renderToBemJson` and `renderToHtml` passes are not separate package-root exports. See the [data model](bemjson.md) for `output: 'bemjson'` and [HTML output](../out/html.md) for document rendering.

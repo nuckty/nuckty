@@ -123,3 +123,5 @@ const templates = new Templates();
 runWithTemplates(templates, () => block('greeting')({ tag: 'p' }));
 const html = render({ block: 'greeting', content: 'Hello' }, { templates });
 ```
+
+Из корня пакета экспортируется `render` для HTML и готового BEMJSON; внутренние проходы `renderToBemJson` и `renderToHtml` отдельно из корня пакета не экспортируются. Режим `output: 'bemjson'` описан в [модели данных](bemjson.ru.md), а рендеринг документа — в разделе [HTML на выходе](../out/html.ru.md).
