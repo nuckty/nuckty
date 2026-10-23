@@ -7,4 +7,3 @@ The gallery block SHALL lay images out as a responsive CSS grid; a click SHALL o
 - **WHEN** a gallery renders several images
 - **THEN** they lay out as a grid and clicking an item opens that gallery’s built-in lightbox
 - **AND** every image except the first carries loading=lazy
-

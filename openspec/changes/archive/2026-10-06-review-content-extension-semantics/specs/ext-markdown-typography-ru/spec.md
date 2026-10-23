@@ -8,4 +8,3 @@ Supported em-dash prose patterns SHALL converge to one NBSP before the existing 
 - **THEN** the same canonical horizontal spacing is produced
 - **AND** applying the transform again changes nothing
 - **AND** newlines, leading dialogue dashes and code retain their structure
-

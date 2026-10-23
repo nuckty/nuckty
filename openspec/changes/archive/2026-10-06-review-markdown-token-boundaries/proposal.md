@@ -11,4 +11,3 @@ Match raw asset href prefixes literally from the start and preserve the whole re
 ## Impact
 
 Affected capability: markdown. Source files: remark.ts and html-postprocess.ts, with focused tests. Preserve trusted raw HTML, existing image mapping and URI suffix semantics. Evidence: plans/2026-10-05-code-review/pass-01/markdown-boundary-reproduction.json.
-

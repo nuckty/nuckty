@@ -37,4 +37,3 @@ Image loading policy SHALL belong to the block or Markdown extension, not the co
 - **WHEN** a gallery renders several images
 - **THEN** the first has no `loading=lazy` and the rest do
 - **AND** the choice is made per gallery, not from page position or viewport visibility
-

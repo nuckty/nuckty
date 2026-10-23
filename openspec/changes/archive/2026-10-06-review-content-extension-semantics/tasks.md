@@ -6,4 +6,3 @@
 - [x] Normalize supported spacing and configured provider names; correct inaccurate gallery comments.
 - [x] Run extension build/test/lint against the current isolated core.
 - [x] Re-review compatibility boundaries and archive after verification.
-

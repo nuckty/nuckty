@@ -15,4 +15,3 @@ The engine SHALL provide an alternates map only for targets in the same explicit
 - **WHEN** `site-ru` and `site-en` share a group and the resolver receives `/catalog` for `site-ru`
 - **THEN** it returns the `site-en` host and route, with its title if supplied
 - **AND** an ungrouped target adds no alternate
-

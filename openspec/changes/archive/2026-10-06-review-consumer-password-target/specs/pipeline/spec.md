@@ -21,4 +21,3 @@ The password-title hook SHALL not read a password source resolving outside its c
 #### Scenario: Inside source alias
 - **WHEN** common/password.json points to a file inside the real content root
 - **THEN** the optional source remains supported
-

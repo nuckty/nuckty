@@ -434,4 +434,3 @@
 7. **markdown-it-video and tobii in engine deps** — content/front-end
    features in the engine dependency list, in tension with "engine ships zero
    content features" (openspec). Should be consumer plugins. Severity: design.
-

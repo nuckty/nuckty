@@ -14,4 +14,3 @@ Coverage filtering SHALL validate resolved input/output ownership before recursi
 #### Scenario: Dedicated output is reused
 - **WHEN** an existing output contains only regular coverage reports
 - **THEN** filtering replaces stale reports and retains the selected source-range data
-

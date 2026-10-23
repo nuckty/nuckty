@@ -11,4 +11,3 @@ Tokenize actual opening tags with quoted values and skip comments/raw-text bodie
 ## Impact
 
 Consumer artifact checker and synthetic tests only.
-

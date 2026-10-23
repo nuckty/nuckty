@@ -23,4 +23,3 @@ HTML SHALL reference one logical raster address `/_i<hash>`. Hosting SHALL selec
 - **WHEN** a client requests the logical image reference
 - **THEN** explicit nonzero AVIF/WebP acceptance enables those available files in the fixed priority order
 - **AND** a client that does not accept modern formats receives the original
-

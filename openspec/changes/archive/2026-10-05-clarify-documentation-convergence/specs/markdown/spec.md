@@ -39,4 +39,3 @@ Authors MAY write Markdown links to `.md` files as on GitHub. The engine SHALL r
 - **WHEN** a standalone caller supplies inputPath without sourceFile
 - **THEN** the existing path resolution behavior is preserved
 - **AND** missing and ambiguous targets retain explicit diagnostics
-

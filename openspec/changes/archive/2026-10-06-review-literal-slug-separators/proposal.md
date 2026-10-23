@@ -11,4 +11,3 @@ Escape separators for their regex contexts, group whole tokens when trimming/col
 ## Impact
 
 Affected capability: markdown. No new dependency or option. Evidence: pass-01/slug-reproduction.json. Source changes follow validated/applied requirements.
-

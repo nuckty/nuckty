@@ -50,4 +50,3 @@ The engine SHALL split rendering into two typed passes: `renderToBemJson(tree, {
 - **WHEN** a resolved tree contains nested arrays or tag-false fragments between siblings
 - **THEN** serialization preserves their order and block context without inventing wrapper divs
 - **AND** empty positions do not throw or generate markup
-

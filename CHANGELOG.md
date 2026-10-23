@@ -29,4 +29,3 @@ First beta source candidate. This entry describes the prepared source set; it do
 
 - Package tests, source-link checks and CI workflows accompany the source set. Compatible package sources are pinned by commit SHA for CI.
 - Packages share version 1.0.0-beta1. Demo and website are private npm consumers; source publication, npm publication and deployment remain separate operations.
-

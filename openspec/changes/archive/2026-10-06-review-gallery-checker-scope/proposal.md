@@ -11,4 +11,3 @@ Track gallery container scope while inspecting complete div/img markup tokens. V
 ## Impact
 
 Affected capability: release-audit. Consumer test helper and tests only; no real content or output access, no runtime gallery behavior change.
-

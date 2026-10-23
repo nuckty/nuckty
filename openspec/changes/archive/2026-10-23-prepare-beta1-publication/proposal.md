@@ -8,4 +8,3 @@ Set first-party package and peer versions to 1.0.0-beta1, align CLI and starter 
 
 ## Impact
 Core, extensions, consumers, documentation and release preparation only. Remote empty repository creation is explicitly authorized. No commits, push, tags, npm publication or deployment. The final plan uses fresh root commits named Hello, world! as requested; existing local Git state is preserved during preparation.
-

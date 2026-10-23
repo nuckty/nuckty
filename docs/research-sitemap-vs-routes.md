@@ -277,4 +277,3 @@ filesystem duplication) is outweighed by the benefit (single
 source of truth, top-down control, free breadcrumbs, cross-doc
 link resolution). The weakness (no implicit routes) is a feature
 for docs -- every page is intentional.
-

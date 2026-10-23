@@ -5,4 +5,3 @@
 - [x] Correct bilingual guides and misleading source comments.
 - [x] Verify comment-only compile equivalence and current checks.
 - [x] Reread the revised material and archive the change.
-

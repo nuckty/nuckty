@@ -11,4 +11,3 @@ Have the fixture observe the named flag and assert the output for both separated
 ## Impact
 
 Affected capability: core regression evidence.
-

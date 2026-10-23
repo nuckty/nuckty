@@ -18,4 +18,3 @@ Core stages SHALL validate build metadata destinations before reading or writing
 #### Scenario: Owned symbolic workspace
 - **WHEN** buildDir selects an owned real workspace through a symbolic link
 - **THEN** ordinary metadata generation remains supported
-

@@ -11,4 +11,3 @@ Only undefined means all targets; explicit values use resolveTarget, including e
 ## Impact
 
 Affected capability: targets. No new option or dependency.
-

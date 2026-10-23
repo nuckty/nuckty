@@ -6,4 +6,3 @@
 - [x] Fix parser, naming and content preparation; preserve ordinary behavior.
 - [x] Run current build, targeted/full tests and lint.
 - [x] Review current output and archive after verification.
-

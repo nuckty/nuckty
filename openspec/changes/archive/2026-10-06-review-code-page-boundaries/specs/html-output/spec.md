@@ -8,4 +8,3 @@ HTML emission SHALL render every supported BEMTree content shape through the con
 - **THEN** both handler inputs contain the same prepared hashed-image markup
 - **AND** both published HTML outputs agree
 - **AND** empty or false content remains empty
-

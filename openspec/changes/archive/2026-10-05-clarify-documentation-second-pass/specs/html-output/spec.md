@@ -7,4 +7,3 @@ The serializer SHALL use one minimization mode in development and production. Id
 - **WHEN** identical resolved input is serialized with identical options in development and production
 - **THEN** the HTML is identical byte-for-byte
 - **AND** there is no formatted-HTML dev mode
-

@@ -7,4 +7,3 @@ Stringification of a BemEntity element SHALL select its element modifiers rather
 - **WHEN** an entity has block menu, element item and an active element modifier
 - **THEN** stringification returns menu__item_active
 - **AND** supplying unrelated block modifiers does not substitute them for the element’s modifier
-

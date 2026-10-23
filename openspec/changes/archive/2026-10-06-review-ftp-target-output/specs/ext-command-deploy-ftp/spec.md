@@ -13,4 +13,3 @@ The public FTP comparison helper SHALL use own dictionary keys for local manifes
 #### Scenario: Prototype-like orphan and new file
 - **WHEN** constructor or another inherited object name is absent from the own local/server records
 - **THEN** orphan deletion and new-file classification remain correct
-

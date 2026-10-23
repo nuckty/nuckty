@@ -11,4 +11,3 @@ Correct bilingual guides and useful source documentation against current code. R
 ## Impact
 
 Affected capability: core; documentation in command extensions and the public site consumer. Research and baseline: plans/2026-10-05-documentation-additional-pass. Verify unchanged compiled JavaScript, current type checks, links and diff hygiene. No publication or private-content access.
-

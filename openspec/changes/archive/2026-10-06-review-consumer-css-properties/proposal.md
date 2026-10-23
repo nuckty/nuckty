@@ -11,4 +11,3 @@ Enable property-no-unknown in the consumer stylesheet gate and remove the two in
 ## Impact
 
 Consumer CSS configuration and one public stylesheet; no dependency or API change.
-

@@ -134,4 +134,3 @@ The serializer SHALL omit a paragraph end tag before a resolved HTML sibling nam
 #### Scenario: Document formatting retains its position
 - **WHEN** document mode ends a body with a paragraph
 - **THEN** the paragraph closes before the two document-formatting newline characters
-

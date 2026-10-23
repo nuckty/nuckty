@@ -47,4 +47,3 @@ Both configs SHALL add baseline security headers to HTML responses: `X-Frame-Opt
 #### Scenario: HTML responses carry security headers
 - **WHEN** an HTML page is served
 - **THEN** the three baseline security headers are present
-

@@ -7,4 +7,3 @@ Targets SHALL be declared in config/config-nuckty.ts with configDir and outDir a
 - **WHEN** a consumer declares `site-ru` and `site-en` with disjoint outputs
 - **THEN** `nuckty build` produces both artifacts using each target's config and content
 - **AND** `nuckty build site-ru` builds only that target
-

@@ -5,4 +5,3 @@
 - [x] Add red/green directory and empty-file cases.
 - [x] Repair output presence and run converter gates.
 - [x] Archive after whole review convergence.
-

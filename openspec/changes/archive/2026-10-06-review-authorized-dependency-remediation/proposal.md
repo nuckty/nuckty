@@ -11,4 +11,3 @@ Update confirmed fixable dependencies to exact patched versions, refresh locks i
 ## Impact
 
 Affected manifests/locks and any explicitly documented maintained compatibility repair. No deployment, publication or VCS mutation.
-

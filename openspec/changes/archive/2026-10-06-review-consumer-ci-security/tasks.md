@@ -6,4 +6,3 @@
 - [x] Pin actions and enforce lockfile audits with minimal token permissions.
 - [x] Run synthetic bootstrap/source workflow checks and consumer lint.
 - [x] Archive after review convergence.
-

@@ -24,4 +24,3 @@ The compression stage SHALL select nonempty `.html`, `.css`, `.js`, `.svg`, `.xm
 #### Scenario: Selected nonempty files have both variants
 - **WHEN** a build completes
 - **THEN** each selected nonempty file has a `.br` copy under `brotli/` and a `.gz` copy under `gzip/`, keeping the original flat name
-

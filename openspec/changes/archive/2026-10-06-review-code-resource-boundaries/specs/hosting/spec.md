@@ -17,4 +17,3 @@ The nginx config writer SHALL reject a linked nginx.conf destination before modi
 #### Scenario: Symbolic build workspace
 - **WHEN** buildDir points to an owned workspace and nginx.conf is a regular destination
 - **THEN** the writer emits configuration in that real workspace
-

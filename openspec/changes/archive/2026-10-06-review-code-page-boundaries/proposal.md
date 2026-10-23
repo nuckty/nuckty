@@ -11,4 +11,3 @@ Reject unsupported non-comment/non-header sitemap lines and empty entries before
 ## Impact
 
 Affected capabilities: sitemap, bemjson, html-output. No new API, dependencies, network or publication. Research and source copies are in plans/2026-10-05-code-review.
-

@@ -6,4 +6,3 @@
 - [x] Correct literal prefix matching, heading suffix detection and raw HTML image token handling.
 - [x] Run current core and consumer gates; inspect edge cases independently.
 - [x] Archive after full review convergence.
-

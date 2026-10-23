@@ -11,4 +11,3 @@ Use typed stage context and getBuildConfig contentDir; verify target isolation a
 ## Impact
 
 Affected capability: pipeline consumer hook. No private content read.
-

@@ -11,4 +11,3 @@ Preserve the value delimiter for all string values, including empty strings, in 
 ## Impact
 
 Naming helper only; existing class serialization unchanged.
-

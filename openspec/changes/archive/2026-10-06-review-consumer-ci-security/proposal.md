@@ -11,4 +11,3 @@ Pin the same trusted action revisions, set read-only repository permissions and 
 ## Impact
 
 Affected capability: release-audit. Local site bootstrap/workflows/tests only; no workflow dispatch, real private-content reads, deployment or publication. Cache action pin is verified against the official actions/cache release.
-

@@ -8,4 +8,3 @@ Disable dynamic gzip in the generated server and exercise real HTTP negotiation 
 
 ## Impact
 Generated nginx configuration and native hosting regression tests.
-

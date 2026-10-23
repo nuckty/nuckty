@@ -39,4 +39,3 @@ The core build SHALL NOT clone or fetch repositories automatically. The command 
 - **WHEN** `nuckty build` runs after `external/` is populated
 - **THEN** the core reads prepared content from its selected levels without invoking clone/fetch; loaded extensions retain their own behavior
 - **AND** Git is required for preparation; unavailable core commit metadata becomes null
-

@@ -11,4 +11,3 @@ Bind resource stages to BuildContext.cwd without changing standalone directory-d
 ## Impact
 
 Affected capabilities: core, assets. Public function signatures and configured input ownership remain unchanged. No dependencies, publication or deployment are added. Research, baseline and reproductions live in plans/2026-10-05-code-review at the enclosing workspace root. Fixes are authorized by the user’s code-review goal and earlier instruction to fix all findings.
-

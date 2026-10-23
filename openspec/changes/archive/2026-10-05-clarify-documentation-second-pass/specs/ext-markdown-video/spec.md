@@ -31,4 +31,3 @@ The core SHALL NOT hardcode any provider or video syntax. `nuckty build` SHALL p
 #### Scenario: Build without the extension has no video handling
 - **WHEN** a consumer loads no video extension and a `.md` contains `@[youtube](id)`
 - **THEN** the build renders it as ordinary text + link (no `html` embed node)
-

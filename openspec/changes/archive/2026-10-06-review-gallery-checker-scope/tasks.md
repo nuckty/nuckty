@@ -6,4 +6,3 @@
 - [x] Validate loading in each actual gallery scope.
 - [x] Run synthetic consumer gates and lint.
 - [x] Archive after whole review convergence.
-

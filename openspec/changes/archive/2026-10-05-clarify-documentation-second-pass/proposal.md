@@ -11,4 +11,3 @@ Correct the existing specs and paired guides to describe implemented 1.0.0 behav
 ## Impact
 
 Affected capabilities: assets, targets, bemjson, compression, core, ext-block-gallery, ext-block-grid, ext-block-root, ext-command-content-external, ext-command-convert-images, ext-command-deploy-ftp, ext-command-serve, ext-command-validate-vnu, ext-markdown-typography-ru, ext-markdown-video, hosting, html-output, images, markdown, templates. Research and before/after artifacts live in plans/2026-10-05-documentation-second-pass at the workspace root. Local documentation authority comes from the user’s request to fix all findings. No publication, commit or deployment is included.
-

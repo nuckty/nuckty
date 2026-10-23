@@ -80,4 +80,3 @@ Image mapping for raw HTML and CSS SHALL normalize surrounding C0/space and embe
 #### Scenario: Encoded filename spaces
 - **WHEN** spaces are percent-encoded in the image filename
 - **THEN** they are retained as filename characters for mapping
-

@@ -10,4 +10,3 @@ Deployment SHALL validate local manifest content hashes before connecting and be
 #### Scenario: Foreign HTTP validator
 - **WHEN** the configured validator port is occupied
 - **THEN** validation fails without accepting that service response.
-

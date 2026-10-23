@@ -11,4 +11,3 @@ Require own configured repository keys in all snapshot operations before filesys
 ## Impact
 
 Consumer snapshot script and synthetic tests only.
-

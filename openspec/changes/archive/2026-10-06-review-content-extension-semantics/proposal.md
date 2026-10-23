@@ -11,4 +11,3 @@ Normalize horizontal whitespace around supported existing em-dash patterns in on
 ## Impact
 
 Affected capabilities: ext-markdown-typography-ru, ext-markdown-video, ext-block-gallery. No dependencies or publication. Research is in plans/2026-10-05-code-review; real content and player services remain untouched.
-

@@ -6,4 +6,3 @@
 - [x] Preflight real paths and existing output contents before rm.
 - [x] Run current coverage pipeline and lint.
 - [x] Archive after full review convergence.
-

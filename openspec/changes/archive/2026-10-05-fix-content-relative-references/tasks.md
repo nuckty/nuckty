@@ -12,4 +12,3 @@
 - [x] Run installed-package smoke and literal documentation examples.
 - [x] Build and validate complete EN/RU documentation for local, external and custom roots.
 - [x] Record results, inspect final diff and archive this change.
-

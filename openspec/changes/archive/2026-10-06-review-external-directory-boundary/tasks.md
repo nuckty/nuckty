@@ -5,4 +5,3 @@
 - [x] Add failing regression, refuse unsafe derived names.
 - [x] Run build/assets/config gates.
 - [x] Archive after whole review convergence.
-

@@ -11,4 +11,3 @@ Resolve existing path ancestors, reject outputs overlapping coverage inputs or p
 ## Impact
 
 Affected capability: release-audit. Config coverage script and regression tests only. No new dependency or package/runtime behavior.
-

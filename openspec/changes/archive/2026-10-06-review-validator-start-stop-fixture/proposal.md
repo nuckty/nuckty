@@ -11,4 +11,3 @@ Signal the first health request and stop only while that request is pending. Pre
 ## Impact
 
 Validator lifecycle fixture only.
-

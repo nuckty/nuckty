@@ -32,4 +32,3 @@ Tag the matching source commits and retain a release record with the source SHA 
 ## Site deployment
 
 Package publication does not deploy the consumer site. A push to the site's production branch can start its deployment workflow. Before that push, validate the actual immutable site artifact, visual behavior and hosting configuration, and keep a rollback artifact. Use the same tested artifact for deployment without an unchecked rebuild. Preserve original external checkouts and their untracked files; verify prepared snapshots and materialized LFS data independently.
-

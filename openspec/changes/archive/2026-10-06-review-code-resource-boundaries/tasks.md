@@ -7,4 +7,3 @@
 - [x] Run build, targeted regressions, full tests and lint on current source.
 - [x] Verify resulting artifact and re-review changed contracts.
 - [x] Validate strictly and archive the applied change.
-

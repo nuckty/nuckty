@@ -15,4 +15,3 @@ Nested Markdown links and images fail when the content root is `content/` or a c
 ## Impact
 
 Core Markdown/image resolvers, sitemap/HTML stages, their tests, markdown/sitemap specifications and paired documentation. Existing option shapes remain valid; unsupported sitemap entries become explicit failures.
-

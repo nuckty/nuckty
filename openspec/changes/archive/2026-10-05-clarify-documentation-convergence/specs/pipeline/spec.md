@@ -40,4 +40,3 @@ The pipeline SHALL expose `before(stage, fn)`, `after(stage, fn)`, and `register
 - **WHEN** an extension calls `env.pipeline.registerStage('search', fn, { phase: 'emit' })` and `env.pipeline.after('html', fn2)`
 - **THEN** `search` runs in the emit phase and `fn2` runs after the `html` stage
 - **AND** the consumer did not edit engine source
-

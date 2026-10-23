@@ -17,4 +17,3 @@ Public API and source documentation SHALL describe the implemented configuration
 #### Scenario: Developer reads implementation documentation
 - **WHEN** a developer reads a public type or stage/extension description
 - **THEN** its documented inputs, side effects and conditions agree with the current implementation and associated user guide
-

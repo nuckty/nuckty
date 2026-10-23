@@ -20,4 +20,3 @@ A site MAY give per-page layout metadata in its sitemap entry. The engine SHALL 
 - **WHEN** one sitemap entry has layout landing and another omits layout
 - **THEN** the first page receives that metadata and the second has no inferred layout
 - **AND** rendered markup is determined by the registered document handler and templates
-

@@ -55,4 +55,3 @@ MIT — see [LICENSE](LICENSE).
 `1.0.0-beta1` — We call its Beta, coz it's betta then nothin
 
 See [CHANGELOG.md](CHANGELOG.md) for the source release notes.
-

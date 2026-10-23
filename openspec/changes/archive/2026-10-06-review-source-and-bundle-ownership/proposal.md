@@ -11,4 +11,3 @@ Use a prototype-free bundle dependency dictionary. Resolve source and content-ro
 ## Impact
 
 Affected capability: core. No new dependency, input option or external action. Evidence: pass-01/input-boundary-reproduction.json. Private source files and real outputs were not accessed.
-

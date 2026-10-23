@@ -11,4 +11,3 @@ Exclude actual mdast HTML nodes from metadata, retain literal code/text, and str
 ## Impact
 
 Affected capability: markdown. No dependency or public option added.
-

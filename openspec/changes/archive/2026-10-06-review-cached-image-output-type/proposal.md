@@ -11,4 +11,3 @@ Count only nonempty regular files as cached outputs. Regenerate stale outputs an
 ## Impact
 
 Affected capability: ext-command-convert-images. No new dependency or option.
-

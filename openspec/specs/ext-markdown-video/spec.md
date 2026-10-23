@@ -60,4 +60,3 @@ Provider selection SHALL compare the configured provider name and authored link 
 - **WHEN** configuration registers PeerTube and Markdown names peertube or PEERTUBE
 - **THEN** both links invoke that configured provider with the authored ID
 - **AND** both produce an iframe rather than an ordinary link
-

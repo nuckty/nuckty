@@ -22,4 +22,3 @@ Both configurations SHALL negotiate a logical `/_i<family-hash>` reference by Ac
 #### Scenario: Config negotiates image format
 - **WHEN** an image address is requested with `Accept` including AVIF
 - **THEN** the config serves available AVIF for a nonzero explicit match, else explicitly accepted available WebP, else the original
-

@@ -15,4 +15,3 @@ The command SHALL write convert-images.json but SHALL NOT perform a version-cont
 - **WHEN** all recorded outputs exist after a completed conversion
 - **THEN** unchanged sources are skipped
 - **AND** a previous AVIF failure is retried without force rather than reported as a completed cache hit
-

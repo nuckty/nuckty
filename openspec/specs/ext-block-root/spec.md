@@ -38,4 +38,3 @@ The extension SHALL own only `root` (the outer wrapper). The `page*` namespace (
 - **WHEN** a site places its own `blocks/root/root.nu.ts` on a later level
 - **THEN** the site's `root` wins by level priority
 - **AND** `page*` names remain free for the site
-

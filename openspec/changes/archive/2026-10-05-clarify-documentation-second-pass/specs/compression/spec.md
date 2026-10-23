@@ -38,4 +38,3 @@ The generated host config SHALL map `Accept-Encoding` to a compression directory
 - **THEN** the server serves the `brotli/` copy with `Content-Encoding: br`
 - **AND** a Gzip-only client gets the `gzip/` copy
 - **AND** a direct request to `/brotli/...` or `/gzip/...` is refused
-

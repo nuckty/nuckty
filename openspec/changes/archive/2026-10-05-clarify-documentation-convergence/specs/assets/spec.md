@@ -7,4 +7,3 @@ CSS and JS SHALL be collected from the explicit block declaration of each bundle
 - **WHEN** `bundles` lists `docs-layout` and its deps include `menu`
 - **THEN** the bundle includes `menu.css`/`menu.js`
 - **AND** blocks not in the deps are not bundled
-

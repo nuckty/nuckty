@@ -5,4 +5,3 @@
 - [x] Apply clarified specs, paired prose and source comments.
 - [x] Verify copied configurations, target behavior, links, TypeScript and generated EN/RU HTML.
 - [x] Validate strictly and archive the applied change.
-

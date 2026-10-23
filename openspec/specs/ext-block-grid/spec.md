@@ -33,4 +33,3 @@ The `grid` block SHALL lay its items out in a multi-column responsive layout via
 #### Scenario: Site overrides the grid block
 - **WHEN** a site places its own `grid.nu.ts` on a later level
 - **THEN** the site's version wins by level priority
-

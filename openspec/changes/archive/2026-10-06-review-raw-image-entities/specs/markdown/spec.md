@@ -14,4 +14,3 @@ Raw img src mapping SHALL decode numeric and named references using HTML attribu
 #### Scenario: Unmatched or literal input
 - **WHEN** an image has no mapping or appears inside literal content
 - **THEN** its authored bytes are preserved
-

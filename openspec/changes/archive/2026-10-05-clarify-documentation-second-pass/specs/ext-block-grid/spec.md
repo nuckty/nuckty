@@ -15,4 +15,3 @@ The `grid` block SHALL lay its items out in a multi-column responsive layout via
 - **WHEN** a grid renders several items
 - **THEN** they are arranged in a responsive multi-column layout
 - **AND** no external CSS/JS library is pulled in
-

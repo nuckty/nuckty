@@ -13,4 +13,3 @@ CSS and JavaScript SHALL be collected from the explicitly declared blocks of eac
 - **WHEN** a configured bundle declaration lists a block with CSS or JavaScript
 - **THEN** its files contribute to that bundle
 - **AND** a block absent from the declaration contributes no assets merely by appearing in page content
-

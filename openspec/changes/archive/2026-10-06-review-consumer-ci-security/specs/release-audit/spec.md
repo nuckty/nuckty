@@ -14,4 +14,3 @@ Consumer workflows SHALL reference third-party actions by full commit SHA, grant
 #### Scenario: Workflow credentials and dependencies
 - **WHEN** a consumer workflow is read
 - **THEN** its action refs are immutable and checkout does not persist credentials in the workspace
-

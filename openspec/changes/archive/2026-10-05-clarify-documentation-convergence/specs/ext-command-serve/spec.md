@@ -14,4 +14,3 @@ Serving SHALL use the core nginx generator’s compression, image negotiation an
 - **THEN** its separate runtime configuration uses the core generator’s negotiation and flat-URL rules
 - **AND** build-file hooks and arbitrary production settings are not implicitly imported
 - **AND** the extension requires `nginx` in `PATH`
-

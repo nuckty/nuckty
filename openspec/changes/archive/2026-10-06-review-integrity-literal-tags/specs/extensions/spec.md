@@ -22,4 +22,3 @@ Link and gallery checkers SHALL treat iframe, xmp, noembed, noframes and plainte
 
 - **WHEN** an ordinary element name starts with a raw-text name followed by a hyphen
 - **THEN** its descendant elements remain visible to link checking
-

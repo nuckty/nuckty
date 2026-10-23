@@ -30,4 +30,3 @@ An elem wildcard selector SHALL match only nodes carrying a nonempty element nam
 #### Scenario: Any element in a block
 - **WHEN** menu declares ul and menu.elem wildcard declares li
 - **THEN** menu remains ul and its named elements become li
-

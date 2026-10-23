@@ -39,4 +39,3 @@ Raw asset rewriting in inline and fenced code SHALL match configured prefixes at
 #### Scenario: Nested raw URL in code
 - **WHEN** a copied command contains an unrelated URL whose query embeds the configured raw URL
 - **THEN** the whole unrelated URL remains authored
-

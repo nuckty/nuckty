@@ -11,4 +11,3 @@ Validate derived repository directory names in captured build configuration befo
 ## Impact
 
 Affected capability: assets. No dependency or network access.
-

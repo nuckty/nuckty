@@ -8,4 +8,3 @@ CI schedule comments SHALL describe day-of-month steps accurately. Cache metrics
 
 - **WHEN** cron selects every fifth or sixth day-of-month value
 - **THEN** comments explain its monthly reset and metrics omit unsupported next-run predictions
-

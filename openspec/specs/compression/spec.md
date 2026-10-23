@@ -49,4 +49,3 @@ The generated host config SHALL map `Accept-Encoding` to a compression directory
 - **WHEN** a nonempty `.txt` artifact has prepared Brotli and Gzip copies
 - **THEN** both generated server configurations serve its selected representation with the matching encoding
 - **AND** the decoded body and text media type are preserved
-

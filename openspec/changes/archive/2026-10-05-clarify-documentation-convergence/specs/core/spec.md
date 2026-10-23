@@ -32,4 +32,3 @@ The published engine package SHALL NOT ship a consumer’s blocks, content or bu
 #### Scenario: build drives the pipeline
 - **WHEN** `nuckty build` runs in a consumer project
 - **THEN** the core reads `config-nuckty.ts`, loads `ext[]`, registers default stages, runs the pipeline, and writes the artifact to each target's `outDir`
-

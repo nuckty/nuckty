@@ -33,4 +33,3 @@ The command SHALL read and verify the local manifest and recursively list server
 - **WHEN** force runs against a server with an existing manifest
 - **THEN** the command does not download that manifest
 - **AND** it plans every local file for upload and still derives deletions from LIST
-

@@ -54,4 +54,3 @@ BEMJSON attribute values SHALL carry their logical, unescaped values. The serial
 - **WHEN** a node has only mix classes
 - **THEN** those classes are emitted
 - **AND** setting `bem:false` suppresses BEM and mix classes and data-bem, while preserving explicit `cls`
-

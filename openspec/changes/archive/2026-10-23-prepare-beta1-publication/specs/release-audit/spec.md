@@ -6,4 +6,3 @@ The first-party source candidate SHALL identify its packages, extension peer con
 #### Scenario: Prepare reviewable commits
 - **WHEN** the beta1 source candidate is prepared
 - **THEN** version references and retained package receipts agree, and local verification and pending remote checks are reported separately
-

@@ -21,4 +21,3 @@ Consumer block ownership lint SHALL inspect actual named block import bindings r
 #### Scenario: Shadowed helper
 - **WHEN** a local helper shadows an imported block name
 - **THEN** its calls do not receive API ownership diagnostics
-

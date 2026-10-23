@@ -6,4 +6,3 @@
 - [x] Verify generated documentation, TypeScript, links, relevant project gates and final diff.
 - [x] Review the complete final corpus; pass 8 has no new or unresolved findings.
 - [x] Validate strictly and archive the applied change.
-

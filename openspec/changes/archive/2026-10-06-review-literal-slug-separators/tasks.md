@@ -5,4 +5,3 @@
 - [x] Run behavioral red/green regressions.
 - [x] Correct both slug factories and run current core/consumer gates.
 - [x] Archive after whole review convergence.
-

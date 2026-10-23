@@ -8,4 +8,3 @@ The content-external regression suite SHALL exercise a derived repository name c
 
 - **WHEN** getRepoName receives a URL whose last component contains a backslash
 - **THEN** the regression verifies an unsafe-name error rather than asserting only ordinary URL parsing
-

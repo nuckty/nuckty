@@ -243,4 +243,3 @@ A maintained local brace-expansion repair SHALL preserve the published API and o
 
 - **WHEN** compile, stringify or expand processes a deeply nested pattern below the existing character limit
 - **THEN** it completes without a native recursion overflow and ordinary brace outputs remain compatible
-

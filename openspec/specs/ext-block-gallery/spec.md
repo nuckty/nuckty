@@ -33,4 +33,3 @@ The gallery block SHALL lay images out as a responsive CSS grid; a click SHALL o
 #### Scenario: Site overrides the gallery block
 - **WHEN** a site places its own `gallery.nu.ts` on a later level
 - **THEN** the site's version wins by level priority
-

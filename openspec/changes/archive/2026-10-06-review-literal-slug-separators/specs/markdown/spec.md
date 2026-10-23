@@ -10,4 +10,3 @@ Slug separators SHALL be treated as literal strings, including empty, multi-char
 #### Scenario: Special separator text
 - **WHEN** a separator contains regex syntax, dollar replacement syntax or Unicode
 - **THEN** its characters remain literal in the resulting slug
-

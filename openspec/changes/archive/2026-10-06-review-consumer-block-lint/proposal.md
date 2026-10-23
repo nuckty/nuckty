@@ -11,4 +11,3 @@ Keep the imported block binding across unrelated imports and verify actual ESLin
 ## Impact
 
 Affected capability: blocks. Consumer lint tooling only; no document runtime change.
-

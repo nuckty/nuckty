@@ -32,4 +32,3 @@ The extension SHALL be optional: a site loads it only when it wants Russian typo
 - **WHEN** a site does not list the typography extension in `ext`
 - **THEN** no typographic substitutions are applied
 - **AND** the core has no built-in typography
-

@@ -39,4 +39,3 @@ Markdown and raw HTML images SHALL use the shared image mapping, resolving sourc
 - **WHEN** an image URL directly names an existing mapping key
 - **THEN** that key wins over relative and basename lookup
 - **AND** ambiguous bare names fail instead of selecting an unrelated image
-

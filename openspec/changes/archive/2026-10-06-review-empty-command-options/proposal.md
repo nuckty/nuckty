@@ -11,4 +11,3 @@ Distinguish undefined from an empty key and assert refusal before cwd access or 
 ## Impact
 
 Affected capabilities: ext-command-serve, ext-command-validate-vnu.
-

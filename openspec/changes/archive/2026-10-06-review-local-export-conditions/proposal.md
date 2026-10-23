@@ -11,4 +11,3 @@ Resolve local conditional exports recursively in declaration order using Node ES
 ## Impact
 
 Affected capability: extensions. No dependency or public option added.
-

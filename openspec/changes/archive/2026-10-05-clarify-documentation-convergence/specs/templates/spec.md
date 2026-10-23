@@ -45,4 +45,3 @@ A template SHALL be registered by calling `block` with a predicate and a definit
 - **WHEN** a consumer writes `block('menu')({ tag: 'ul' })` and `block('menu').elem('item')({ tag: 'li' })`
 - **THEN** `menu` nodes render as `<ul>` and `menu__item` nodes as `<li>`
 - **AND** `.when((n) => Boolean(n.props?.submenu))` applies only when the predicate holds
-

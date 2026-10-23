@@ -10,4 +10,3 @@ Heading metadata and generated anchors SHALL retain textual content of inline co
 #### Scenario: Actual inline HTML
 - **WHEN** a heading wraps text in an HTML tag
 - **THEN** metadata and anchors contain the visible text, not the markup
-

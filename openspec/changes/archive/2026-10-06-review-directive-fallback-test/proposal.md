@@ -11,4 +11,3 @@ Assert unknown and declining leaf directive labels survive rendering and that no
 ## Impact
 
 Affected capability: markdown test evidence.
-

@@ -14,4 +14,3 @@ The `file.md` token SHALL be resolved relative to the first content level of lev
 #### Scenario: file.md resolves against the target content root
 - **WHEN** a target selects `external/acme-content` as its first level and its sitemap names `docs/intro.md`
 - **THEN** the engine reads `external/acme-content/docs/intro.md` for that target
-

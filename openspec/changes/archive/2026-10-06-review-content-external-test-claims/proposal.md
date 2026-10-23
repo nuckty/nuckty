@@ -11,4 +11,3 @@ Add the real backslash-name rejection assertion and remove the false fixture exp
 ## Impact
 
 Content-external regression test only.
-

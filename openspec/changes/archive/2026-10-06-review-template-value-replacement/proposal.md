@@ -11,4 +11,3 @@ Clear the previous modVal/elemModVal when refining that selector kind without a 
 ## Impact
 
 Affected capability: templates. No new API or dependency. Research and reproductions are in plans/2026-10-05-code-review. Local fixes are authorized; publication and deployment remain outside this task.
-

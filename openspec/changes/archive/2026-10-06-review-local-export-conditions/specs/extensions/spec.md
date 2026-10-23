@@ -32,4 +32,3 @@ Local extension export targets SHALL preserve URL query and fragment identity an
 #### Scenario: Encoded filename with module query
 - **WHEN** a local export selects a percent-encoded filename with query and fragment
 - **THEN** the module loads and observes the original query and fragment
-

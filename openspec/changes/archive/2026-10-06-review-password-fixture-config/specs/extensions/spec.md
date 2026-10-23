@@ -8,4 +8,3 @@ The synthetic password-hook fixture SHALL supply normal target site configuratio
 
 - **WHEN** the password hook tests optional values
 - **THEN** site.json exists and missing-password checks remain observable
-

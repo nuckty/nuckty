@@ -240,4 +240,3 @@ The maintained public consumer's CSS lint gate SHALL reject unknown standard pro
 
 - **WHEN** a stylesheet declares aborder or aborder-radius instead of a known property
 - **THEN** CSS lint reports the unknown declarations instead of passing them silently
-

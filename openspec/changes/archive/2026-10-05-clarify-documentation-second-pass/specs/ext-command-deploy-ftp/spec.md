@@ -34,4 +34,3 @@ The deploy-ftp command SHALL stop and suggest `--force` when the share of files 
 - **WHEN** a deploy would delete more than 30% of remote files
 - **THEN** the command stops and points to `--force`
 - **AND** `--force` proceeds with the deletion
-

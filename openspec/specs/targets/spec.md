@@ -58,4 +58,3 @@ Build setup SHALL distinguish an omitted target from an explicitly supplied name
 #### Scenario: Omitted target
 - **WHEN** build receives no target value
 - **THEN** it retains all-target build behavior
-

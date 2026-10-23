@@ -60,4 +60,3 @@ const resolved = render(tree, { templates, output: 'bemjson' });
 `render` returns an HTML fragment by default. `document: true` adds `<!doctype html>` and two final newlines. The internal template and serialization passes are not separate package-root exports.
 
 The serializer escapes text and attributes and omits supported optional end tags; it preserves `raw` and HTML comments and closes `p`. Validation of the complete artifact is a separate `nuckty validate` command supplied by the validator extension.
-

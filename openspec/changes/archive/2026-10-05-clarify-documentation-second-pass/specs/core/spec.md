@@ -82,4 +82,3 @@ The build SHALL apply `after('htaccess', ...)` customizations after generating `
 - **WHEN** a consumer registers a hosting customization that adds redirects
 - **THEN** the generated artifact contains those redirects
 - **AND** the manifest records the customized file's final bytes
-

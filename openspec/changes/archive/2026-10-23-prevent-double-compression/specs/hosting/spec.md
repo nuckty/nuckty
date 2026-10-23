@@ -7,4 +7,3 @@ The generated nginx server SHALL disable dynamic gzip regardless of inherited HT
 - **WHEN** global gzip is enabled and a browser accepts gzip, deflate and br
 - **THEN** the generated server returns the Brotli artifact with only Content-Encoding br
 - **AND** decoding it once reproduces the original HTML or static asset
-

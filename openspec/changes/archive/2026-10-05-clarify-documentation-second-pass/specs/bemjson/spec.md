@@ -52,4 +52,3 @@ Markdown through the remark mdast → BEMJSON bridge and layout through block te
 - **WHEN** a Markdown document and a layout block are rendered for one page
 - **THEN** both produce `BEMTree` nodes handled by the same engine
 - **AND** the build MAY pass serialized content through an explicit trusted raw node
-

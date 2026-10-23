@@ -8,4 +8,3 @@ The validator startup cancellation regression SHALL synchronize stop with an obs
 
 - **WHEN** the owned validator has entered its pending readiness request and stop is called
 - **THEN** validation rejects with the stopped reason and the test verifies owned child termination
-

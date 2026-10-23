@@ -5,4 +5,3 @@
 - [x] Reproduce empty CLI target with preserved output sentinels.
 - [x] Repair selection and run build/CLI/type checks.
 - [x] Archive after whole review convergence.
-

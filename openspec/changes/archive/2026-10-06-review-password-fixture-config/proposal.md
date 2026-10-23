@@ -11,4 +11,3 @@ Provide normal site config in the fixture and retain missing/malformed password 
 ## Impact
 
 Test setup only, no runtime change.
-

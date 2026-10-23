@@ -7,4 +7,3 @@ Serving SHALL use the core nginx generator’s compression, image negotiation an
 - **WHEN** the site is served locally
 - **THEN** it uses the same negotiation and flat-URL rules as production
 - **AND** the extension requires `nginx` in `PATH`
-

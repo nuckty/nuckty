@@ -5,4 +5,3 @@
 - [x] Add red/green regressions and implementation.
 - [x] Verify dependency, build, lint and tests.
 - [x] Archive after whole review convergence.
-

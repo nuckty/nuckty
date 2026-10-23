@@ -11,4 +11,3 @@ Assert path-to-kind associations without imposing an enumeration order on the sc
 ## Impact
 
 Affected capability: ext-command-convert-images test evidence.
-

@@ -17,4 +17,3 @@ The package SHALL export assertArtifactPath for consumer writers. XML sitemap an
 #### Scenario: Ordinary consumer output
 - **WHEN** destinations are owned regular artifact paths
 - **THEN** current generation and redirect behavior remain unchanged
-

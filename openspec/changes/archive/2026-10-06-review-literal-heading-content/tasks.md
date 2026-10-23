@@ -5,4 +5,3 @@
 - [x] Add red/green metadata/anchor regression and fix AST handling.
 - [x] Run current core build/tests/typecheck.
 - [x] Archive after whole review convergence.
-

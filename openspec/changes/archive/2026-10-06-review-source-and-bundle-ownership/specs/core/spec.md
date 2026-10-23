@@ -28,4 +28,3 @@ Image originals and prepared variant reads SHALL remain inside the real source l
 #### Scenario: Inside variant alias
 - **WHEN** a symbolic source root contains a variant alias to another file within its real root
 - **THEN** the representation remains supported
-

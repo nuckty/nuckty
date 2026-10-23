@@ -184,4 +184,3 @@ Raw asset rewriting in inline and fenced code SHALL match configured prefixes at
 - **WHEN** a configured URL prefix contains a valid ampersand path character
 - **THEN** inline and fenced code match the same logical prefix before serialization escaping
 - **AND** rewritten code is escaped once without losing its literal text
-

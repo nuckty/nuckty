@@ -11,4 +11,3 @@ Replace the existence-only test with observable command, Markdown, level, docume
 ## Impact
 
 Affected capability: extensions. Tests only; no dependency or runtime changes.
-

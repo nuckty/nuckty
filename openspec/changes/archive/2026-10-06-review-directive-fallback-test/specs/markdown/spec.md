@@ -6,4 +6,3 @@ Markdown regression tests SHALL assert visible label preservation for unknown le
 #### Scenario: Unknown and declined leaf directive
 - **WHEN** a labelled leaf directive has no handler or its handler returns null
 - **THEN** tests verify the label remains in rendered content and no directive-specific block is emitted
-

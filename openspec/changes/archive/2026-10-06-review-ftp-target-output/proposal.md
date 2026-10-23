@@ -11,4 +11,3 @@ Require an explicit nonempty output path in the selected target before FTP impor
 ## Impact
 
 Affected capability: ext-command-deploy-ftp. No network or credentials needed.
-

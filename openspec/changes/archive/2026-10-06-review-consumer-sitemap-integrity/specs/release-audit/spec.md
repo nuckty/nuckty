@@ -15,4 +15,3 @@ The consumer XML sitemap extension SHALL preserve valid page URL text through XM
 #### Scenario: Many XML entries
 - **WHEN** the XML sitemap contains many source-backed entries
 - **THEN** at most eight timestamp queries are in flight and all entries retain their source metadata in sitemap order
-

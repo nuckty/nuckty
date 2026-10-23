@@ -11,4 +11,3 @@ Clarify comments and remove the unsupported next-run prediction from cache metri
 ## Impact
 
 Two public site workflow files only.
-

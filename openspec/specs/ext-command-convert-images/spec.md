@@ -47,4 +47,3 @@ Completed conversion cache SHALL authorize skipping only when each recorded vari
 #### Scenario: Cached empty output
 - **WHEN** a recorded variant is an empty file
 - **THEN** conversion regenerates the variant
-

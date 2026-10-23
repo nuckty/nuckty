@@ -24,4 +24,3 @@ The core SHALL enable generic-directive parsing (remark-directive): text `:name`
 - **THEN** the engine emits its inner content as ordinary text/BEMJSON without a
   `gallery` block
 - **AND** loading the extension maps `:::gallery` to the `gallery` block
-

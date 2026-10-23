@@ -10,4 +10,3 @@ Artifact gallery validation SHALL apply eager-first and lazy-rest policy indepen
 #### Scenario: A later container violates the policy
 - **WHEN** a second gallery has a lazy first image or an eager later image
 - **THEN** validation reports that violation rather than accepting it based on the first container
-

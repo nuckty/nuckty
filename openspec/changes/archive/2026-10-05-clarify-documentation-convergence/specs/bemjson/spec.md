@@ -23,4 +23,3 @@ The node type SHALL be `BemNode`, with optional typed fields `block`, `elem`, `m
 - **WHEN** TypeScript type-checks a node explicitly typed as BemNode
 - **THEN** the compiler checks each field against `BemNode`
 - **AND** the build loader itself only transpiles TypeScript and does not replace that check
-

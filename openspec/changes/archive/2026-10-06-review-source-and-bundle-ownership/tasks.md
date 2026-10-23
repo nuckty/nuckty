@@ -6,4 +6,3 @@
 - [x] Preserve own bundle keys and enforce real source containment.
 - [x] Run current gates and re-review allowed symlink cases.
 - [x] Archive after whole review convergence.
-

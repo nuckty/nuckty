@@ -6,4 +6,3 @@ Captured external repository configuration SHALL reject empty, dot, dot-dot, bac
 #### Scenario: Traversal repository name
 - **WHEN** external configuration derives dot-dot as a repository directory name
 - **THEN** build fails before cleanup and does not publish project-root files
-

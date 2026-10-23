@@ -11,4 +11,3 @@ Use the declared exact entities HTML attribute decoder, preserve unmatched origi
 ## Impact
 
 Affected capability: markdown. Add entities7.0.0 as an exact runtime dependency; review license and package exports.
-

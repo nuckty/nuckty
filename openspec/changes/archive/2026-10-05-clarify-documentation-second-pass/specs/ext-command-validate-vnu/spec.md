@@ -21,4 +21,3 @@ The extension SHALL be optional and require java on PATH (JVM 17+). Startup and 
 - **WHEN** a consumer does not install `validate-vnu`
 - **THEN** builds run with no JVM requirement
 - **AND** the 30-rule minimization remains covered by engine unit tests
-

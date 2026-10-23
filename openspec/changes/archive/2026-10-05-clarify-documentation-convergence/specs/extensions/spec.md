@@ -83,4 +83,3 @@ An extension SHALL be a package or local module exporting `register(env)` that r
 #### Scenario: One package combines types
 - **WHEN** an extension's `register` calls `env.levels.add`, `env.markdown.use`, and `env.pipeline.after` in one function
 - **THEN** all three capabilities are added by the single package
-

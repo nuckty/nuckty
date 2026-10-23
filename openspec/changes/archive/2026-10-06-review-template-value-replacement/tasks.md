@@ -6,4 +6,3 @@
 - [x] Correct replacement semantics without changing omission or immutable-selector behavior.
 - [x] Run current build, regressions, full tests and lint.
 - [x] Review the final change and archive after verification.
-

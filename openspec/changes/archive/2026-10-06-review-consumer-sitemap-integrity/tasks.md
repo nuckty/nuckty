@@ -6,4 +6,3 @@
 - [x] Reuse target snapshots, escape XML text and bound metadata queries.
 - [x] Run core and public consumer gates using isolated synthetic inputs.
 - [x] Re-review the change and archive after the whole review converges.
-

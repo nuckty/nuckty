@@ -55,4 +55,3 @@ MIT — см. [LICENSE](LICENSE).
 `1.0.0-beta1` — We call its Beta, coz it's betta then nothin
 
 Изменения описаны в [CHANGELOG.ru.md](CHANGELOG.ru.md).
-
