@@ -30,6 +30,7 @@ Shared reference for all `nuckty-*` repositories; paired with `GLOSSARY.ru.md` �
 | `BemNode` | TypeScript type of one BEMJSON tree node | — |
 | `BEMTree` | TypeScript type of the whole BEMJSON tree: `BemNode`, text, nested arrays, or empty `null`/`undefined`/`false` positions | — |
 | `Templates` | Per-build collection of template declarations used by `block()` and the renderer | `Registry` |
+| nu.ts templates | Template declarations written in TypeScript in `.nu.ts` files and applied by the `nu` engine | nu templates |
 | block | Reusable interface unit, described by a `.nu.ts` file | — |
 | wrapper | What content is wrapped in: document wrapper (`<html>`), page wrapper | — |
 | build (a page) | The engine's action on a page as a whole: applies templates and emits HTML. Command: `nuckty build` | render² |
