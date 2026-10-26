@@ -108,7 +108,7 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-for (const pre of document.querySelectorAll('.article pre, .code-window__code, .example__source pre')) {
+for (const pre of document.querySelectorAll('pre')) {
     const code = pre.querySelector('code');
 
     if (!code) {
@@ -145,9 +145,15 @@ for (const pre of document.querySelectorAll('.article pre, .code-window__code, .
             button.title = button.getAttribute('aria-label');
         }, 1600);
     });
-    const frame = document.createElement('div');
-    frame.className = 'code-block';
-    pre.before(frame);
-    frame.append(pre, button);
+    const figure = pre.parentElement?.tagName === 'FIGURE' ? pre.parentElement : null;
+    const frame = figure ?? document.createElement('div');
+    frame.classList.add('code-block');
+
+    if (!figure) {
+        pre.before(frame);
+        frame.append(pre);
+    }
+
+    frame.append(button);
     pre.classList.add('has-copy');
 }

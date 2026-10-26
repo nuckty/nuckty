@@ -148,9 +148,6 @@ body:has(.menu-toggle[aria-expanded="true"]) > .main, body:has(.menu-toggle[aria
 .button:hover { background: var(--accent-hover); color: var(--action-text); }
 .text-link { color: var(--accent); }
 .code-block { position: relative; min-width: 0; }
-.code-copy { position: absolute; top: .5rem; right: .5rem; display: grid; place-items: center; width: 2rem; height: 2rem; padding: .375rem; border: 0; background: var(--code); color: var(--code-muted); }
-.code-copy:hover { color: #fff; }
-.code-copy svg { width: 1.125rem; height: 1.125rem; }
 .article__code-copy { display: none; }
 .article > .code-block { margin-block: 1.5rem; }
 .article > .code-block > pre.has-copy { margin: 0; }
@@ -205,3 +202,9 @@ body:has(.menu-toggle[aria-expanded="true"]) > .main, body:has(.menu-toggle[aria
 .brand[href]:hover::before, .brand[href]:hover::after, .footer__brand[href]:hover::before, .footer__brand[href]:hover::after { opacity: 1; }
 @media (min-width: 48rem) { .brand { --mark-width: 3.25rem; --mark-height: 2.375rem; --brand-inset: 1.5rem; } }
 @media (max-width: 22.5rem) { .brand { --mark-width: 2rem; --mark-height: 1.5rem; --brand-inset: .5rem; } }
+
+.code-copy { position: absolute; top: .5rem; right: .5rem; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: .5rem; border: 0; background: transparent; color: var(--code-muted); }
+.code-copy:hover { color: #fff; }
+.code-copy svg { width: 1.625rem; height: 1.625rem; }
+.code-block > figcaption { padding-right: 3rem; }
+.code-block:not(:has(> figcaption)) > pre.has-copy, .article > .code-block > pre.has-copy { padding-right: 3.75rem; }
