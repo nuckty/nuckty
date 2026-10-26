@@ -12,7 +12,7 @@ nuckty needs structural Markdown output for its template engine, plus extension 
 
 **A token-stream parser.** A bridge can reconstruct nesting from tokens, but must keep track of paired opening and closing tokens and their context.
 
-**An HTML-producing compiler.** This provides ready markup, but structural nu templates would require another representation or an HTML parser.
+**An HTML-producing compiler.** This provides ready markup, but structural nu.ts templates would require another representation or an HTML parser.
 
 **A typed syntax tree.** mdast represents nested Markdown nodes directly. The bridge can map headings, lists, links, and [images](../out/images.md) by node type.
 

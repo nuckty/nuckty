@@ -1,6 +1,6 @@
 # Block: structure
 
-A block is described by a `.nu.ts` file. Inside is template registration through the nu syntax (`block()(...)`). Rendering has [two passes](../../why/render.md): all modes — structural and HTML-mapping alike — in the first pass (`renderToBemJson`); the second pass (`renderToHtml`) only serializes the result. Modes are covered in detail in [nu templates](../templates.md).
+A block is described by a `.nu.ts` file. Inside is template registration through the nu syntax (`block()(...)`). Rendering has [two passes](../../why/render.md): all modes — structural and HTML-mapping alike — in the first pass (`renderToBemJson`); the second pass (`renderToHtml`) only serializes the result. Modes are covered in detail in [nu.ts templates](../templates.md).
 
 ## File structure
 

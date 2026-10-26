@@ -11,7 +11,7 @@ This is the path from installing nuckty and your first build to your own extensi
 The key concepts of nuckty:
 
 - [Data model: BEMJSON](bemjson.md) — a typed tree of nodes, shared by content, page layout, and the page wrapper.
-- [nu templates](templates.md) — the `block()(...)` syntax, modes, specificity. How a block becomes [HTML](../out/html.md).
+- [nu.ts templates](templates.md) — the `block()(...)` syntax, modes, specificity. How a block becomes [HTML](../out/html.md).
 - [Sitemap: sitemap.yml](sitemap.md) — one tree defines URLs, titles, page templates, and navigation.
 - [Build pipeline](pipeline.md) — phases, named stages, and hooks; how to change the build with code.
 - [Targets and hreflang](targets.md) — one repository, several sites, language selection.

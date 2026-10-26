@@ -90,6 +90,6 @@ The tree has two sources.
 
 1. **Markdown.** The remark parser turns `.md` into mdast (a typed Markdown tree), and the mdast → BEMJSON conversion builds a tree of blocks from it. The author writes Markdown; the engine receives a `BEMTree`. See [Markdown](markdown.md).
 
-2. **Page layout.** The block template (through the `wrap`, `replace`, and `content` modes) builds the page wrapper tree. The `root` block wraps the content in `<html>`. See [nu templates](templates.md).
+2. **Page layout.** The block template (through the `wrap`, `replace`, and `content` modes) builds the page wrapper tree. The `root` block wraps the content in `<html>`. See [nu.ts templates](templates.md).
 
 In the current HTML stage, content is serialized first and passed to the document handler through `raw`. The common model lets content and layout use one renderer, but does not exclude an intermediate HTML string.

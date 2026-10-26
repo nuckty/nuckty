@@ -1,4 +1,4 @@
-# nu templates
+# nu.ts templates
 
 A template describes how a block or element turns into [HTML](../out/html.md). Templates are written in **nu** — nuckty's internal language, in `.nu.ts` files. The syntax is based on the `block()(...)` call.
 

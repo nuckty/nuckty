@@ -93,7 +93,7 @@ The artifact can be copied to a compatible server. Apache needs the required mod
 ## What's next
 
 - [Data model: BEMJSON](bemjson.md) — blocks, elements and modifiers.
-- [nu templates](templates.md) — define your block's markup.
+- [nu.ts templates](templates.md) — define your block's markup.
 - [Markdown](markdown.md) — links, anchors and constructs.
 - [Extensions](ext/index.md) — add capabilities.
 
