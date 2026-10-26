@@ -6,7 +6,7 @@
 .showcase a:hover .demo-arrow { transform: translate(.2rem, -.2rem); }
 .demo-hero { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--page-gap); }
 .demo-hero__name { grid-column: 1 / -1; display: flex; flex-direction: column; min-height: 22rem; }
-.demo-hero__name h1 { margin-bottom: 1.5rem; font-size: clamp(4rem, 16vw, 9rem); line-height: .95; letter-spacing: -.07em; }
+.demo-hero__name h1 { margin-bottom: 1.5rem; font-size: clamp(4rem, 16vw, 9rem); line-height: .95; letter-spacing: .015em; }
 .demo-hero__name h1 span { display: inline; }
 .demo-hero__name > p { max-width: 32rem; font: var(--text-lead)/1.4 var(--serif); }
 .demo-hero__meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem; margin-top: auto; padding-top: 2rem; font-size: 1rem; }

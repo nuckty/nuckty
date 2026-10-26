@@ -85,7 +85,7 @@ img { max-width: 100%; }
 .skip-link:focus { top: 1rem; }
 .header { position: relative; z-index: 20; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--page-gap); margin-bottom: var(--page-gap); }
 .brand { display: inline-flex; gap: .5rem; align-items: center; min-width: 0; padding: .75rem 1rem; background: #2a2a26; color: #eee9df; text-decoration: none; }
-.brand__name { font-family: var(--display-font); font-size: 1.25rem; font-weight: 900; line-height: 1.15; letter-spacing: normal; }
+.brand__name { font-family: var(--display-font); font-size: 1.25rem; font-weight: 900; line-height: 1.15; letter-spacing: .015em; }
 .brand__mark { width: 2.75rem; height: 2rem; object-fit: contain; }
 .brand__mark_light { display: none; }
 .brand__mark_dark { display: block; }
