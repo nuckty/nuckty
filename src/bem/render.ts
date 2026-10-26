@@ -3,7 +3,7 @@
  *
  *   render(tree, opts) = renderToHtml(renderToBemJson(tree, { templates }), { document })
  *
- * Pass 1 (`./render-to-bemjson.ts`) applies nu templates and returns a fully
+ * Pass 1 (`./render-to-bemjson.ts`) applies nu.ts templates and returns a fully
  * resolved `BEMTree` (no HTML). Pass 2 (`./render-to-html.ts`) serializes that
  * resolved tree to minimal HTML (open tags, attrs, optional-end-tag omission by
  * the next sibling's resolved tag, SVG void-shaped self-close, `raw` passthrough).

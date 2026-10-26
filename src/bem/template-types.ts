@@ -1,5 +1,5 @@
 /**
- * nu template types — predicates, modes, templates.
+ * nu.ts template types — predicates, modes, templates.
  *
  * The authoring model:
  * - entry + sugar: `block('x')` (no `match` noise)

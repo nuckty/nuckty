@@ -8,7 +8,7 @@ First beta source candidate. This entry describes the prepared source set; it do
 
 ### Core
 
-- TypeScript and ESM BEMJSON template engine with two-pass rendering, composable nu templates and HTML serialization with optional-tag omission.
+- TypeScript and ESM BEMJSON template engine with two-pass rendering, composable nu.ts templates and HTML serialization with optional-tag omission.
 - Explicit sitemap, Markdown content, reusable block levels, dependency declarations and multiple build targets.
 - Programmable build pipeline with CSS and JavaScript bundling, hashed assets, images, Brotli/Gzip output, manifests, and nginx/Apache hosting configuration.
 - Shared extension contract: pipeline, Markdown, block levels, CLI commands and document generation. TypeScript configuration and templates load through the CLI.

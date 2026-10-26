@@ -1,5 +1,5 @@
 /**
- * Pass 1 — apply nu templates to a BEMJSON tree, returning a fully resolved
+ * Pass 1 — apply nu.ts templates to a BEMJSON tree, returning a fully resolved
  * `BEMTree` (no HTML, no minification). This is the structural pass (openspec
  * `templates` spec): control modes (`replace`/`wrap`/`def`) reshape the tree and
  * output modes (`tag`/`content`/`attrs`/`mods`/`elemMods`/`mix`/`cls`/`js`/`bem`)
