@@ -13,7 +13,7 @@ export default function templates(): void {
         const examples = [
             ['Markdown', ru ? 'Текст, таблицы, ссылки и списки задач.' : 'Text, tables, links and task lists.', '/markdown'],
             [ru ? 'Галерея и сетка' : 'Gallery and grid', ru ? 'Изображения, лайтбокс и раскладка контента.' : 'Images, a lightbox and content layout.', '/media'],
-            [ru ? 'Шаблоны nu' : 'nu templates', ru ? 'Правила для блоков и модификаторов.' : 'Rules for blocks and modifiers.', '/playground'],
+            [ru ? 'Шаблоны nu.ts' : 'nu.ts templates', ru ? 'Правила для блоков и модификаторов.' : 'Rules for blocks and modifiers.', '/playground'],
             [ru ? 'Файлы сборки' : 'Build files', ru ? 'HTML, ассеты и сжатые копии.' : 'HTML, assets and compressed copies.', '/output'],
         ];
 
