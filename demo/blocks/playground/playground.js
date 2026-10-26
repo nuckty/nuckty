@@ -1,6 +1,7 @@
 // These pure engine modules are bundled into the static demo by nuckty's JS stage.
 import { Templates } from 'nuckty/src/bem/templates.ts';
 import { render } from 'nuckty/src/bem/render.ts';
+import { cardExample } from './card-example.ts';
 
 const ru = document.documentElement.lang === 'ru';
 const input = document.querySelector('#playground-input');
@@ -13,10 +14,7 @@ if (input) {
     templates.add({ block: 'button', modes: { tag: 'button', attrs: (_node, next) => ({ ...next(), type: 'button' }) } });
     templates.add({ block: 'button', modName: 'disabled', modes: { attrs: (_node, next) => ({ ...next(), disabled: true }) } });
     const presets = {
-        card: { block: 'card', content: [
-            { elem: 'title', content: 'Hello, nuckty' },
-            { elem: 'description', content: (ru ? 'Текст меняется вместе с HTML.' : 'The text changes with the HTML.') },
-        ] },
+        card: cardExample(ru ? 'ru' : 'en'),
         list: { tag: 'ul', tightList: true, content: ['Markdown', 'BEMJSON', 'HTML'].map((content) => ({ tag: 'li', content })) },
         button: { block: 'button', mods: { disabled: true }, content: (ru ? 'Кнопка с модификатором' : 'Button with a modifier') },
         escaping: { tag: 'p', content: (ru ? '<script>alert("Это просто текст")</script> & nuckty' : '<script>alert("Just text")</script> & nuckty') },
@@ -36,7 +34,7 @@ if (input) {
             const html = render(tree, { templates });
             htmlOutput.textContent = html;
             treeOutput.textContent = JSON.stringify(resolved, null, 2);
-            frame.srcdoc = `<!doctype html><html lang="${ru ? 'ru' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:14px;font:clamp(13px,calc(11px + 1vw),16px)/1.6 "Helvetica Neue",system-ui;background:#fffef9;color:#272822}.card{padding:14px;border:1px solid #dedfd5;max-width:450px}.card__title{margin:0 0 7px;font-size:clamp(21px,calc(17px + 1.4vw),27px);letter-spacing:-1px}.card__description{margin:0;color:#606860}.card_color_orange{background:#fff1e5;border-color:#c44525}button{padding:12px 20px;background:#b5472d;color:white;border:0}button:disabled{opacity:.5}pre{white-space:pre-wrap}</style><body>${html}`;
+            frame.srcdoc = `<!doctype html><html lang="${ru ? 'ru' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:1.5rem;font:clamp(1.0625rem,1rem + .3vw,1.25rem)/1.6 Georgia,serif;background:#eee9df;color:#2a2a26;overflow-wrap:anywhere}.card{padding:0;max-width:40rem}.card__title{margin:0 0 1.125rem;font:800 clamp(1.875rem,5vw,3.375rem)/1.1 system-ui,sans-serif;letter-spacing:-.05em}.card__description{margin:0;font-size:clamp(1.125rem,2vw,1.5rem)}.card_color_orange{background:#d2cab8;padding:1.25rem}button{padding:.75rem 1.25rem;background:#4f6238;color:white;border:0}button:disabled{opacity:.5}pre{white-space:pre-wrap}</style><body>${html}`;
             error.textContent = '';
             input.removeAttribute('aria-invalid');
             status.textContent = `${new TextEncoder().encode(html).length} ${ru ? 'байт HTML' : 'bytes of HTML'}`;

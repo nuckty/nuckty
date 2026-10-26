@@ -1,11 +1,22 @@
 const ru = document.documentElement.lang === 'ru';
 const themeButton = document.querySelector('.theme-toggle');
 
+const languageLinks = [...document.querySelectorAll('.language-link, .header__language')];
+const currentUrl = new URL(location.href);
+const incomingTheme = currentUrl.searchParams.get('theme');
+
+if (incomingTheme === 'dark' || incomingTheme === 'light') {
+    document.documentElement.dataset.theme = incomingTheme;
+    currentUrl.searchParams.delete('theme');
+    history.replaceState(history.state, '', currentUrl);
+}
+
 try {
-    const theme = localStorage.getItem('nuckty-theme');
+    const theme = incomingTheme === 'dark' || incomingTheme === 'light' ? incomingTheme : localStorage.getItem('nuckty-theme');
 
     if (theme === 'dark' || theme === 'light') {
         document.documentElement.dataset.theme = theme;
+        localStorage.setItem('nuckty-theme', theme);
     }
 } catch {
     // The controls also work when storage is unavailable.
@@ -13,6 +24,13 @@ try {
 
 function updateThemeControl() {
     const dark = document.documentElement.dataset.theme === 'dark';
+
+    for (const link of languageLinks) {
+        const url = new URL(link.href);
+        url.searchParams.set('theme', dark ? 'dark' : 'light');
+        link.href = url.href;
+    }
+
     themeButton?.setAttribute('aria-pressed', String(dark));
     themeButton?.setAttribute('title', dark ? (ru ? 'Включить светлую тему' : 'Use light theme') : (ru ? 'Включить тёмную тему' : 'Use dark theme'));
 }
@@ -30,8 +48,6 @@ themeButton?.addEventListener('click', () => {
     }
 });
 themeButton?.removeAttribute('hidden');
-
-document.querySelector('.sidebar__fallback')?.setAttribute('hidden', '');
 
 const menuToggle = document.querySelector('.menu-toggle');
 const mainNavigation = document.querySelector('#main-nav');
@@ -71,23 +87,6 @@ const headerSize = new ResizeObserver(() => {
         footerBrand.style.setProperty('--footer-brand-scale', '1');
         const scale = footerMade.getBoundingClientRect().width / footerBrand.getBoundingClientRect().width;
         footerBrand.style.setProperty('--footer-brand-scale', String(scale));
-    }
-
-    for (const pre of document.querySelectorAll('.article > pre, .article > .code-block > pre')) {
-        const frame = pre.closest('.code-block') ?? pre;
-        frame.style.setProperty('--code-offset', `${frame.parentElement.getBoundingClientRect().left}px`);
-        frame.style.setProperty('--code-width', `${document.documentElement.clientWidth}px`);
-    }
-
-    for (const navigation of document.querySelectorAll('.page-navigation')) {
-        navigation.style.setProperty('--navigation-offset', `${navigation.getBoundingClientRect().left}px`);
-        navigation.style.setProperty('--navigation-width', `${document.documentElement.clientWidth}px`);
-        const width = document.documentElement.clientWidth;
-        const height = navigation.getBoundingClientRect().height;
-        const middle = height / 2;
-        const path = `M32 0H${width - 32}Q${width - 24} 0 ${width - 20} 8L${width - 4} ${middle - 8}Q${width} ${middle} ${width - 4} ${middle + 8}L${width - 20} ${height - 8}Q${width - 24} ${height} ${width - 32} ${height}H32Q24 ${height} 20 ${height - 8}L4 ${middle + 8}Q0 ${middle} 4 ${middle - 8}L20 8Q24 0 32 0Z`;
-        const mask = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}"><path d="${path}"/></svg>`;
-        navigation.style.setProperty('--navigation-mask', `url("data:image/svg+xml,${encodeURIComponent(mask)}")`);
     }
 });
 headerSize.observe(header);
@@ -152,25 +151,3 @@ for (const pre of document.querySelectorAll('.article pre, .code-window__code, .
     frame.append(pre, button);
     pre.classList.add('has-copy');
 }
-
-const tocLinks = [...document.querySelectorAll('.toc a')];
-const observer = new IntersectionObserver((entries) => {
-    const visible = entries.find((entry) => entry.isIntersecting);
-
-    if (!visible) {
-        return;
-    }
-
-    for (const link of tocLinks) {
-        if (decodeURIComponent(link.hash.slice(1)) === visible.target.id) {
-            link.setAttribute('aria-current', 'location');
-        } else {
-            link.removeAttribute('aria-current');
-        }
-    }
-}, { rootMargin: '-100px 0px -60% 0px' });
-
-for (const heading of document.querySelectorAll('.article h2, .article h3')) {
-    observer.observe(heading);
-}
-

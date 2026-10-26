@@ -121,6 +121,9 @@ for (const target of targets) {
             assert.equal(pages.get('/media').tags.filter(({ attrs }) => attrs.class === 'gallery__image' && attrs.loading === 'lazy').length, 2);
             assert.ok(pages.get('/playground').tags.some(({ tag, attrs }) => tag.startsWith('<iframe') && attrs.sandbox === ''), 'preview must use an empty sandbox');
             assert.match(pages.get('/markdown').html, /data-view=source/);
+            const tasks = pages.get('/markdown').tags.filter(({ attrs }) => attrs.type === 'checkbox');
+            assert.equal(tasks.length, 3);
+            assert.ok(tasks.every(({ attrs }) => attrs['aria-label']?.trim()), 'task checkboxes need accessible names');
             assert.match(pages.get('/markdown').html, target === 'en' ? /Text is content/ : /Текст\u00a0— это контент/);
             const origin = target === 'en' ? 'https://demo.nuckty.com' : 'https://demo.nuckty.ru';
             const alternate = target === 'en' ? 'https://demo.nuckty.ru' : 'https://demo.nuckty.com';

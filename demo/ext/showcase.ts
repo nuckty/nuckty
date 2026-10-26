@@ -30,9 +30,28 @@ export function register(env: NucktyEnv): void {
         return (bridge as MarkdownOptions).sourceFile?.endsWith('.en.md') ? 'en' : 'ru';
     }
 
+    function text(tree: BEMTree): string {
+        if (Array.isArray(tree)) {
+            return tree.map(text).join('');
+        }
+
+        if (tree && typeof tree === 'object') {
+            return 'content' in tree ? text(tree.content) : '';
+        }
+
+        return typeof tree === 'string' || typeof tree === 'number' ? String(tree) : '';
+    }
+
     function localize(tree: BEMTree, lang: string): void {
         if (Array.isArray(tree)) {
-            tree.forEach((child) => localize(child, lang));
+            const label = text(tree).trim();
+
+            for (const child of tree) {
+                if (child && typeof child === 'object' && !Array.isArray(child) && 'tag' in child && child.tag === 'input' && child.attrs?.['type'] === 'checkbox') {
+                    child.attrs = { ...child.attrs, 'aria-label': label };
+                }
+                localize(child, lang);
+            }
         } else if (tree && typeof tree === 'object' && !('raw' in tree)) {
             tree.props = { ...tree.props, lang };
             localize(tree.content, lang);

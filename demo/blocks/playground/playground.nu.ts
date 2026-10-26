@@ -5,19 +5,19 @@ export default function templates(): void {
         const ru = node.props?.lang !== 'en';
         const compact = node.mods?.['compact'] === true;
         const input: BemNode = { elem: 'input', content: [
-            { bem: false, tag: 'label', cls: 'playground__label', attrs: { for: 'playground-input' }, content: (ru ? "01 / BEMJSON · редактируйте здесь" : "01 / BEMJSON \u00b7 edit here") },
+            { bem: false, tag: 'label', cls: 'playground__label', attrs: { for: 'playground-input' }, content: (ru ? "BEMJSON · редактируйте здесь" : "BEMJSON \u00b7 edit here") },
             { bem: false, tag: 'textarea', attrs: { id: 'playground-input', rows: '19', spellcheck: 'false', autocomplete: 'off', autocapitalize: 'off', 'aria-describedby': 'playground-error' }, content: '' },
         ] };
         const output: BemNode = { elem: 'output', content: [
-            { bem: false, tag: 'p', cls: 'playground__label', content: (ru ? "02 / HTML · результат движка" : "02 / HTML \u00b7 engine output") },
+            { bem: false, tag: 'p', cls: 'playground__label', content: (ru ? "HTML · результат движка" : "HTML \u00b7 engine output") },
             { bem: false, tag: 'pre', attrs: { id: 'playground-html', tabindex: '0' }, content: '' },
-            { bem: false, tag: 'details', attrs: { open: compact }, content: [
+            { bem: false, tag: 'details', attrs: { open: false }, content: [
                 { bem: false, tag: 'summary', content: (ru ? "Дерево после шаблонов" : "Tree after templates") },
                 { bem: false, tag: 'pre', attrs: { id: 'playground-tree', tabindex: '0' }, content: '' },
             ] },
         ] };
         const preview: BemNode = { elem: 'preview-pane', attrs: { hidden: true }, content: [
-            { bem: false, tag: 'p', cls: 'playground__label playground__preview-label', content: (ru ? "03 / ПРЕДПРОСМОТР" : "03 / PREVIEW") },
+            { bem: false, tag: 'p', cls: 'playground__label playground__preview-label', content: (ru ? "Предпросмотр" : "Preview") },
             { bem: false, tag: 'iframe', cls: 'playground__preview', attrs: { id: 'playground-preview', title: (ru ? "Предпросмотр BEMJSON" : "BEMJSON preview"), sandbox: '' }, content: '' },
         ] };
 

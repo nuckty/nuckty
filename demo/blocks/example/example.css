@@ -1,19 +1,20 @@
-.example { margin: 25px 0 35px; border: 1px solid var(--line); background: var(--surface); }
-.example__tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 0; border-bottom: 1px solid var(--line); }
-.example__tab { padding: 13px 18px; border: 0; border-bottom: 2px solid transparent; background: transparent; font-size: var(--text-small); color: var(--muted); }
-.example__tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
-.example__label { min-width: 0; overflow-wrap: anywhere; margin-left: auto; padding: 0 16px; color: var(--muted); font: var(--text-micro) ui-monospace, monospace; }
-.example__result { padding: 18px 24px; }
-.example__source pre { margin: 0; white-space: pre; overflow-wrap: normal; }
-.example__result h2 { margin-top: 15px; }
+.example { margin: 2rem 0; background: var(--paper); }
+.example__tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; padding: 0 1.5rem; background: var(--surface); }
+.example__tab { padding: 1rem 0; border: 0; background: transparent; color: var(--muted); font: inherit; }
+.example__tab[aria-selected="true"] { color: var(--ink); text-decoration: underline; text-underline-offset: .4em; }
+.example__label { min-width: 0; margin-left: auto; overflow-wrap: anywhere; font: 1rem ui-monospace, monospace; }
+.example__result { padding: 1.5rem; }
+.example__source pre { margin: 0; padding: 1.5rem; overflow: auto; background: var(--code); color: var(--code-ink); white-space: pre; overflow-wrap: normal; font: var(--text-code)/1.65 ui-monospace, monospace; }
+.example__source pre code { font: inherit; }
 .example__result .gallery { margin: 0; }
-.grid { gap: 12px; }
-.grid__item { padding: 22px; border: 1px solid var(--line); background: var(--accent-soft); font-size: var(--text-secondary); line-height: 1.7; }
-.gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.gallery__image { aspect-ratio: 4/3; object-fit: cover; width: 100%; }
-@media (max-width: 820px) {
+.grid { display: grid; gap: var(--page-gap); }
+.grid__item { padding: 1.5rem; background: var(--surface); font: var(--text-body)/1.6 var(--serif); }
+.gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--page-gap); }
+.gallery__image { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+
+@media (min-width: 48rem) {
+    .gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 47.999rem) {
     .example__label { display: none; }
-    .example__result { padding: 14px; }
-    .example__tab { padding: 12px 15px; }
-    .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

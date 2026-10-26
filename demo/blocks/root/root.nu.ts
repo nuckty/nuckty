@@ -60,24 +60,6 @@ export default function templates(): void {
             ]),
         ]);
         const pages = Object.values(data.sitemap.pages).filter((page) => page.url !== '/' && page.url !== '/use-cases');
-        const groups = demo ? [['', (ru ? 'Примеры' : 'Examples')]] : [
-            ['/docs', ru ? 'Обзор' : 'Overview'],
-            ['/how', ru ? 'Как пользоваться' : 'How to use it'],
-            ['/out', ru ? 'Результат сборки' : 'Build output'],
-            ['/ext', ru ? 'Расширения' : 'Extensions'],
-            ['/why', ru ? 'Почему так' : 'Why this way'],
-        ];
-        const sidebar = element('aside', 'sidebar', [
-            element('nav', 'sidebar__sections', groups.map(([prefix, label]) => element('div', 'sidebar__group', [
-                element('p', 'sidebar__label', label ?? ''),
-                ...pages.filter((page) => page.url === prefix || page.url.startsWith(`${prefix}/`)).map((page) => link(page.url, page.name, `sidebar__link${page.url.split('/').length > 3 ? ' sidebar__link_nested' : ''}`, page.url === url)),
-            ])), { id: 'doc-sections', 'aria-label': ru ? 'Разделы документации' : 'Documentation sections' }),
-        ], { 'aria-label': ru ? 'Разделы' : 'Sections' });
-        const headings = (data.page.headings ?? []).filter((heading) => heading.level === 2 || heading.level === 3);
-        const toc = element('aside', 'toc', [
-            element('p', 'sidebar__label', ru ? 'На этой странице' : 'On this page'),
-            element('nav', 'toc__nav', headings.map((heading) => link(`#${heading.anchor}`, heading.text, heading.level === 3 ? 'toc__link toc__link_nested' : 'toc__link')), { 'aria-label': ru ? 'Заголовки страницы' : 'Page headings' }),
-        ]);
         const index = pages.findIndex((page) => page.url === url);
         const neighbors = [pages[index - 1], pages[index + 1]];
         const main: BemNode = landing ? element('main', 'main main_landing', demo ? data.content : { block: 'home', props: { lang: data.lang, demoUrl, example: data.page['homeExample'] } }, { id: 'main' }) : element('main', 'main docs-layout', [
@@ -85,9 +67,7 @@ export default function templates(): void {
                 element('nav', 'breadcrumbs', element('ol', 'breadcrumbs__list', [link('/', demo ? (ru ? 'Демо' : 'Demo') : 'nuckty'), ...data.page.breadcrumbs.filter((route) => route !== url && Boolean(data.sitemap.pages[route])).map((route) => link(route, data.sitemap.pages[route]!.name))].map((item, i) => element('li', 'breadcrumbs__item', [
                     ...(i ? [element('span', 'breadcrumbs__separator', '/', { 'aria-hidden': 'true' })] : []), item,
                 ]))), { 'aria-label': ru ? 'Путь к странице' : 'Breadcrumb' }),
-            link(demo ? '/' : '/docs', demo ? (ru ? 'Все примеры →' : 'All examples →') : (ru ? 'Все разделы →' : 'All sections →'), 'sidebar__fallback'),
             ]),
-            sidebar,
             element('div', 'article-column', [
                 element('article', 'article', data.content),
                 element('nav', 'page-navigation', neighbors.map((page, i) => page ? element('a', 'page-navigation__link',
@@ -96,9 +76,9 @@ export default function templates(): void {
                     ]),
                 { href: page.url, rel: i === 0 ? 'prev' : 'next', 'data-direction': i === 0 ? 'previous' : 'next', 'aria-label': `${i === 0 ? (ru ? 'Предыдущая страница' : 'Previous page') : (ru ? 'Следующая страница' : 'Next page')}: ${page.name}` }) : null), { 'aria-label': ru ? 'Соседние страницы' : 'Neighboring pages' }),
             ]),
-            toc,
         ], { id: 'main' });
         const footer = element('footer', 'footer', [
+            element('div', 'demo-wordmark', [...'nuckty'].map((letter) => element('span', '', letter)), { 'aria-hidden': 'true' }),
             element('div', 'footer__identity', [
                 element(url === '/' ? 'span' : 'a', 'footer__brand', [
                     ...(brand ? [element('img', 'footer__mark brand__mark_light', null, { src: `/${brand}`, alt: '', width: '40', height: '28' })] : []),
@@ -128,7 +108,7 @@ export default function templates(): void {
             element('meta', '', null, { name: 'viewport', content: 'width=device-width,initial-scale=1' }),
             element('meta', '', null, { name: 'description', content: description }),
             element('meta', '', null, { name: 'color-scheme', content: 'light dark' }),
-            element('meta', '', null, { name: 'theme-color', content: '#f6f5ef' }),
+            element('meta', '', null, { name: 'theme-color', content: '#ddd6c6' }),
             element('link', '', null, { rel: 'canonical', href: `${origin}${url}` }),
             element('meta', '', null, { property: 'og:title', content: title }),
             element('meta', '', null, { property: 'og:description', content: description }),
@@ -149,4 +129,3 @@ export default function templates(): void {
         };
     });
 }
-
