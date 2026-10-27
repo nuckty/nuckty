@@ -1,4 +1,4 @@
-# nuckty-ext-block-root
+# @nuckty/ext-block-root
 
 > **The page wrapper block — `root`.**
 
@@ -27,17 +27,17 @@ The extension owns only the `root` name. The `page*` namespace (`page`, `page-in
 ## How to load
 
 ```bash
-npm install nuckty-ext-block-root
+npm install @nuckty/ext-block-root
 ```
 
 Add the extension to `ext` in the global `config/config-nuckty.ts`, retaining other extension entries. It registers the document handler; remove any other handler registration before using it:
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root'],
+    ext: ['@nuckty/ext-block-root'],
 });
 ```
 
@@ -54,4 +54,3 @@ Behavior is fixed by the openspec `ext-block-root` spec (`openspec/specs/ext-blo
 ## License
 
 MIT.
-

@@ -9,8 +9,8 @@
  * nodes it returns do not re-trigger it (no recursion). The `page*` namespace
  * stays reserved for the site; this block owns only `root`.
  */
-import { block } from 'nuckty';
-import type { BemNode, DocumentData } from 'nuckty';
+import { block } from '@nuckty/core';
+import type { BemNode, DocumentData } from '@nuckty/core';
 
 export default function templates(): void {
     block<DocumentData>('root').when((n) => Boolean(n.props)).wrap((n) => {

@@ -1,4 +1,4 @@
-# nuckty-ext-block-root
+# @nuckty/ext-block-root
 
 > **Обёртка страницы — блок `root`.**
 
@@ -27,17 +27,17 @@
 ## Как подключить
 
 ```bash
-npm install nuckty-ext-block-root
+npm install @nuckty/ext-block-root
 ```
 
 Добавьте расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Оно регистрирует обработчик документа; перед подключением удалите регистрацию другого обработчика:
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root'],
+    ext: ['@nuckty/ext-block-root'],
 });
 ```
 
@@ -54,4 +54,3 @@ export default defineNucktyConfig({
 ## Лицензия
 
 MIT.
-

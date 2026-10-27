@@ -1,5 +1,5 @@
 /**
- * Tests for nuckty-ext-block-root (openspec `ext-block-root`):
+ * Tests for @nuckty/ext-block-root (openspec `ext-block-root`):
  * - `register(env)` adds the package's `blocks/` directory as a level;
  * - the `root` block wraps `{ block: 'root', props, content }` into an HTML
  *   document exactly once: `lang` from props, `<title>`/viewport from
@@ -13,8 +13,8 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { NucktyEnv, Templates, render, runWithTemplates } from 'nuckty';
-import type { DocumentData } from 'nuckty';
+import { NucktyEnv, Templates, render, runWithTemplates } from '@nuckty/core';
+import type { DocumentData } from '@nuckty/core';
 import { register as registerExtension } from '../index.js';
 import templates from '../../blocks/root/root.nu.ts';
 

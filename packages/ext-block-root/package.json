@@ -1,5 +1,5 @@
 {
-    "name": "nuckty-ext-block-root",
+    "name": "@nuckty/ext-block-root",
     "version": "1.0.0-beta1",
     "license": "MIT",
     "repository": {
@@ -7,7 +7,8 @@
         "url": "git@github.com:nuckty/nuckty-ext-block-root.git"
     },
     "publishConfig": {
-        "registry": "https://registry.npmjs.org"
+        "registry": "https://registry.npmjs.org",
+        "access": "public"
     },
     "description": "nuckty block-extension: the root page wrapper block (<html>/<head>/<body>)",
     "type": "module",
@@ -25,16 +26,15 @@
     },
     "devDependencies": {
         "@types/node": "24.13.3",
-        "nuckty": "file:../nuckty",
+        "@nuckty/core": "file:../nuckty",
         "tsx": "4.23.12",
         "typescript": "7.0.2"
     },
     "peerDependencies": {
-        "nuckty": "1.0.0-beta1"
+        "@nuckty/core": "1.0.0-beta1"
     },
     "author": {
         "name": "Vitaly Harisov",
         "email": "vitaly@harisov.name"
     }
 }
-
