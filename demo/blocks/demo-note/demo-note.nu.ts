@@ -6,7 +6,7 @@ export default function templates(): void {
         tag: 'a',
         attrs: (node, next) => ({ href: '/output', ...next(), ...attributes(node, ['href']) }),
     });
-    block('demo-note').when((node) => !node.elem)({
+    block('demo-note')({
         tag: 'section',
     });
 }

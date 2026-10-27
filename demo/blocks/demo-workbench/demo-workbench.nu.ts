@@ -5,7 +5,7 @@ export default function templates(): void {
     block('demo-workbench').elem('note')({
         tag: 'p',
     });
-    block('demo-workbench').when((node) => !node.elem)({
+    block('demo-workbench')({
         tag: 'section',
         attrs: (node, next) => ({ id: 'playground', ...next(), ...attributes(node, ['id']) }),
     });

@@ -2,7 +2,7 @@ import { block } from '@nuckty/core';
 import { attributes } from '../bem/bem.js';
 
 export default function templates(): void {
-    block('icon-button').when((node) => !node.elem)({
+    block('icon-button')({
         tag: 'button',
         attrs: (node, next) => ({
             type: 'button',

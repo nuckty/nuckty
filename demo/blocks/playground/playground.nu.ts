@@ -174,11 +174,11 @@ export default function templates(): void {
             ...attributes(node, ['id', 'role', 'hidden']),
         }),
     });
-    block('playground').when((node) => !node.elem)({
+    block('playground')({
         tag: 'section',
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['aria-label']) }),
     });
     block<{ lang?: string }>('playground')
-        .when((node) => !node.elem && Boolean(node.props))
+        .when((node) => Boolean(node.props))
         .replace(playgroundTree);
 }

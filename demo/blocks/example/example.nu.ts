@@ -113,11 +113,11 @@ export default function templates(): void {
             ...attributes(node, ['id', 'role', 'aria-labelledby', 'data-panel', 'hidden', 'tabindex']),
         }),
     });
-    block('example').when((node) => !node.elem)({
+    block('example')({
         tag: 'section',
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['data-example', 'aria-label']) }),
     });
     block<{ sample: string; source: string; lang?: string }>('example')
-        .when((node) => !node.elem && Boolean(node.props))
+        .when((node) => Boolean(node.props))
         .replace(exampleTree);
 }

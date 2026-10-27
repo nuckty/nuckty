@@ -18,7 +18,7 @@ export default function templates(): void {
     block('search-dialog').elem('hint')({
         tag: 'p',
     });
-    block('search-dialog').when((node) => !node.elem)({
+    block('search-dialog')({
         tag: 'dialog',
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['aria-label']) }),
     });

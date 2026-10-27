@@ -2,7 +2,7 @@ import { block } from '@nuckty/core';
 import { attributes } from '../bem/bem.js';
 
 export default function templates(): void {
-    block('demo-arrow').when((node) => !node.elem)({
+    block('demo-arrow')({
         tag: 'svg',
         attrs: (node, next) => ({
             viewBox: '0 0 24 24',

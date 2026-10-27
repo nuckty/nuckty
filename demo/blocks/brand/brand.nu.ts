@@ -15,7 +15,7 @@ export default function templates(): void {
     block('brand').elem('name')({
         tag: 'span',
     });
-    block('brand').when((node) => !node.elem)({
+    block('brand')({
         tag: (node) => (node.props?.linked ? 'a' : 'span'),
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['href', 'aria-label']) }),
     });

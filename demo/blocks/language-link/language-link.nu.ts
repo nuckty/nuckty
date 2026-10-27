@@ -1,7 +1,7 @@
 import { block } from '@nuckty/core';
 
 export default function templates(): void {
-    block('language-link').when((node) => !node.elem)({
+    block('language-link')({
         tag: (node) => (node.props?.active ? 'span' : 'a'),
         attrs: (node, next) =>
             node.props?.active

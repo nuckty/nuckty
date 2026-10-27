@@ -1,7 +1,7 @@
 import { block } from '@nuckty/core';
 
 export default function templates(): void {
-    block('control-icon').when((node) => !node.elem)({
+    block('control-icon')({
         tag: 'svg',
         attrs: {
             viewBox: '0 0 24 24',

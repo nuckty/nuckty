@@ -395,10 +395,10 @@ export default function templates(): void {
         tag: 'html',
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['lang', 'data-site']) }),
     });
-    block('root').when((node) => !node.elem)({
+    block('root')({
         tag: 'div',
     });
     block<import('@nuckty/core').DocumentData>('root')
-        .when((node) => !node.elem && Boolean(node.props))
+        .when((node) => Boolean(node.props))
         .wrap(documentTree);
 }

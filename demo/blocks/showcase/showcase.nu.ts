@@ -242,10 +242,10 @@ export default function templates(): void {
     block('showcase').elem('subheading')({
         tag: 'h3',
     });
-    block('showcase').when((node) => !node.elem)({
+    block('showcase')({
         tag: 'div',
     });
     block<{ lang?: string; gallery?: import('@nuckty/core').BEMTree; grid?: import('@nuckty/core').BEMTree }>(
         'showcase',
-    ).when((node) => !node.elem && Boolean(node.props))({ content: showcaseContent });
+    ).when((node) => Boolean(node.props))({ content: showcaseContent });
 }

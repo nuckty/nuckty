@@ -16,7 +16,7 @@ export default function templates(): void {
     block('header').elem('tools')({
         tag: 'div',
     });
-    block('header').when((node) => !node.elem)({
+    block('header')({
         tag: 'header',
     });
 }

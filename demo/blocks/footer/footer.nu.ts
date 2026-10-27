@@ -37,7 +37,7 @@ export default function templates(): void {
         tag: 'nav',
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['aria-label']) }),
     });
-    block('footer').when((node) => !node.elem)({
+    block('footer')({
         tag: 'footer',
     });
 }

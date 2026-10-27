@@ -30,7 +30,7 @@ export default function templates(): void {
         tag: 'a',
         attrs: (node, next) => ({ href: '#playground', ...next(), ...attributes(node, ['href']) }),
     });
-    block('demo-hero').when((node) => !node.elem)({
+    block('demo-hero')({
         tag: 'section',
     });
 }

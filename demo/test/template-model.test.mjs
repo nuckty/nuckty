@@ -106,3 +106,10 @@ test('active navigation has aria-current and no href; other destinations remain 
         assert.equal(linked.attrs.href, href);
     }
 });
+
+test('template declarations rely on engine entity matching and tag precedence', async () => {
+    for (const file of declarations) {
+        const source = await readFile(new URL('../' + file, import.meta.url), 'utf8');
+        assert.doesNotMatch(source, /!node\.(?:elem|tag)/, file);
+    }
+});

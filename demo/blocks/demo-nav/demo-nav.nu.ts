@@ -6,7 +6,7 @@ export default function templates(): void {
         tag: 'a',
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['href']) }),
     });
-    block('demo-nav').when((node) => !node.elem)({
+    block('demo-nav')({
         tag: 'nav',
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['aria-label']) }),
     });

@@ -12,7 +12,7 @@ export default function templates(): void {
     block('breadcrumbs').elem('list')({
         tag: 'ol',
     });
-    block('breadcrumbs').when((node) => !node.elem)({
+    block('breadcrumbs')({
         tag: 'nav',
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['aria-label']) }),
     });

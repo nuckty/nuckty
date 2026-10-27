@@ -12,7 +12,7 @@ export default function templates(): void {
         tag: 'a',
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['href', 'rel', 'data-direction', 'aria-label']) }),
     });
-    block('page-navigation').when((node) => !node.elem)({
+    block('page-navigation')({
         tag: 'nav',
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['aria-label']) }),
     });
