@@ -52,7 +52,7 @@ The project's MIT license covers its own code. Installed dependencies keep their
 
 ## Public-site CI
 
-A successful CI run after a push to this repository's `main` automatically starts the website and demo CI through the organization GitHub App. Each consumer builds from verified source commits and deploys its static artifact only after its checks pass. See the [CI rebuild setup](https://github.com/nuckty/nuckty-docs/blob/main/.github/README.md).
+Publishing a versioned GitHub Release starts npm publication after verification of that commit's successful main CI. Website and demo update exact registry dependencies only after public package integrity is confirmed and deploy after their checks pass. See [npm release operation and trusted publisher setup](.github/RELEASING.md).
 
 ## License
 
