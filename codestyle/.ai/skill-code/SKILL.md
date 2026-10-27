@@ -11,7 +11,7 @@ description: "Writes and edits source code in nuckty repositories. Covers TypeSc
 - Prefer narrowing over casts; never suppress type errors with `never`.
 - Configs under `config/config-*`.
 - Block extensions: sources live in `blocks/` and ship with the package; the deps loader imports `blocks/<name>/<name>.nu.ts` by name — keep file names in sync with block names.
-- A `.nu.ts` file imports `block` from `nuckty`, exports `default function templates(): void`, and declares only the block matching its directory. Never use `env.block`, a named `register`, or top-level declarations in a template module.
+- A `.nu.ts` file imports `block` from `@nuckty/core`, exports `default function templates(): void`, and declares only the block matching its directory. Never use `env.block`, a named `register`, or top-level declarations in a template module.
 - CSS follows the shared Stylelint property order; run the project's `lint:fix` instead of formatting source manually.
 - Deps: exact versions; `@types/node` tracks the runtime major.
 - Use `git mv` to move files; maintain backward compatibility.

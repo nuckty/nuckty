@@ -6,9 +6,9 @@ Shared reference for all `nuckty-*` repositories; paired with `GLOSSARY.ru.md` �
 
 | Term | Meaning | Do not use |
 |---|---|---|
-| core | The `nuckty` package. Knows only `nuckty build` and the `register(env)` contract | — |
+| core | The `@nuckty/core` package. Knows only `nuckty build` and the `register(env)` contract | — |
 | engine | The `nu` render engine: applies templates and assembles pages | — |
-| extension | A module with the `register(env)` entry point, supplied by a `nuckty-ext-*` package or a local file. Umbrella term for user-facing additions. Five types: pipeline, markdown, block, command, document | plugin¹ |
+| extension | A module with the `register(env)` entry point, supplied by an npm package or a local file; official packages use `@nuckty/ext-*`. Umbrella term for user-facing additions. Five types: pipeline, markdown, block, command, document | plugin¹ |
 | remark plugin | Internal mechanism: an MDAST transformation that a markdown extension registers via `env.markdown.use(...)`. Technical remark-ecosystem term, not user-facing | — |
 | `ext` | Field in `config-nuckty.ts` listing extensions | `plugins` |
 
@@ -83,9 +83,8 @@ Shared reference for all `nuckty-*` repositories; paired with `GLOSSARY.ru.md` �
 
 ## Footnotes
 
-¹ "plugin" is correct only for remark plugins, third-party ones (`eleventy-navigation`), and external library fields. The umbrella term for `nuckty-ext-*` is extension.
+¹ "plugin" is correct only for remark plugins, third-party ones (`eleventy-navigation`), and external library fields. The umbrella term for `@nuckty/ext-*` is extension.
 
 ² "render"/"rendering" is allowed for the serialization passes only. For the engine's work on a page as a whole, say build.
 
 ³ "host" as a config field with a domain value (`host: 'example.ru'`) is correct. As the serving machine — no, use server.
-
