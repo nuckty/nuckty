@@ -17,7 +17,7 @@ cd nuckty-starter
 npm install
 ```
 
-The `packages/` directory contains prepared archives of the core and all ten extensions. `package.json` initially installs the core, the `root` document wrapper and the `serve` preview commands; follow the [catalogue](../ext/index.md) to add other extensions. Package dependencies come from public npm. This project does not need sibling source repositories.
+`package.json` installs version `1.0.0-beta1` of `@nuckty/core`, the `root` document wrapper and the `serve` preview commands from public npm. Follow the [catalogue](../ext/index.md) to install other extensions at the same version. This project does not need sibling source repositories.
 
 ## 2. Build and preview the page
 

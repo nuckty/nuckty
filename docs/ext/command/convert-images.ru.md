@@ -40,10 +40,10 @@ nuckty convert-images [contentDir] [--dry-run] [--force]
 
 Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
-Установите подготовленный пакет из каталога `packages/` распакованного [стартового проекта](../../how/start.ru.md):
+Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
 ```bash
-npm install --save-dev ./packages/nuckty-ext-command-convert-images-1.0.0-beta1.tgz
+npm install --save-exact --save-dev @nuckty/ext-command-convert-images@1.0.0-beta1
 ```
 
 ```ts

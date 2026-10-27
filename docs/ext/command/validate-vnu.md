@@ -44,10 +44,10 @@ This example extends the quickstart with the standard `@nuckty/ext-block-root` d
 
 Install a maintained system JVM before running `npm install`. The extension includes a pinned `vnu-jar` dependency. Its upstream postinstall downloads a JRE when system Java is missing; Nuckty validation uses `java` on PATH.
 
-Run the command below from the extracted [starter project](../../how/start.md); prepared extension archives are in `packages/`.
+Install the extension from npm in the extracted [starter project](../../how/start.md):
 
 ```
-npm install ./packages/nuckty-ext-command-validate-vnu-1.0.0-beta1.tgz
+npm install --save-exact @nuckty/ext-command-validate-vnu@1.0.0-beta1
 ```
 
 ```ts

@@ -43,10 +43,10 @@ The block turns this data into title, metadata, hreflang and stylesheet links in
 
 Add the package to `ext` in the global `config/config-nuckty.ts`. It registers the document handler; remove another handler registration before using it.
 
-Run the command below from the extracted [starter project](../../how/start.md); prepared extension archives are in `packages/`.
+Install the extension from npm in the extracted [starter project](../../how/start.md):
 
 ```
-npm install ./packages/nuckty-ext-block-root-1.0.0-beta1.tgz
+npm install --save-exact @nuckty/ext-block-root@1.0.0-beta1
 ```
 
 Register the extension in `config-nuckty.ts`:

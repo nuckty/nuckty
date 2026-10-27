@@ -44,10 +44,10 @@ npx @nuckty/core validate main
 
 Установите поддерживаемую системную JVM до запуска `npm install`. Расширение включает закреплённую зависимость `vnu-jar`. Установочный скрипт `vnu-jar` скачивает JRE, если системной Java нет; валидация Nuckty использует `java` из PATH.
 
-Команда ниже выполняется из распакованного [стартового проекта](../../how/start.ru.md): готовые архивы расширений находятся в `packages/`.
+Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
 ```
-npm install ./packages/nuckty-ext-command-validate-vnu-1.0.0-beta1.tgz
+npm install --save-exact @nuckty/ext-command-validate-vnu@1.0.0-beta1
 ```
 
 ```ts

@@ -43,10 +43,10 @@ block<{ lang?: string }>('root').wrap((n) => ({
 
 Добавьте пакет в `ext` глобального `config/config-nuckty.ts`. Он регистрирует обработчик документа; прежде чем подключать пакет, удалите регистрацию другого обработчика.
 
-Команда ниже выполняется из распакованного [стартового проекта](../../how/start.ru.md): готовые архивы расширений находятся в `packages/`.
+Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
 ```
-npm install ./packages/nuckty-ext-block-root-1.0.0-beta1.tgz
+npm install --save-exact @nuckty/ext-block-root@1.0.0-beta1
 ```
 
 Подключите расширение в `config-nuckty.ts`:

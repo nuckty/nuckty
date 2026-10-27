@@ -64,10 +64,10 @@ The transfer protocol, rather than the server class, determines compatibility. F
 
 This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
-Run the command below from the extracted [starter project](../../how/start.md); prepared extension archives are in `packages/`.
+Install the extension from npm in the extracted [starter project](../../how/start.md):
 
 ```
-npm install ./packages/nuckty-ext-command-deploy-ftp-1.0.0-beta1.tgz
+npm install --save-exact @nuckty/ext-command-deploy-ftp@1.0.0-beta1
 ```
 
 ```ts

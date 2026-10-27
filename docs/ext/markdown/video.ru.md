@@ -51,10 +51,10 @@ export function register(env: NucktyEnv): void {
 
 Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
-Команда ниже выполняется из распакованного [стартового проекта](../../how/start.ru.md): готовые архивы расширений находятся в `packages/`.
+Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
 ```
-npm install ./packages/nuckty-ext-markdown-video-1.0.0-beta1.tgz
+npm install --save-exact @nuckty/ext-markdown-video@1.0.0-beta1
 ```
 
 ```ts

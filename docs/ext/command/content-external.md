@@ -36,10 +36,10 @@ Preparation runs explicitly from the configured site root. `--dry-run` performs 
 
 This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
-Install the prepared package from `packages/` in the extracted [starter project](../../how/start.md):
+Install the extension from npm in the extracted [starter project](../../how/start.md):
 
 ```bash
-npm install --save-dev ./packages/nuckty-ext-command-content-external-1.0.0-beta1.tgz
+npm install --save-exact --save-dev @nuckty/ext-command-content-external@1.0.0-beta1
 ```
 
 ```ts
