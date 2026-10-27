@@ -22,9 +22,9 @@ Add the packages to `ext` in the nuckty configuration and block names to the bun
 
 ```ts
 ext: [
-    'nuckty-ext-block-root',
-    'nuckty-ext-block-gallery',
-    'nuckty-ext-block-grid',
+    '@nuckty/ext-block-root',
+    '@nuckty/ext-block-gallery',
+    '@nuckty/ext-block-grid',
 ]
 ```
 

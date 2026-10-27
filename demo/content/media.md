@@ -22,9 +22,9 @@
 
 ```ts
 ext: [
-    'nuckty-ext-block-root',
-    'nuckty-ext-block-gallery',
-    'nuckty-ext-block-grid',
+    '@nuckty/ext-block-root',
+    '@nuckty/ext-block-gallery',
+    '@nuckty/ext-block-grid',
 ]
 ```
 
@@ -33,4 +33,3 @@ module.exports = ['root', 'gallery', 'lightbox', 'grid'];
 ```
 
 [Посмотреть результат сборки этого демо](output.md)
-

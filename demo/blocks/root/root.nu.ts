@@ -1,4 +1,4 @@
-import { block, type BEMTree, type BemNode, type DocumentData } from 'nuckty';
+import { block, type BEMTree, type BemNode, type DocumentData } from '@nuckty/core';
 
 const element = (tag: string, cls: string, content: BEMTree, attrs: BemNode['attrs'] = {}): BemNode => ({ tag, cls, content, attrs, bem: false });
 const link = (href: string, text: string, cls = '', active = false): BemNode => element(active ? 'span' : 'a', cls, text, { ...(active ? { 'aria-current': 'page' } : { href }) });

@@ -1,6 +1,6 @@
 import { highlightCode } from '../../ext/highlight.js';
 import { cardExample } from '../playground/card-example.js';
-import { block, type BEMTree, type BemNode } from 'nuckty';
+import { block, type BEMTree, type BemNode } from '@nuckty/core';
 
 const el = (tag: string, cls: string, content: BEMTree, attrs: BemNode['attrs'] = {}): BemNode => ({ tag, cls, content, attrs, bem: false });
 const arrow = (): BemNode => el('svg', 'demo-arrow', el('path', '', null, { d: 'M5 19 19 5M5 5h14v14' }), { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.3', 'aria-hidden': 'true' });

@@ -64,7 +64,7 @@ try {
 
     const cleanDemo = path.join(snapshot, 'nuckty-demo');
     const manifest = JSON.parse(readFileSync(path.join(cleanDemo, 'package.json'), 'utf8'));
-    assert.equal(manifest.dependencies.nuckty, 'file:../nuckty', 'check must use the demo manifest and sibling topology');
+    assert.equal(manifest.dependencies['@nuckty/core'], 'file:../nuckty', 'check must use the demo manifest and sibling topology');
     npm(['ci', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org'], cleanDemo);
     npm(['run', 'build'], cleanDemo);
     assert.ok(readFileSync(path.join(cleanDemo, 'site/html/index.html'), 'utf8').length > 0, 'clean demo build must emit HTML');

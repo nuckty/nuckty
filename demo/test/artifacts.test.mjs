@@ -7,7 +7,7 @@ import { brotliDecompressSync, gunzipSync } from 'node:zlib';
 
 const root = path.resolve(import.meta.dirname, '..');
 const manifestPackage = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
-const website = manifestPackage.name === 'nuckty-site';
+const website = manifestPackage.name === '@nuckty/site';
 const targets = website ? ['ru', 'en'] : ['', 'en'];
 const entities = { amp: '&', quot: '"', '#39': "'", lt: '<', gt: '>' };
 const decode = (value) => value.replace(/&(amp|quot|#39|lt|gt);/g, (_, key) => entities[key]);

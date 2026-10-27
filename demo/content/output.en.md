@@ -51,9 +51,9 @@ Run these commands from the demo directory. Preview requires nginx; HTML validat
 
 ```bash
 npm run build
-npx nuckty serve en --port 8094
-npx nuckty validate en
-npx nuckty stop en
+npx @nuckty/core serve en --port 8094
+npx @nuckty/core validate en
+npx @nuckty/core stop en
 ```
 
 The core provides `build`; extensions provide `serve` and `validate`. FTP/FTPS publication is available through `deploy-ftp` after server configuration. The demo never deploys automatically.

@@ -9,7 +9,7 @@ BEMJSON описывает структуру блока: его имя, эле�
 Для карточки шаблон задаёт тег `article`, для элемента `title` — `h2`, для `description` — `p`. Имена блока и элементов становятся БЭМ-классами: `card`, `card__title`, `card__description`.
 
 ```ts
-import { block } from 'nuckty';
+import { block } from '@nuckty/core';
 
 export default function templates(): void {
     block('card')({ tag: 'article' });
@@ -32,4 +32,3 @@ export default function templates(): void {
 Предпросмотр открыт в отдельном `iframe` с пустым атрибутом `sandbox`: скрипты из введённого HTML не исполняются. JSON меняет пример в редакторе; исходники сайта он не записывает.
 
 [Посмотреть файлы сборки](output.md)
-

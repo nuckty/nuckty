@@ -1,4 +1,4 @@
-import { block, type BemNode } from 'nuckty';
+import { block, type BemNode } from '@nuckty/core';
 
 export default function templates(): void {
     block<{ lang?: string }>('playground').replace((node) => {

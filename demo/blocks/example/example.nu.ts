@@ -1,5 +1,5 @@
 import { highlightCode } from '../../ext/highlight.js';
-import { block } from 'nuckty';
+import { block } from '@nuckty/core';
 
 export default function templates(): void {
     block<{ sample: string; source: string; lang?: string }>('example').replace((node) => {

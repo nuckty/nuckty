@@ -1,4 +1,4 @@
-import { block } from 'nuckty';
+import { block } from '@nuckty/core';
 
 export default function templates(): void {
     block<{ lang?: string }>('lightbox')({
@@ -11,4 +11,3 @@ export default function templates(): void {
         attrs: (node, next) => ({ ...next(), 'aria-label': node.props?.lang === 'en' ? 'Close image' : 'Закрыть изображение' }),
     });
 }
-

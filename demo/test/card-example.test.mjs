@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { build, transform } from 'esbuild';
-import { render, runWithTemplates, Templates } from 'nuckty';
+import { render, runWithTemplates, Templates } from '@nuckty/core';
 
 const bundle = await build({
     entryPoints: ['blocks/playground/card-example.ts'],
     bundle: true, write: false, platform: 'browser', format: 'esm',
 });
 const { cardExample } = await import('data:text/javascript;base64,' + Buffer.from(bundle.outputFiles[0].contents).toString('base64'));
-const templateSource = (await readFile('blocks/card/card.nu.ts', 'utf8')).replace("'nuckty'", JSON.stringify(import.meta.resolve('nuckty')));
+const templateSource = (await readFile('blocks/card/card.nu.ts', 'utf8')).replace("'@nuckty/core'", JSON.stringify(import.meta.resolve('@nuckty/core')));
 const compiled = await transform(templateSource, { loader: 'ts', format: 'esm' });
 const { default: cardTemplates } = await import('data:text/javascript;base64,' + Buffer.from(compiled.code).toString('base64'));
 

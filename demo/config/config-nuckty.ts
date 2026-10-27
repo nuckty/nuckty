@@ -1,4 +1,4 @@
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 const preview = process.env['NUCKTY_PREVIEW'] === '1';
 
@@ -14,17 +14,16 @@ export default defineNucktyConfig({
         },
     },
     ext: [
-        // Block-extension: the page wrapper (published as nuckty-ext-block-root).
-        'nuckty-ext-block-root',
+        // Block-extension: the page wrapper (published as @nuckty/ext-block-root).
+        '@nuckty/ext-block-root',
         './ext/highlight.ts',
-        'nuckty-ext-block-gallery',
-        'nuckty-ext-block-grid',
-        'nuckty-ext-markdown-typography-ru',
+        '@nuckty/ext-block-gallery',
+        '@nuckty/ext-block-grid',
+        '@nuckty/ext-markdown-typography-ru',
         // Command extensions resolve from installed packages.
-        'nuckty-ext-command-serve',
-        'nuckty-ext-command-validate-vnu',
-        'nuckty-ext-command-deploy-ftp',
+        '@nuckty/ext-command-serve',
+        '@nuckty/ext-command-validate-vnu',
+        '@nuckty/ext-command-deploy-ftp',
         './ext/showcase.ts',
     ],
 });
-

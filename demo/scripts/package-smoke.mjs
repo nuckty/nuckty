@@ -60,7 +60,7 @@ try {
                 assert.ok(typeof map.sourcesContent?.[index] === 'string' || packedPaths.has(sourceFile), `${name}: ${file.path} references missing source ${sourcePath}`);
             }
         }
-        dependencies[name] = `file:./${packed.filename}`;
+        dependencies[packageManifest.name] = `file:./${packed.filename}`;
     }
     for (const name of ['config', 'content', 'blocks', 'ext']) cpSync(path.join(demo, name), path.join(consumer, name), {
         recursive: true,
@@ -68,9 +68,9 @@ try {
     });
     const manifest = JSON.parse(readFileSync(path.join(demo, 'package.json'), 'utf8'));
     writeFileSync(path.join(consumer, 'package.json'), JSON.stringify({ type: 'module', scripts: { build: 'nuckty build', types: 'tsc --noEmit --strict --skipLibCheck false --module nodenext --target es2022 --types node smoke.ts' }, dependencies, devDependencies: { typescript: manifest.devDependencies.typescript, '@types/node': manifest.devDependencies['@types/node'], '@tanstack/highlight': manifest.devDependencies['@tanstack/highlight'] } }));
-    const extensions = packages.slice(1);
+    const extensions = Object.keys(dependencies).filter((name) => name !== '@nuckty/core');
     const config = [
-        "import { defineNucktyConfig } from 'nuckty';",
+        "import { defineNucktyConfig } from '@nuckty/core';",
         '',
         'export default defineNucktyConfig({',
         "    targets: { default: { configDir: 'config/', outDir: 'site/', lang: 'ru', host: 'localhost', data: { kind: 'demo' } } },",
@@ -90,7 +90,7 @@ try {
     const extensionImports = extensions.map((name, index) => `import { register as extension${index} } from '${name}';`).join('\n');
     const extensionNames = extensions.map((_, index) => `extension${index}`).join(', ');
     writeFileSync(path.join(consumer, 'smoke.ts'), [
-        "import { Templates, render, type NucktyEnv } from 'nuckty';",
+        "import { Templates, render, type NucktyEnv } from '@nuckty/core';",
         extensionImports,
         `const extensions: Array<(env: NucktyEnv) => void> = [${extensionNames}];`,
         'void extensions; void render({tag: \'p\', content: \'typed\'}, {templates: new Templates()});',

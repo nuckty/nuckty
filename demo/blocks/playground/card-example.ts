@@ -1,4 +1,4 @@
-import type { BemNode } from 'nuckty';
+import type { BemNode } from '@nuckty/core';
 
 export function cardExample(lang: string): BemNode {
     return {

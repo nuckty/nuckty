@@ -1,6 +1,6 @@
 // These pure engine modules are bundled into the static demo by nuckty's JS stage.
-import { Templates } from 'nuckty/src/bem/templates.ts';
-import { render } from 'nuckty/src/bem/render.ts';
+import { Templates } from '@nuckty/core/src/bem/templates.ts';
+import { render } from '@nuckty/core/src/bem/render.ts';
 import { cardExample } from './card-example.ts';
 
 const ru = document.documentElement.lang === 'ru';

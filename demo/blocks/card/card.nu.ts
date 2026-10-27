@@ -1,4 +1,4 @@
-import { block } from 'nuckty';
+import { block } from '@nuckty/core';
 
 export default function templates(): void {
     block('card')({ tag: 'article' });

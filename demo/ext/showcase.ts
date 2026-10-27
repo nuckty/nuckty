@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { createMarkdown, type BEMTree, type BemNode, type MarkdownOptions, type NucktyEnv } from 'nuckty';
+import { createMarkdown, type BEMTree, type BemNode, type MarkdownOptions, type NucktyEnv } from '@nuckty/core';
 
 const samples = new Set(['basics', 'gfm', 'gallery', 'grid', 'typography']);
 

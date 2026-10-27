@@ -9,7 +9,7 @@ BEMJSON describes a block: its name, elements, content and modifiers. Edit JSON 
 The card template sets `article` for the block, `h2` for its title and `p` for its description. Block and element names become BEM classes: `card`, `card__title` and `card__description`.
 
 ```ts
-import { block } from 'nuckty';
+import { block } from '@nuckty/core';
 
 export default function templates(): void {
     block('card')({ tag: 'article' });

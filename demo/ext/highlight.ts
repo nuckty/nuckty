@@ -8,7 +8,7 @@ import { yaml } from '@tanstack/highlight/languages/yaml';
 import { shell } from '@tanstack/highlight/languages/shell';
 import { nginx } from '@tanstack/highlight/languages/nginx';
 import { markdown } from '@tanstack/highlight/languages/markdown';
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 interface SyntaxNode {
     type: string;
@@ -43,4 +43,3 @@ export function register(env: NucktyEnv): void {
         visit(tree);
     });
 }
-
