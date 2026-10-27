@@ -20,11 +20,13 @@ export default function templates(): void {
 
 The editor registers these rules in `Templates` and calls the core `render` function. Expand “Tree after templates” to inspect the intermediate result before the engine serializes it into HTML.
 
+An explicit BEMJSON `tag` takes precedence over the template tag. For example, `"tag": "section"` on the card produces `section` instead of `article`. The block declaration does not apply to its elements: an element without its own template uses the default `div`.
+
 ## What to try
 
-1. Change `Hello, nuckty` in the card: its HTML and preview update immediately.
-2. Add `"mods": { "color": "orange" }` to the card object, separated by a comma. The HTML gains `card_color_orange`, and the preview uses an orange border and background.
-3. Select “List”. Its `"tightList": true` allows the engine to omit closing `li` tags in this example.
+1. Change the card heading text: its HTML and preview update immediately.
+2. Add `"mods": { "color": "orange" }` to the card object, separated by a comma. The HTML gains `card_color_orange`, and the preview changes the card background.
+3. Select “List”. The `list` block and its `item` elements become `ul` and `li`. Closing `li` tags are omitted automatically according to HTML5 rules.
 4. Select “Button with a modifier” and change `"disabled": true` to `false`. The template stops adding `disabled`, enabling the button.
 5. Select “Escaping”. Angle brackets become entities in HTML and remain text in the preview.
 6. Remove a JSON quote to see the error. Restore it or select “Reset”.
