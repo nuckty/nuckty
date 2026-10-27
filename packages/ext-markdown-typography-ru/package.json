@@ -1,5 +1,5 @@
 {
-    "name": "nuckty-ext-markdown-typography-ru",
+    "name": "@nuckty/ext-markdown-typography-ru",
     "version": "1.0.0-beta1",
     "license": "MIT",
     "repository": {
@@ -7,7 +7,8 @@
         "url": "git@github.com:nuckty/nuckty-ext-markdown-typography-ru.git"
     },
     "publishConfig": {
-        "registry": "https://registry.npmjs.org"
+        "registry": "https://registry.npmjs.org",
+        "access": "public"
     },
     "description": "nuckty markdown-extension: Russian em-dash + nbsp typography",
     "type": "module",
@@ -22,7 +23,7 @@
     "devDependencies": {
         "@types/mdast": "4.0.4",
         "@types/node": "24.13.3",
-        "nuckty": "file:../nuckty",
+        "@nuckty/core": "file:../nuckty",
         "remark-parse": "11.0.0",
         "tsx": "4.23.12",
         "typescript": "7.0.2",
@@ -33,11 +34,10 @@
         "dist"
     ],
     "peerDependencies": {
-        "nuckty": "1.0.0-beta1"
+        "@nuckty/core": "1.0.0-beta1"
     },
     "author": {
         "name": "Vitaly Harisov",
         "email": "vitaly@harisov.name"
     }
 }
-

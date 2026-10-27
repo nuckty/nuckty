@@ -1,5 +1,5 @@
 /**
- * nuckty-ext-markdown-typography-ru — Russian typography markdown-extension.
+ * @nuckty/ext-markdown-typography-ru — Russian typography markdown-extension.
  *
  * Registers a remark mdast plugin via `env.markdown.use(remarkTypographyRu)`
  * (openspec `ext-markdown-typography-ru`): it walks mdast text nodes and
@@ -11,10 +11,10 @@
  * A site loads this extension only when it wants Russian typography; without
  * it, the core emits text verbatim with no typographic substitutions.
  *
- * @module nuckty-ext-markdown-typography-ru
+ * @module @nuckty/ext-markdown-typography-ru
  */
 
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 export { remarkTypographyRu } from './typography-plugin.js';
 export { applyRussianTypography } from './typography.js';
 
@@ -25,4 +25,3 @@ export function register(env: NucktyEnv): void {
 }
 
 export default register;
-

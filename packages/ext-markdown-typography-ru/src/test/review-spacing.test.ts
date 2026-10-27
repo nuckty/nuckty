@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { applyRussianTypography } from '../index.js';
-import { createMarkdown, render, Templates } from 'nuckty';
+import { createMarkdown, render, Templates } from '@nuckty/core';
 import { remarkTypographyRu } from '../index.js';
 
 test('horizontal em-dash spacing converges from NBSP, tabs and repeated spaces', () => {
@@ -30,4 +30,3 @@ test('Markdown link and literal-code spacing survive the typography bridge', () 
     assert(html.includes('слово\u00a0— <a'));
     assert(html.includes('код — без замен'));
 });
-

@@ -1,4 +1,4 @@
-# nuckty-ext-markdown-typography-ru
+# @nuckty/ext-markdown-typography-ru
 
 > **Russian typography for markdown — the dash never dangles from its word.**
 
@@ -22,14 +22,14 @@ Code is skipped: `code` and `inlineCode` are separate mdast node types, so the t
 
 ## How to load
 
-This example extends the quickstart with the standard `nuckty-ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `nuckty-ext-block-root`.
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-markdown-typography-ru'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-markdown-typography-ru'],
 });
 ```
 
@@ -48,4 +48,3 @@ Behavior is fixed by the openspec `ext-markdown-typography-ru` spec (`openspec/s
 MIT.
 
 When loaded through the global `ext`, the extension processes Markdown for every target being built. The value of `target.lang` does not automatically limit its scope.
-

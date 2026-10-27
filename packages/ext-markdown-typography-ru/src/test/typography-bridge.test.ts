@@ -15,7 +15,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMarkdown, render, Templates } from 'nuckty';
+import { createMarkdown, render, Templates } from '@nuckty/core';
 import { remarkTypographyRu } from '../index.js';
 
 const NO_TEMPLATES = { templates: new Templates() };
@@ -69,4 +69,3 @@ test('bridge: custom tags beginning with literal element names retain prose typo
         assert.ok(html.includes(`<${tag}>слово — текст</${tag}>`), html);
     }
 });
-
