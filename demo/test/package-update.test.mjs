@@ -35,7 +35,8 @@ test('rejects channels and packages outside the fixed release allowlist', async 
 function fixture() {
     const directory = mkdtempSync(path.join(tmpdir(), 'nuckty-updater-test-'));
     mkdirSync(path.join(directory, 'config'));
-    const current = JSON.parse(readFileSync(new URL('../config/config-packages.json', import.meta.url), 'utf8'));
+    const names = Object.keys(JSON.parse(readFileSync(new URL('../config/config-packages.json', import.meta.url), 'utf8')));
+    const current = Object.fromEntries(names.map((name) => [name, '1.0.0-beta1']));
     writeFileSync(path.join(directory, 'config/config-packages.json'), JSON.stringify(current));
     writeFileSync(path.join(directory, 'package.json'), JSON.stringify({ dependencies: { '@nuckty/core': current['@nuckty/core'], thirdParty: '2.0.0' } }));
     const request = async (url) => {
