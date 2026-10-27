@@ -7,7 +7,7 @@
 Таргеты задают в `config-nuckty.ts`:
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: {

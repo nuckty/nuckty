@@ -8,7 +8,7 @@ Block-расширение поставляет набор БЭМ-блоков �
 
 ```
 config/levels.json:        ["content", "blocks"]              уровни сайта
-env.levels.add(...)        nuckty-ext-block-gallery/blocks/    уровень расширения
+env.levels.add(...)        @nuckty/ext-block-gallery/blocks/    уровень расширения
 ```
 
 Когда блок `gallery` указан в зависимостях бандла, движок ищет `gallery.nu.ts` по всем уровням (включая уровень расширения) и выбирает файл с самого позднего совпавшего уровня. Подробнее — [уровни](../blocks/levels.ru.md) и [зависимости](../blocks/deps.ru.md).
@@ -26,7 +26,7 @@ interface NucktyEnv {
 ```ts
 // внутри register(env) расширения
 import { fileURLToPath } from 'node:url';
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.levels.add(fileURLToPath(new URL('../blocks/', import.meta.url)));
@@ -38,7 +38,7 @@ export function register(env: NucktyEnv): void {
 ## Структура расширения
 
 ```
-nuckty-ext-block-gallery/
+@nuckty/ext-block-gallery/
   blocks/
     gallery/
       gallery.nu.ts          шаблон блока
@@ -66,4 +66,3 @@ nuckty-ext-block-gallery/
 ## Каталог block-расширений
 
 Готовые block-расширения собраны в [каталоге](../../ext/block.ru.md). Примеры: [`root`](../../ext/block/root.ru.md) ([обёртка документа](../../out/html.ru.md)), [`gallery`](../../ext/block/gallery.ru.md) (галерея с лайтбоксом).
-

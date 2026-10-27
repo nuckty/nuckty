@@ -18,12 +18,14 @@ A single package can combine several types in one `register`. For example, a doc
 
 List npm packages or local extension modules in the global `config/config-nuckty.ts`. The engine loads them in order and calls a named `register`, or the default function when no named entry exists.
 
+Third-party extensions may use any npm package name, including a different scope such as `@author/extension`. Use that complete name in `ext`; membership in the `@nuckty` organization is not required.
+
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', './ext/search.ts'],
+    ext: ['@nuckty/ext-block-root', './ext/search.ts'],
 });
 ```
 
@@ -39,5 +41,4 @@ Extensions execute with the build process’s permissions; these facades do not 
 
 Ready-made extensions are collected in the [catalog](../../ext/index.md).
 
-Each build needs one document handler. The standard `nuckty-ext-block-root` registers it and a block level; a custom handler may omit root entirely. It receives `DocumentData` (page, content, [sitemap](../sitemap.md), assets, alternates, target, lang).
-
+Each build needs one document handler. The standard `@nuckty/ext-block-root` registers it and a block level; a custom handler may omit root entirely. It receives `DocumentData` (page, content, [sitemap](../sitemap.md), assets, alternates, target, lang).

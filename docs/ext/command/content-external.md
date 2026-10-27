@@ -1,4 +1,4 @@
-# nuckty-ext-command-content-external
+# @nuckty/ext-command-content-external
 
 Populating the content root from external git repositories. The `nuckty content-external` command reads `external.json`, clones the listed repositories, and updates the working copies. It is a separate step before the build, not part of it.
 
@@ -34,7 +34,7 @@ Preparation runs explicitly from the configured site root. `--dry-run` performs 
 
 ## Installation
 
-This example extends the quickstart with the standard `nuckty-ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `nuckty-ext-block-root`.
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
 Install the prepared package from `packages/` in the extracted [starter project](../../how/start.md):
 
@@ -43,10 +43,10 @@ npm install --save-dev ./packages/nuckty-ext-command-content-external-1.0.0-beta
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-content-external'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-content-external'],
 });
 ```

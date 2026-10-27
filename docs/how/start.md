@@ -47,13 +47,13 @@ Run `npm run build` and reload the page. The server keeps serving files from `si
 `config/config-nuckty.ts` defines one [target](targets.md) — one website build:
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: {
         main: { configDir: 'config/', outDir: 'site/', lang: 'en', host: 'localhost' },
     },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-serve'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-serve'],
 });
 ```
 
@@ -97,4 +97,4 @@ The artifact can be copied to a compatible server. Apache needs the required mod
 - [Markdown](markdown.md) — links, anchors and constructs.
 - [Extensions](ext/index.md) — add capabilities.
 
-After a local install, npm scripts can invoke `nuckty` directly. In a terminal, use `npx nuckty …`.
+After a local install, npm scripts can invoke `nuckty` directly. In a terminal, use `npx @nuckty/core …`.

@@ -16,6 +16,5 @@
 
 Имена блоков распределены так:
 
-- **`root`** — обёртка документа (`<html>`, `<head>`, `<body>`). Её даёт расширение [`nuckty-ext-block-root`](../../ext/block/root.ru.md).
+- **`root`** — обёртка документа (`<html>`, `<head>`, `<body>`). Её даёт расширение [`@nuckty/ext-block-root`](../../ext/block/root.ru.md).
 - **`page*`** — пользовательский слой. Имена `page`, `page-index`, `page-about` и подобные остаются за сайтом; nuckty их не занимает.
-

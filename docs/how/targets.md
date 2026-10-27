@@ -7,7 +7,7 @@ nuckty can build several targets from one repository: sites with separate langua
 A target is described in `config-nuckty.ts`:
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: {

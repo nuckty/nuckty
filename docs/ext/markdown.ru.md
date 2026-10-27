@@ -14,12 +14,11 @@
 
 Markdown-расширения:
 
-- [`nuckty-ext-markdown-typography-ru`](markdown/typography-ru.ru.md) — русская типографика: неразрывный пробел перед тире. Блока не добавляет — только правит текст.
-- [`nuckty-ext-markdown-video`](markdown/video.ru.md) — встраивание видео `@[provider](id)` (YouTube/RuTube/VK). Блок не поставляет — разметку плеера строит плагин.
+- [`@nuckty/ext-markdown-typography-ru`](markdown/typography-ru.ru.md) — русская типографика: неразрывный пробел перед тире. Блока не добавляет — только правит текст.
+- [`@nuckty/ext-markdown-video`](markdown/video.ru.md) — встраивание видео `@[provider](id)` (YouTube/RuTube/VK). Блок не поставляет — разметку плеера строит плагин.
 
 Конструкции markdown-разметки, идущие в паре с блоком, входят в block-расширения:
 
-- **Галерея** (`:::gallery`) — в пакете [`nuckty-ext-block-gallery`](block/gallery.ru.md).
-- **Сетка** (`:::grid`) — в пакете [`nuckty-ext-block-grid`](block/grid.ru.md).
+- **Галерея** (`:::gallery`) — в пакете [`@nuckty/ext-block-gallery`](block/gallery.ru.md).
+- **Сетка** (`:::grid`) — в пакете [`@nuckty/ext-block-grid`](block/grid.ru.md).
 - **Выноска** (`:::callout`) — кандидат на отдельный пакет.
-

@@ -1,4 +1,4 @@
-# nuckty-ext-block-grid
+# @nuckty/ext-block-grid
 
 Многоколоночная раскладка контента. Пакет объединяет блок `grid` и конструкцию markdown-разметки `:::grid`: синтаксис и реализация раскладки поставляются вместе.
 
@@ -32,7 +32,7 @@
 
 ## Установка
 
-Пример продолжает быстрый старт со стандартным обработчиком `nuckty-ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `nuckty-ext-block-root`.
+Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
 Команда ниже выполняется из распакованного [стартового проекта](../../how/start.ru.md): готовые архивы расширений находятся в `packages/`.
 
@@ -41,11 +41,11 @@ npm install ./packages/nuckty-ext-block-grid-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-block-grid'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-block-grid'],
 });
 ```
 
@@ -54,4 +54,3 @@ export default defineNucktyConfig({
 ## Переопределение
 
 Блок `grid` переопределяется как любой другой: поместите свой `blocks/grid/grid.nu.ts` на более поздний [уровень](../../how/blocks/levels.ru.md).
-

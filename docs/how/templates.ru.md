@@ -9,7 +9,7 @@
 Файл `.nu.ts` экспортирует функцию по умолчанию. Загрузчик вызывает её в контексте текущей коллекции шаблонов; `block` вне этого контекста вызывает ошибку. Декларации ниже помещайте в `templates()` соответствующего блока: например, `block('card')` — в `blocks/card/card.nu.ts`. Один файл описывает один блок и его элементы.
 
 ```ts
-import { block } from 'nuckty';
+import { block } from '@nuckty/core';
 
 export default function templates(): void {
     block('menu')({ tag: 'ul' });
@@ -22,7 +22,7 @@ export default function templates(): void {
 `.when(...)` — произвольный предикат. Шаблон применяется, только если предикат истинен:
 
 ```ts
-block<{ submenu?: import('nuckty').BEMTree }>('menu').elem('item').when((n) => Boolean(n.props?.submenu))({
+block<{ submenu?: import('@nuckty/core').BEMTree }>('menu').elem('item').when((n) => Boolean(n.props?.submenu))({
     content: (n, next) => [
         { block: 'menu', content: n.props?.submenu ?? null },
         next(),
@@ -117,7 +117,7 @@ block  <  elem  <  mod  <  elemMod  <  when
 Для отдельного рендера создайте коллекцию явно:
 
 ```ts
-import { block, Templates, runWithTemplates, render } from 'nuckty';
+import { block, Templates, runWithTemplates, render } from '@nuckty/core';
 
 const templates = new Templates();
 runWithTemplates(templates, () => block('greeting')({ tag: 'p' }));

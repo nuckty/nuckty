@@ -1,4 +1,4 @@
-# nuckty-ext-block-root
+# @nuckty/ext-block-root
 
 The [HTML](../../out/html.md) page wrapper — the `root` block that wraps content in `<html>`, `<head>`, and `<body>`. A document handler is required; this package supplies the standard handler together with the root template. A consumer may register its own handler instead.
 
@@ -52,11 +52,11 @@ npm install ./packages/nuckty-ext-block-root-1.0.0-beta1.tgz
 Register the extension in `config-nuckty.ts`:
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root'],
+    ext: ['@nuckty/ext-block-root'],
 });
 ```
 
@@ -69,4 +69,3 @@ Place your own `blocks/root/root.nu.ts` on a later [level](../../how/blocks/leve
 Package registration calls `env.document.register`: the handler creates root with `DocumentData` in props. Core does not choose root from the sitemap. `assets` contains bundle URLs; `target.data` contains consumer settings.
 
 The default root emits each non-empty URL in `assets.css` and `assets.js` once, preserving insertion order; scripts use `defer` after page content. It does not guess bundle names from the route. Use a custom document handler or root override for page-specific selection.
-

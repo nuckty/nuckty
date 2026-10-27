@@ -47,13 +47,13 @@ npm run serve
 `config/config-nuckty.ts` задаёт один [таргет](targets.ru.md) — один собираемый сайт:
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: {
         main: { configDir: 'config/', outDir: 'site/', lang: 'ru', host: 'localhost' },
     },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-serve'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-serve'],
 });
 ```
 
@@ -97,4 +97,4 @@ site/
 - [Markdown](markdown.ru.md) — ссылки, якоря и конструкции разметки.
 - [Расширения](ext/index.ru.md) — как добавлять возможности.
 
-После локальной установки команда доступна в скриптах npm как `nuckty`. Для вызова из терминала используйте `npx nuckty …`.
+После локальной установки команда доступна в скриптах npm как `nuckty`. Для вызова из терминала используйте `npx @nuckty/core …`.

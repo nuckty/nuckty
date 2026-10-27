@@ -21,7 +21,7 @@ An unknown directive falls back to plain content. Attributes are available as `n
 The example deliberately reduces content to text; formatting and links are not retained. For richer content, implement an appropriate node transformation.
 
 ```ts
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 interface TextNode {
     type?: string;
@@ -52,4 +52,3 @@ export function register(env: NucktyEnv): void {
 Use `:::callout{.warning}` with a paragraph inside, or `::badge[1.2]{type=new}`. Add `callout` and `badge` to the [bemdecl](../blocks/deps.md) and provide their [templates](../templates.md) and styles on the [levels](../blocks/levels.md). Producing a node does not add its block to the declaration.
 
 `env.markdown.use(plugin)` accepts a remark plugin for arbitrary mdast transforms. For example, [video](../../ext/markdown/video.md) uses `@[provider](id)` links. Gallery and grid directives combine Markdown and block extensions in one package; implementations are listed in the [catalog](../../ext/markdown.md).
-

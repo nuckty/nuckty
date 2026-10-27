@@ -16,6 +16,5 @@ A block is interface code. Page content (an article, documentation) is Markdown,
 
 Block names are allocated as follows:
 
-- **`root`** — the HTML page wrapper (`<html>`, `<head>`, `<body>`). It comes from the [`nuckty-ext-block-root`](../../ext/block/root.md) extension.
+- **`root`** — the HTML page wrapper (`<html>`, `<head>`, `<body>`). It comes from the [`@nuckty/ext-block-root`](../../ext/block/root.md) extension.
 - **`page*`** — the user layer. The names `page`, `page-index`, `page-about` and the like belong to the site; nuckty does not take them.
-

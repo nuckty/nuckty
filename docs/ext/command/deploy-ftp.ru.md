@@ -1,4 +1,4 @@
-# nuckty-ext-command-deploy-ftp
+# @nuckty/ext-command-deploy-ftp
 
 Публикация собранного артефакта на виртуальный [хостинг](../../out/hosting.ru.md) по FTP. Команда `nuckty deploy-ftp [target]` синхронизирует файлы по манифесту: отправляет на сервер только изменившиеся и удаляет лишние.
 
@@ -62,7 +62,7 @@ nuckty deploy-ftp [target] [--force] [--dry-run]
 
 ## Установка
 
-Пример продолжает быстрый старт со стандартным обработчиком `nuckty-ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `nuckty-ext-block-root`.
+Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
 Команда ниже выполняется из распакованного [стартового проекта](../../how/start.ru.md): готовые архивы расширений находятся в `packages/`.
 
@@ -71,11 +71,11 @@ npm install ./packages/nuckty-ext-command-deploy-ftp-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-deploy-ftp'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-deploy-ftp'],
 });
 ```
 
@@ -84,4 +84,3 @@ export default defineNucktyConfig({
 Перед соединением команда сверяет размер и MD5 каждого локального файла с манифестом. Перед последней отправкой манифеста она повторяет проверку и отклоняет изменившийся артефакт. Проверка на сервере использует `LIST` и размер; независимого подтверждения удалённого хеша нет. Во время публикации артефакт менять нельзя.
 
 `secure: true` или `FTP_SECURE=true` включает FTPS с проверкой сертификата; ошибка TLS не вызывает переход к обычному FTP.
-

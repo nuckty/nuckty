@@ -23,7 +23,7 @@
 Если блок `button` есть и в расширении, и в `blocks/` сайта, движок выбирает тот, что на более позднем уровне. Так сайт переопределяет блоки расширений, не создавая ответвления репозитория расширения:
 
 ```
-уровень 0: nuckty-ext-block-root/blocks/root/root.nu.ts   (базовый root)
+уровень 0: @nuckty/ext-block-root/blocks/root/root.nu.ts   (базовый root)
 уровень 1: blocks/root/root.nu.ts                          (переопределение сайта)
 ```
 
@@ -35,7 +35,7 @@
 
 ```ts
 import { fileURLToPath } from 'node:url';
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.levels.add(fileURLToPath(new URL('../blocks/', import.meta.url)));
@@ -66,4 +66,3 @@ blocks/
 ## Зачем нужны уровни
 
 Уровни дают основу переопределения в БЭМ: базовый блок приходит с раннего уровня, а сайт добавляет свою версию на более позднем. Без уровней расширение не могло бы поставлять блоки, а сайт — переопределять их. Так расширяемость и переопределение разделены: расширение даёт базу, сайт при необходимости заменяет её своей версией.
-

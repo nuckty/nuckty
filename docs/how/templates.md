@@ -9,7 +9,7 @@ Why a dedicated syntax instead of "just functions"? A dedicated syntax is more c
 A `.nu.ts` file exports a default function. The loader invokes it inside the current template collection; `block` outside that context throws. Place the declarations below inside the corresponding block's `templates()` function: for example, `block('card')` belongs in `blocks/card/card.nu.ts`. One file describes one block and its elements.
 
 ```ts
-import { block } from 'nuckty';
+import { block } from '@nuckty/core';
 
 export default function templates(): void {
     block('menu')({ tag: 'ul' });
@@ -22,7 +22,7 @@ export default function templates(): void {
 `.when(...)` is an arbitrary predicate. The template applies only when the predicate is true:
 
 ```ts
-block<{ submenu?: import('nuckty').BEMTree }>('menu').elem('item').when((n) => Boolean(n.props?.submenu))({
+block<{ submenu?: import('@nuckty/core').BEMTree }>('menu').elem('item').when((n) => Boolean(n.props?.submenu))({
     content: (n, next) => [
         { block: 'menu', content: n.props?.submenu ?? null },
         next(),
@@ -117,7 +117,7 @@ The `.nu.ts` file is wired in through the [dependencies (`deps`)](blocks/deps.md
 For isolated rendering, create a collection explicitly:
 
 ```ts
-import { block, Templates, runWithTemplates, render } from 'nuckty';
+import { block, Templates, runWithTemplates, render } from '@nuckty/core';
 
 const templates = new Templates();
 runWithTemplates(templates, () => block('greeting')({ tag: 'p' }));

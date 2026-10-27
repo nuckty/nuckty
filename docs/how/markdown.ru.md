@@ -79,7 +79,7 @@ Markdown разбирает связка remark/unified: сначала micromar
 При сборке ссылки и пути к изображениям отсчитываются от каталога текущего файла Markdown внутри корня контента. Имя корневого каталога на разрешение путей не влияет. При самостоятельном вызове `createMarkdown` передайте в `sourceFile` путь к файлу относительно корня контента; при необходимости сохраните `inputPath` для диагностики и существующих интеграций.
 
 ```ts
-import { createMarkdown } from 'nuckty';
+import { createMarkdown } from '@nuckty/core';
 
 const { tree } = createMarkdown({
     sourceFile: 'guide/start.md',

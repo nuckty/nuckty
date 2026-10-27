@@ -16,9 +16,9 @@ interface NucktyEnv {
 
 `Stage` is a function `(ctx: BuildContext) => void | Promise<void>` that operates on the data in the [build context](../pipeline.md) fields.
 
-A stage can import `getBuildConfig` from `nuckty` and call `getBuildConfig(ctx)` to reuse the captured configuration of its target. The snapshot exposes merged `site` settings, ordered `levels`, `contentDir`, `contentRelative`, and `externalUrls`; configuration ownership is described in [targets](../targets.md).
+A stage can import `getBuildConfig` from `@nuckty/core` and call `getBuildConfig(ctx)` to reuse the captured configuration of its target. The snapshot exposes merged `site` settings, ordered `levels`, `contentDir`, `contentRelative`, and `externalUrls`; configuration ownership is described in [targets](../targets.md).
 
-Before reading or writing an artifact destination, call `await assertArtifactPath(ctx.outDir, destination)` imported from `nuckty`. It rejects existing symbolic links within the declared root and paths that escape it.
+Before reading or writing an artifact destination, call `await assertArtifactPath(ctx.outDir, destination)` imported from `@nuckty/core`. It rejects existing symbolic links within the declared root and paths that escape it.
 
 ## Example: a search index stage
 
@@ -27,8 +27,8 @@ The stage writes a simple index of URLs, page titles, and headings:
 ```ts
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import type { DocumentData, NucktyEnv } from 'nuckty';
-import { assertArtifactPath } from 'nuckty';
+import type { DocumentData, NucktyEnv } from '@nuckty/core';
+import { assertArtifactPath } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.pipeline.registerStage('search', async (ctx) => {

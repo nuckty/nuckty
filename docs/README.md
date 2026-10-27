@@ -22,7 +22,7 @@ nuckty is a family of independent repositories, not a monorepo. Shared rules com
 | `nuckty-demo` | Quick-start demo. |
 | `nuckty-docs` | Markdown source only; the site build configuration is not included. |
 
-The extensions themselves (`nuckty-ext-*`) are listed in the [extension catalog](ext/index.md).
+The extensions themselves (`@nuckty/ext-*`) are listed in the [extension catalog](ext/index.md).
 
 ## Check source links
 
@@ -31,4 +31,3 @@ Run `node scripts/check-source-links.mjs` to check that local Markdown links res
 ## License
 
 [MIT](LICENSE)
-

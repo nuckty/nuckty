@@ -27,8 +27,8 @@ interface NucktyEnv {
 ```ts
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import type { DocumentData, NucktyEnv } from 'nuckty';
-import { assertArtifactPath } from 'nuckty';
+import type { DocumentData, NucktyEnv } from '@nuckty/core';
+import { assertArtifactPath } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.pipeline.registerStage('search', async (ctx) => {

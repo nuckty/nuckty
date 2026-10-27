@@ -23,7 +23,7 @@ Entries in `levels.json` are directories relative to the project root. The first
 If the `button` block exists both in an extension and in the site's `blocks/`, the engine picks the one on the later level. This is how a site overrides extension blocks without forking the extension's repository:
 
 ```
-level 0: nuckty-ext-block-root/blocks/root/root.nu.ts   (base root)
+level 0: @nuckty/ext-block-root/blocks/root/root.nu.ts   (base root)
 level 1: blocks/root/root.nu.ts                          (site override)
 ```
 
@@ -35,7 +35,7 @@ A [block extension](../ext/block.md) ships its blocks in a `blocks/` directory. 
 
 ```ts
 import { fileURLToPath } from 'node:url';
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.levels.add(fileURLToPath(new URL('../blocks/', import.meta.url)));
@@ -66,4 +66,3 @@ blocks/
 ## Why levels are needed
 
 Levels provide the foundation of overriding in BEM: a base block arrives from an early level, and the site adds its own version on a later one. Without levels, an extension could not ship blocks, and a site could not override them. This keeps extensibility and overriding separate: the extension provides the base, and the site replaces it with its own version when needed.
-

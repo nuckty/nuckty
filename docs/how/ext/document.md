@@ -12,7 +12,7 @@ The current HTML stage applies [templates](../templates.md) to content and seria
 
 ```ts
 // ext/document.ts
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.document.register((data) => ({
@@ -31,4 +31,3 @@ export function register(env: NucktyEnv): void {
 List `./ext/document.ts` in `ext` in the global `config/config-nuckty.ts`. This example does not load CSS, JavaScript, or hreflang links: add them when needed or use the [standard root](../../ext/block/root.md). Load a custom handler instead of the root extension to avoid registering two handlers.
 
 The core does not select a block from `page.layout`. The handler or site templates decide how to use that metadata. Unlike the minimal example, root uses a [block declaration](../blocks/deps.md).
-

@@ -12,7 +12,7 @@
 
 ```ts
 // ext/document.ts
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.document.register((data) => ({
@@ -31,4 +31,3 @@ export function register(env: NucktyEnv): void {
 Укажите `./ext/document.ts` в поле `ext` глобального `config/config-nuckty.ts`. Этот пример не загружает CSS, JS и hreflang: добавьте их при необходимости или используйте [стандартный root](../../ext/block/root.ru.md). Собственный обработчик подключают вместо расширения root, чтобы не регистрировать два обработчика.
 
 Ядро не выбирает блок по `page.layout`. Обработчик или шаблоны сайта сами используют эту метаинформацию. В отличие от минимального примера, root использует [декларацию блоков](../blocks/deps.ru.md).
-

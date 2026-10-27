@@ -1,4 +1,4 @@
-# nuckty-ext-markdown-video
+# @nuckty/ext-markdown-video
 
 Встраивание видео с видеохостингов (YouTube, RuTube, VK) в Markdown — конструкцией `@[provider](id)`. Пакет добавляет только её: ни блока, ни внешних библиотек JS.
 
@@ -33,9 +33,9 @@
 Список провайдеров расширяется: пакет экспортирует `createVideoPlugin` и `DEFAULT_VIDEO_PROVIDERS`. Свой провайдер задаётся именем и функцией, которая строит URL:
 
 ```ts
-import { createVideoPlugin, DEFAULT_VIDEO_PROVIDERS } from 'nuckty-ext-markdown-video';
+import { createVideoPlugin, DEFAULT_VIDEO_PROVIDERS } from '@nuckty/ext-markdown-video';
 
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.markdown.use(createVideoPlugin([
@@ -49,7 +49,7 @@ export function register(env: NucktyEnv): void {
 
 ## Установка
 
-Пример продолжает быстрый старт со стандартным обработчиком `nuckty-ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `nuckty-ext-block-root`.
+Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
 Команда ниже выполняется из распакованного [стартового проекта](../../how/start.ru.md): готовые архивы расширений находятся в `packages/`.
 
@@ -58,13 +58,12 @@ npm install ./packages/nuckty-ext-markdown-video-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-markdown-video'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-markdown-video'],
 });
 ```
 
 После этого конструкция `@[provider](id)` работает в любом `.md`.
-

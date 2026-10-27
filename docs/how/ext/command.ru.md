@@ -20,7 +20,7 @@ interface NucktyEnv {
 
 ```ts
 import process from 'node:process';
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.commands.add('target-info', 'show a configured target', async (args) => {
@@ -46,10 +46,10 @@ export function register(env: NucktyEnv): void {
 Сохраните модуль как `ext/target-info.ts` и добавьте `'./ext/target-info.ts'` в `ext` глобальной конфигурации. Пользователь запускает:
 
 ```bash
-npx nuckty target-info --json
+npx @nuckty/core target-info --json
 ```
 
-Обработчик выводит конфигурацию первого [таргета](../targets.ru.md). Чтобы выбрать другой, передайте его имя: `npx nuckty target-info main --json`, где `main` — имя из вашей конфигурации. Пример принимает необязательное имя и флаг `--json`; проверку остальных аргументов можно добавить в обработчик.
+Обработчик выводит конфигурацию первого [таргета](../targets.ru.md). Чтобы выбрать другой, передайте его имя: `npx @nuckty/core target-info main --json`, где `main` — имя из вашей конфигурации. Пример принимает необязательное имя и флаг `--json`; проверку остальных аргументов можно добавить в обработчик.
 
 ## Контракт обработчика
 
@@ -63,9 +63,9 @@ npx nuckty target-info --json
 
 ## Типичные команды
 
-- **`nuckty deploy-ftp [target]`** — публикация артефакта на сервер. См. [`nuckty-ext-command-deploy-ftp`](../../ext/command/deploy-ftp.ru.md).
-- **`nuckty serve [--port N]`** — локальная раздача сайта через nginx. См. [`nuckty-ext-command-serve`](../../ext/command/serve.ru.md).
-- **`nuckty validate`** — проверка [HTML](../../out/html.ru.md) внешним валидатором. См. [`nuckty-ext-command-validate-vnu`](../../ext/command/validate-vnu.ru.md).
+- **`nuckty deploy-ftp [target]`** — публикация артефакта на сервер. См. [`@nuckty/ext-command-deploy-ftp`](../../ext/command/deploy-ftp.ru.md).
+- **`nuckty serve [--port N]`** — локальная раздача сайта через nginx. См. [`@nuckty/ext-command-serve`](../../ext/command/serve.ru.md).
+- **`nuckty validate`** — проверка [HTML](../../out/html.ru.md) внешним валидатором. См. [`@nuckty/ext-command-validate-vnu`](../../ext/command/validate-vnu.ru.md).
 
 ## Когда выбирать command
 

@@ -1,4 +1,4 @@
-# nuckty-ext-command-convert-images
+# @nuckty/ext-command-convert-images
 
 Кодирование изображений в AVIF и WebP. Команда `nuckty convert-images` обходит исходные изображения и создаёт файлы AVIF и WebP рядом с оригиналами. При [сборке](../../out/images.ru.md) движок копирует готовые файлы.
 
@@ -38,7 +38,7 @@ nuckty convert-images [contentDir] [--dry-run] [--force]
 
 ## Установка
 
-Пример продолжает быстрый старт со стандартным обработчиком `nuckty-ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `nuckty-ext-block-root`.
+Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
 Установите подготовленный пакет из каталога `packages/` распакованного [стартового проекта](../../how/start.ru.md):
 
@@ -47,11 +47,11 @@ npm install --save-dev ./packages/nuckty-ext-command-convert-images-1.0.0-beta1.
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-convert-images'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-convert-images'],
 });
 ```
 
@@ -59,4 +59,4 @@ export default defineNucktyConfig({
 
 ## Где запускать
 
-Из корня сайта, где расширение установлено и подключено, передайте путь к контенту: `npx nuckty convert-images external/content`. По умолчанию сканируется текущий каталог. Сборка использует готовые варианты; необходимость запускать конвертацию в CI определяет проект.
+Из корня сайта, где расширение установлено и подключено, передайте путь к контенту: `npx @nuckty/core convert-images external/content`. По умолчанию сканируется текущий каталог. Сборка использует готовые варианты; необходимость запускать конвертацию в CI определяет проект.

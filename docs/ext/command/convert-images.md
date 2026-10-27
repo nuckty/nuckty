@@ -1,4 +1,4 @@
-# nuckty-ext-command-convert-images
+# @nuckty/ext-command-convert-images
 
 Encoding images to AVIF and WebP. The `nuckty convert-images` command walks the source images and creates AVIF and WebP files next to the originals. At [build](../../out/images.md) time, the engine copies the ready-made files.
 
@@ -38,7 +38,7 @@ Starting quality levels are set in the command code: PNG — AVIF 50 and WebP 90
 
 ## Installation
 
-This example extends the quickstart with the standard `nuckty-ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `nuckty-ext-block-root`.
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
 Install the prepared package from `packages/` in the extracted [starter project](../../how/start.md):
 
@@ -47,11 +47,11 @@ npm install --save-dev ./packages/nuckty-ext-command-convert-images-1.0.0-beta1.
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-convert-images'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-convert-images'],
 });
 ```
 
@@ -59,4 +59,4 @@ The `sharp` package lives only in this extension's dependencies — the engine d
 
 ## Where to run it
 
-Run from the site root where the extension is installed and configured, passing the content path: `npx nuckty convert-images external/content`. The scan defaults to the current directory. The build uses prepared variants; whether conversion runs in CI is a project decision.
+Run from the site root where the extension is installed and configured, passing the content path: `npx @nuckty/core convert-images external/content`. The scan defaults to the current directory. The build uses prepared variants; whether conversion runs in CI is a project decision.

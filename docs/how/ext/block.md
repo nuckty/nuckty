@@ -8,7 +8,7 @@ The engine does not know in advance which blocks exist. Levels point to the dire
 
 ```
 config/levels.json:        ["content", "blocks"]              site levels
-env.levels.add(...)        nuckty-ext-block-gallery/blocks/    extension level
+env.levels.add(...)        @nuckty/ext-block-gallery/blocks/    extension level
 ```
 
 When the `gallery` block is listed in a bundle's dependencies, the engine looks for `gallery.nu.ts` across all levels (including the extension's level) and picks the file from the latest matching level. For details, see [levels](../blocks/levels.md) and [dependencies](../blocks/deps.md).
@@ -26,7 +26,7 @@ interface NucktyEnv {
 ```ts
 // inside the extension's register(env)
 import { fileURLToPath } from 'node:url';
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.levels.add(fileURLToPath(new URL('../blocks/', import.meta.url)));
@@ -38,7 +38,7 @@ The extension does not register each block by name: it puts `.nu.ts` files into 
 ## Extension structure
 
 ```
-nuckty-ext-block-gallery/
+@nuckty/ext-block-gallery/
   blocks/
     gallery/
       gallery.nu.ts          block template
@@ -66,4 +66,3 @@ A markdown construct (`:::gallery`) expands into a block (`gallery`). That is wh
 ## Block extension catalog
 
 Ready-made block extensions are collected in the [catalog](../../ext/block.md). Examples: [`root`](../../ext/block/root.md) (the [HTML](../../out/html.md) page wrapper), [`gallery`](../../ext/block/gallery.md) (a gallery with a lightbox).
-

@@ -1,4 +1,4 @@
-# nuckty-ext-block-root
+# @nuckty/ext-block-root
 
 [Обёртка документа HTML](../../out/html.ru.md) — блок `root`, который оборачивает содержимое в `<html>`, `<head>` и `<body>`. Для сборки нужен обработчик документа; этот пакет предоставляет стандартный обработчик и шаблон root. Потребитель может зарегистрировать собственный обработчик вместо него.
 
@@ -52,11 +52,11 @@ npm install ./packages/nuckty-ext-block-root-1.0.0-beta1.tgz
 Подключите расширение в `config-nuckty.ts`:
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root'],
+    ext: ['@nuckty/ext-block-root'],
 });
 ```
 
@@ -69,4 +69,3 @@ export default defineNucktyConfig({
 Регистрация пакета вызывает `env.document.register`: обработчик создаёт root с `DocumentData` в props. Ядро не выбирает имя root из sitemap. `assets` содержит URL бандлов; `target.data` содержит настройки потребителя.
 
 Стандартный root выводит каждый непустой URL из `assets.css` и `assets.js` один раз в порядке добавления; скрипты с `defer` идут после содержимого страницы. Имена бандлов не выводятся из маршрута. Для выбора бандлов по странице нужен собственный обработчик документа или переопределение root.
-

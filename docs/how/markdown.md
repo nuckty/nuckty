@@ -79,7 +79,7 @@ Parsed text spacing around inline HTML and links is preserved: `Hello <em>world<
 During the build, relative links and image paths are resolved against the current Markdown file’s directory within the content root. The content root’s directory name does not affect resolution. When calling `createMarkdown` directly, set `sourceFile` to the file’s path relative to the content root; retain `inputPath` for diagnostics and existing integrations when needed.
 
 ```ts
-import { createMarkdown } from 'nuckty';
+import { createMarkdown } from '@nuckty/core';
 
 const { tree } = createMarkdown({
     sourceFile: 'guide/start.md',

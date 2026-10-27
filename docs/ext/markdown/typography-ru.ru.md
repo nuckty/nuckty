@@ -1,4 +1,4 @@
-# nuckty-ext-markdown-typography-ru
+# @nuckty/ext-markdown-typography-ru
 
 Русская типографика: в поддерживаемых сочетаниях неразрывный пробел удерживает тире рядом с предыдущим словом. Расширение проходит по дереву Markdown до рендеринга и правит только текст.
 
@@ -27,7 +27,7 @@
 
 ## Установка
 
-Пример продолжает быстрый старт со стандартным обработчиком `nuckty-ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `nuckty-ext-block-root`.
+Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
 Команда ниже выполняется из распакованного [стартового проекта](../../how/start.ru.md): готовые архивы расширений находятся в `packages/`.
 
@@ -36,13 +36,12 @@ npm install ./packages/nuckty-ext-markdown-typography-ru-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-markdown-typography-ru'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-markdown-typography-ru'],
 });
 ```
 
 При подключении в глобальном `ext` расширение обрабатывает Markdown всех строящихся [таргетов](../../how/targets.ru.md). Значение `target.lang` само по себе не ограничивает его действие.
-

@@ -1,4 +1,4 @@
-# nuckty-ext-markdown-typography-ru
+# @nuckty/ext-markdown-typography-ru
 
 Russian typography: a non-breaking space keeps an em dash with the preceding word in supported prose patterns. The extension walks the Markdown tree before rendering and edits text only.
 
@@ -27,7 +27,7 @@ The extension is optional: it is enabled when Russian typography is needed. An E
 
 ## Installation
 
-This example extends the quickstart with the standard `nuckty-ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `nuckty-ext-block-root`.
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
 Run the command below from the extracted [starter project](../../how/start.md); prepared extension archives are in `packages/`.
 
@@ -36,13 +36,12 @@ npm install ./packages/nuckty-ext-markdown-typography-ru-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-markdown-typography-ru'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-markdown-typography-ru'],
 });
 ```
 
 When loaded through the global `ext`, the extension processes Markdown for every target being built. The value of `target.lang` does not automatically limit its scope.
-

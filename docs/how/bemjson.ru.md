@@ -17,7 +17,7 @@
 Узел — типизированный объект. При статической проверке TypeScript сверяет его поля с `BemNode`. CLI преобразует конфигурацию, расширения и модули блоков в JavaScript без проверки типов; проверку TypeScript запускают отдельно.
 
 ```ts
-import type { AttrMap, BEMTree, BemEntity, ModMap } from 'nuckty';
+import type { AttrMap, BEMTree, BemEntity, ModMap } from '@nuckty/core';
 
 interface BemNode {
     block?: string;          // имя блока: 'article', 'button', 'root'
@@ -69,7 +69,7 @@ mix                         → классы другого блока: 'menu__i
 Экспортируемый рекурсивный тип:
 
 ```ts
-import type { BemNode } from 'nuckty';
+import type { BemNode } from '@nuckty/core';
 
 type BEMTree = BemNode | BEMTree[] | string | null | undefined | false;
 ```

@@ -1,4 +1,4 @@
-# nuckty-ext-block-gallery
+# @nuckty/ext-block-gallery
 
 An image gallery with a lightbox. The package combines the `gallery` block and the `:::gallery` markdown construct: the syntax and the implementation ship together.
 
@@ -31,7 +31,7 @@ The markdown extension finds the container node and turns it into the [BEMJSON](
 
 ## Installation
 
-This example extends the quickstart with the standard `nuckty-ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `nuckty-ext-block-root`.
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
 Run the command below from the extracted [starter project](../../how/start.md); prepared extension archives are in `packages/`.
 
@@ -40,11 +40,11 @@ npm install ./packages/nuckty-ext-block-gallery-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-block-gallery'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-block-gallery'],
 });
 ```
 
@@ -53,4 +53,3 @@ After that, the `:::gallery` construct works in any `.md`; add the `gallery` and
 ## Overriding
 
 Place `blocks/gallery/gallery.nu.ts` on a later [level](../../how/blocks/levels.md) to replace the template. For styles, add `blocks/gallery/gallery.css` there: CSS for a declared block is collected from all levels. A [bemdecl](../../how/blocks/deps.md) lists block names.
-

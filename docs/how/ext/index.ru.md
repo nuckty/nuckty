@@ -18,12 +18,14 @@
 
 В глобальном `config/config-nuckty.ts` укажите пакеты npm или локальные модули расширений. Движок загружает их по порядку и вызывает именованный `register`, а при его отсутствии — функцию по умолчанию.
 
+Сторонние расширения могут использовать любое npm-имя, включая другой scope, например `@author/extension`. Укажите полное имя в `ext`; членство в организации `@nuckty` не требуется.
+
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', './ext/search.ts'],
+    ext: ['@nuckty/ext-block-root', './ext/search.ts'],
 });
 ```
 
@@ -39,5 +41,4 @@ export default defineNucktyConfig({
 
 Готовые расширения собраны в [каталоге](../../ext/index.ru.md).
 
-Для каждой сборки нужен один обработчик документа. Стандартный `nuckty-ext-block-root` регистрирует его и уровень блоков; собственный обработчик может обойтись без root. Он получает `DocumentData` (page, content, [sitemap](../sitemap.ru.md), assets, alternates, target, lang).
-
+Для каждой сборки нужен один обработчик документа. Стандартный `@nuckty/ext-block-root` регистрирует его и уровень блоков; собственный обработчик может обойтись без root. Он получает `DocumentData` (page, content, [sitemap](../sitemap.ru.md), assets, alternates, target, lang).

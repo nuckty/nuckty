@@ -1,4 +1,4 @@
-# nuckty-ext-command-serve
+# @nuckty/ext-command-serve
 
 Local serving of the built site through nginx with a [generated configuration](../../out/hosting.md). The `nuckty serve` and `nuckty stop` commands.
 
@@ -35,7 +35,7 @@ Install this extension as a development dependency (`devDependency`) for local p
 
 ## Installation
 
-This example extends the quickstart with the standard `nuckty-ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `nuckty-ext-block-root`.
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
 Install the prepared package from `packages/` in the extracted [starter project](../../how/start.md):
 
@@ -44,11 +44,11 @@ npm install --save-dev ./packages/nuckty-ext-command-serve-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-serve'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-serve'],
 });
 ```
 

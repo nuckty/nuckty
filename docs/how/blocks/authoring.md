@@ -7,7 +7,7 @@ A block is described by a `.nu.ts` file. Inside is template registration through
 A single file `blocks/<name>/<name>.nu.ts` describes one block:
 
 ```ts
-import { block } from 'nuckty';
+import { block } from '@nuckty/core';
 
 interface ButtonProps {
     type?: 'button' | 'submit';
@@ -95,4 +95,3 @@ When overriding through [levels](levels.md), only the last matching `.nu.ts` fil
 - No manual registration of every block. The engine finds `.nu.ts` through dependencies, loads the file, and calls `templates`. For details, see [dependencies](deps.md).
 - No CSS and JS imports inside `.nu.ts`. Assets sit next to the file, and the bundler finds them and adds them to the build via dependencies.
 - No `applyNext()` call. Instead of a separate method, the mode function takes a `next` parameter: `(n, next) => ...`.
-

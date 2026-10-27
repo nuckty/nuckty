@@ -1,4 +1,4 @@
-# nuckty-ext-markdown-video
+# @nuckty/ext-markdown-video
 
 Embedding videos from video hosting platforms (YouTube, RuTube, VK) in Markdown via the `@[provider](id)` construct. The package adds only that: no block, no external JS libraries.
 
@@ -33,9 +33,9 @@ Providers: `youtube`, `rutube`, `vk` — case does not matter. An unknown provid
 The provider list is extensible: the package exports `createVideoPlugin` and `DEFAULT_VIDEO_PROVIDERS`. A custom provider has a name and a function that builds its URL:
 
 ```ts
-import { createVideoPlugin, DEFAULT_VIDEO_PROVIDERS } from 'nuckty-ext-markdown-video';
+import { createVideoPlugin, DEFAULT_VIDEO_PROVIDERS } from '@nuckty/ext-markdown-video';
 
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.markdown.use(createVideoPlugin([
@@ -49,7 +49,7 @@ Save this module as `ext/video.ts` and load `./ext/video.ts` instead of the stan
 
 ## Installation
 
-This example extends the quickstart with the standard `nuckty-ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `nuckty-ext-block-root`.
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
 Run the command below from the extracted [starter project](../../how/start.md); prepared extension archives are in `packages/`.
 
@@ -58,13 +58,12 @@ npm install ./packages/nuckty-ext-markdown-video-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-markdown-video'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-markdown-video'],
 });
 ```
 
 After that, the `@[provider](id)` construct works in any `.md`.
-

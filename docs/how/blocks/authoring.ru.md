@@ -7,7 +7,7 @@
 Один файл `blocks/<name>/<name>.nu.ts` описывает один блок:
 
 ```ts
-import { block } from 'nuckty';
+import { block } from '@nuckty/core';
 
 interface ButtonProps {
     type?: 'button' | 'submit';
@@ -95,4 +95,3 @@ block('button')({ mods: (_n, next) => ({ ...next(), size: 'l' }) });  // все�
 - Нет ручной регистрации каждого блока. Движок находит `.nu.ts` по зависимостям, загружает файл и вызывает `templates`. Подробнее — [зависимости](deps.ru.md).
 - Нет импорта CSS и JS внутри `.nu.ts`. Ассеты лежат рядом, и бандлер находит и добавляет их в сборку по зависимостям.
 - Нет вызова `applyNext()`. Вместо отдельного метода — параметр `next` в функции режима: `(n, next) => ...`.
-

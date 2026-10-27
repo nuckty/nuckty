@@ -1,4 +1,4 @@
-# nuckty-ext-command-validate-vnu
+# @nuckty/ext-command-validate-vnu
 
 The `nuckty validate` command checks the built HTML with the external [W3C Nu Html Checker](https://validator.w3.org/nu/) validator (vnu.jar). The extension is optional and requires a JVM.
 
@@ -32,15 +32,15 @@ Port `127.0.0.1:8888` must be free: an already occupied port fails before Java s
 ## Running the check
 
 ```bash
-npx nuckty build main
-npx nuckty validate main
+npx @nuckty/core build main
+npx @nuckty/core validate main
 ```
 
 `validate [target]` selects the named target, or the first declared target when omitted. Build it first: the command recursively checks `.html` files in `<outDir>/html/`, including nested directories. An unknown target, missing directory, empty file set, or validation errors produce a nonzero exit code. Flags are not supported.
 
 ## Installation
 
-This example extends the quickstart with the standard `nuckty-ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `nuckty-ext-block-root`.
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
 Install a maintained system JVM before running `npm install`. The extension includes a pinned `vnu-jar` dependency. Its upstream postinstall downloads a JRE when system Java is missing; Nuckty validation uses `java` on PATH.
 
@@ -51,13 +51,12 @@ npm install ./packages/nuckty-ext-command-validate-vnu-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-validate-vnu'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-validate-vnu'],
 });
 ```
 
 Requires `java` in `PATH` (JVM 17+). Every run starts the daemon anew: startup and validation time depend on the JVM, hardware and file count.
-

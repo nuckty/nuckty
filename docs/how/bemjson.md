@@ -17,7 +17,7 @@ From these three concepts the engine assembles CSS classes (`menu`, `menu__item`
 A node is a typed object. TypeScript can check its fields against `BemNode` during a static type check. The CLI transpiles configuration, extensions, and block modules without checking their types; run TypeScript checks separately.
 
 ```ts
-import type { AttrMap, BEMTree, BemEntity, ModMap } from 'nuckty';
+import type { AttrMap, BEMTree, BemEntity, ModMap } from '@nuckty/core';
 
 interface BemNode {
     block?: string;          // block name: 'article', 'button', 'root'
@@ -69,7 +69,7 @@ The separators are the standard BEM ones: `__` before an element, `_` before a m
 The exported recursive type is:
 
 ```ts
-import type { BemNode } from 'nuckty';
+import type { BemNode } from '@nuckty/core';
 
 type BEMTree = BemNode | BEMTree[] | string | null | undefined | false;
 ```

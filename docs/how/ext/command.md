@@ -20,7 +20,7 @@ interface NucktyEnv {
 
 ```ts
 import process from 'node:process';
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.commands.add('target-info', 'show a configured target', async (args) => {
@@ -46,10 +46,10 @@ export function register(env: NucktyEnv): void {
 Save the module as `ext/target-info.ts` and add `'./ext/target-info.ts'` to `ext` in the global configuration. The user runs:
 
 ```bash
-npx nuckty target-info --json
+npx @nuckty/core target-info --json
 ```
 
-The handler prints the first [target](../targets.md). To choose another, supply its name: `npx nuckty target-info main --json`, where `main` is a name from your configuration. The example accepts an optional name and the `--json` flag; additional argument validation can be added in the handler.
+The handler prints the first [target](../targets.md). To choose another, supply its name: `npx @nuckty/core target-info main --json`, where `main` is a name from your configuration. The example accepts an optional name and the `--json` flag; additional argument validation can be added in the handler.
 
 ## Handler contract
 
@@ -63,9 +63,9 @@ It returns an exit code: `0` for success, a non-zero code for an error. The core
 
 ## Typical commands
 
-- **`nuckty deploy-ftp [target]`** — deploy the artifact to a server. See [`nuckty-ext-command-deploy-ftp`](../../ext/command/deploy-ftp.md).
-- **`nuckty serve [--port N]`** — serve the site locally via nginx. See [`nuckty-ext-command-serve`](../../ext/command/serve.md).
-- **`nuckty validate`** — check [HTML](../../out/html.md) with an external validator. See [`nuckty-ext-command-validate-vnu`](../../ext/command/validate-vnu.md).
+- **`nuckty deploy-ftp [target]`** — deploy the artifact to a server. See [`@nuckty/ext-command-deploy-ftp`](../../ext/command/deploy-ftp.md).
+- **`nuckty serve [--port N]`** — serve the site locally via nginx. See [`@nuckty/ext-command-serve`](../../ext/command/serve.md).
+- **`nuckty validate`** — check [HTML](../../out/html.md) with an external validator. See [`@nuckty/ext-command-validate-vnu`](../../ext/command/validate-vnu.md).
 
 ## When to choose command
 

@@ -1,4 +1,4 @@
-# nuckty-ext-command-validate-vnu
+# @nuckty/ext-command-validate-vnu
 
 Команда `nuckty validate` проверяет собранный HTML внешним валидатором [W3C Nu Html Checker](https://validator.w3.org/nu/) (vnu.jar). Расширение необязательно и требует JVM.
 
@@ -32,15 +32,15 @@ JVM добавляет затраты на запуск, поэтому расш
 ## Запуск
 
 ```bash
-npx nuckty build main
-npx nuckty validate main
+npx @nuckty/core build main
+npx @nuckty/core validate main
 ```
 
 `validate [target]` выбирает именованный [таргет](../../how/targets.ru.md), а без аргумента — первый объявленный. Сначала соберите его: команда рекурсивно проверяет `.html` в `<outDir>/html/`, включая вложенные каталоги. Неизвестный таргет, отсутствующий каталог, пустой набор файлов и ошибки проверки дают ненулевой код завершения. Флаги не поддерживаются.
 
 ## Установка
 
-Пример продолжает быстрый старт со стандартным обработчиком `nuckty-ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `nuckty-ext-block-root`.
+Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
 Установите поддерживаемую системную JVM до запуска `npm install`. Расширение включает закреплённую зависимость `vnu-jar`. Установочный скрипт `vnu-jar` скачивает JRE, если системной Java нет; валидация Nuckty использует `java` из PATH.
 
@@ -51,13 +51,12 @@ npm install ./packages/nuckty-ext-command-validate-vnu-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-validate-vnu'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-validate-vnu'],
 });
 ```
 
 Требуется `java` в `PATH` (JVM 17+). Каждый запуск поднимает демон заново: время запуска и проверки зависит от JVM, оборудования и числа файлов.
-

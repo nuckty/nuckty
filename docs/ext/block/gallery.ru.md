@@ -1,4 +1,4 @@
-# nuckty-ext-block-gallery
+# @nuckty/ext-block-gallery
 
 Галерея изображений с лайтбоксом. Пакет объединяет блок `gallery` и конструкцию markdown-разметки `:::gallery`: синтаксис и реализация галереи поставляются вместе.
 
@@ -31,7 +31,7 @@ Markdown-расширение находит узел-контейнер и пр
 
 ## Установка
 
-Пример продолжает быстрый старт со стандартным обработчиком `nuckty-ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `nuckty-ext-block-root`.
+Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
 Команда ниже выполняется из распакованного [стартового проекта](../../how/start.ru.md): готовые архивы расширений находятся в `packages/`.
 
@@ -40,11 +40,11 @@ npm install ./packages/nuckty-ext-block-gallery-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-block-gallery'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-block-gallery'],
 });
 ```
 
@@ -53,4 +53,3 @@ export default defineNucktyConfig({
 ## Переопределение
 
 Поместите свой `blocks/gallery/gallery.nu.ts` на поздний [уровень](../../how/blocks/levels.ru.md) для замены [шаблона](../../how/templates.ru.md). Для стилей добавьте `blocks/gallery/gallery.css` на этот уровень: CSS объявленного блока объединяется со всех уровней. В [bemdecl](../../how/blocks/deps.ru.md) перечисляются имена блоков.
-

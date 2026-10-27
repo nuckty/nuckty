@@ -1,4 +1,4 @@
-# nuckty-ext-command-content-external
+# @nuckty/ext-command-content-external
 
 Наполнение корня контента из внешних репозиториев Git. Команда `nuckty content-external` читает `external.json`, клонирует перечисленные репозитории и обновляет рабочие копии. Это отдельный шаг перед сборкой, а не часть её.
 
@@ -34,7 +34,7 @@ nuckty content-external [--dry-run]
 
 ## Установка
 
-Пример продолжает быстрый старт со стандартным обработчиком `nuckty-ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `nuckty-ext-block-root`.
+Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
 Установите подготовленный пакет из каталога `packages/` распакованного [стартового проекта](../../how/start.ru.md):
 
@@ -43,10 +43,10 @@ npm install --save-dev ./packages/nuckty-ext-command-content-external-1.0.0-beta
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-content-external'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-content-external'],
 });
 ```

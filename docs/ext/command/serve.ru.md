@@ -1,4 +1,4 @@
-# nuckty-ext-command-serve
+# @nuckty/ext-command-serve
 
 Локальная раздача собранного сайта через nginx с [сгенерированной конфигурацией](../../out/hosting.ru.md). Команды `nuckty serve` и `nuckty stop`.
 
@@ -35,7 +35,7 @@
 
 ## Установка
 
-Пример продолжает быстрый старт со стандартным обработчиком `nuckty-ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `nuckty-ext-block-root`.
+Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
 Установите подготовленный пакет из каталога `packages/` распакованного [стартового проекта](../../how/start.ru.md):
 
@@ -44,11 +44,11 @@ npm install --save-dev ./packages/nuckty-ext-command-serve-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-serve'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-serve'],
 });
 ```
 

@@ -21,7 +21,7 @@ Markdown-расширение добавляет [конструкции markdow
 В примере обработчик намеренно сводит текст к строке; оформление и ссылки не сохраняются. Для сложного содержимого реализуйте собственное преобразование узлов.
 
 ```ts
-import type { NucktyEnv } from 'nuckty';
+import type { NucktyEnv } from '@nuckty/core';
 
 interface TextNode {
     type?: string;
@@ -52,4 +52,3 @@ export function register(env: NucktyEnv): void {
 Используйте `:::callout{.warning}` с абзацем внутри или `::badge[1.2]{type=new}`. Добавьте `callout` и `badge` в [bemdecl](../blocks/deps.ru.md) и предоставьте их [шаблоны](../templates.ru.md) и стили на [уровнях](../blocks/levels.ru.md). Само появление узла не добавляет блок в декларацию.
 
 `env.markdown.use(plugin)` принимает remark-плагин для произвольного преобразования mdast. Например, [видео](../../ext/markdown/video.ru.md) использует ссылки `@[provider](id)`. Директивы галереи и сетки совмещают markdown- и block-расширение в одном пакете; готовые реализации перечислены в [каталоге](../../ext/markdown.ru.md).
-

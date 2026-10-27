@@ -14,12 +14,11 @@ A markdown construct almost always comes paired with a [block extension](block.m
 
 Markdown extensions:
 
-- [`nuckty-ext-markdown-typography-ru`](markdown/typography-ru.md) — Russian typography: a non-breaking space before a dash. Adds no block — it only adjusts text.
-- [`nuckty-ext-markdown-video`](markdown/video.md) — video embedding `@[provider](id)` (YouTube/RuTube/VK). Ships no block — the plugin builds the player markup.
+- [`@nuckty/ext-markdown-typography-ru`](markdown/typography-ru.md) — Russian typography: a non-breaking space before a dash. Adds no block — it only adjusts text.
+- [`@nuckty/ext-markdown-video`](markdown/video.md) — video embedding `@[provider](id)` (YouTube/RuTube/VK). Ships no block — the plugin builds the player markup.
 
 Markdown constructs that come paired with a block live in block extensions:
 
-- **Gallery** (`:::gallery`) — in the [`nuckty-ext-block-gallery`](block/gallery.md) package.
-- **Grid** (`:::grid`) — in the [`nuckty-ext-block-grid`](block/grid.md) package.
+- **Gallery** (`:::gallery`) — in the [`@nuckty/ext-block-gallery`](block/gallery.md) package.
+- **Grid** (`:::grid`) — in the [`@nuckty/ext-block-grid`](block/grid.md) package.
 - **Callout** (`:::callout`) — a candidate for a separate package.
-

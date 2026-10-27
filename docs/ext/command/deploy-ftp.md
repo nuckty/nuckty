@@ -1,4 +1,4 @@
-# nuckty-ext-command-deploy-ftp
+# @nuckty/ext-command-deploy-ftp
 
 Deploys the built artifact to [shared hosting](../../out/hosting.md) over FTP. The `nuckty deploy-ftp [target]` command synchronizes files against a manifest: it sends only the changed files to the server and deletes the extras.
 
@@ -62,7 +62,7 @@ The transfer protocol, rather than the server class, determines compatibility. F
 
 ## Installation
 
-This example extends the quickstart with the standard `nuckty-ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `nuckty-ext-block-root`.
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
 Run the command below from the extracted [starter project](../../how/start.md); prepared extension archives are in `packages/`.
 
@@ -71,11 +71,11 @@ npm install ./packages/nuckty-ext-command-deploy-ftp-1.0.0-beta1.tgz
 ```
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-command-deploy-ftp'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-deploy-ftp'],
 });
 ```
 
@@ -84,4 +84,3 @@ The core does not depend on basic-ftp — the dependency lives only in this exte
 Before connecting, the command verifies every local file size and MD5 against the manifest. It repeats verification before the final manifest transfer and rejects a changed artifact. Remote verification uses LIST and size; it does not independently verify remote content hashes. Do not modify an artifact during deployment.
 
 `secure: true` or `FTP_SECURE=true` enables FTPS with certificate verification; TLS failure never falls back to plain FTP.
-

@@ -51,7 +51,7 @@ Set optional layout metadata on a sitemap line, rather than in the content file:
 - Documentation [docs, docs/index.md]
 ```
 
-This sets `page.layout` to `landing`; it changes the rendered page only if the registered document handler reads that field. The standard `nuckty-ext-block-root` handler wraps every page in `root` and does not select a template from `page.layout`. For document handlers and blocks, see [blocks](blocks/index.md) and [nu.ts templates](templates.md).
+This sets `page.layout` to `landing`; it changes the rendered page only if the registered document handler reads that field. The standard `@nuckty/ext-block-root` handler wraps every page in `root` and does not select a template from `page.layout`. For document handlers and blocks, see [blocks](blocks/index.md) and [nu.ts templates](templates.md).
 
 ## Cross-references
 
@@ -66,4 +66,3 @@ The engine converts the path into a URL using the `md2url` map built from the si
 ## When a sitemap does not fit
 
 For sites with dynamic or user-generated content, where pages appear without central registration, an explicit tree is inconvenient. nuckty is not designed for that: the sitemap is built for curated documentation with a structure known in advance.
-
