@@ -1,4 +1,4 @@
-# nuckty-ext-block-grid
+# @nuckty/ext-block-grid
 
 > **Multi-column content layout — the `:::grid` construct and the `grid` block.**
 
@@ -29,17 +29,17 @@ The handler turns each nonempty child paragraph into a plain-text `grid__item`. 
 ## How to load
 
 ```bash
-npm install nuckty-ext-block-grid
+npm install @nuckty/ext-block-grid
 ```
 
-This example extends the quickstart with the standard `nuckty-ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `nuckty-ext-block-root`.
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-block-grid'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-block-grid'],
 });
 ```
 
@@ -56,4 +56,3 @@ Behavior is fixed by the openspec `ext-block-grid` spec (`openspec/specs/ext-blo
 ## License
 
 MIT.
-

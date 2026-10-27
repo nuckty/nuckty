@@ -10,7 +10,7 @@
  * @module grid
  */
 
-import type { BemNode } from 'nuckty';
+import type { BemNode } from '@nuckty/core';
 
 /** Structural mdast view of the directive's children (duck-typed). */
 export interface MdastNode {

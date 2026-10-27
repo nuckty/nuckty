@@ -1,5 +1,5 @@
 /**
- * nuckty-ext-block-grid — multi-column content layout.
+ * @nuckty/ext-block-grid — multi-column content layout.
  *
  * Combines two extension types in one `register(env)` (openspec
  * `ext-block-grid`): the `grid` block via `env.levels` and the `:::grid`
@@ -8,10 +8,10 @@
  * lays them out in a responsive multi-column grid — no external CSS/JS
  * dependencies.
  *
- * @module nuckty-ext-block-grid
+ * @module @nuckty/ext-block-grid
  */
 
-import type { DirectiveHandler, NucktyEnv } from 'nuckty';
+import type { DirectiveHandler, NucktyEnv } from '@nuckty/core';
 import { fileURLToPath } from 'node:url';
 import { extractItems, gridNode } from './grid.js';
 

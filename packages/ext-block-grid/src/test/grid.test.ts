@@ -1,5 +1,5 @@
 /**
- * Tests for nuckty-ext-block-grid (openspec `ext-block-grid`):
+ * Tests for @nuckty/ext-block-grid (openspec `ext-block-grid`):
  * - `extractItems` turns each non-empty paragraph child of the container into
  *   one item text (soft breaks kept, images flattened to `![]()` markdown,
  *   link text kept);
@@ -14,7 +14,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { NucktyEnv, Templates, render, runWithTemplates } from 'nuckty';
+import { NucktyEnv, Templates, render, runWithTemplates } from '@nuckty/core';
 import { register as registerExtension, gridHandler } from '../index.js';
 import { extractItems, gridNode } from '../grid.js';
 import type { MdastNode } from '../grid.js';
@@ -41,7 +41,7 @@ test('extractItems maps container paragraphs to item texts', () => {
 test('gridNode wraps item texts into grid__item cells', () => {
     const node = gridNode(['First', 'Second & <third>']);
     assert.equal(node.block, 'grid');
-    const items = node.content as import('nuckty').BemNode[];
+    const items = node.content as import('@nuckty/core').BemNode[];
     assert.equal(items.length, 2);
     assert.equal(items[0]!.elem, 'item');
     assert.equal(items[0]!.content, 'First');
