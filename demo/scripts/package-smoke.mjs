@@ -9,19 +9,8 @@ import { sourceCopyFilter } from './copy-filter.mjs';
 const demo = path.resolve(import.meta.dirname, '..');
 const temp = mkdtempSync(path.join(tmpdir(), 'nuckty-package-smoke-'));
 const consumer = path.join(temp, 'consumer with spaces – пример');
-const packages = [
-    '@nuckty/core',
-    '@nuckty/ext-block-gallery',
-    '@nuckty/ext-block-grid',
-    '@nuckty/ext-block-root',
-    '@nuckty/ext-command-content-external',
-    '@nuckty/ext-command-convert-images',
-    '@nuckty/ext-command-deploy-ftp',
-    '@nuckty/ext-command-serve',
-    '@nuckty/ext-command-validate-vnu',
-    '@nuckty/ext-markdown-typography-ru',
-    '@nuckty/ext-markdown-video',
-];
+const dependencies = JSON.parse(readFileSync(path.join(demo, 'config/config-packages.json'), 'utf8'));
+const packages = Object.keys(dependencies);
 const userConfig = path.join(temp, 'user.npmrc');
 const globalConfig = path.join(temp, 'global.npmrc');
 writeFileSync(userConfig, '');
@@ -30,7 +19,6 @@ const npm = (args, cwd) => execFileSync('npm', args, { cwd, encoding: 'utf8', st
 
 try {
     mkdirSync(consumer);
-    const dependencies = Object.fromEntries(packages.map((name) => [name, '1.0.0-beta1']));
     for (const name of ['config', 'content', 'blocks', 'ext']) cpSync(path.join(demo, name), path.join(consumer, name), {
         recursive: true,
         filter: sourceCopyFilter(demo),

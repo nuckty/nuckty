@@ -21,3 +21,7 @@ Run `npm run test:package` with access to public npm. The script installs all el
 ## Clean install check
 
 Run `npm run test:clean-install`. It copies only this demo's source, installs its checked-in manifest and lockfile with `npm ci`, then builds both languages without access to sibling repositories. Failed fixtures are preserved; successful fixtures are removed.
+
+## Published package updates
+
+`.github/workflows/update-packages.yml` resolves the selected public npm `beta` or `latest` channel for the fixed official package set in `config/config-packages.json`. It rejects incompatible core peers, verifies a clean install and consumer acceptance, commits exact versions and lock integrity, then explicitly dispatches deployment CI; unchanged sets do not create commits. Package publication dispatches this workflow after registry verification.

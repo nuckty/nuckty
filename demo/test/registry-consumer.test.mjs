@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const root = new URL('../', import.meta.url);
+const versions = JSON.parse(readFileSync(new URL('config/config-packages.json', root), 'utf8'));
 
 test('consumer installs exact public npm releases without ecosystem source checkouts', () => {
     const manifest = JSON.parse(readFileSync(new URL('package.json', root), 'utf8'));
@@ -10,7 +11,7 @@ test('consumer installs exact public npm releases without ecosystem source check
     assert.ok(packages.length > 0);
 
     for (const [name, version] of packages) {
-        assert.equal(version, '1.0.0-beta1', `${name} must use the published release`);
+        assert.equal(version, versions[name], `${name} must use the selected published release`);
     }
 
     const workflow = readFileSync(new URL('.github/workflows/ci.yml', root), 'utf8');
@@ -34,7 +35,7 @@ test('lockfile resolves Nuckty packages to integrity-pinned public releases', ()
             continue;
         }
 
-        assert.equal(entry.version, '1.0.0-beta1');
+        assert.equal(entry.version, versions[location.slice('node_modules/'.length)]);
         assert.ok(entry.resolved.startsWith('https://registry.npmjs.org/'), `${location}: public registry archive required`);
         assert.ok(entry.integrity, `${location}: registry integrity required`);
     }
