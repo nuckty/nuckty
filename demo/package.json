@@ -25,14 +25,14 @@
         "stop:en": "nuckty stop en"
     },
     "dependencies": {
-        "@nuckty/core": "file:../nuckty",
-        "@nuckty/ext-block-gallery": "file:../nuckty-ext-block-gallery",
-        "@nuckty/ext-block-grid": "file:../nuckty-ext-block-grid",
-        "@nuckty/ext-block-root": "file:../nuckty-ext-block-root",
-        "@nuckty/ext-command-deploy-ftp": "file:../nuckty-ext-command-deploy-ftp",
-        "@nuckty/ext-command-serve": "file:../nuckty-ext-command-serve",
-        "@nuckty/ext-command-validate-vnu": "file:../nuckty-ext-command-validate-vnu",
-        "@nuckty/ext-markdown-typography-ru": "file:../nuckty-ext-markdown-typography-ru"
+        "@nuckty/core": "1.0.0-beta1",
+        "@nuckty/ext-block-gallery": "1.0.0-beta1",
+        "@nuckty/ext-block-grid": "1.0.0-beta1",
+        "@nuckty/ext-block-root": "1.0.0-beta1",
+        "@nuckty/ext-command-deploy-ftp": "1.0.0-beta1",
+        "@nuckty/ext-command-serve": "1.0.0-beta1",
+        "@nuckty/ext-command-validate-vnu": "1.0.0-beta1",
+        "@nuckty/ext-markdown-typography-ru": "1.0.0-beta1"
     },
     "devDependencies": {
         "@tanstack/highlight": "0.1.0",

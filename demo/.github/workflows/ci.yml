@@ -23,128 +23,13 @@ jobs:
         with:
           persist-credentials: false
           path: nuckty-demo
-      - name: Resolve latest successfully verified ecosystem sources
-        env:
-          NUCKTY_SOURCES: ${{ vars.NUCKTY_SOURCES }}
-          GH_TOKEN: ${{ github.token }}
-        run: node nuckty-demo/.github/resolve-sources.mjs
-      - name: Validate exact source set and pinned commit SHAs
-        id: refs
-        run: |
-          node --input-type=module <<'NODE'
-          const names = ["nuckty", "nuckty-ext-block-gallery", "nuckty-ext-block-grid", "nuckty-ext-block-root", "nuckty-ext-command-content-external", "nuckty-ext-command-convert-images", "nuckty-ext-command-deploy-ftp", "nuckty-ext-command-serve", "nuckty-ext-command-validate-vnu", "nuckty-ext-markdown-typography-ru", "nuckty-ext-markdown-video"];
-          let sources;
-          try {
-              sources = JSON.parse(process.env.NUCKTY_SOURCES ?? '');
-          } catch {
-              throw new Error('NUCKTY_SOURCES must be a JSON object mapping every package to {repository, ref}.');
-          }
-          if (!sources || typeof sources !== 'object' || Array.isArray(sources) || Object.keys(sources).sort().join() !== [...names].sort().join()) {
-              throw new Error('NUCKTY_SOURCES must contain exactly these 11 package names: ' + names.join(', '));
-          }
-          for (const name of names) {
-              const source = sources[name];
-              if (!source || !/^[a-zA-Z0-9][\w.-]*\/[a-zA-Z0-9][\w.-]*$/.test(source.repository ?? '') || !/^[a-f0-9]{40}$/.test(source.ref ?? '')) {
-                  throw new Error(`Invalid pinned repository/ref for ${name}; each ref must be a lowercase 40-character commit SHA.`);
-              }
-              const key = name.replaceAll('-', '_');
-              await import('node:fs/promises').then(({ appendFile }) => appendFile(process.env.GITHUB_OUTPUT, `${key}_repository=${source.repository}\n${key}_ref=${source.ref}\n`));
-          }
-          NODE
-      - name: Checkout nuckty at its pinned source commit
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          repository: ${{ steps.refs.outputs.nuckty_repository }}
-          ref: ${{ steps.refs.outputs.nuckty_ref }}
-          path: nuckty
-      - name: Checkout nuckty-ext-block-gallery at its pinned source commit
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          repository: ${{ steps.refs.outputs.nuckty_ext_block_gallery_repository }}
-          ref: ${{ steps.refs.outputs.nuckty_ext_block_gallery_ref }}
-          path: nuckty-ext-block-gallery
-      - name: Checkout nuckty-ext-block-grid at its pinned source commit
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          repository: ${{ steps.refs.outputs.nuckty_ext_block_grid_repository }}
-          ref: ${{ steps.refs.outputs.nuckty_ext_block_grid_ref }}
-          path: nuckty-ext-block-grid
-      - name: Checkout nuckty-ext-block-root at its pinned source commit
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          repository: ${{ steps.refs.outputs.nuckty_ext_block_root_repository }}
-          ref: ${{ steps.refs.outputs.nuckty_ext_block_root_ref }}
-          path: nuckty-ext-block-root
-      - name: Checkout nuckty-ext-command-content-external at its pinned source commit
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          repository: ${{ steps.refs.outputs.nuckty_ext_command_content_external_repository }}
-          ref: ${{ steps.refs.outputs.nuckty_ext_command_content_external_ref }}
-          path: nuckty-ext-command-content-external
-      - name: Checkout nuckty-ext-command-convert-images at its pinned source commit
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          repository: ${{ steps.refs.outputs.nuckty_ext_command_convert_images_repository }}
-          ref: ${{ steps.refs.outputs.nuckty_ext_command_convert_images_ref }}
-          path: nuckty-ext-command-convert-images
-      - name: Checkout nuckty-ext-command-deploy-ftp at its pinned source commit
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          repository: ${{ steps.refs.outputs.nuckty_ext_command_deploy_ftp_repository }}
-          ref: ${{ steps.refs.outputs.nuckty_ext_command_deploy_ftp_ref }}
-          path: nuckty-ext-command-deploy-ftp
-      - name: Checkout nuckty-ext-command-serve at its pinned source commit
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          repository: ${{ steps.refs.outputs.nuckty_ext_command_serve_repository }}
-          ref: ${{ steps.refs.outputs.nuckty_ext_command_serve_ref }}
-          path: nuckty-ext-command-serve
-      - name: Checkout nuckty-ext-command-validate-vnu at its pinned source commit
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          repository: ${{ steps.refs.outputs.nuckty_ext_command_validate_vnu_repository }}
-          ref: ${{ steps.refs.outputs.nuckty_ext_command_validate_vnu_ref }}
-          path: nuckty-ext-command-validate-vnu
-      - name: Checkout nuckty-ext-markdown-typography-ru at its pinned source commit
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          repository: ${{ steps.refs.outputs.nuckty_ext_markdown_typography_ru_repository }}
-          ref: ${{ steps.refs.outputs.nuckty_ext_markdown_typography_ru_ref }}
-          path: nuckty-ext-markdown-typography-ru
-      - name: Checkout nuckty-ext-markdown-video at its pinned source commit
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          repository: ${{ steps.refs.outputs.nuckty_ext_markdown_video_repository }}
-          ref: ${{ steps.refs.outputs.nuckty_ext_markdown_video_ref }}
-          path: nuckty-ext-markdown-video
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: |
-            nuckty/package-lock.json
-            nuckty-ext-*/package-lock.json
-            nuckty-demo/package-lock.json
+          cache-dependency-path: nuckty-demo/package-lock.json
       - name: Require system Java before installing validator dependencies
         run: java -version
-      - name: Install and build all package sources
-        run: |
-          for package in nuckty nuckty-ext-*; do
-            npm_config_cache="$(npm config get cache)" npm ci --no-audit --no-fund --registry=https://registry.npmjs.org --prefix "$package"
-            npm audit --package-lock-only --audit-level=low --registry=https://registry.npmjs.org --prefix "$package"
-            npm_config_cache="$(npm config get cache)" npm run build --prefix "$package"
-          done
       - name: Verify both language artifacts
         working-directory: nuckty-demo
         run: |
@@ -162,9 +47,6 @@ jobs:
       - name: Verify clean demo install and build
         working-directory: nuckty-demo
         run: npm_config_cache="$(npm config get cache)" npm run test:clean-install
-      - name: Prepare registry metadata and tarballs for offline smoke
-        working-directory: nuckty-demo
-        run: npm_config_cache="$(npm config get cache)" node scripts/prepare-package-cache.mjs
       - name: Verify all published package boundaries
         working-directory: nuckty-demo
         run: npm_config_cache="$(npm config get cache)" npm run test:package

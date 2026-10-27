@@ -6,7 +6,7 @@ The editor and actual gallery/grid samples are available directly on the landing
 
 ## Local development
 
-Requires Node.js 24+. File dependencies refer to sibling repositories: build core first, then root/gallery/grid, typography-ru and serve/validate/deploy-ftp, run `npm ci` here, then `npm run build`. Russian output is `site/`; English output is `site-en/`. The browser editor bundles pure engine source modules, so this development checkout requires those sibling sources. Its preview uses a sandboxed iframe.
+Requires Node.js 24+. Run `npm ci`, then `npm run build`; exact Nuckty releases come from public npm. Russian output is `site/`; English output is `site-en/`. The browser editor uses `@nuckty/core/browser` and a sandboxed iframe.
 
 With nginx installed, `npm run serve` starts the demo at `http://localhost:8092`; `npm run stop` stops it. Start the sibling website preview for `http://localhost:8091`. Use `npm run serve:en` for English at `http://localhost:8094` and `npm run stop:en` to stop it. Production domains are demo.nuckty.ru and demo.nuckty.com; use `npm run build:preview` for local language/site links. Contact: vitaly@harisov.name.
 
@@ -16,11 +16,8 @@ Run `npm run build`, `npm run lint`, `npm test` and `npm run validate`. Artifact
 
 ## Reproducible package check
 
-With development dependencies already installed, run `npm_config_cache=/path/to/populated-public-cache npm run test:package`. The script packs all 11 packages (core plus 10 extensions) from source copies, checks each tarball's `main` and `types` entries, type-checks every extension's public `register` declaration, and installs only the tarballs in a separate consumer whose path contains spaces and Unicode. Its temporary config loads all extensions and builds HTML plus gallery/grid assets; it then removes the source snapshots and rebuilds the installed consumer. No registry/network fallback is allowed; missing npm-cache dependencies cause an explicit failure.
-
-The browser adapter is prebundled from the real engine before source snapshots are removed. The fixture is removed on success and preserved with its path on failure. This test does not validate a published registry release or live serve/FTP/JVM behavior; command packages are loaded as extensions during the build.
+Run `npm run test:package` with access to public npm. The script installs all eleven published `1.0.0-beta1` packages in an isolated consumer whose path contains spaces and Unicode, verifies registry URLs and integrity in its lockfile, checks public types and CLI, then builds HTML plus gallery/grid assets. It never packs sibling sources. Failed fixtures are preserved with their paths.
 
 ## Clean install check
 
-Run `npm run test:clean-install` from this directory with the sibling package sources available and access to the public npm registry. The check copies the demo and its direct sibling packages to an isolated temporary workspace, runs `npm ci` and `npm run build` for each sibling, then runs `npm ci` and `npm run build` for the demo from its checked-in manifest and lockfile. The source checkout's `node_modules`, `site`, and `.build` are not used as the install destination. A failed check keeps the temporary snapshot and prints its path; a successful check removes it.
-
+Run `npm run test:clean-install`. It copies only this demo's source, installs its checked-in manifest and lockfile with `npm ci`, then builds both languages without access to sibling repositories. Failed fixtures are preserved; successful fixtures are removed.

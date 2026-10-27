@@ -1,5 +1,5 @@
-/** Check this demo's lockfile and build from a clean copy of its sibling topology. */
-import { realpathSync, mkdtempSync, mkdirSync, cpSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+/** Install and build this demo from public npm without sibling package sources. */
+import { realpathSync, mkdtempSync, cpSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -7,20 +7,8 @@ import assert from 'node:assert/strict';
 import { sourceCopyFilter } from './copy-filter.mjs';
 
 const demo = realpathSync(path.resolve(import.meta.dirname, '..'));
-const workspace = path.dirname(demo);
 const temp = mkdtempSync(path.join(tmpdir(), 'nuckty-demo-clean-install-'));
-const snapshot = path.join(temp, 'workspace');
-const sources = [
-    'nuckty',
-    'nuckty-ext-block-root',
-    'nuckty-ext-command-serve',
-    'nuckty-ext-command-validate-vnu',
-    'nuckty-ext-command-deploy-ftp',
-    'nuckty-ext-block-gallery',
-    'nuckty-ext-block-grid',
-    'nuckty-ext-markdown-typography-ru',
-    'nuckty-demo',
-];
+const cleanDemo = path.join(temp, 'consumer');
 const env = {
     ...process.env,
     npm_config_registry: 'https://registry.npmjs.org',
@@ -43,34 +31,19 @@ function npm(args, cwd) {
 
 let passed = false;
 try {
-    mkdirSync(snapshot);
-    for (const name of sources) {
-        const source = name === 'nuckty-demo' ? demo : realpathSync(path.join(workspace, name));
-        const copy = path.join(snapshot, name);
-        const relative = path.relative(snapshot, copy);
-        assert.ok(relative && !relative.startsWith(`..${path.sep}`) && relative !== '..', `${name}: copy must stay in the temporary snapshot`);
-        cpSync(source, copy, {
-            recursive: true,
-            filter: sourceCopyFilter(source),
-        });
-    }
-
-    const siblingPackages = sources.slice(0, -1);
-    for (const name of siblingPackages) {
-        const cwd = path.join(snapshot, name);
-        npm(['ci', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org'], cwd);
-        npm(['run', 'build'], cwd);
-    }
-
-    const cleanDemo = path.join(snapshot, 'nuckty-demo');
+    cpSync(demo, cleanDemo, { recursive: true, filter: sourceCopyFilter(demo) });
     const manifest = JSON.parse(readFileSync(path.join(cleanDemo, 'package.json'), 'utf8'));
-    assert.equal(manifest.dependencies['@nuckty/core'], 'file:../nuckty', 'check must use the demo manifest and sibling topology');
+
+    for (const [name, version] of Object.entries(manifest.dependencies)) {
+        assert.ok(!version.startsWith('file:'), `${name}: registry dependency required`);
+    }
+
     npm(['ci', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org'], cleanDemo);
     npm(['run', 'build'], cleanDemo);
     assert.ok(readFileSync(path.join(cleanDemo, 'site/html/index.html'), 'utf8').length > 0, 'clean demo build must emit HTML');
     assert.ok(readFileSync(path.join(cleanDemo, 'site-en/html/index.html'), 'utf8').includes('lang=en'), 'clean demo build must emit English HTML');
     passed = true;
-    process.stdout.write('Clean install passed: prepared sibling packages, demo npm ci from its checked-in manifest and lockfile, and demo build in an isolated topology.\n');
+    process.stdout.write('Clean registry install passed: demo npm ci from its checked-in manifest and lockfile, then standalone build.\n');
 } catch (error) {
     process.stderr.write(`Clean install failed; isolated snapshot preserved at ${temp}\n`);
     throw error;

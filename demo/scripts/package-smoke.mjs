@@ -1,29 +1,26 @@
-/** Offline package boundary check. Source builds and consumer outputs stay in temp. */
-import { realpathSync, mkdtempSync, mkdirSync, cpSync, symlinkSync, readFileSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
+/** Verify all public npm packages in an isolated registry-only consumer. */
+import { mkdtempSync, mkdirSync, cpSync, readFileSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
-import { build as bundle } from 'esbuild';
 import { sourceCopyFilter } from './copy-filter.mjs';
 
 const demo = path.resolve(import.meta.dirname, '..');
-const workspace = path.dirname(demo);
 const temp = mkdtempSync(path.join(tmpdir(), 'nuckty-package-smoke-'));
-const sources = path.join(temp, 'sources');
 const consumer = path.join(temp, 'consumer with spaces – пример');
 const packages = [
-    'nuckty',
-    'nuckty-ext-block-gallery',
-    'nuckty-ext-block-grid',
-    'nuckty-ext-block-root',
-    'nuckty-ext-command-content-external',
-    'nuckty-ext-command-convert-images',
-    'nuckty-ext-command-deploy-ftp',
-    'nuckty-ext-command-serve',
-    'nuckty-ext-command-validate-vnu',
-    'nuckty-ext-markdown-typography-ru',
-    'nuckty-ext-markdown-video',
+    '@nuckty/core',
+    '@nuckty/ext-block-gallery',
+    '@nuckty/ext-block-grid',
+    '@nuckty/ext-block-root',
+    '@nuckty/ext-command-content-external',
+    '@nuckty/ext-command-convert-images',
+    '@nuckty/ext-command-deploy-ftp',
+    '@nuckty/ext-command-serve',
+    '@nuckty/ext-command-validate-vnu',
+    '@nuckty/ext-markdown-typography-ru',
+    '@nuckty/ext-markdown-video',
 ];
 const userConfig = path.join(temp, 'user.npmrc');
 const globalConfig = path.join(temp, 'global.npmrc');
@@ -32,36 +29,8 @@ writeFileSync(globalConfig, '');
 const npm = (args, cwd) => execFileSync('npm', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, npm_config_registry: 'https://registry.npmjs.org', npm_config_userconfig: userConfig, npm_config_globalconfig: globalConfig, npm_config_cache: process.env.npm_config_cache ?? path.join(temp, 'cache') } });
 
 try {
-    mkdirSync(sources);
     mkdirSync(consumer);
-    const dependencies = {};
-    for (const name of packages) {
-        const source = realpathSync(path.join(workspace, name));
-        const copy = path.join(sources, name);
-        cpSync(source, copy, { recursive: true, filter: sourceCopyFilter(source) });
-        // Build tools are already installed locally. Packaged runtime is installed separately below.
-        symlinkSync(path.join(source, 'node_modules'), path.join(copy, 'node_modules'), 'dir');
-        const output = npm(['pack', '--json', '--offline', '--pack-destination', consumer], copy);
-        const [packed] = JSON.parse(output.slice(output.lastIndexOf('\n[\n') + 1));
-        const packageManifest = JSON.parse(readFileSync(path.join(copy, 'package.json'), 'utf8'));
-        assert.ok(packageManifest.main, `${name}: package.json must declare main`);
-        assert.ok(packageManifest.types, `${name}: package.json must declare types`);
-        assert.ok(packed.files.some((file) => file.path === packageManifest.main), `${name}: main entry must be packed`);
-        assert.ok(packed.files.some((file) => file.path === packageManifest.types), `${name}: types entry must be packed`);
-        if (packageManifest.bin?.nuckty) {
-            assert.ok(packed.files.some((file) => file.path === packageManifest.bin.nuckty), `${name}: CLI entry must be packed`);
-        }
-        assert.ok(!packed.files.some((file) => /(^|\/)(test|src)\//.test(file.path)), `${name}: source/test leaked into package`);
-        const packedPaths = new Set(packed.files.map((file) => file.path));
-        for (const file of packed.files.filter((entry) => entry.path.endsWith('.map'))) {
-            const map = JSON.parse(readFileSync(path.join(copy, file.path), 'utf8'));
-            for (const [index, sourcePath] of (map.sources ?? []).entries()) {
-                const sourceFile = path.posix.normalize(path.posix.join(path.posix.dirname(file.path), map.sourceRoot ?? '', sourcePath));
-                assert.ok(typeof map.sourcesContent?.[index] === 'string' || packedPaths.has(sourceFile), `${name}: ${file.path} references missing source ${sourcePath}`);
-            }
-        }
-        dependencies[packageManifest.name] = `file:./${packed.filename}`;
-    }
+    const dependencies = Object.fromEntries(packages.map((name) => [name, '1.0.0-beta1']));
     for (const name of ['config', 'content', 'blocks', 'ext']) cpSync(path.join(demo, name), path.join(consumer, name), {
         recursive: true,
         filter: sourceCopyFilter(demo),
@@ -79,14 +48,19 @@ try {
         '',
     ].join('\n');
     writeFileSync(path.join(consumer, 'config', 'config-nuckty.ts'), config);
-    // The demo's browser adapter uses pure engine source modules. Prebundle it
-    // before removing source trees; the consumer still runs from tarballs only.
-    await bundle({
-        entryPoints: [path.join(demo, 'blocks/playground/playground.js')],
-        outfile: path.join(consumer, 'blocks/playground/playground.js'),
-        bundle: true, platform: 'browser', format: 'esm', target: 'es2022',
-    });
-    npm(['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund'], consumer);
+    npm(['install', '--ignore-scripts', '--no-audit', '--no-fund'], consumer);
+    const lock = JSON.parse(readFileSync(path.join(consumer, 'package-lock.json'), 'utf8'));
+
+    for (const name of packages) {
+        const entry = lock.packages[`node_modules/${name}`];
+        assert.equal(entry.version, dependencies[name]);
+        assert.ok(entry.resolved.startsWith('https://registry.npmjs.org/'), `${name}: public registry archive required`);
+        assert.ok(entry.integrity, `${name}: registry integrity required`);
+        const installed = JSON.parse(readFileSync(path.join(consumer, 'node_modules', name, 'package.json'), 'utf8'));
+        assert.ok(installed.main && installed.types, `${name}: public entries required`);
+        assert.ok(!readdirSync(path.join(consumer, 'node_modules', name)).includes('src'), `${name}: sources must not ship`);
+    }
+
     const extensionImports = extensions.map((name, index) => `import { register as extension${index} } from '${name}';`).join('\n');
     const extensionNames = extensions.map((_, index) => `extension${index}`).join(', ');
     writeFileSync(path.join(consumer, 'smoke.ts'), [
@@ -113,10 +87,7 @@ try {
     assert.ok(scripts.some((name) => html.includes(path.basename(name))), 'the document must load the emitted JavaScript');
     assert.ok(styles.some((name) => readFileSync(path.join(consumer, 'site', name), 'utf8').includes('.gallery')), 'gallery CSS must be emitted');
     assert.ok(styles.some((name) => readFileSync(path.join(consumer, 'site', name), 'utf8').includes('.grid')), 'grid CSS must be emitted');
-    // The installed runtime must still work after its source snapshots disappear.
-    rmSync(sources, { recursive: true, force: true });
-    npm(['run', 'build'], consumer);
-    process.stdout.write(`Package smoke passed: ${packages.length} tarballs, all public main/types/register entries, CLI, HTML, gallery/grid assets, source-independent rebuild from a path with spaces and Unicode.\n`);
+    process.stdout.write(`Package smoke passed: ${packages.length} public registry releases, all public main/types/register entries, CLI, HTML, gallery/grid assets, standalone build from a path with spaces and Unicode.\n`);
 } catch (error) {
     process.stderr.write(`Package smoke failed; fixture preserved at ${temp}\n`);
     throw error;

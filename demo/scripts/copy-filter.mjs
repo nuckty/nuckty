@@ -1,4 +1,4 @@
-/** Share the same boundary for every sibling source copied by release checks. */
+/** Exclude generated and private files from isolated consumer copies. */
 import { lstatSync } from 'node:fs';
 import path from 'node:path';
 
