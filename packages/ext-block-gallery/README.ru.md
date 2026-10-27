@@ -1,4 +1,4 @@
-# nuckty-ext-block-gallery
+# @nuckty/ext-block-gallery
 
 > **Галерея изображений с лайтбоксом — конструкция `:::gallery` и блок `gallery`.**
 
@@ -28,17 +28,17 @@
 ## Как подключить
 
 ```bash
-npm install nuckty-ext-block-gallery
+npm install @nuckty/ext-block-gallery
 ```
 
-Пример продолжает быстрый старт со стандартным обработчиком `nuckty-ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `nuckty-ext-block-root`.
+Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-block-gallery'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-block-gallery'],
 });
 ```
 
@@ -55,4 +55,3 @@ export default defineNucktyConfig({
 ## Лицензия
 
 MIT.
-

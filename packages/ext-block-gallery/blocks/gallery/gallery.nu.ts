@@ -3,7 +3,7 @@
  * tree (items, images, trailing lightbox); these templates supply the default
  * tags so a hand-built tree renders the same way.
  */
-import { block } from 'nuckty';
+import { block } from '@nuckty/core';
 
 export default function templates(): void {
     block('gallery')({ tag: 'div' });

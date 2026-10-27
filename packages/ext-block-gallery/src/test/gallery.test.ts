@@ -1,5 +1,5 @@
 /**
- * Tests for nuckty-ext-block-gallery (openspec `ext-block-gallery`):
+ * Tests for @nuckty/ext-block-gallery (openspec `ext-block-gallery`):
  * - `extractImages` collects `![]()` images from container paragraphs (a run
  *   of images collapses into one paragraph; blank lines split paragraphs);
  * - `galleryNode` rewrites image srcs through the shared image-mapping, marks
@@ -15,7 +15,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { NucktyEnv, Templates, render, runWithTemplates } from 'nuckty';
+import { NucktyEnv, Templates, render, runWithTemplates } from '@nuckty/core';
 import { register as registerExtension, galleryHandler } from '../index.js';
 import { extractImages, galleryNode } from '../gallery.js';
 import type { MdastNode } from '../gallery.js';
@@ -50,7 +50,7 @@ test('galleryNode rewrites srcs via image-mapping, lazies all but the first, app
         { groupId: 'g-gallery' },
     );
     assert.equal(node.block, 'gallery');
-    const items = node.content as import('nuckty').BemNode[];
+    const items = node.content as import('@nuckty/core').BemNode[];
     assert.equal(items.length, 4);  // three items + the lightbox container
     assert.equal(items[3]!.block, 'lightbox');
 

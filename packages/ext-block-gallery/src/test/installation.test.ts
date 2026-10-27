@@ -4,15 +4,15 @@ import { cp, mkdir, mkdtemp, readFile, realpath, rm, symlink } from 'node:fs/pro
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { NucktyEnv, Templates, render, runWithTemplates } from 'nuckty';
+import { NucktyEnv, Templates, render, runWithTemplates } from '@nuckty/core';
 
 test('installed gallery templates and resources load from a path with spaces and Unicode', async (t) => {
     const cwd = await mkdtemp(path.join(os.tmpdir(), 'doc start with spaces – пример-'));
     t.after(async () => rm(cwd, { recursive: true, force: true }));
 
-    const packageDir = path.join(cwd, 'node_modules', 'nuckty-ext-block-gallery');
+    const packageDir = path.join(cwd, 'node_modules', '@nuckty/ext-block-gallery');
     await mkdir(packageDir, { recursive: true });
-    await symlink(fileURLToPath(new URL('../../../nuckty/', import.meta.url)), path.join(cwd, 'node_modules', 'nuckty'), 'dir');
+    await symlink(fileURLToPath(new URL('../../../nuckty/', import.meta.url)), path.join(cwd, 'node_modules', '@nuckty', 'core'), 'dir');
     await cp(new URL('../../dist/', import.meta.url), path.join(packageDir, 'dist'), { recursive: true });
     await cp(new URL('../../blocks/', import.meta.url), path.join(packageDir, 'blocks'), { recursive: true });
 

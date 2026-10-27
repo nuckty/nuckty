@@ -1,4 +1,4 @@
-# nuckty-ext-block-gallery
+# @nuckty/ext-block-gallery
 
 > **Image gallery with lightbox — the `:::gallery` construct and the `gallery` block.**
 
@@ -28,17 +28,17 @@ The directive handler collects the container's images, rewrites their URLs throu
 ## How to load
 
 ```bash
-npm install nuckty-ext-block-gallery
+npm install @nuckty/ext-block-gallery
 ```
 
-This example extends the quickstart with the standard `nuckty-ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `nuckty-ext-block-root`.
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
 
 ```ts
-import { defineNucktyConfig } from 'nuckty';
+import { defineNucktyConfig } from '@nuckty/core';
 
 export default defineNucktyConfig({
     targets: { main: { configDir: 'config/', outDir: 'site/' } },
-    ext: ['nuckty-ext-block-root', 'nuckty-ext-block-gallery'],
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-block-gallery'],
 });
 ```
 
@@ -55,4 +55,3 @@ Behavior is fixed by the openspec `ext-block-gallery` spec (`openspec/specs/ext-
 ## License
 
 MIT.
-

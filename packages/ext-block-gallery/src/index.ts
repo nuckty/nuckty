@@ -1,5 +1,5 @@
 /**
- * nuckty-ext-block-gallery — image gallery with lightbox.
+ * @nuckty/ext-block-gallery — image gallery with lightbox.
  *
  * Combines two extension types in one `register(env)` (openspec
  * `ext-block-gallery`): the `gallery` block (with the `lightbox` helper) via
@@ -9,11 +9,11 @@
  * as a responsive CSS grid, and the built-in lightbox script opens a full-size
  * view on click — no external JS libraries.
  *
- * @module nuckty-ext-block-gallery
+ * @module @nuckty/ext-block-gallery
  */
 
-import type { DirectiveHandler, NucktyEnv } from 'nuckty';
-import type { ImageMappingEnv } from 'nuckty';
+import type { DirectiveHandler, NucktyEnv } from '@nuckty/core';
+import type { ImageMappingEnv } from '@nuckty/core';
 import { fileURLToPath } from 'node:url';
 import { extractImages, galleryNode } from './gallery.js';
 

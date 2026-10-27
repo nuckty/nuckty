@@ -3,7 +3,7 @@
  * a `lightbox` dialog with a close control as its last child; the gallery script fills it
  * with the clicked image and toggles visibility.
  */
-import { block } from 'nuckty';
+import { block } from '@nuckty/core';
 
 export default function templates(): void {
     block('lightbox')({ tag: 'dialog' });

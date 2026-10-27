@@ -11,9 +11,9 @@
  * @module gallery
  */
 
-import type { BemNode } from 'nuckty';
-import type { ImageMappingEnv } from 'nuckty';
-import { transformImagePathShared } from 'nuckty';
+import type { BemNode } from '@nuckty/core';
+import type { ImageMappingEnv } from '@nuckty/core';
+import { transformImagePathShared } from '@nuckty/core';
 
 /** Structural mdast view of the directive's children (duck-typed). */
 export interface MdastNode {
@@ -81,4 +81,3 @@ export function galleryNode(images: GalleryImage[], env: ImageMappingEnv, opts: 
     });
     return { block: 'gallery', content };
 }
-
