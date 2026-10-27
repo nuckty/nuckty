@@ -106,7 +106,7 @@ for (const target of targets) {
             assert.match(pages.get('/how/start').html, new RegExp(`hreflang=${other}`));
             assert.ok(pages.get('/how/start').tags.some(({ attrs }) => attrs.class === 'page-navigation__link' && attrs.href === '/how/bemjson'), 'start guide must continue to the data model');
             const home = pages.get('/').html;
-            const panelCode = (id) => decode(home.slice(home.indexOf(`id=${id}`)).match(/<code>([\s\S]*?)<\/code>/)[1]);
+            const panelCode = (id) => decode(home.slice(home.indexOf(`id=${id}`)).match(/<code\b[^>]*>([\s\S]*?)<\/code>/)[1]);
             assert.equal(panelCode('home-nu-panel'), await readFile(path.join(root, 'blocks/card/card.nu.ts'), 'utf8'), 'template source must be the actual block file');
             assert.equal(JSON.parse(panelCode('home-bemjson-panel')).block, 'card');
             assert.ok(home.includes(panelCode('home-html-panel')), 'the displayed HTML must equal the rendered card');

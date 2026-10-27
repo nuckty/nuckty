@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { highlightCode, register } from '../ext/highlight.ts';
+import { bundle } from './bundle.mjs';
+
+const { highlightCode, register } = await bundle("export { highlightCode, register } from './ext/highlight.ts';");
 
 const decode = (html) => html.replace(/<[^>]*>/g, '').replace(/&(amp|lt|gt|quot|#39);/g, (_, entity) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" }[entity]));
 
@@ -24,7 +26,7 @@ test('HTML snippets opt into soft wrapping without changing their text', () => {
         { type: 'code', lang: 'ts', value: 'const value = 1;' },
     ] };
     plugin()(tree);
-    assert.match(tree.children[0].value, /class="article__code code code_wrap_soft"/);
+    assert.match(tree.children[0].value, /class="code code_wrap_soft article__code"/);
     assert.equal(decode(tree.children[0].value), source + '\n');
     assert.doesNotMatch(tree.children[1].value, /code_wrap_soft/);
 });

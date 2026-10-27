@@ -19,10 +19,12 @@
         "test:clean-install": "node scripts/clean-install.mjs",
         "test:copy-filter": "node --test scripts/copy-filter.test.mjs",
         "test": "node --test test/*.test.mjs",
-        "lint": "tsc --noEmit -p config/config-ts.json",
+        "lint": "tsc --noEmit -p config/config-ts.json && npm run lint:css",
         "build:preview": "NUCKTY_PREVIEW=1 npm run build",
         "serve:en": "nuckty serve en --port 8094",
-        "stop:en": "nuckty stop en"
+        "stop:en": "nuckty stop en",
+        "lint:css": "stylelint \"blocks/**/*.css\" --config config/config-stylelint.mjs && prettier \"blocks/**/*.css\" --check --config config/config-prettier.json",
+        "lint:fix": "prettier \"blocks/**/*.css\" --write --config config/config-prettier.json && stylelint \"blocks/**/*.css\" --config config/config-stylelint.mjs --fix"
     },
     "dependencies": {
         "@nuckty/core": "1.0.0-beta2",
@@ -35,9 +37,13 @@
         "@nuckty/ext-markdown-typography-ru": "1.0.0-beta2"
     },
     "devDependencies": {
+        "@stylistic/stylelint-plugin": "3.1.2",
         "@tanstack/highlight": "0.1.0",
         "@types/node": "24.13.3",
         "esbuild": "0.28.2",
+        "prettier": "3.8.1",
+        "stylelint": "16.26.1",
+        "stylelint-order": "8.1.1",
         "tsx": "4.23.12",
         "typescript": "7.0.2"
     },

@@ -1,11 +1,13 @@
+import { messages } from './card-example.i18n/index.js';
 import type { BemNode } from '@nuckty/core';
 
 export function cardExample(lang: string): BemNode {
+    const t = messages(lang);
     return {
         block: 'card',
         content: [
-            { elem: 'title', content: lang === 'en' ? 'Field guide' : 'Справочник' },
-            { elem: 'description', content: lang === 'en' ? 'Markdown guides, with an interface built from blocks.' : 'Руководства в Markdown. Интерфейс, собранный из блоков.' },
+            { elem: 'title', content: t['Field guide'] },
+            { elem: 'description', content: t['Markdown guides, with an interface built from blocks.'] },
         ],
     };
 }

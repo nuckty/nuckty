@@ -1,46 +1,184 @@
-import { block, type BemNode } from '@nuckty/core';
+import { messages } from './playground.i18n/index.js';
+import { b, attributes } from '../bem/bem.js';
+import { block, type BEMTree, type BemNode } from '@nuckty/core';
+
+function playgroundTree(
+    node: Omit<BemNode, 'props'> & {
+        props?: {
+            lang?: string;
+        };
+    },
+): BemNode {
+    const locale = node.props?.lang;
+    const t = messages(locale);
+    const compact = node.mods?.['compact'] === true;
+    const input: BemNode = {
+        elem: 'input',
+        content: [b('playground', 'label', t['BEMJSON · edit here']), b('playground', 'editor', '')],
+    };
+    const output: BemNode = {
+        elem: 'output',
+        content: [
+            b(
+                'playground',
+                'output-label',
+                t['HTML · engine output'],
+                {},
+                { mix: [{ block: 'playground', elem: 'label' }] },
+            ),
+            b('code', undefined, '', { id: 'playground-html', tabindex: '0' }, { mods: { wrap: 'soft' } }),
+            b('playground', 'details', [
+                b('playground', 'summary', t['Tree after templates']),
+                b('playground', 'snippet', ''),
+            ]),
+        ],
+    };
+    const preview: BemNode = {
+        elem: 'preview-pane',
+        content: [
+            b(
+                'playground',
+                'output-label',
+                t['Preview'],
+                {},
+                {
+                    mix: [
+                        { block: 'playground', elem: 'label' },
+                        { block: 'playground', elem: 'preview-label' },
+                    ],
+                },
+            ),
+            b('playground', 'preview', '', { title: t['BEMJSON preview'] }),
+        ],
+    };
+    return b(
+        'playground',
+        undefined,
+        [
+            b(
+                'playground',
+                'fallback',
+                t['The live editor requires JavaScript. Gallery, grid and Markdown examples work without it.'],
+            ),
+            {
+                elem: 'toolbar',
+                content: [
+                    b('playground', 'input-label', t['Example']),
+                    b('playground', 'preset', [
+                        b('playground', 'option', t['Card'], { value: 'card' }),
+                        b('playground', 'option', t['List'], { value: 'list' }),
+                        b('playground', 'option', t['Button with a modifier'], { value: 'button' }),
+                        b('playground', 'option', t['Escaping'], { value: 'escaping' }),
+                    ]),
+                    b('playground', 'tab', t['Reset'], { id: 'playground-reset' }),
+                    b('playground', 'tab', t['Copy HTML'], {
+                        id: 'playground-copy',
+                        'aria-label': t['Copy example HTML'],
+                    }),
+                    b('playground', 'status', t['Loading the engine…']),
+                ],
+            },
+            { elem: 'columns', attrs: { hidden: true }, content: compact ? [input, output, preview] : [input, output] },
+            b('playground', 'error', ''),
+            ...(compact ? [] : [preview]),
+        ],
+        { 'aria-label': t['BEMJSON editor'] },
+        { mods: node.mods },
+    );
+}
 
 export default function templates(): void {
-    block<{ lang?: string }>('playground').replace((node) => {
-        const ru = node.props?.lang !== 'en';
-        const compact = node.mods?.['compact'] === true;
-        const input: BemNode = { elem: 'input', content: [
-            { bem: false, tag: 'label', cls: 'playground__label', attrs: { for: 'playground-input' }, content: (ru ? "BEMJSON · редактируйте здесь" : "BEMJSON \u00b7 edit here") },
-            { bem: false, tag: 'textarea', attrs: { id: 'playground-input', rows: '19', spellcheck: 'false', autocomplete: 'off', autocapitalize: 'off', 'aria-describedby': 'playground-error' }, content: '' },
-        ] };
-        const output: BemNode = { elem: 'output', content: [
-            { bem: false, tag: 'p', cls: 'playground__label', content: (ru ? "HTML · результат движка" : "HTML \u00b7 engine output") },
-            { bem: false, tag: 'pre', cls: 'code code_wrap_soft', attrs: { id: 'playground-html', tabindex: '0' }, content: '' },
-            { bem: false, tag: 'details', attrs: { open: false }, content: [
-                { bem: false, tag: 'summary', content: (ru ? "Дерево после шаблонов" : "Tree after templates") },
-                { bem: false, tag: 'pre', attrs: { id: 'playground-tree', tabindex: '0' }, content: '' },
-            ] },
-        ] };
-        const preview: BemNode = { elem: 'preview-pane', attrs: { hidden: true }, content: [
-            { bem: false, tag: 'p', cls: 'playground__label playground__preview-label', content: (ru ? "Предпросмотр" : "Preview") },
-            { bem: false, tag: 'iframe', cls: 'playground__preview', attrs: { id: 'playground-preview', title: (ru ? "Предпросмотр BEMJSON" : "BEMJSON preview"), sandbox: '' }, content: '' },
-        ] };
-
-        return {
-            block: 'playground', mods: node.mods, tag: 'section', attrs: { 'aria-label': (ru ? "Редактор BEMJSON" : "BEMJSON editor") },
-            content: [
-                { bem: false, tag: 'p', cls: 'playground__fallback', content: (ru ? "Для живого редактора нужен JavaScript. Галерея, сетка и примеры Markdown доступны без него." : "The live editor requires JavaScript. Gallery, grid and Markdown examples work without it.") },
-                { elem: 'toolbar', attrs: { hidden: true }, content: [
-                    { bem: false, tag: 'label', attrs: { for: 'playground-preset' }, content: (ru ? "Пример" : "Example") },
-                    { bem: false, tag: 'select', attrs: { id: 'playground-preset' }, content: [
-                        { bem: false, tag: 'option', attrs: { value: 'card' }, content: (ru ? "Карточка" : "Card") },
-                        { bem: false, tag: 'option', attrs: { value: 'list' }, content: (ru ? "Список" : "List") },
-                        { bem: false, tag: 'option', attrs: { value: 'button' }, content: (ru ? "Кнопка с модификатором" : "Button with a modifier") },
-                        { bem: false, tag: 'option', attrs: { value: 'escaping' }, content: (ru ? "Экранирование" : "Escaping") },
-                    ] },
-                    { bem: false, tag: 'button', attrs: { type: 'button', id: 'playground-reset' }, content: (ru ? "Сбросить" : "Reset") },
-                    { bem: false, tag: 'button', attrs: { type: 'button', id: 'playground-copy', 'aria-label': (ru ? "Скопировать HTML примера" : "Copy example HTML") }, content: (ru ? "Копировать HTML" : "Copy HTML") },
-                    { bem: false, tag: 'span', cls: 'playground__status', attrs: { id: 'playground-status', 'aria-live': 'polite' }, content: (ru ? "Загрузка движка…" : "Loading the engine\u2026") },
-                ] },
-                { elem: 'columns', attrs: { hidden: true }, content: compact ? [input, output, preview] : [input, output] },
-                { elem: 'error', tag: 'p', attrs: { id: 'playground-error', role: 'status', hidden: true }, content: '' },
-                ...(compact ? [] : [preview]),
-            ],
-        };
+    block('playground').elem('toolbar')({ attrs: { hidden: true } });
+    block('playground').elem('columns')({ attrs: { hidden: true } });
+    block('playground').elem('preview-pane')({ attrs: { hidden: true } });
+    block('playground').elem('label')({
+        tag: 'label',
+        attrs: (node, next) => ({ for: 'playground-input', ...next(), ...attributes(node, ['for']) }),
     });
+    block('playground').elem('editor')({
+        tag: 'textarea',
+        attrs: (node, next) => ({
+            id: 'playground-input',
+            rows: '19',
+            spellcheck: 'false',
+            autocomplete: 'off',
+            autocapitalize: 'off',
+            'aria-describedby': 'playground-error',
+            ...next(),
+            ...attributes(node, ['id', 'rows', 'spellcheck', 'autocomplete', 'autocapitalize', 'aria-describedby']),
+        }),
+    });
+    block('playground').elem('output-label')({
+        tag: 'p',
+    });
+    block('playground').elem('summary')({
+        tag: 'summary',
+    });
+    block('playground').elem('snippet')({
+        tag: 'pre',
+        attrs: (node, next) => ({
+            id: 'playground-tree',
+            tabindex: '0',
+            ...next(),
+            ...attributes(node, ['id', 'tabindex']),
+        }),
+    });
+    block('playground').elem('details')({
+        tag: 'details',
+        attrs: (node, next) => ({ open: false, ...next(), ...attributes(node, ['open']) }),
+    });
+    block('playground').elem('preview')({
+        tag: 'iframe',
+        attrs: (node, next) => ({
+            id: 'playground-preview',
+            sandbox: '',
+            ...next(),
+            ...attributes(node, ['id', 'title', 'sandbox']),
+        }),
+    });
+    block('playground').elem('fallback')({
+        tag: 'p',
+    });
+    block('playground').elem('input-label')({
+        tag: 'label',
+        attrs: (node, next) => ({ for: 'playground-preset', ...next(), ...attributes(node, ['for']) }),
+    });
+    block('playground').elem('option')({
+        tag: 'option',
+        attrs: (node, next) => ({ ...next(), ...attributes(node, ['value']) }),
+    });
+    block('playground').elem('preset')({
+        tag: 'select',
+        attrs: (node, next) => ({ id: 'playground-preset', ...next(), ...attributes(node, ['id']) }),
+    });
+    block('playground').elem('tab')({
+        tag: 'button',
+        attrs: (node, next) => ({ type: 'button', ...next(), ...attributes(node, ['type', 'id', 'aria-label']) }),
+    });
+    block('playground').elem('status')({
+        tag: 'span',
+        attrs: (node, next) => ({
+            id: 'playground-status',
+            'aria-live': 'polite',
+            ...next(),
+            ...attributes(node, ['id', 'aria-live']),
+        }),
+    });
+    block('playground').elem('error')({
+        tag: 'p',
+        attrs: (node, next) => ({
+            id: 'playground-error',
+            role: 'status',
+            hidden: true,
+            ...next(),
+            ...attributes(node, ['id', 'role', 'hidden']),
+        }),
+    });
+    block('playground').when((node) => !node.elem)({
+        tag: 'section',
+        attrs: (node, next) => ({ ...next(), ...attributes(node, ['aria-label']) }),
+    });
+    block<{ lang?: string }>('playground')
+        .when((node) => !node.elem && Boolean(node.props))
+        .replace(playgroundTree);
 }

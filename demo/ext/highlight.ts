@@ -8,7 +8,11 @@ import { yaml } from '@tanstack/highlight/languages/yaml';
 import { shell } from '@tanstack/highlight/languages/shell';
 import { nginx } from '@tanstack/highlight/languages/nginx';
 import { markdown } from '@tanstack/highlight/languages/markdown';
-import type { NucktyEnv } from '@nuckty/core';
+import { render, Templates, runWithTemplates, type NucktyEnv } from '@nuckty/core';
+import codeTemplates from '../blocks/code/code.nu.js';
+
+const templates = new Templates();
+runWithTemplates(templates, codeTemplates);
 
 interface SyntaxNode {
     type: string;
@@ -33,8 +37,22 @@ export function register(env: NucktyEnv): void {
 
                 if (node.type === 'code') {
                     const source = node.value ? `${node.value}\n` : '';
-                    const cls = node.lang?.toLowerCase() === 'html' ? 'article__code code code_wrap_soft' : 'article__code';
-                    parent.children[i] = { type: 'html', value: `<pre class="${cls}"><code>${highlightCode(source, node.lang ?? 'plaintext')}</code></pre>` };
+                    parent.children[i] = {
+                        type: 'html',
+                        value: render(
+                            {
+                                block: 'code',
+                                mods: { wrap: node.lang?.toLowerCase() === 'html' ? 'soft' : undefined },
+                                mix: { block: 'article', elem: 'code' },
+                                content: {
+                                    block: 'code',
+                                    elem: 'content',
+                                    content: { raw: highlightCode(source, node.lang ?? 'plaintext') },
+                                },
+                            },
+                            { templates },
+                        ),
+                    };
                 } else if (node.children) {
                     visit({ children: node.children });
                 }

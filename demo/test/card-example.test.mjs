@@ -16,7 +16,7 @@ const { default: cardTemplates } = await import('data:text/javascript;base64,' +
 for (const [lang, directory] of [['ru', 'site'], ['en', 'site-en']]) {
     test(`${lang}: hero source and rendered card match the initial editor example`, async () => {
         const html = await readFile(`${directory}/html/index.html`, 'utf8');
-        const code = html.slice(html.indexOf('id=demo-card-source')).match(/<code>([\s\S]*?)<\/code>/)[1].replace(/<[^>]+>/g, '');
+        const code = html.slice(html.indexOf('id=demo-card-source')).match(/<code\b[^>]*>([\s\S]*?)<\/code>/)[1].replace(/<[^>]+>/g, '');
         const source = code.replace(/&(quot|amp|lt|gt|#39);/g, (_, entity) => ({ quot: '"', amp: '&', lt: '<', gt: '>', '#39': "'" })[entity]);
         const tree = cardExample(lang);
         assert.deepEqual(JSON.parse(source), tree);

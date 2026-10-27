@@ -1,4 +1,6 @@
-const ru = document.documentElement.lang === 'ru';
+import { messages } from './shell.i18n/index.js';
+const locale = document.documentElement.lang;
+const t = messages(locale);
 const themeButton = document.querySelector('.theme-toggle');
 
 const languageLinks = [...document.querySelectorAll('.language-link, .header__language')];
@@ -12,7 +14,8 @@ if (incomingTheme === 'dark' || incomingTheme === 'light') {
 }
 
 try {
-    const theme = incomingTheme === 'dark' || incomingTheme === 'light' ? incomingTheme : localStorage.getItem('nuckty-theme');
+    const theme =
+        incomingTheme === 'dark' || incomingTheme === 'light' ? incomingTheme : localStorage.getItem('nuckty-theme');
 
     if (theme === 'dark' || theme === 'light') {
         document.documentElement.dataset.theme = theme;
@@ -32,7 +35,7 @@ function updateThemeControl() {
     }
 
     themeButton?.setAttribute('aria-pressed', String(dark));
-    themeButton?.setAttribute('title', dark ? (ru ? 'Включить светлую тему' : 'Use light theme') : (ru ? 'Включить тёмную тему' : 'Use dark theme'));
+    themeButton?.setAttribute('title', dark ? t['Use light theme'] : t['Use dark theme']);
 }
 
 updateThemeControl();
@@ -92,7 +95,11 @@ const headerSize = new ResizeObserver(() => {
 headerSize.observe(header);
 
 document.addEventListener('click', (event) => {
-    if (menuToggle?.getAttribute('aria-expanded') === 'true' && !mainNavigation.contains(event.target) && !menuToggle.contains(event.target)) {
+    if (
+        menuToggle?.getAttribute('aria-expanded') === 'true' &&
+        !mainNavigation.contains(event.target) &&
+        !menuToggle.contains(event.target)
+    ) {
         closeMenu();
     }
 });
@@ -129,15 +136,15 @@ for (const pre of document.querySelectorAll('pre')) {
     path.setAttribute('d', copyPath);
     icon.append(path);
     button.replaceChildren(icon);
-    button.setAttribute('aria-label', ru ? 'Скопировать пример кода' : 'Copy code example');
+    button.setAttribute('aria-label', t['Copy code example']);
     button.title = button.getAttribute('aria-label');
     button.addEventListener('click', async () => {
         try {
             await navigator.clipboard.writeText(code.textContent);
             path.setAttribute('d', 'm5 12 4 4L19 6');
-            button.title = ru ? 'Скопировано' : 'Copied';
+            button.title = t['Copied'];
         } catch {
-            button.title = ru ? 'Выделите текст' : 'Select the text';
+            button.title = t['Select the text'];
         }
 
         setTimeout(() => {

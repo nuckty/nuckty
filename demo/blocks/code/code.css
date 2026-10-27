@@ -1,1 +1,5 @@
-.code.code_wrap_soft { white-space: pre-wrap; overflow-wrap: anywhere; word-break: normal; }
+.code.code_wrap_soft {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
