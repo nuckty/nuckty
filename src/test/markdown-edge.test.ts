@@ -21,7 +21,7 @@ const NO_TEMPLATES = { templates: new Templates() };
 
 function mdToHtml(src: string, opts: Parameters<typeof createMarkdown>[0] = {}): string {
     // Markdown-bridge edge cases only. Typography is an extension
-    // (nuckty-ext-markdown-typography-ru) and is not applied here; typographic
+    // (@nuckty/ext-markdown-typography-ru) and is not applied here; typographic
     // edge cases live in the extension.
     const { render: renderMd } = createMarkdown(opts);
     const { tree } = renderMd(src);

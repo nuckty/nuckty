@@ -67,9 +67,9 @@ async function runNuckty(args: string[], cwd: string): Promise<{ stdout: string;
     }
 }
 
-/** Link the local nuckty build into a consumer's node_modules so `import 'nuckty'` resolves. */
+/** Link the local nuckty build into a consumer's node_modules so `import '@nuckty/core'` resolves. */
 async function linkNuckty(consumerDir: string): Promise<void> {
-    const nmDir = path.join(consumerDir, 'node_modules', 'nuckty');
+    const nmDir = path.join(consumerDir, 'node_modules', '@nuckty', 'core');
     await mkdir(path.dirname(nmDir), { recursive: true });
     try {
         // A real install would copy; a symlink is enough for the CLI's bare
@@ -112,7 +112,7 @@ async function makeConsumer(): Promise<string> {
     // (CJS), which Node treats as ESM under `"type": "module"`.
     await writeFile(path.join(dir, 'package.json'), JSON.stringify({ name: 'consumer' }));
     await writeFile(path.join(dir, 'config', 'config-nuckty.ts'),
-        `import { defineNucktyConfig } from 'nuckty';\n` +
+        `import { defineNucktyConfig } from '@nuckty/core';\n` +
         `export default defineNucktyConfig({\n` +
         `  targets: { default: { configDir: 'config/', outDir: 'site/' } },\n` +
         `  ext: ['./ext/document.mjs'],\n` +
@@ -143,7 +143,7 @@ async function makeConsumer(): Promise<string> {
     await writeFile(path.join(dir, 'blocks', 'page', 'page.bemdecl.js'),
         'module.exports = ["page"];\n');
     await writeFile(path.join(dir, 'blocks', 'page', 'page.nu.ts'),
-        `import { block } from 'nuckty';\n` +
+        `import { block } from '@nuckty/core';\n` +
         `export default function templates() {\n` +
         `  block('page')({ tag: 'div' });\n` +
         `}\n`);
@@ -275,7 +275,7 @@ test('CLI build: a missing document handler fails with a non-zero exit and an ac
     try {
         // Remove the document-handler extension from the config.
         await writeFile(path.join(dir, 'config', 'config-nuckty.ts'),
-            `import { defineNucktyConfig } from 'nuckty';\n` +
+            `import { defineNucktyConfig } from '@nuckty/core';\n` +
             `export default defineNucktyConfig({\n` +
             `  targets: { default: { configDir: 'config/', outDir: 'site/' } },\n` +
             `});\n`);

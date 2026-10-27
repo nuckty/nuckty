@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Specify `nuckty-ext-command-convert-images`, the command-extension that encodes source images to AVIF and WebP next to the originals, which the build then copies. Encoding runs explicitly when source images change; the command writes variants and a cache; the project decides whether to version them. The core does not depend on sharp.
+Specify `@nuckty/ext-command-convert-images`, the command-extension that encodes source images to AVIF and WebP next to the originals, which the build then copies. Encoding runs explicitly when source images change; the command writes variants and a cache; the project decides whether to version them. The core does not depend on sharp.
 
 ## Requirements
 

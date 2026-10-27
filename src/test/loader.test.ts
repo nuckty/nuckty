@@ -72,28 +72,30 @@ test('loader applies extensions in declaration order', async () => {
     }
 });
 
-test('loader resolves a bare npm name from the CONSUMER root (RUNTIME-004)', async () => {
-    const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-'));
-    try {
-        await mkdir(path.join(dir, 'node_modules', 'probe-ext'), { recursive: true });
-        await writeFile(path.join(dir, 'package.json'), '{"name":"consumer","type":"module"}');
-        await writeFile(
-            path.join(dir, 'node_modules', 'probe-ext', 'package.json'),
-            '{"name":"probe-ext","type":"module","main":"./index.mjs"}',
-        );
-        await writeFile(
-            path.join(dir, 'node_modules', 'probe-ext', 'index.mjs'),
-            'export function register(env) { env.levels.add("probe"); }\n',
-        );
-        const env = new NucktyEnv();
-        // The old code left the bare specifier untouched — import ran relative
-        // to the ENGINE and failed (ERR_MODULE_NOT_FOUND from src/env/loader.ts).
-        await loadPlugins(env, ['probe-ext'], { cwd: dir });
-        assert.deepEqual(env.levels.list(), ['probe']);
-    } finally {
-        await rm(dir, { recursive: true, force: true });
-    }
-});
+for (const name of ['probe-ext', '@author/extension']) {
+    test(`loader resolves ${name} from the consumer root`, async () => {
+        const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-'));
+        try {
+            await mkdir(path.join(dir, 'node_modules', name), { recursive: true });
+            await writeFile(path.join(dir, 'package.json'), '{"name":"consumer","type":"module"}');
+            await writeFile(
+                path.join(dir, 'node_modules', name, 'package.json'),
+                JSON.stringify({ name, type: 'module', main: './index.mjs' }),
+            );
+            await writeFile(
+                path.join(dir, 'node_modules', name, 'index.mjs'),
+                'export function register(env) { env.levels.add("probe"); }\n',
+            );
+            const env = new NucktyEnv();
+            // The old code left the bare specifier untouched — import ran relative
+            // to the ENGINE and failed (ERR_MODULE_NOT_FOUND from src/env/loader.ts).
+            await loadPlugins(env, [name], { cwd: dir });
+            assert.deepEqual(env.levels.list(), ['probe']);
+        } finally {
+            await rm(dir, { recursive: true, force: true });
+        }
+    });
+}
 
 test('loader resolves a directory path through its package.json main (RUNTIME-004)', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-'));

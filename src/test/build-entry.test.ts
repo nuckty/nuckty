@@ -20,9 +20,9 @@ import { runBuild } from './helpers/build.js';
 
 const PROJECT_ROOT = fileURLToPath(new URL('../..', import.meta.url));
 
-/** Link the local nuckty build into a temp consumer so `import 'nuckty'` resolves. */
+/** Link the local nuckty build into a temp consumer so `import '@nuckty/core'` resolves. */
 async function linkNuckty(consumerDir: string): Promise<void> {
-    const nm = path.join(consumerDir, 'node_modules', 'nuckty');
+    const nm = path.join(consumerDir, 'node_modules', '@nuckty', 'core');
     await mkdir(path.dirname(nm), { recursive: true });
     try { symlinkSync(PROJECT_ROOT, nm, 'dir'); return; } catch { /* fall through */ }
 }
@@ -41,7 +41,7 @@ async function makeConsumer(opts: { secondTarget?: boolean } = {}): Promise<stri
         ? `default: { configDir: 'config/', outDir: 'site/' }, extra: { configDir: 'config/', outDir: 'site-extra/' }`
         : `default: { configDir: 'config/', outDir: 'site/' }`;
     await writeFile(path.join(dir, 'config', 'config-nuckty.ts'),
-        `import { defineNucktyConfig } from 'nuckty';\n` +
+        `import { defineNucktyConfig } from '@nuckty/core';\n` +
         `export default defineNucktyConfig({\n` +
         `  targets: { ${targets} },\n` +
         `  ext: ['./ext/doc.mjs'],\n` +
@@ -55,7 +55,7 @@ async function makeConsumer(opts: { secondTarget?: boolean } = {}): Promise<stri
     await writeFile(path.join(dir, 'content', 'index.md'), '# Home\n\nWelcome.\n');
     await writeFile(path.join(dir, 'blocks', 'page', 'page.bemdecl.js'), 'module.exports = ["page"];\n');
     await writeFile(path.join(dir, 'blocks', 'page', 'page.nu.ts'),
-        `import { block } from 'nuckty';\nexport default function templates() { block('page')({ tag: 'div' }); }\n`);
+        `import { block } from '@nuckty/core';\nexport default function templates() { block('page')({ tag: 'div' }); }\n`);
     await writeFile(path.join(dir, 'blocks', 'page', 'page.css'), '.page{color:red}\n');
     await writeFile(path.join(dir, 'ext', 'doc.mjs'),
         `export function register(env) {\n` +
@@ -113,7 +113,7 @@ test('runBuild: a missing document handler rejects with an actionable message', 
     try {
         // Remove the document extension from the config.
         await writeFile(path.join(dir, 'config', 'config-nuckty.ts'),
-            `import { defineNucktyConfig } from 'nuckty';\n` +
+            `import { defineNucktyConfig } from '@nuckty/core';\n` +
             `export default defineNucktyConfig({ targets: { default: { configDir: 'config/', outDir: 'site/' } } });\n`);
         await assert.rejects(() => runBuild({ command: 'build', cwd: dir }), /document handler/i);
     } finally {
@@ -228,11 +228,10 @@ test('runBuild rejects an empty loaded target set before cleanup', async () => {
     try {
         await mkdir(path.join(dir, 'site'));
         await writeFile(path.join(dir, 'site/keep.txt'), 'KEEP');
-        await writeFile(path.join(dir, 'config/config-nuckty.ts'), "import { defineNucktyConfig } from 'nuckty'; const config = defineNucktyConfig({targets:{main:{configDir:'config',outDir:'site'}}}); config.targets = {}; export default config;");
+        await writeFile(path.join(dir, 'config/config-nuckty.ts'), "import { defineNucktyConfig } from '@nuckty/core'; const config = defineNucktyConfig({targets:{main:{configDir:'config',outDir:'site'}}}); config.targets = {}; export default config;");
         await assert.rejects(runBuild({ command: 'build', cwd: dir }), /requires at least one target/);
         assert.equal(await readFile(path.join(dir, 'site/keep.txt'), 'utf8'), 'KEEP');
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
 });
-

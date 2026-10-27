@@ -8,7 +8,7 @@ const NO_TEMPLATES = { templates: new Templates() };
 
 function mdToHtml(src: string, opts: Parameters<typeof createMarkdown>[0] = {}): string {
     // Markdown-bridge contract only. Typography is an extension
-    // (nuckty-ext-markdown-typography-ru) and is not applied here; tests that
+    // (@nuckty/ext-markdown-typography-ru) and is not applied here; tests that
     // assert typographic output live in the extension, mirroring how a consumer
     // registers it in `ext[]`.
     const { render: renderMd } = createMarkdown(opts);

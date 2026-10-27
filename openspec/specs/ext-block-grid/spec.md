@@ -1,13 +1,13 @@
 # nuckty — ext-block-grid spec (1.0.0)
 
-> **Status:** implemented by the `nuckty-ext-block-grid` package (one
+> **Status:** implemented by the `@nuckty/ext-block-grid` package (one
 > `register(env)`: the `grid` block via `env.levels`, the `:::grid` construct
 > via `env.markdown.directive`). A card grid with site-specific item types
 > remains a consumer construct.
 
 ## Purpose
 
-Specify `nuckty-ext-block-grid`, a package combining a block and a markdown construct: the `:::grid` construct via `env.markdown` and the `grid` block via `env.levels`. It lays content out in a multi-column responsive grid.
+Specify `@nuckty/ext-block-grid`, a package combining a block and a markdown construct: the `:::grid` construct via `env.markdown` and the `grid` block via `env.levels`. It lays content out in a multi-column responsive grid.
 
 ## Requirements
 

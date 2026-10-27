@@ -16,20 +16,22 @@ nuckty — генератор статических сайтов для док�
 |---|---|
 | [`nuckty`](https://github.com/nuckty/nuckty) | **Ядро** — движок `nuckty build`. Этот репозиторий. |
 | [`nuckty-codestyle`](https://github.com/nuckty/nuckty-codestyle) | Общие правила кода и документации для всех репозиториев `nuckty-*`. |
-| [`nuckty-ext-block-root`](https://github.com/nuckty/nuckty-ext-block-root) | Расширение: обёртка страницы (`root`). |
-| [`nuckty-ext-block-gallery`](https://github.com/nuckty/nuckty-ext-block-gallery) | Расширение: галерея изображений + лайтбокс. |
-| [`nuckty-ext-command-deploy-ftp`](https://github.com/nuckty/nuckty-ext-command-deploy-ftp) | Расширение: публикация по FTP с синхронизацией по манифесту. |
-| [`nuckty-ext-command-serve`](https://github.com/nuckty/nuckty-ext-command-serve) | Расширение: локальный просмотр `nuckty serve` и остановка `nuckty stop` (nginx). |
-| [`nuckty-ext-command-validate-vnu`](https://github.com/nuckty/nuckty-ext-command-validate-vnu) | Расширение: W3C Nu Html Checker (необязательно, JVM). |
-| [`nuckty-ext-block-grid`](https://github.com/nuckty/nuckty-ext-block-grid) | Адаптивная сетка текстовых ячеек. |
-| [`nuckty-ext-markdown-video`](https://github.com/nuckty/nuckty-ext-markdown-video) | Видео в Markdown. |
-| [`nuckty-ext-markdown-typography-ru`](https://github.com/nuckty/nuckty-ext-markdown-typography-ru) | Русская типографика. |
-| [`nuckty-ext-command-content-external`](https://github.com/nuckty/nuckty-ext-command-content-external) | Подготовка внешних репозиториев контента. |
-| [`nuckty-ext-command-convert-images`](https://github.com/nuckty/nuckty-ext-command-convert-images) | Подготовка вариантов AVIF/WebP. |
+| [`@nuckty/ext-block-root`](https://github.com/nuckty/nuckty-ext-block-root) | Расширение: обёртка страницы (`root`). |
+| [`@nuckty/ext-block-gallery`](https://github.com/nuckty/nuckty-ext-block-gallery) | Расширение: галерея изображений + лайтбокс. |
+| [`@nuckty/ext-command-deploy-ftp`](https://github.com/nuckty/nuckty-ext-command-deploy-ftp) | Расширение: публикация по FTP с синхронизацией по манифесту. |
+| [`@nuckty/ext-command-serve`](https://github.com/nuckty/nuckty-ext-command-serve) | Расширение: локальный просмотр `nuckty serve` и остановка `nuckty stop` (nginx). |
+| [`@nuckty/ext-command-validate-vnu`](https://github.com/nuckty/nuckty-ext-command-validate-vnu) | Расширение: W3C Nu Html Checker (необязательно, JVM). |
+| [`@nuckty/ext-block-grid`](https://github.com/nuckty/nuckty-ext-block-grid) | Адаптивная сетка текстовых ячеек. |
+| [`@nuckty/ext-markdown-video`](https://github.com/nuckty/nuckty-ext-markdown-video) | Видео в Markdown. |
+| [`@nuckty/ext-markdown-typography-ru`](https://github.com/nuckty/nuckty-ext-markdown-typography-ru) | Русская типографика. |
+| [`@nuckty/ext-command-content-external`](https://github.com/nuckty/nuckty-ext-command-content-external) | Подготовка внешних репозиториев контента. |
+| [`@nuckty/ext-command-convert-images`](https://github.com/nuckty/nuckty-ext-command-convert-images) | Подготовка вариантов AVIF/WebP. |
 | [`nuckty-demo`](https://github.com/nuckty/nuckty-demo) | Демо-проект для быстрого старта. |
 | [`nuckty-docs`](https://github.com/nuckty/nuckty-docs) | Исходный контент сайта документации. |
 
-Расширения следуют соглашению `nuckty-ext-<тип>-<имя>`, где тип — один из `pipeline`, `markdown`, `block`, `command`, `document`. Имя пакета читается прямо из его URL в документации: `/ext/block/root` → `nuckty-ext-block-root`.
+Официальные расширения следуют соглашению `@nuckty/ext-<тип>-<имя>`, где тип — один из `pipeline`, `markdown`, `block`, `command`, `document`. Имя пакета читается прямо из его URL в документации: `/ext/block/root` → `@nuckty/ext-block-root`.
+
+Сторонние расширения могут использовать любое npm-имя, включая scope автора; укажите полное имя пакета в `ext`. Официальная организация владеет `@nuckty/core` и `@nuckty/ext-*`; имена репозиториев и команда `nuckty` сохраняются.
 
 ## Требования
 

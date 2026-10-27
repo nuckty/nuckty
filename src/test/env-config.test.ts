@@ -22,9 +22,9 @@ import { loadConfig } from '../env/config.js';
 
 const PROJECT_ROOT = fileURLToPath(new URL('../..', import.meta.url));
 
-/** Link the local nuckty build into a temp consumer so `import 'nuckty'` resolves. */
+/** Link the local nuckty build into a temp consumer so `import '@nuckty/core'` resolves. */
 async function linkNuckty(consumerDir: string): Promise<void> {
-    const nm = path.join(consumerDir, 'node_modules', 'nuckty');
+    const nm = path.join(consumerDir, 'node_modules', '@nuckty', 'core');
     await mkdir(path.dirname(nm), { recursive: true });
     try { symlinkSync(PROJECT_ROOT, nm, 'dir'); return; } catch { /* fall through */ }
 }
@@ -35,7 +35,7 @@ test('loadConfig: imports the default export of config/config-nuckty.ts', async 
         await linkNuckty(dir);
         await mkdir(path.join(dir, 'config'), { recursive: true });
         await writeFile(path.join(dir, 'config', 'config-nuckty.ts'),
-            `import { defineNucktyConfig } from 'nuckty';\n` +
+            `import { defineNucktyConfig } from '@nuckty/core';\n` +
             `export default defineNucktyConfig({\n` +
             `  targets: { ru: { configDir: 'config/', outDir: 'site/' }, en: { configDir: 'config/', outDir: 'site-en/' } },\n` +
             `});\n`);

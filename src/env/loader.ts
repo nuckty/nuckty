@@ -21,7 +21,7 @@
  * Node resolves bare packages; local directory entries are selected explicitly.
  *
  * Each ext entry calls its named register or default function in the current
- * environment. The engine treats all extensions uniformly — first-party `nuckty-ext-*` and
+ * environment. The engine treats all extensions uniformly — first-party `@nuckty/ext-*` and
  * third-party packages are wired identically. No extension has engine-level
  * privilege.
  *
@@ -207,4 +207,3 @@ function selectConditionalEntry(target: unknown, conditions: ReadonlySet<string>
 
     return undefined;
 }
-

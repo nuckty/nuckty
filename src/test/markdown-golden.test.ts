@@ -9,7 +9,7 @@ const NO_TEMPLATES = { templates: new Templates() };
 function mdToHtml(src: string, opts: Parameters<typeof createMarkdown>[0] = {}): string {
     // Markdown-bridge golden fixtures (structural contract — BEM classes, anchor
     // ids, the code-copy button). Typography is an extension
-    // (nuckty-ext-markdown-typography-ru) and is not applied here; a fixture that
+    // (@nuckty/ext-markdown-typography-ru) and is not applied here; a fixture that
     // asserts typographic output lives in the extension.
     const { render: renderMd } = createMarkdown(opts);
     const { tree } = renderMd(src);

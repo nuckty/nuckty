@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Specify the single extension contract: `register(env)` with five entry points. Extensions are the only mechanism for adding capability to nuckty. Packaged extensions use independent `nuckty-ext-<type>-<name>` repositories; a consumer may also load a local module; the core depends on none of them.
+Specify the single extension contract: `register(env)` with five entry points. Extensions are the only mechanism for adding capability to nuckty. Official extensions use `@nuckty/ext-<type>-<name>` npm names in independent `nuckty-ext-<type>-<name>` repositories; a consumer may also load a local module; the core depends on none of them.
 
 ## Requirements
 
@@ -10,7 +10,7 @@ Specify the single extension contract: `register(env)` with five entry points. E
 An extension SHALL be a package or local module exporting `register(env)` that registers capabilities through the supplied NucktyEnv facades. Extensions SHALL be listed in `config-nuckty.ts` under `ext` (npm package name or local path); the core resolves each and calls `register(env)`. Additional engine capabilities SHALL use the extension facades. Consumer block modules SHALL be discovered separately through configured levels and bundle declarations. One package MAY combine several types in one `register`.
 
 #### Scenario: Consumer composes extensions
-- **WHEN** `config-nuckty.ts` lists `ext: ['nuckty-ext-block-root', './ext/local.ts']`
+- **WHEN** `config-nuckty.ts` lists `ext: ['@nuckty/ext-block-root', './ext/local.ts']`
 - **THEN** the core loads each, calls `register(env)`, and uses the union
 - **AND** extensions receive the same public facades and execute with the build process’s permissions rather than in a sandbox
 
@@ -79,7 +79,7 @@ Directive-based constructs SHALL be authored as generic directives (`:name` / `:
 - **THEN** its blocks are loadable by deps alongside the site's blocks
 - **AND** a later site level overrides them
 
-Block modules SHALL NOT receive `env`. Each `.nu.ts` module SHALL export default `templates()`, import `block` from `nuckty`, and declare only its own block.
+Block modules SHALL NOT receive `env`. Each `.nu.ts` module SHALL export default `templates()`, import `block` from `@nuckty/core`, and declare only its own block.
 
 ### Requirement: commands entry point
 `env.commands` SHALL provide `add(name, description, handler)`. The core knows only `build`; any other command is a command-extension. `handler` receives parsed `args.positional` and `args.flags` plus the already loaded `args.config` and project-root `args.cwd` and returns an exit code (`0` success, non-zero error) that the core passes to the process.
@@ -90,7 +90,7 @@ Block modules SHALL NOT receive `env`. Each `.nu.ts` module SHALL export default
 - **AND** the handler's exit code becomes the process exit code
 
 ### Requirement: Extensions are independent packages
-Each independently packaged extension SHALL live in its own repository `nuckty-ext-<type>-<name>` with its own history, dependencies, and release cycle, and an `AGENTS.md` linking `nuckty-codestyle`. The package name derives from the docs path (`/ext/block/root` → `nuckty-ext-block-root`). The core SHALL NOT depend on any extension or its dependencies (basic-ftp, vnu, sharp, nginx).
+Each independently packaged extension SHALL live in its own repository `nuckty-ext-<type>-<name>` with its own history, dependencies, and release cycle, and an `AGENTS.md` linking `nuckty-codestyle`. The package name derives from the docs path (`/ext/block/root` → `@nuckty/ext-block-root`). The core SHALL NOT depend on any extension or its dependencies (basic-ftp, vnu, sharp, nginx).
 
 #### Scenario: Core carries no extension dependency
 - **WHEN** the core's dependencies are inspected

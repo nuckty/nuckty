@@ -21,9 +21,9 @@ The nuckty package SHALL carry the tagline «All static site generators suck. Th
 The engine SHALL be authored in TypeScript (strict mode) and compiled to ESM in `dist/`. The consumer installs a built package; it SHALL NOT run from raw source. The engine runs at build time only; there is no browser/runtime requirement. Node >= 24: the engine relies on modern ESM and Node built-ins.
 
 #### Scenario: Consumer installs the built package
-- **WHEN** a consumer runs `npm install nuckty`
+- **WHEN** a consumer runs `npm install @nuckty/core`
 - **THEN** the package resolves to `dist/` (compiled code under `dist`, plus package metadata, README and license)
-- **AND** the bin points at `dist/bin/nuckty.js` and is available through npm scripts or `npx nuckty` after local installation
+- **AND** the bin points at `dist/bin/nuckty.js` and is available through npm scripts or `npx @nuckty/core` after local installation
 
 ### Requirement: Single build subcommand
 The core CLI SHALL implement exactly one subcommand: `nuckty build [target]`. The core SHALL NOT know about serve, validate, deploy, image encoding, FTP, or vnu. Any other command is a command-extension (see the `extensions` capability).
@@ -97,7 +97,7 @@ The published engine package SHALL NOT ship a consumer’s blocks, content or bu
 - **THEN** it provides engine code rather than a consumer site’s content, blocks or artifact
 
 ### Requirement: Consumer-owned document wrapper
-The document wrapper SHALL come from a registered consumer-owned `env.document` handler. The standard `nuckty-ext-block-root` extension supplies a `root` block; a consumer MAY register a different handler without that package or block name. The engine SHALL NOT hardcode the wrapper identity.
+The document wrapper SHALL come from a registered consumer-owned `env.document` handler. The standard `@nuckty/ext-block-root` extension supplies a `root` block; a consumer MAY register a different handler without that package or block name. The engine SHALL NOT hardcode the wrapper identity.
 
 #### Scenario: Registered handler supplies the wrapper
 - **WHEN** a page renders

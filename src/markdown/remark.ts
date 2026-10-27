@@ -110,7 +110,7 @@ export function createRemarkMarkdown(opts: RemarkOptions = {}): {
         .use(remarkDirective)
         // Extension-registered mdast transforms (env.markdown.use) — applied
         // after the core parse. The Russian typography plugin is one such
-        // extension (`nuckty-ext-markdown-typography-ru`), registered by the
+        // extension (`@nuckty/ext-markdown-typography-ru`), registered by the
         // consumer via `ext[]`; the core knows nothing about typography.
         .use(opts.remarkPlugins ?? []);
 
@@ -727,4 +727,3 @@ function collectDefinitions(tree: Root): Map<string, Definition> {
     walk(tree);
     return definitions;
 }
-

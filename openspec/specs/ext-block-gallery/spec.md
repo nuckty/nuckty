@@ -1,13 +1,13 @@
 # nuckty — ext-block-gallery spec (1.0.0)
 
-> **Status:** implemented by the `nuckty-ext-block-gallery` package (one
+> **Status:** implemented by the `@nuckty/ext-block-gallery` package (one
 > `register(env)`: `gallery` + `lightbox` blocks via `env.levels`, the
 > `:::gallery` construct via `env.markdown.directive`). Site-specific
 > constructs (`:::partner-link`, raw-HTML variants) stay in the consumer.
 
 ## Purpose
 
-Specify `nuckty-ext-block-gallery`, a package that combines two extension types in one `register(env)`: the `gallery` block (with a `lightbox` helper) via `env.levels`, and the `:::gallery` markdown construct via `env.markdown`. It is the reference example of a markdown construct expanding into a block.
+Specify `@nuckty/ext-block-gallery`, a package that combines two extension types in one `register(env)`: the `gallery` block (with a `lightbox` helper) via `env.levels`, and the `:::gallery` markdown construct via `env.markdown`. It is the reference example of a markdown construct expanding into a block.
 
 ## Requirements
 

@@ -1,6 +1,6 @@
 # nuckty — ext-block-root spec (1.0.0)
 
-> **Status:** implemented by the `nuckty-ext-block-root` package
+> **Status:** implemented by the `@nuckty/ext-block-root` package
 > (`register(env)` registers a document handler and adds its `blocks/` level; the `root` template lives in
 > `blocks/root/root.nu.ts`). A consumer-level `blocks/root/root.nu.ts` on a
 > later level remains a valid override.
@@ -12,7 +12,7 @@ Specify the standard document extension: it registers a handler and supplies the
 ## Requirements
 
 ### Requirement: root builds the document
-`nuckty-ext-block-root` SHALL register a document handler through `env.document` and supply one block, `root`, via `env.levels`. The handler SHALL return a `root` node with `DocumentData` in `props`. `root` SHALL use the `wrap` mode to wrap page content in `<html>` (with `lang` from props), `<head>`, and `<body>`. Because `wrap` is a control mode, the `root` template SHALL fire once, so child `head`/`body`/`meta` nodes do not re-trigger it (no recursion).
+`@nuckty/ext-block-root` SHALL register a document handler through `env.document` and supply one block, `root`, via `env.levels`. The handler SHALL return a `root` node with `DocumentData` in `props`. `root` SHALL use the `wrap` mode to wrap page content in `<html>` (with `lang` from props), `<head>`, and `<body>`. Because `wrap` is a control mode, the `root` template SHALL fire once, so child `head`/`body`/`meta` nodes do not re-trigger it (no recursion).
 
 #### Scenario: root wraps content once
 - **WHEN** the engine passes `DocumentData` to the registered handler

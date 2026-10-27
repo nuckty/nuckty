@@ -16,20 +16,22 @@ The core provides `nuckty build [target]`. Serving, validation, deployment, and 
 |---|---|
 | [`nuckty`](https://github.com/nuckty/nuckty) | **Core** — the `nuckty build` engine. This repo. |
 | [`nuckty-codestyle`](https://github.com/nuckty/nuckty-codestyle) | Shared code and documentation rules for all `nuckty-*` repos. |
-| [`nuckty-ext-block-root`](https://github.com/nuckty/nuckty-ext-block-root) | Extension: HTML page shell (`root`). |
-| [`nuckty-ext-block-gallery`](https://github.com/nuckty/nuckty-ext-block-gallery) | Extension: image gallery + lightbox. |
-| [`nuckty-ext-command-deploy-ftp`](https://github.com/nuckty/nuckty-ext-command-deploy-ftp) | Extension: FTP deploy via manifest sync. |
-| [`nuckty-ext-command-serve`](https://github.com/nuckty/nuckty-ext-command-serve) | Extension: local `nuckty serve` and `nuckty stop` (nginx). |
-| [`nuckty-ext-command-validate-vnu`](https://github.com/nuckty/nuckty-ext-command-validate-vnu) | Extension: W3C Nu Html Checker (optional, JVM). |
-| [`nuckty-ext-block-grid`](https://github.com/nuckty/nuckty-ext-block-grid) | Responsive grid of text cells. |
-| [`nuckty-ext-markdown-video`](https://github.com/nuckty/nuckty-ext-markdown-video) | Video embedding in Markdown. |
-| [`nuckty-ext-markdown-typography-ru`](https://github.com/nuckty/nuckty-ext-markdown-typography-ru) | Russian typography. |
-| [`nuckty-ext-command-content-external`](https://github.com/nuckty/nuckty-ext-command-content-external) | Prepare external content repositories. |
-| [`nuckty-ext-command-convert-images`](https://github.com/nuckty/nuckty-ext-command-convert-images) | Prepare AVIF/WebP image variants. |
+| [`@nuckty/ext-block-root`](https://github.com/nuckty/nuckty-ext-block-root) | Extension: HTML page shell (`root`). |
+| [`@nuckty/ext-block-gallery`](https://github.com/nuckty/nuckty-ext-block-gallery) | Extension: image gallery + lightbox. |
+| [`@nuckty/ext-command-deploy-ftp`](https://github.com/nuckty/nuckty-ext-command-deploy-ftp) | Extension: FTP deploy via manifest sync. |
+| [`@nuckty/ext-command-serve`](https://github.com/nuckty/nuckty-ext-command-serve) | Extension: local `nuckty serve` and `nuckty stop` (nginx). |
+| [`@nuckty/ext-command-validate-vnu`](https://github.com/nuckty/nuckty-ext-command-validate-vnu) | Extension: W3C Nu Html Checker (optional, JVM). |
+| [`@nuckty/ext-block-grid`](https://github.com/nuckty/nuckty-ext-block-grid) | Responsive grid of text cells. |
+| [`@nuckty/ext-markdown-video`](https://github.com/nuckty/nuckty-ext-markdown-video) | Video embedding in Markdown. |
+| [`@nuckty/ext-markdown-typography-ru`](https://github.com/nuckty/nuckty-ext-markdown-typography-ru) | Russian typography. |
+| [`@nuckty/ext-command-content-external`](https://github.com/nuckty/nuckty-ext-command-content-external) | Prepare external content repositories. |
+| [`@nuckty/ext-command-convert-images`](https://github.com/nuckty/nuckty-ext-command-convert-images) | Prepare AVIF/WebP image variants. |
 | [`nuckty-demo`](https://github.com/nuckty/nuckty-demo) | Quick-start demo consumer. |
 | [`nuckty-docs`](https://github.com/nuckty/nuckty-docs) | Source content for the documentation site. |
 
-Extensions follow the naming convention `nuckty-ext-<type>-<name>`, where the type is one of `pipeline`, `markdown`, `block`, `command`, `document`. The package name reads straight from its docs URL: `/ext/block/root` → `nuckty-ext-block-root`.
+Official extensions follow the naming convention `@nuckty/ext-<type>-<name>`, where the type is one of `pipeline`, `markdown`, `block`, `command`, `document`. The package name reads straight from its docs URL: `/ext/block/root` → `@nuckty/ext-block-root`.
+
+Third-party extensions may use any npm name, including their author’s scope; list the complete package name in `ext`. The official organization owns `@nuckty/core` and `@nuckty/ext-*`; repository names and the `nuckty` executable remain unchanged.
 
 ## Requirements
 

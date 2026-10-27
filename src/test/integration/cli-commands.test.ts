@@ -60,13 +60,13 @@ async function runNuckty(args: string[], cwd: string): Promise<{ stdout: string;
     }
 }
 
-/** Link the local nuckty build into a consumer's node_modules so `import 'nuckty'` resolves. */
+/** Link the local nuckty build into a consumer's node_modules so `import '@nuckty/core'` resolves. */
 async function linkNuckty(consumerDir: string): Promise<void> {
-    const nmDir = path.join(consumerDir, 'node_modules', 'nuckty');
+    const nmDir = path.join(consumerDir, 'node_modules', '@nuckty', 'core');
     await mkdir(path.dirname(nmDir), { recursive: true });
     // Use the synchronous `symlinkSync` (with the `type` argument): the
     // promisified `fs.promises.symlink` is mangled by the tsx loader under the
-    // test runner. A symlink lets the consumer's `import 'nuckty'` resolve to
+    // test runner. A symlink lets the consumer's `import '@nuckty/core'` resolve to
     // the real `node_modules` (so nuckty's own deps like `unified` resolve too).
     try {
         symlinkSync(PROJECT_ROOT, nmDir, 'dir');
@@ -76,7 +76,7 @@ async function linkNuckty(consumerDir: string): Promise<void> {
     }
     await mkdir(nmDir, { recursive: true });
     await writeFile(path.join(nmDir, 'package.json'), JSON.stringify({
-        name: 'nuckty', version: '1.0.0', type: 'module', main: 'dist/index.js',
+        name: '@nuckty/core', version: '1.0.0', type: 'module', main: 'dist/index.js',
     }));
     await mkdir(path.join(nmDir, 'dist'), { recursive: true });
     const { copyFile } = await import('node:fs/promises');
@@ -95,7 +95,7 @@ async function makeConsumer(): Promise<string> {
     await mkdir(path.join(dir, 'ext'), { recursive: true });
     await writeFile(path.join(dir, 'package.json'), JSON.stringify({ name: 'consumer' }));
     await writeFile(path.join(dir, 'config', 'config-nuckty.ts'),
-        `import { defineNucktyConfig } from 'nuckty';\n` +
+        `import { defineNucktyConfig } from '@nuckty/core';\n` +
         `export default defineNucktyConfig({\n` +
         `  targets: {\n` +
         `    default: { configDir: 'config/', outDir: 'site/' },\n` +
@@ -240,8 +240,8 @@ test('CLI build loads the consumer config once', async () => {
         const config = await readFile(configPath, 'utf8');
 
         await writeFile(configPath, config.replace(
-            "import { defineNucktyConfig } from 'nuckty';",
-            "import { defineNucktyConfig } from 'nuckty';\n" +
+            "import { defineNucktyConfig } from '@nuckty/core';",
+            "import { defineNucktyConfig } from '@nuckty/core';\n" +
                 "import { appendFileSync } from 'node:fs';\n" +
                 `appendFileSync(${JSON.stringify(markerPath)}, 'x');`,
         ));
@@ -411,7 +411,7 @@ test('CLI --help works when a declared extension cannot be loaded', async () => 
         await writeFile(path.join(dir, 'package.json'), JSON.stringify({ name: 'c' }));
         // Config loads but references a missing extension.
         await writeFile(path.join(dir, 'config', 'config-nuckty.ts'),
-            `import { defineNucktyConfig } from 'nuckty';\n` +
+            `import { defineNucktyConfig } from '@nuckty/core';\n` +
             `export default defineNucktyConfig({\n` +
             `  targets: { default: { configDir: 'config/', outDir: 'site/' } },\n` +
             `  ext: ['./ext/does-not-exist.mjs'],\n` +

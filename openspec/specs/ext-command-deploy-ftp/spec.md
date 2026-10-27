@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Specify `nuckty-ext-command-deploy-ftp`, the command extension that publishes a built artifact over FTP/FTPS using manifest-based synchronization. In normal mode it uploads changed files and deletes remote orphans; force re-uploads every local file while retaining orphan deletion. SSH, rsync and Git on the server are not required. The core does not depend on basic-ftp.
+Specify `@nuckty/ext-command-deploy-ftp`, the command extension that publishes a built artifact over FTP/FTPS using manifest-based synchronization. In normal mode it uploads changed files and deletes remote orphans; force re-uploads every local file while retaining orphan deletion. SSH, rsync and Git on the server are not required. The core does not depend on basic-ftp.
 
 ## Requirements
 

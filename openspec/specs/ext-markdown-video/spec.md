@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Specify `nuckty-ext-markdown-video`, the markdown-extension that maps the `@[provider](id)` syntax to a `<div class=video><iframe>` HTML node. It embeds videos from hosting services (YouTube, RuTube, VK) by a remark mdast transform before the mdast→BEMJSON bridge, with no external JS libraries in the output. The extension is a pure markdown-extension: no BEM block, no `env.levels`.
+Specify `@nuckty/ext-markdown-video`, the markdown-extension that maps the `@[provider](id)` syntax to a `<div class=video><iframe>` HTML node. It embeds videos from hosting services (YouTube, RuTube, VK) by a remark mdast transform before the mdast→BEMJSON bridge, with no external JS libraries in the output. The extension is a pure markdown-extension: no BEM block, no `env.levels`.
 
 ## Requirements
 
