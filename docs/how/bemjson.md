@@ -26,7 +26,7 @@ interface BemNode {
     elemMods?: ModMap;       // element modifiers
     mix?: BemEntity | Array<BemEntity | string> | string;  // mix in another block's classes
     content?: BEMTree;              // child tree, including empty positions
-    tag?: string | false;    // HTML tag; false — do not output the tag
+    tag?: string | false | undefined;    // HTML tag; false — do not output the tag
     attrs?: AttrMap;         // HTML attributes
     cls?: string;            // extra (non-BEM) class
     js?: boolean | Record<string, unknown>;   // data for the block's client-side JavaScript
@@ -42,7 +42,7 @@ interface BemNode {
 - **`block` / `elem`** — the BEM entity. `block: 'menu'` is a block; `block: 'menu', elem: 'item'` is its element. The engine assembles the CSS class from these: `menu`, `menu__item`.
 - **`mods` / `elemMods`** — modifiers. `{ size: 'm' }` becomes the class `menu_size_m`. A modifier defines a variant of a block or element.
 - **`content`** — a recursive `BEMTree`: a node, text, nested arrays, or empty `null`, `undefined`, and `false` positions.
-- **`tag`** — the [HTML](../out/html.md) tag. By default the engine outputs `<div>`, but a template can set any tag. `false` means "no tag, content only".
+- **`tag`** — the [HTML](../out/html.md) tag. An explicit value overrides the template tag declaration; an absent or `undefined` value uses it. By default the engine outputs `<div>`, but a template can set any tag. `false` means "no tag, content only".
 
 ### How classes are assembled
 

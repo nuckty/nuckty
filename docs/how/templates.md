@@ -17,6 +17,8 @@ export default function templates(): void {
 }
 ```
 
+A block declaration matches only the block node. Use `.elem('name')` or `.elem('*')` for elements; block declarations do not apply to them. An explicit `tag` in the source BEMJSON takes precedence over the `tag` mode, including callbacks. Other modes still apply. If the source tag is absent or `undefined`, the template determines it; `false` keeps a tagless fragment.
+
 ### Conditional predicate
 
 `.when(...)` is an arbitrary predicate. The template applies only when the predicate is true:
@@ -74,7 +76,7 @@ These define how the node comes out in serialization: tag, attributes, classes.
 | `js` | Passes data to client-side JavaScript |
 | `bem` | Enables or disables BEM classes |
 
-A display-mode or `content` callback that returns `undefined` removes the field from the resolved node. Omitting the mode leaves the source field unchanged; to keep the fallback value explicitly, return `next()`.
+A display-mode or `content` callback that returns `undefined` removes the field from the resolved node. An explicit source `tag` is retained and its tag-mode callback is not evaluated. Omitting the mode leaves the source field unchanged; to keep the fallback value explicitly, return `next()`.
 
 ## next()
 
