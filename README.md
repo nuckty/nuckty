@@ -40,6 +40,8 @@ Third-party extensions may use any npm name, including their author’s scope; l
 
 The CLI loads TypeScript configuration files itself. A separate TypeScript installation is needed for developing and type-checking packages, not for building a consumer site. Extensions and template modules use ESM.
 
+Browser previews import `Templates`, `render` and `renderToHtml` from `@nuckty/core/browser`. This compiled entry contains the pure renderer; build commands and Node template-context APIs remain in `@nuckty/core`.
+
 ## Trust boundaries
 
 Build configuration, extensions, block templates and Markdown authors are trusted. Extensions run with the build process's permissions. Raw Markdown HTML and BEMJSON `raw` are preserved, and Markdown URL schemes are not filtered. Sanitize untrusted content before building; text/attribute escaping alone does not make arbitrary input safe.

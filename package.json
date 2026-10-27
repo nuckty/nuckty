@@ -34,7 +34,7 @@
         "test": "npm run build && npm run test:unit",
         "test:unit": "node --test --import tsx src/test/*.test.ts src/test/integration/*.test.ts config/*.test.mjs",
         "test:core": "node config/run-core-tests.mjs",
-        "test:coverage": "npm run build && rm -rf .coverage && NODE_V8_COVERAGE=$PWD/.coverage node --test --import ./config/register-test-source.mjs src/test/*.test.ts src/test/integration/*.test.ts config/*.test.mjs && node config/filter-coverage.mjs && c8 report --temp-directory .coverage-source --all --exclude-after-remap --include 'src/**/*.ts' --exclude 'src/test/**' --exclude 'src/**/*.d.ts' --exclude 'src/bem/template-types.ts' --exclude 'src/index.ts' --reporter text --reporter json-summary --reports-dir coverage && node config/check-coverage.mjs coverage/coverage-summary.json",
+        "test:coverage": "npm run build && rm -rf .coverage && NODE_V8_COVERAGE=$PWD/.coverage node --test --import ./config/register-test-source.mjs src/test/*.test.ts src/test/integration/*.test.ts config/*.test.mjs && node config/filter-coverage.mjs && c8 report --temp-directory .coverage-source --all --exclude-after-remap --include 'src/**/*.ts' --exclude 'src/test/**' --exclude 'src/**/*.d.ts' --exclude 'src/bem/template-types.ts' --exclude 'src/index.ts' --exclude 'src/browser.ts' --reporter text --reporter json-summary --reports-dir coverage && node config/check-coverage.mjs coverage/coverage-summary.json",
         "lint": "tsc --noEmit -p config/config-ts-test.json && npm run lint:openspec && npm run lint:markdown",
         "lint:openspec": "openspec validate --all --strict",
         "prepack": "npm run build",
@@ -71,5 +71,16 @@
     "author": {
         "name": "Vitaly Harisov",
         "email": "vitaly@harisov.name"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./browser": {
+            "types": "./dist/browser.d.ts",
+            "default": "./dist/browser.js"
+        },
+        "./package.json": "./package.json"
     }
 }

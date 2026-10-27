@@ -28,7 +28,7 @@ function collectSourceFiles(dir) {
     return files;
 }
 
-const typeOnlyEntries = new Set(['index.ts', 'bem/template-types.ts']);
+const typeOnlyEntries = new Set(['index.ts', 'browser.ts', 'bem/template-types.ts']);
 
 for (const file of collectSourceFiles(sourceRoot)) {
     if (!typeOnlyEntries.has(path.relative(sourceRoot, file)) && !report[file]) {

@@ -3,6 +3,7 @@ import { defineConfig } from 'tsup';
 export default defineConfig({
     entry: {
         index: 'src/index.ts',
+        browser: 'src/browser.ts',
         'bin/nuckty': 'src/bin/nuckty.ts',
         // ESM loader (resolve + load hooks) registered by the CLI so `nuckty`
         // imports `.ts` extensions/config under plain Node without tsx. See
