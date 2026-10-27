@@ -1,5 +1,5 @@
 {
-    "name": "nuckty-logo",
+    "name": "@nuckty/logo",
     "private": true,
     "license": "MIT",
     "scripts": {
@@ -13,4 +13,3 @@
         "email": "vitaly@harisov.name"
     }
 }
-
