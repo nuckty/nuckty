@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0-beta3
+
+- Explicit BEMJSON `tag` values take precedence over nu tag declarations, including callbacks. `tag: false` remains a tagless fragment; an absent or undefined tag uses the template declaration.
+- Block selectors match block nodes only. Named and wildcard element selectors match elements independently, including structural modes such as `content` and `wrap`.
+- Website and demo templates use direct block declarations without predicates compensating for these engine bugs.
+- Official extensions declare compatibility with `@nuckty/core@1.0.0-beta3`.
+
 ## 1.0.0-beta2
 
 - Package-specific GitHub Release workflows publish verified archives through npm OIDC trusted publishers, then update compatible exact registry dependencies in the website and demo.

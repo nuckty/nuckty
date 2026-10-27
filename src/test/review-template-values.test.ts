@@ -64,7 +64,7 @@ test('typed display callbacks clear fields and preserve absent next fallbacks', 
         bem: () => undefined,
     });
     block('fallback')({ tag: (_node, next) => next(), attrs: (_node, next) => next() });
-    const source: BemNode = { block: 'cleared', tag: 'section', attrs: { title: 'remove' }, mods: { private: true }, elemMods: { private: true }, cls: 'remove', bem: false };
+    const source: BemNode = { block: 'cleared', attrs: { title: 'remove' }, mods: { private: true }, elemMods: { private: true }, cls: 'remove', bem: false };
     const before = structuredClone(source);
 
     assert.deepEqual(render(source, { templates, output: 'bemjson' }), { block: 'cleared' });

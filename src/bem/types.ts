@@ -45,8 +45,8 @@ export interface BemNode {
     mix?: BemEntity | Array<BemEntity | string> | string;
     /** Children: a node, an array, a string (escaped), or null. */
     content?: BEMTree;
-    /** HTML tag. Default `div`. `false` renders only `content` (no wrapper). */
-    tag?: string | false;
+    /** Explicit HTML tag overrides templates. Default `div`; `false` renders only content. */
+    tag?: string | false | undefined;
     /** HTML attributes. */
     attrs?: AttrMap;
     /** Extra non-BEM class appended last. */

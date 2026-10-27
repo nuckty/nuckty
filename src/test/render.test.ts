@@ -4,7 +4,7 @@
  * the `render` overload with `output: 'bemjson'`, and scoped `block()` declarations.
  * exercise control-mode BEM-inheritance (a wrap result must NOT inherit the
  * source block's class), pass independence (pass 1 ≠ pass 2 output), and the
- * `when((n) => n.props)` guard a layout block uses to match only its root node.
+ * block selectors that match layout roots without leaking into named elements.
  *
  * @module test/render
  */
@@ -109,15 +109,13 @@ test('wrap result does NOT inherit the source block (BEM-inheritance guard)', ()
     assert.ok(html.includes('<p class=page>hi'), html);
 });
 
-test('when((n) => n.props) guards a layout block from elem/child nodes', () => {
-    // Without the guard, `block('page').wrap` matches every `block:'page'`
-    // descendant (`page__main`, `page__side`) — those have no `props` and crash
-    // the wrap callback. The predicate narrows the match to the layout root only.
+test('a block wrap declaration matches the layout root without element guards', () => {
+    // Named elements remain independent even when they carry layout-like props.
     const reg = new Templates();
     let wrapCalls = 0;
 
     runWithTemplates(reg, () => {
-        block('page').when((n) => Boolean(n.props)).wrap((n) => {
+        block('page').wrap((n) => {
             wrapCalls++;
             return { tag: 'html', content: [{ tag: 'body', block: 'page', content: n.content }] };
         });
@@ -126,11 +124,11 @@ test('when((n) => n.props) guards a layout block from elem/child nodes', () => {
         block: 'page',
         props: { page: { title: 'root' } },
         content: [
-            { tag: 'div', block: 'page', elem: 'main', content: [{ tag: 'p', content: 'x' }] },
+            { tag: 'div', block: 'page', elem: 'main', props: { page: { title: 'child' } }, content: [{ tag: 'p', content: 'x' }] },
         ],
     };
     const html = render(tree, { templates: reg });
-    assert.equal(wrapCalls, 1, 'wrap fires once on the props-carrying root, not on page__main');
+    assert.equal(wrapCalls, 1, 'wrap fires only on the block root, not on page__main');
     // `page__main` has no trigger chars → unquoted class (same rule as elsewhere).
     assert.ok(html.includes('<div class=page__main>'), 'page__main renders with its own class');
     assert.ok(!html.includes('<div class="page__main page">'), 'no inherited page class on page__main');

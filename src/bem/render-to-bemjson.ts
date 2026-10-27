@@ -138,6 +138,10 @@ function foldOutputModes(node: BemNode, matched: Template[]): BemNode {
     let changed = false;
     let result: Record<string, unknown> = node as Record<string, unknown>;
     for (const field of fields) {
+        if (field === 'tag' && node.tag !== undefined) {
+            continue;
+        }
+
         const setters = matched.filter((t) => t.modes[field] !== undefined);
         if (setters.length === 0) continue;
 

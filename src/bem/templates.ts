@@ -76,8 +76,10 @@ function specificity(t: Template, node: BemNode): number {
 
     // elem
     if (t.elem === undefined) {
-        // template targets the block only; matches whether or not node has elem.
-        rank += 0;
+        // A block declaration never matches an element, including inherited context.
+        if (node.elem) {
+            return -1;
+        }
     } else if (t.elem === '*') {
         if (!node.elem) {
             return -1;
