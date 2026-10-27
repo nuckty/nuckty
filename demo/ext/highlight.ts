@@ -33,7 +33,8 @@ export function register(env: NucktyEnv): void {
 
                 if (node.type === 'code') {
                     const source = node.value ? `${node.value}\n` : '';
-                    parent.children[i] = { type: 'html', value: `<pre class=article__code><code>${highlightCode(source, node.lang ?? 'plaintext')}</code></pre>` };
+                    const cls = node.lang?.toLowerCase() === 'html' ? 'article__code code code_wrap_soft' : 'article__code';
+                    parent.children[i] = { type: 'html', value: `<pre class="${cls}"><code>${highlightCode(source, node.lang ?? 'plaintext')}</code></pre>` };
                 } else if (node.children) {
                     visit({ children: node.children });
                 }

@@ -120,6 +120,7 @@ for (const target of targets) {
             assert.equal((gallery.match(/class=gallery__image/g) ?? []).length, 3);
             assert.equal(pages.get('/media').tags.filter(({ attrs }) => attrs.class === 'gallery__image' && attrs.loading === 'lazy').length, 2);
             assert.ok(pages.get('/playground').tags.some(({ tag, attrs }) => tag.startsWith('<iframe') && attrs.sandbox === ''), 'preview must use an empty sandbox');
+            assert.ok(pages.get('/playground').tags.some(({ attrs }) => attrs.id === 'playground-html' && attrs.class?.split(' ').includes('code_wrap_soft')), 'HTML output must wrap while the BEMJSON editor keeps its formatting');
             assert.match(pages.get('/markdown').html, /data-view=source/);
             const tasks = pages.get('/markdown').tags.filter(({ attrs }) => attrs.type === 'checkbox');
             assert.equal(tasks.length, 3);

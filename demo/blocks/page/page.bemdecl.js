@@ -1,4 +1,4 @@
 module.exports = [
-    'root', 'card', 'article', 'shell', 'showcase', 'example', 'playground',
+    'root', 'code', 'card', 'article', 'shell', 'showcase', 'example', 'playground',
     'gallery', 'lightbox', 'grid', 'artifact-viewer',
 ];

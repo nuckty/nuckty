@@ -10,7 +10,7 @@ export default function templates(): void {
         ] };
         const output: BemNode = { elem: 'output', content: [
             { bem: false, tag: 'p', cls: 'playground__label', content: (ru ? "HTML · результат движка" : "HTML \u00b7 engine output") },
-            { bem: false, tag: 'pre', attrs: { id: 'playground-html', tabindex: '0' }, content: '' },
+            { bem: false, tag: 'pre', cls: 'code code_wrap_soft', attrs: { id: 'playground-html', tabindex: '0' }, content: '' },
             { bem: false, tag: 'details', attrs: { open: false }, content: [
                 { bem: false, tag: 'summary', content: (ru ? "Дерево после шаблонов" : "Tree after templates") },
                 { bem: false, tag: 'pre', attrs: { id: 'playground-tree', tabindex: '0' }, content: '' },
