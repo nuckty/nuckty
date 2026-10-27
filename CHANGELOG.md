@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-beta2
+
+- Package-specific GitHub Release workflows publish verified archives through npm OIDC trusted publishers, then update compatible exact registry dependencies in the website and demo.
+- Official extension peer dependencies target `@nuckty/core@1.0.0-beta2`.
+- This release uses the automated publishing path; completion is verified in the release workflow and consumer CI.
+
 ## 1.0.0-beta1
 
 > We call its Beta, coz it's betta then nothin

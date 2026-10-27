@@ -33,7 +33,13 @@ async function main(): Promise<void> {
     const argv = process.argv.slice(2);
     const initial = parseArgs(argv);
     if (initial.help) { await printHelp(); process.exit(0); }
-    if (initial.version) { process.stdout.write('nuckty 1.0.0-beta1\n'); process.exit(0); }
+    if (initial.version) {
+        const { readFile } = await import('node:fs/promises');
+        const { version } = JSON.parse(await readFile(new URL('../../package.json', import.meta.url), 'utf8'));
+
+        process.stdout.write(`nuckty ${version}\n`);
+        process.exit(0);
+    }
 
     if (argv[0]?.startsWith('--')) {
         process.stderr.write('nuckty: command must appear before options\n');

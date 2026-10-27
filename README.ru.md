@@ -60,6 +60,6 @@ MIT — см. [LICENSE](LICENSE).
 
 ## Текущий кандидат
 
-`1.0.0-beta1` — We call its Beta, coz it's betta then nothin
+`1.0.0-beta2` — We call its Beta, coz it's betta then nothin
 
 Изменения описаны в [CHANGELOG.ru.md](CHANGELOG.ru.md).
