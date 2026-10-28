@@ -1,4 +1,4 @@
-# nuckty-demo — spec
+# demo Specification
 
 ## Purpose
 
