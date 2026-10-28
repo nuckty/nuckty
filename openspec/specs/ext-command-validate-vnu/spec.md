@@ -47,3 +47,10 @@ The command SHALL reject every unsupported option key, including an empty key, b
 #### Scenario: Empty unknown key
 - **WHEN** flags contains an unsupported empty-string key
 - **THEN** the command reports an option error before cwd access
+
+### Requirement: Validation port
+The validate command SHALL accept `--port` with an integer from 1 through 65535, default to 8888 and reject invalid values before starting Java.
+
+#### Scenario: Requested behavior
+- **WHEN** a caller chooses a free port
+- **THEN** validation and cleanup use that port without touching services on the default port
