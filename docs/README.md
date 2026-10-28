@@ -1,6 +1,6 @@
-# nuckty-docs
+# nuckty documentation
 
-Source content for the documentation of the [nuckty](https://github.com/nuckty/nuckty) static site generator. This repository contains the Markdown pages; it does not include the consumer configuration or build scripts for a documentation site.
+Source content for the documentation of the [nuckty](https://github.com/nuckty/nuckty) static site generator. This directory contains the Markdown pages; it does not include the consumer configuration or build scripts for a documentation site.
 
 ## Layout
 

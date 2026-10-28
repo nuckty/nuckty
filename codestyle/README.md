@@ -1,4 +1,4 @@
-# nuckty-codestyle
+# nuckty codestyle
 
 > The shared rulebook for the nuckty monorepository and external consumers.
 
@@ -15,4 +15,3 @@ Edit both glossaries when a definition changes. Check terminology and language a
 ## License
 
 MIT — see [LICENSE](../LICENSE).
-
