@@ -2,10 +2,6 @@
 
 The 1.0.0-beta1 source release comprises core, ten extensions, demo, documentation and shared codestyle. The 11 npm packages are core and the ten extensions; demo remains private. Publish only a frozen source set whose local checks, exact package archives and remote CI have passed. Site deployment has its own artifact, visual, hosting and rollback checks.
 
-## Maintained dependency repair
-
-Core and the site consumer select the private MIT compatibility fork in `vendor/braces` through a local development dependency and npm override. Version `3.0.4-nuckty.1` identifies a local repair derived from `braces@3.0.3`, not an upstream release. Keep this source in checkouts used by `npm ci`; it is excluded from the runtime tarball. [SECURITY.md](vendor/braces/SECURITY.md) records provenance and the repair. Ordinary-output and deep-input regressions run with the core suite. Replace the fork only after an upstream fix passes equivalent checks.
-
 ## Freeze and verify
 
 1. Preserve existing repository history and prepare publication commits from the reviewed source payload. Do not overwrite unrelated working-tree or staged changes. Retain source archives, a per-file inventory and archive SHA-256 receipts.
@@ -19,7 +15,7 @@ Use the commands in each package's `package.json`; source and npm archive checks
 
 Publish core and the compatible extension commits under their `nuckty/<package-name>` repositories. In each extension repository, set `NUCKTY_CORE_REF` to the tested core commit's exact lowercase 40-character SHA. Branch names and tags are rejected.
 
-In demo and the site consumer, `NUCKTY_SOURCES` must be a JSON object containing exactly the 11 package names: `nuckty`, `@nuckty/ext-block-gallery`, `@nuckty/ext-block-grid`, `@nuckty/ext-block-root`, `@nuckty/ext-command-content-external`, `@nuckty/ext-command-convert-images`, `@nuckty/ext-command-deploy-ftp`, `@nuckty/ext-command-serve`, `@nuckty/ext-command-validate-vnu`, `@nuckty/ext-markdown-typography-ru`, and `@nuckty/ext-markdown-video`. Each entry is `{ "repository": "nuckty/<package-name>", "ref": "<actual-40-character-commit-sha>" }`. Use real reachable commits, not placeholders. Nested local packages such as `vendor/braces` come from their owner checkout and need no separate repository entry.
+In demo and the site consumer, `NUCKTY_SOURCES` must be a JSON object containing exactly the 11 package names: `nuckty`, `@nuckty/ext-block-gallery`, `@nuckty/ext-block-grid`, `@nuckty/ext-block-root`, `@nuckty/ext-command-content-external`, `@nuckty/ext-command-convert-images`, `@nuckty/ext-command-deploy-ftp`, `@nuckty/ext-command-serve`, `@nuckty/ext-command-validate-vnu`, `@nuckty/ext-markdown-typography-ru`, and `@nuckty/ext-markdown-video`. Each entry is `{ "repository": "nuckty/<package-name>", "ref": "<actual-40-character-commit-sha>" }`. Use real reachable commits, not placeholders.
 
 Run CI on those commits and verify every run's head SHA and successful conclusion, including native Linux, coverage, audit and package-smoke gates. If a source or lockfile changes, update the corresponding pins and repeat affected gates. Enable branch protection after its required `verify` or documentation `source-links` check is visible and green. Shared codestyle has no executable CI gate.
 
