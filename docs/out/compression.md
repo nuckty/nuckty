@@ -9,7 +9,7 @@ The engine creates Brotli and Gzip copies of selected nonempty files in `brotli/
 | Brotli | `.br` | Q11 (maximum) | Preferred representation when accepted |
 | Gzip | `.gz` | 9 | Universal fallback |
 
-1.0.0-beta1 supports no other codecs. Adding one requires measurements and a change to the artifact and hosting contract.
+Version 1.0 supports no other codecs. Adding one requires measurements and a change to the artifact and hosting contract.
 
 ```
 site/html/how_bemjson.html        ← original

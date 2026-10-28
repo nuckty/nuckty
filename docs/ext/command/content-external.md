@@ -39,7 +39,7 @@ This example extends the quickstart with the standard `@nuckty/ext-block-root` d
 Install the extension from npm in the extracted [starter project](../../how/start.md):
 
 ```bash
-npm install --save-exact --save-dev @nuckty/ext-command-content-external@1.0.0-beta1
+npm install --save-exact --save-dev @nuckty/ext-command-content-external@1.0.0-rc.0
 ```
 
 ```ts

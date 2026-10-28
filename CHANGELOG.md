@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-rc.0
+
+- All official packages are developed in the nuckty monorepository and released together through Changesets. Package contents and public APIs are unchanged.
+- `@nuckty/core` exports the `Plugin` and `Root` types used by Markdown extensions and declares `@types/mdast` as a dependency, so published declarations resolve without development dependencies.
+- The demo, documentation and shared rules live in the monorepository; the website remains a separate registry consumer.
+
 ## 1.0.0-beta3
 
 - Explicit BEMJSON `tag` values take precedence over nu tag declarations, including callbacks. `tag: false` remains a tagless fragment; an absent or undefined tag uses the template declaration.
