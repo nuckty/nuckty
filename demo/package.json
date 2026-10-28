@@ -18,7 +18,7 @@
         "deploy-ftp": "nuckty deploy-ftp",
         "test:package": "node scripts/package-smoke.mjs",
         "test:copy-filter": "node --test scripts/copy-filter.test.mjs",
-        "test": "node --test test/*.test.mjs",
+        "test": "node --test test/*.test.mjs scripts/*.test.mjs",
         "lint": "tsc --noEmit -p config/config-ts.json && npm run lint:css",
         "build:preview": "NUCKTY_PREVIEW=1 npm run build",
         "serve:en": "nuckty serve en --port 8094",
