@@ -1,33 +1,113 @@
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: read
-
+  pull-requests: read
 jobs:
-  verify:
+  paths:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    outputs:
+      native: ${{ steps.filter.outputs.native }}
+      demo: ${{ steps.filter.outputs.demo }}
+      packages: ${{ steps.filter.outputs.packages }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dorny/paths-filter@15192bc058cc28a13dbf6cde61f19e18988b7af6 # v3
+        id: filter
         with:
-          persist-credentials: false
+          filters: |
+            native:
+              - 'packages/core/**'
+              - 'packages/ext-command-serve/**'
+              - 'packages/ext-command-validate-vnu/**'
+              - 'package-lock.json'
+            demo:
+              - 'demo/**'
+              - 'packages/**'
+              - 'package-lock.json'
+            packages:
+              - 'packages/*/src/**'
+              - 'packages/*/blocks/**'
+              - 'packages/*/package.json'
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
           cache: npm
-      - name: Verify release automation guards
-        run: node --test config/npm-release.test.mjs
-      - run: npm ci --no-audit --no-fund --registry=https://registry.npmjs.org
+      - run: npm ci
       - run: npm audit --package-lock-only --audit-level=low --registry=https://registry.npmjs.org
       - run: npm run lint
-      - run: sudo apt-get update && sudo apt-get install --yes nginx apache2
-      - run: npm run test:coverage
-        env:
-          NUCKTY_HOSTING_HTTP: '1'
+      - run: npm run build
+      - run: npm test
+      - run: node docs/scripts/check-source-links.mjs
+      - run: cmp logo/nuckty-logo-black-transparent.svg demo/blocks/brand/brand.svg && node scripts/check-imports.mjs
+  native:
+    needs: paths
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: needs.paths.outputs.native == 'true'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        if: needs.paths.outputs.native == 'true'
+        with:
+          node-version: 24
+      - if: needs.paths.outputs.native == 'true'
+        run: |
+          sudo apt-get update && sudo apt-get install -y nginx apache2 default-jre-headless
+          npm ci
+          npm run build
+          NUCKTY_HOSTING_HTTP=1 npm run test:coverage -w @nuckty/core
+          NUCKTY_SERVE_NATIVE=1 npm test -w @nuckty/ext-command-serve
+          NUCKTY_VNU_NATIVE=1 npm test -w @nuckty/ext-command-validate-vnu
+  demo:
+    needs: paths
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: needs.paths.outputs.demo == 'true'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        if: needs.paths.outputs.demo == 'true'
+        with:
+          node-version: 24
+      - if: needs.paths.outputs.demo == 'true'
+        run: |
+          java -version
+          npm ci
+          npm run build
+          npm run lint -w @nuckty/demo
+          npm test -w @nuckty/demo
+          npm run validate -w @nuckty/demo
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: needs.paths.outputs.demo == 'true'
+        with:
+          name: demo-${{ github.sha }}
+          path: |
+            demo/site
+            demo/site-en
+          include-hidden-files: true
+          if-no-files-found: error
+  changeset:
+    needs: paths
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: github.event_name == 'pull_request' && needs.paths.outputs.packages == 'true' && !(github.event.pull_request.user.login == 'github-actions[bot]' && startsWith(github.head_ref, 'changeset-release/'))
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        if: github.event_name == 'pull_request' && needs.paths.outputs.packages == 'true' && !(github.event.pull_request.user.login == 'github-actions[bot]' && startsWith(github.head_ref, 'changeset-release/'))
+        with:
+          node-version: 24
+      - if: github.event_name == 'pull_request' && needs.paths.outputs.packages == 'true' && !(github.event.pull_request.user.login == 'github-actions[bot]' && startsWith(github.head_ref, 'changeset-release/'))
+        run: |
+          npm ci
+          npx changeset status --since=origin/main --output=/tmp/changeset-status.json
+          node -e 'if (!JSON.parse(require("fs").readFileSync("/tmp/changeset-status.json")).releases.length) process.exit(1)'
