@@ -4,7 +4,8 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git@github.com:nuckty/nuckty-ext-markdown-typography-ru.git"
+        "url": "git+https://github.com/nuckty/nuckty.git",
+        "directory": "packages/ext-markdown-typography-ru"
     },
     "publishConfig": {
         "registry": "https://registry.npmjs.org",
@@ -22,11 +23,7 @@
     },
     "devDependencies": {
         "@types/mdast": "4.0.4",
-        "@types/node": "24.13.3",
-        "@nuckty/core": "file:../nuckty",
         "remark-parse": "11.0.0",
-        "tsx": "4.23.12",
-        "typescript": "7.0.2",
         "unified": "11.0.5",
         "unist-util-visit": "5.1.0"
     },

@@ -384,7 +384,7 @@ test('same-size remote content without a hash entry is uploaded rather than assu
 test('CLI parser and deploy handler preserve target order and reject unsafe boolean values', async (t) => {
     t.mock.method(process.stdout, 'write', () => true);
     t.mock.method(process.stderr, 'write', () => true);
-    const parserPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../nuckty/src/bin/parse-args.ts');
+    const parserPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../core/src/bin/parse-args.ts');
     const { parseArgs } = await import(pathToFileURL(parserPath).href) as {
         parseArgs: (argv: string[], options: { booleanFlags: string[] }) => {
             positional: string[];

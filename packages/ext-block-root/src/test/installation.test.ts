@@ -13,7 +13,7 @@ test('installed root package loads its template from a path with spaces and Unic
 
     const packageDir = path.join(cwd, 'node_modules', '@nuckty/ext-block-root');
     await mkdir(packageDir, { recursive: true });
-    await symlink(fileURLToPath(new URL('../../../nuckty/', import.meta.url)), path.join(cwd, 'node_modules', '@nuckty', 'core'), 'dir');
+    await symlink(fileURLToPath(new URL('../../../core/', import.meta.url)), path.join(cwd, 'node_modules', '@nuckty', 'core'), 'dir');
     await cp(new URL('../../dist/', import.meta.url), path.join(packageDir, 'dist'), { recursive: true });
     await cp(new URL('../../blocks/', import.meta.url), path.join(packageDir, 'blocks'), { recursive: true });
 

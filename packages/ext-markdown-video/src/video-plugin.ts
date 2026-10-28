@@ -17,8 +17,8 @@
  */
 
 import { render, Templates } from '@nuckty/core';
-import type { Plugin } from 'unified';
-import type { Root, Paragraph, Html, Link, Text, PhrasingContent } from 'mdast';
+import type { Plugin, Root } from '@nuckty/core';
+import type { Paragraph, Html, Link, Text, PhrasingContent } from 'mdast';
 
 export interface VideoProvider {
     /** Matches the link's only-text-child (lowercased) and the provider name. */

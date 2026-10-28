@@ -9,7 +9,11 @@ import { sourceCopyFilter } from './copy-filter.mjs';
 const demo = path.resolve(import.meta.dirname, '..');
 const temp = mkdtempSync(path.join(tmpdir(), 'nuckty-package-smoke-'));
 const consumer = path.join(temp, 'consumer with spaces – пример');
-const dependencies = JSON.parse(readFileSync(path.join(demo, 'config/config-packages.json'), 'utf8'));
+const root = path.resolve(demo, '..');
+const dependencies = Object.fromEntries(readdirSync(path.join(root, 'packages'), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => JSON.parse(readFileSync(path.join(root, 'packages', entry.name, 'package.json'), 'utf8')))
+    .map(({ name, version }) => [name, version]));
 const packages = Object.keys(dependencies);
 const userConfig = path.join(temp, 'user.npmrc');
 const globalConfig = path.join(temp, 'global.npmrc');
@@ -24,7 +28,8 @@ try {
         filter: sourceCopyFilter(demo),
     });
     const manifest = JSON.parse(readFileSync(path.join(demo, 'package.json'), 'utf8'));
-    writeFileSync(path.join(consumer, 'package.json'), JSON.stringify({ type: 'module', scripts: { build: 'nuckty build', types: 'tsc --noEmit --strict --skipLibCheck false --module nodenext --target es2022 --types node smoke.ts' }, dependencies, devDependencies: { typescript: manifest.devDependencies.typescript, '@types/node': manifest.devDependencies['@types/node'], '@tanstack/highlight': manifest.devDependencies['@tanstack/highlight'] } }));
+    const rootManifest = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+    writeFileSync(path.join(consumer, 'package.json'), JSON.stringify({ type: 'module', scripts: { build: 'nuckty build', types: 'tsc --noEmit --strict --skipLibCheck false --module nodenext --target es2022 --types node smoke.ts' }, dependencies, devDependencies: { typescript: rootManifest.devDependencies.typescript, '@types/node': rootManifest.devDependencies['@types/node'], '@tanstack/highlight': manifest.devDependencies['@tanstack/highlight'] } }));
     const extensions = Object.keys(dependencies).filter((name) => name !== '@nuckty/core');
     const config = [
         "import { defineNucktyConfig } from '@nuckty/core';",
@@ -36,7 +41,16 @@ try {
         '',
     ].join('\n');
     writeFileSync(path.join(consumer, 'config', 'config-nuckty.ts'), config);
-    npm(['install', '--ignore-scripts', '--no-audit', '--no-fund'], consumer);
+    const deadline = Date.now() + 10 * 60 * 1000;
+    for (;;) {
+        try {
+            npm(['install', '--ignore-scripts', '--no-audit', '--no-fund'], consumer);
+            break;
+        } catch (error) {
+            if (Date.now() >= deadline) throw error;
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+        }
+    }
     const lock = JSON.parse(readFileSync(path.join(consumer, 'package-lock.json'), 'utf8'));
 
     for (const name of packages) {

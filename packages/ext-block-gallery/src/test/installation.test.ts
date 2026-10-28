@@ -12,7 +12,7 @@ test('installed gallery templates and resources load from a path with spaces and
 
     const packageDir = path.join(cwd, 'node_modules', '@nuckty/ext-block-gallery');
     await mkdir(packageDir, { recursive: true });
-    await symlink(fileURLToPath(new URL('../../../nuckty/', import.meta.url)), path.join(cwd, 'node_modules', '@nuckty', 'core'), 'dir');
+    await symlink(fileURLToPath(new URL('../../../core/', import.meta.url)), path.join(cwd, 'node_modules', '@nuckty', 'core'), 'dir');
     await cp(new URL('../../dist/', import.meta.url), path.join(packageDir, 'dist'), { recursive: true });
     await cp(new URL('../../blocks/', import.meta.url), path.join(packageDir, 'blocks'), { recursive: true });
 

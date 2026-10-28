@@ -45,7 +45,7 @@ test('handler image safety and cache contracts', async (t) => {
             stderr.mock.restore();
         }
     };
-    const parserPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../nuckty/src/bin/parse-args.ts');
+    const parserPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../core/src/bin/parse-args.ts');
     const { parseArgs } = await import(pathToFileURL(parserPath).href) as {
         parseArgs: (argv: string[], options: { booleanFlags: string[] }) => {
             positional: string[];

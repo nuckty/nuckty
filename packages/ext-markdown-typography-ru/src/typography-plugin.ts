@@ -1,6 +1,5 @@
 /** Optional prose typography; code, raw HTML and attribute values stay literal. */
-import type { Plugin } from 'unified';
-import type { Root } from 'mdast';
+import type { Plugin, Root } from '@nuckty/core';
 import { applyRussianTypography } from './typography.js';
 
 interface Node {

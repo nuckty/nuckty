@@ -63,3 +63,6 @@ export type { BuildCommand } from './build.js';
 // Consumer artifact destination validation before filesystem access.
 export { assertArtifactPath } from './stages/artifact-path.js';
 
+
+export type { Plugin } from 'unified';
+export type { Root } from 'mdast';
