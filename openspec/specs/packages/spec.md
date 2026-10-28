@@ -36,12 +36,16 @@ The demo SHALL build from monorepository workspace packages. The website and dow
 - **THEN** an isolated consumer installs all eleven exact versions from the registry and verifies their public entries and build
 
 ### Requirement: Synchronized npm releases
-Changesets SHALL version all eleven public packages together. A changeset on main SHALL produce a version pull request; after it is merged, the release workflow SHALL publish through npm trusted publishing without a long-lived token, verify the public packages, deploy the workspace demo and update the website for the selected release channel.
+Changesets SHALL version all eleven public packages together. Versions SHALL be applied locally and committed directly to main. After CI succeeds on a main commit, the release workflow SHALL publish every public package version missing from the registry through npm trusted publishing without a long-lived token, push the package tags, verify the public packages, deploy the workspace demo and update the website for the selected release channel. A commit whose versions are all published SHALL release nothing.
 
-#### Scenario: Reviewed package release
-- **WHEN** a version pull request is merged
+#### Scenario: Versioned commit release
+- **WHEN** a main commit with new package versions passes CI
 - **THEN** public packages share a version and extension peers match the core
 - **AND** registry verification completes before consumer deployment
+
+#### Scenario: Ordinary commit
+- **WHEN** a main commit passes CI and all its package versions are already published
+- **THEN** the release workflow publishes, deploys and dispatches nothing
 
 ### Requirement: Bounded public verification availability retries
 Registry installation SHALL retry until all published versions are available, with a maximum wait of ten minutes. Failure to verify SHALL prevent demo deployment and the website update.

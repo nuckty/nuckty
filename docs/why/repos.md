@@ -18,4 +18,4 @@ Separate packages isolate optional dependencies: basic-ftp for FTP, vnu-jar for 
 
 ## Consequences
 
-One pull request can change the core and documentation, and one CI verifies the workspace. The website remains an external consumer of documentation and released packages. Changesets versions the public packages together.
+One commit can change the core and documentation, and one CI verifies the workspace. The website remains an external consumer of documentation and released packages. Changesets versions the public packages together.
