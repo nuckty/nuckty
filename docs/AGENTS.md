@@ -12,7 +12,8 @@
 - "how" links to "why" when decision non-obvious; "why" links to "how" and "out" for detail
 
 # Before delivery
-- Cross-references point to existing URLs from `sitemap.yml`
+- Cross-references point to pages listed in `pages.json`
+- Adding, moving or removing a page updates `pages.json` (reading order); `node scripts/check-pages.mjs` passes
 - Same term named identically across all sections (one glossary site-wide)
 - Terminology follows `../codestyle/GLOSSARY.ru.md`, paired with `GLOSSARY.md` for English; canonical forms mandatory, rejected variants forbidden
 - Russian prose follows the «Русская проза» section of `GLOSSARY.ru.md`
