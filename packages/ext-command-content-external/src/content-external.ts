@@ -247,7 +247,7 @@ export interface RepoResult {
 /**
  * Build a GitRunner backed by simple-git. Clone publishes a temporary sibling
  * after success; a pinned or partial clone checks out `ref` and keeps only
- * `path` in a sparse cone. Update moves a pinned copy to `ref` or pulls the
+ * `path` (without top-level files) in a sparse working copy. Update moves a pinned copy to `ref` or pulls the
  * branch, then runs git lfs ls-files; only a nonempty list triggers git lfs
  * pull. LFS inspection and fetch errors fail the update.
  */
@@ -268,7 +268,7 @@ export function makeGitRunner(loadGit: () => Promise<Pick<typeof import('simple-
                     await simpleGit().clone(url, tmp, ['--no-checkout']);
                     const g = simpleGit(tmp);
                     if (options.path) {
-                        await g.raw(['sparse-checkout', 'set', '--cone', '--', options.path]);
+                        await g.raw(['sparse-checkout', 'set', '--no-cone', `/${options.path}/`]);
                     }
                     await g.raw(options.ref ? ['checkout', '--detach', options.ref, '--'] : ['checkout']);
                 } else {
@@ -291,7 +291,7 @@ export function makeGitRunner(loadGit: () => Promise<Pick<typeof import('simple-
                 throw new Error('Repository identity or clean status changed; refusing update');
             }
             if (options.path) {
-                await g.raw(['sparse-checkout', 'set', '--cone', '--', options.path]);
+                await g.raw(['sparse-checkout', 'set', '--no-cone', `/${options.path}/`]);
             } else if (String(await g.raw(['config', '--bool', '--default', 'false', 'core.sparseCheckout'])).trim() === 'true') {
                 await g.raw(['sparse-checkout', 'disable']);
             }

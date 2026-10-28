@@ -420,6 +420,7 @@ test('runner pins a sparse clone to ref and moves it on update', async () => {
     };
     try {
         await git('git', ['init', '-q', source]);
+        await commit('README.md', 'root', 'root');
         await commit('docs/a.md', 'one', 'one');
         await commit('other/b.md', 'other', 'other');
         await git('git', ['-C', source, 'tag', 'v1']);
@@ -439,7 +440,7 @@ test('runner pins a sparse clone to ref and moves it on update', async () => {
         assert.deepEqual(await readdir(destination), ['.git', 'other']);
 
         await runner.update(destination, source, { ref: head });
-        assert.deepEqual((await readdir(destination)).sort(), ['.git', 'docs', 'other']);
+        assert.deepEqual((await readdir(destination)).sort(), ['.git', 'README.md', 'docs', 'other']);
 
         await assert.rejects(runner.update(destination, source), /pinned to a detached commit/);
     } finally {
