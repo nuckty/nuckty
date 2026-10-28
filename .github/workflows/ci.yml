@@ -44,8 +44,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm audit --package-lock-only --audit-level=low --registry=https://registry.npmjs.org
-      - run: npm run lint
       - run: npm run build
+      - run: npm run lint
       - run: npm test
       - run: node docs/scripts/check-source-links.mjs
       - run: cmp logo/nuckty-logo-black-transparent.svg demo/blocks/brand/brand.svg && node scripts/check-imports.mjs
