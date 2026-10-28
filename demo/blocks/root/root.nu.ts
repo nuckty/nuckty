@@ -262,7 +262,7 @@ function documentTree(
             [
                 b('root', 'link', 'GitHub', { href: 'https://github.com/nuckty/nuckty', active: false }),
                 b('source-link', undefined, t['Page source'], {
-                    href: `https://github.com/nuckty/nuckty-demo/blob/main/content/${data.page.file}`,
+                    href: `https://github.com/nuckty/nuckty/blob/main/demo/content/${data.page.file}`,
                     'aria-label': t['Page source on GitHub'],
                 }),
                 b('footer', 'license', 'MIT'),

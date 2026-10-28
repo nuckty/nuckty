@@ -8,26 +8,26 @@ nuckty is a static site generator for documentation and content projects. It com
 
 The core provides `nuckty build [target]`. Serving, validation, deployment, and block libraries are extensions. The core ships no blocks or pages; each site registers a document handler, supplied by the standard root extension or by the site itself.
 
-**Documentation sources:** [English getting-started guide](https://github.com/nuckty/nuckty-docs/blob/main/how/start.md) · [Russian getting-started guide](https://github.com/nuckty/nuckty-docs/blob/main/how/start.ru.md). Documentation sites: [nuckty.com](https://nuckty.com) (English) · [nuckty.ru](https://nuckty.ru) (Russian).
+**Documentation sources:** [English getting-started guide](https://github.com/nuckty/nuckty/blob/main/docs/how/start.md) · [Russian getting-started guide](https://github.com/nuckty/nuckty/blob/main/docs/how/start.ru.md). Documentation sites: [nuckty.com](https://nuckty.com) (English) · [nuckty.ru](https://nuckty.ru) (Russian).
 
 ## Ecosystem
 
 | Repository | Role |
 |---|---|
 | [`nuckty`](https://github.com/nuckty/nuckty) | **Core** — the `nuckty build` engine. This repo. |
-| [`nuckty-codestyle`](https://github.com/nuckty/nuckty-codestyle) | Shared code and documentation rules for all `nuckty-*` repos. |
-| [`@nuckty/ext-block-root`](https://github.com/nuckty/nuckty-ext-block-root) | Extension: HTML page shell (`root`). |
-| [`@nuckty/ext-block-gallery`](https://github.com/nuckty/nuckty-ext-block-gallery) | Extension: image gallery + lightbox. |
-| [`@nuckty/ext-command-deploy-ftp`](https://github.com/nuckty/nuckty-ext-command-deploy-ftp) | Extension: FTP deploy via manifest sync. |
-| [`@nuckty/ext-command-serve`](https://github.com/nuckty/nuckty-ext-command-serve) | Extension: local `nuckty serve` and `nuckty stop` (nginx). |
-| [`@nuckty/ext-command-validate-vnu`](https://github.com/nuckty/nuckty-ext-command-validate-vnu) | Extension: W3C Nu Html Checker (optional, JVM). |
-| [`@nuckty/ext-block-grid`](https://github.com/nuckty/nuckty-ext-block-grid) | Responsive grid of text cells. |
-| [`@nuckty/ext-markdown-video`](https://github.com/nuckty/nuckty-ext-markdown-video) | Video embedding in Markdown. |
-| [`@nuckty/ext-markdown-typography-ru`](https://github.com/nuckty/nuckty-ext-markdown-typography-ru) | Russian typography. |
-| [`@nuckty/ext-command-content-external`](https://github.com/nuckty/nuckty-ext-command-content-external) | Prepare external content repositories. |
-| [`@nuckty/ext-command-convert-images`](https://github.com/nuckty/nuckty-ext-command-convert-images) | Prepare AVIF/WebP image variants. |
-| [`nuckty-demo`](https://github.com/nuckty/nuckty-demo) | Quick-start demo consumer. |
-| [`nuckty-docs`](https://github.com/nuckty/nuckty-docs) | Source content for the documentation site. |
+| [`nuckty-codestyle`](https://github.com/nuckty/nuckty/tree/main/codestyle) | Shared code and documentation rules for all `nuckty-*` repos. |
+| [`@nuckty/ext-block-root`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-root) | Extension: HTML page shell (`root`). |
+| [`@nuckty/ext-block-gallery`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-gallery) | Extension: image gallery + lightbox. |
+| [`@nuckty/ext-command-deploy-ftp`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-deploy-ftp) | Extension: FTP deploy via manifest sync. |
+| [`@nuckty/ext-command-serve`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-serve) | Extension: local `nuckty serve` and `nuckty stop` (nginx). |
+| [`@nuckty/ext-command-validate-vnu`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-validate-vnu) | Extension: W3C Nu Html Checker (optional, JVM). |
+| [`@nuckty/ext-block-grid`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-grid) | Responsive grid of text cells. |
+| [`@nuckty/ext-markdown-video`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-video) | Video embedding in Markdown. |
+| [`@nuckty/ext-markdown-typography-ru`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-typography-ru) | Russian typography. |
+| [`@nuckty/ext-command-content-external`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-content-external) | Prepare external content repositories. |
+| [`@nuckty/ext-command-convert-images`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-convert-images) | Prepare AVIF/WebP image variants. |
+| [`nuckty-demo`](https://github.com/nuckty/nuckty/tree/main/demo) | Quick-start demo consumer. |
+| [`nuckty-docs`](https://github.com/nuckty/nuckty/tree/main/docs) | Source content for the documentation site. |
 
 Official extensions follow the naming convention `@nuckty/ext-<type>-<name>`, where the type is one of `pipeline`, `markdown`, `block`, `command`, `document`. The package name reads straight from its docs URL: `/ext/block/root` → `@nuckty/ext-block-root`.
 

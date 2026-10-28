@@ -84,26 +84,12 @@ The consumer XML sitemap extension SHALL preserve valid page URL text through XM
 - **WHEN** the XML sitemap contains many source-backed entries
 - **THEN** at most eight timestamp queries are in flight and all entries retain their source metadata in sitemap order
 
-### Requirement: Consumer CI dependency and action integrity
-Consumer workflows SHALL reference third-party actions by full commit SHA, grant only read repository-content permissions, and disable checkout credential persistence. Consumer bootstrap SHALL audit full lockfiles of prepared packages after installation and before building, and audit the installed consumer. Audits SHALL use the public registry and reject low-or-higher findings or registry errors. These gates SHALL preserve the existing tested-artifact deployment sequence and event restrictions.
+### Requirement: CI dependency and action integrity
+CI SHALL pin third-party actions by commit and audit the workspace lockfile against the public registry. A failed audit or verification SHALL prevent deployment.
 
-#### Scenario: Prepared source audit fails
-- **WHEN** a prepared package audit fails
-- **THEN** its build and all later installation/build actions are not run
-
-#### Scenario: Consumer sources are installed
-- **WHEN** bootstrap processes valid prepared packages
-- **THEN** each package is audited before its build and the installed consumer is audited too
-
-#### Scenario: Workflow credentials and dependencies
-- **WHEN** a consumer workflow is read
-- **THEN** its action refs are immutable and checkout does not persist credentials in the workspace
-
-#### Scenario: Local source nested in a pinned checkout
-- **WHEN** a consumer file dependency points to a package inside another source checkout
-- **THEN** the owner commit supplies its source without requiring a separate repository ref or replacing the nested directory
-- **AND** bootstrap checks its package name and real containment before npm operations
-- **AND** packages with build scripts retain full installation, audit and build, while unscripted nested source remains covered by owner and consumer dependency audits
+#### Scenario: Dependency audit fails
+- **WHEN** the audit finds a low-or-higher vulnerability or the registry is unavailable
+- **THEN** CI fails before deployment
 
 ### Requirement: Coverage output ownership
 Coverage filtering SHALL validate resolved input/output ownership before recursive output cleanup. It SHALL reject output paths containing the input or project root, paths overlapping protected project directories, and existing outputs containing non-report files or symlinks. Valid dedicated report directories SHALL remain reusable, with stale owned reports removed before new reports are written. A rejected request SHALL preserve all existing inputs and source files.
@@ -130,10 +116,3 @@ Artifact gallery validation SHALL apply eager-first and lazy-rest policy indepen
 #### Scenario: A later container violates the policy
 - **WHEN** a second gallery has a lazy first image or an eager later image
 - **THEN** validation reports that violation rather than accepting it based on the first container
-
-### Requirement: Consistent beta1 source candidate
-The first-party source candidate SHALL identify its packages, extension peer contract, CLI and starter archives as 1.0.0-beta1. The core SHALL include English and Russian changelogs with the exact motto "We call its Beta, coz it's betta then nothin". Preparation SHALL preserve current Git state and SHALL not create commits or publish sources. The approved future publication plan SHALL use one fresh root commit per repository with the exact message "Hello, world!"; existing history is not required in those future main branches.
-
-#### Scenario: Prepare reviewable commits
-- **WHEN** the beta1 source candidate is prepared
-- **THEN** version references and retained package receipts agree, and local verification and pending remote checks are reported separately

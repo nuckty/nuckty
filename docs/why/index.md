@@ -14,7 +14,7 @@ Every record follows the same template: **Decision → Context → Alternatives 
 - [Sitemap instead of routes](sitemap.md) — an explicit URL tree instead of file-based routing
 - [Compression without zstd](compression.md) — Brotli Q11 and Gzip 9, no third codec
 - [Hosting and format negotiation](hosting.md) — format selection at a single URL
-- [The repository family](repos.md) — independent `nuckty-*` repositories and a single `nuckty-codestyle` rulebook
+- [Packages and repository](repos.md) — separate packages in one monorepository
 
 ## The common criterion
 

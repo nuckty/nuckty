@@ -2,15 +2,15 @@
 
 ## Purpose
 
-The demo is an interactive capabilities showcase and integration consumer for the CLI, document extension, blocks, Markdown, packaged gallery/grid/typography and the actual renderer. Its file dependencies require sibling source projects and prepared packages; the browser adapter bundles pure renderer source modules. Serving and external HTML validation are separate checks.
+The demo is an interactive capabilities showcase and integration consumer for the CLI, document extension, blocks, Markdown, packaged gallery/grid/typography and the actual renderer. Its dependencies resolve to packages in the monorepo workspace; the browser adapter uses the public browser entry. Serving and external HTML validation are separate checks.
 
 ## Requirements
 
 ### Requirement: Declares nuckty as a dependency and builds via the CLI
-The demo SHALL declare `nuckty` as a `file:` dependency and invoke the build via the `nuckty` CLI bin (`"build": "..."`). The build SHALL resolve the demo root as `process.cwd()`, read the demo's `config/`, and write the built site under the demo's output dir. (Engine: "Consumption via dependency + CLI".)
+The demo SHALL declare `@nuckty/core` as a workspace-resolved dependency and invoke the build via the `nuckty` CLI bin (`"build": "..."`). The build SHALL resolve the demo root as `process.cwd()`, read the demo's `config/`, and write the built site under the demo's output dir. (Engine: "Consumption via dependency + CLI".)
 
 #### Scenario: Clean clone builds
-- **WHEN** the demo and its file-linked sibling projects are present, their dependencies and dist builds are prepared, and `npm install && npm run build` runs
+- **WHEN** the workspace dependencies are installed and `npm run build` runs from the repository root
 - **THEN** the build completes without errors
 - **AND** writes `site/html/index.html`
 

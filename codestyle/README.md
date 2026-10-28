@@ -1,8 +1,8 @@
 # nuckty-codestyle
 
-> The shared rulebook for every `nuckty-*` repository.
+> The shared rulebook for the nuckty monorepository and external consumers.
 
-This project holds common code, documentation, testing, and workflow conventions. Each project's `AGENTS.md` references the shared rules and adds local requirements.
+This project holds common code, documentation, testing, and workflow conventions. The monorepository root imports the shared rules; external repositories can reference them and add local requirements.
 
 ## Contents
 
@@ -14,5 +14,5 @@ Edit both glossaries when a definition changes. Check terminology and language a
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](../LICENSE).
 

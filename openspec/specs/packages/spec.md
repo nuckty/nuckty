@@ -6,7 +6,7 @@ Define official npm package ownership and naming while preserving the executable
 ## Requirements
 
 ### Requirement: Official scoped packages
-The engine SHALL use npm package name `@nuckty/core`, official extensions SHALL use `@nuckty/ext-<type>-<name>`, and the engine SHALL retain executable name `nuckty`. Repository directories SHALL retain their existing names.
+The engine SHALL use npm package name `@nuckty/core`, official extensions SHALL use `@nuckty/ext-<type>-<name>`, and the engine SHALL retain executable name `nuckty`. Official packages SHALL live in the monorepository workspace.
 
 #### Scenario: Scoped engine and extension consumer
 - **WHEN** a consumer installs `@nuckty/core` and an official scoped extension
@@ -28,59 +28,24 @@ The core archive SHALL expose `@nuckty/core/browser` with `Templates`, `render` 
 - **THEN** the bundle contains the compiled renderer without Node built-in dependencies
 - **AND** its HTML matches the core renderer for the same tree and templates
 
-### Requirement: Registry-only website consumers
-The website and demo SHALL install official packages at exact versions from the public npm registry. Their runtime dependencies and delivered starters SHALL NOT use sibling package sources or local package archives as fallbacks. Canonical documentation MAY remain a separately verified content input.
+### Requirement: Workspace demo and registry website
+The demo SHALL build from monorepository workspace packages. The website and downloaded starters SHALL use exact published npm dependencies.
 
-#### Scenario: Clean website or demo build
-- **WHEN** a clean consumer installs its checked-in dependency lockfile without sibling package repositories
-- **THEN** it builds from the published npm packages and the compiled browser renderer
+#### Scenario: Release verification
+- **WHEN** the public packages are published
+- **THEN** an isolated consumer installs all eleven exact versions from the registry and verifies their public entries and build
 
-#### Scenario: Downloaded starter
-- **WHEN** a user extracts a starter and installs its exact registry dependencies
-- **THEN** the starter builds without sibling package sources or bundled package archives
-
-### Requirement: Explicit automated npm releases
-A published GitHub Release SHALL trigger package publication only when its tag is `v<package.json version>` and its commit has successful push CI on main. Prereleases SHALL use npm tag `beta`; stable releases SHALL use `latest`. Publication SHALL use a package-specific GitHub Actions OIDC trusted publisher without a long-lived npm token.
+### Requirement: Synchronized npm releases
+Changesets SHALL version all eleven public packages together. A changeset on main SHALL produce a version pull request; after it is merged, the release workflow SHALL publish through npm trusted publishing without a long-lived token, verify the public packages, deploy the workspace demo and update the website for the selected release channel.
 
 #### Scenario: Reviewed package release
-- **WHEN** a maintainer publishes a GitHub Release for a versioned commit with successful main CI
-- **THEN** the workflow publishes the tested package archive and verifies its public registry integrity
-- **AND** a failed or mismatched release does not dispatch consumer updates
-
-### Requirement: Compatible automatic consumer updates
-After verified package publication, website and demo automation SHALL resolve only allowlisted official packages from the selected public npm channel, retain exact versions and lock integrity, and verify compatibility and consumer acceptance before committing dependency updates and deploying through CI.
-
-#### Scenario: Compatible published package update
-- **WHEN** a package release yields a compatible official package set
-- **THEN** website and demo dependency manifests and locks are updated and verified before deployment
-
-#### Scenario: Incompatible package set
-- **WHEN** published package peers do not admit the selected core version
-- **THEN** consumers retain their previous dependency commits and deployment
-
-### Requirement: Isolated release packaging
-Release workflows SHALL build the verified source explicitly before packing with lifecycle scripts disabled. Archive metadata parsing SHALL receive only npm's JSON output, independently of build log formatting.
-
-#### Scenario: Noisy package build
-- **WHEN** a package build writes ordinary or ANSI-formatted logs
-- **THEN** its release archive is packed after the build without rerunning prepack
-- **AND** archive integrity validation parses valid npm JSON metadata
-
-### Requirement: Explicit local release archive
-The publisher SHALL pass npm an absolute local archive path so package-spec parsing cannot interpret its release directory as a GitHub repository shorthand.
-
-#### Scenario: Archive in the release artifact directory
-- **WHEN** the publisher receives an archive below its release directory
-- **THEN** npm resolves that local tarball without requesting a Git repository
+- **WHEN** a version pull request is merged
+- **THEN** public packages share a version and extension peers match the core
+- **AND** registry verification completes before consumer deployment
 
 ### Requirement: Bounded public verification availability retries
-Post-publication metadata and archive verification SHALL retry HTTP 503 within its existing bounded polling budget without reissuing npm publication. Authentication errors, integrity mismatches and exhausted budgets SHALL fail the workflow and prevent its consumer callback.
+Registry installation SHALL retry until all published versions are available, with a maximum wait of ten minutes. Failure to verify SHALL prevent demo deployment and the website update.
 
-#### Scenario: Registry service unavailable after accepted publication
-- **WHEN** a public verification read returns HTTP 503 and a later read succeeds within the budget
-- **THEN** the same immutable archive is verified before dispatching consumer updates
-- **AND** no package is republished by the verification loop
-
-#### Scenario: Unrecoverable verification failure
-- **WHEN** authentication fails, published bytes mismatch, or the availability budget expires
-- **THEN** the release workflow fails without a consumer update callback
+#### Scenario: Publication propagation delay
+- **WHEN** an exact version is temporarily unavailable after publication
+- **THEN** verification retries within the bounded interval without republishing

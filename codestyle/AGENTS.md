@@ -1,5 +1,5 @@
 # Global
-- nuckty-* AGENTS.md MUST link to this file; project-specific stays local
+- The monorepo imports this file from root AGENTS.md; external repositories import ../nuckty/codestyle/AGENTS.md
 - AGENTS.md: minimal tokens, maximal meaning; rules, not descriptions
 - Brief and technical (NO EMOJI) English for code and comments; documentation may be Russian or English
 - End files with exactly one LF; no trailing blank lines

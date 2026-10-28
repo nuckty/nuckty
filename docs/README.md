@@ -11,18 +11,9 @@ Source content for the documentation of the [nuckty](https://github.com/nuckty/n
 | `ext`     | The nuckty ecosystem extension catalog |
 | `why`     | Architectural decisions: why things are done this way, not another |
 
-## Ecosystem repositories
+## Monorepository
 
-nuckty is a family of independent repositories, not a monorepo. Shared rules come from `nuckty-codestyle`. Details in [the repos decision](why/repos.md).
-
-| Repository | Role |
-|---|---|
-| `nuckty` | The core — only `nuckty build [target]`. Depends on no `nuckty-*`. |
-| `nuckty-codestyle` | The shared `AGENTS.md` rulebook for every repository. |
-| `nuckty-demo` | Quick-start demo. |
-| `nuckty-docs` | Markdown source only; the site build configuration is not included. |
-
-The extensions themselves (`@nuckty/ext-*`) are listed in the [extension catalog](ext/index.md).
+The documentation lives in the nuckty monorepository alongside the core, extensions and demo. See the [repository decision](why/repos.md) and [extension catalog](ext/index.md).
 
 ## Check source links
 

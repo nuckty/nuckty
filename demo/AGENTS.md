@@ -1,4 +1,2 @@
-# Global
-@../nuckty-codestyle/AGENTS.md
 - Compose BEMJSON in structural nu.ts modes; declare tags and HTML attributes separately in the same file. Use block/elem/mods/mix, never class-string helpers or cls for BEM entities.
 - Keep paired RU/EN keysets outside template logic. Format CSS with npm run lint:fix.

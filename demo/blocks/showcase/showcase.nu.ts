@@ -38,7 +38,7 @@ function showcaseContent(
                     b('demo-hero', 'meta', [
                         b('showcase', 'text', 'BEMJSON → nu → HTML'),
                         b('showcase', 'link', t['Open source ↗'], {
-                            href: 'https://github.com/nuckty/nuckty-demo',
+                            href: 'https://github.com/nuckty/nuckty/tree/main/demo',
                         }),
                     ]),
                 ],

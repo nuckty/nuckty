@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Specify the single extension contract: `register(env)` with five entry points. Extensions are the only mechanism for adding capability to nuckty. Official extensions use `@nuckty/ext-<type>-<name>` npm names in independent `nuckty-ext-<type>-<name>` repositories; a consumer may also load a local module; the core depends on none of them.
+Specify the single extension contract: `register(env)` with five entry points. Extensions are the only mechanism for adding capability to nuckty. Official extensions use `@nuckty/ext-<type>-<name>` npm names in monorepository workspace directories; a consumer may also load a local module; the core depends on none of them.
 
 ## Requirements
 
@@ -90,7 +90,7 @@ Block modules SHALL NOT receive `env`. Each `.nu.ts` module SHALL export default
 - **AND** the handler's exit code becomes the process exit code
 
 ### Requirement: Extensions are independent packages
-Each independently packaged extension SHALL live in its own repository `nuckty-ext-<type>-<name>` with its own history, dependencies, and release cycle, and an `AGENTS.md` linking `nuckty-codestyle`. The package name derives from the docs path (`/ext/block/root` → `@nuckty/ext-block-root`). The core SHALL NOT depend on any extension or its dependencies (basic-ftp, vnu, sharp, nginx).
+Each independently packaged extension SHALL live in its own `packages/ext-<type>-<name>` workspace directory and share the monorepository release cycle and rules. The package name derives from the docs path (`/ext/block/root` → `@nuckty/ext-block-root`). The core SHALL NOT depend on any extension or its dependencies (basic-ftp, vnu, sharp, nginx).
 
 #### Scenario: Core carries no extension dependency
 - **WHEN** the core's dependencies are inspected
@@ -234,15 +234,6 @@ Maintained package and consumer dependencies SHALL use verified patched versions
 
 - **WHEN** upstream has no patched release
 - **THEN** the review records that fact and verifies an actual compatible remediation rather than ignoring the advisory or claiming success from an unchanged version
-
-### Requirement: Compatible maintained brace traversal repair
-
-A maintained local brace-expansion repair SHALL preserve the published API and ordinary pattern outputs while avoiding call-stack exhaustion on deeply nested patterns within the existing input-length contract. Remediation SHALL use iterative traversal rather than lowering accepted pattern depth solely to pass the audit. Fork provenance, license and the security repair SHALL be explicit.
-
-#### Scenario: Deep supported pattern
-
-- **WHEN** compile, stringify or expand processes a deeply nested pattern below the existing character limit
-- **THEN** it completes without a native recursion overflow and ordinary brace outputs remain compatible
 
 ### Requirement: Installed CLI package version
 The CLI SHALL print the installed `@nuckty/core` package manifest version for both `--version` and `-v`, independently of the consumer working directory.

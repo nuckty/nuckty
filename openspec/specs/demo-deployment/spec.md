@@ -1,15 +1,15 @@
-# deployment Specification
+# demo-deployment Specification
 
 ## Purpose
-TBD - created by archiving change automatic-static-deployment. Update Purpose after archive.
+Describe verified deployment of the bilingual demo after a monorepo release.
 
 ## Requirements
 
 ### Requirement: Verified automatic static deployment
-CI SHALL deploy only after successful build and tests on main. Pull requests SHALL not receive deployment credentials or deploy. The server SHALL accept only static artifact files matching both language manifests, reject unsafe archives, switch the language pair atomically, and restore the previous release if local health checks fail.
+The release workflow SHALL deploy only after successful registry verification of a published release and a build from the same workspace commit. Pull requests SHALL not receive deployment credentials or deploy. The server SHALL accept only static artifact files matching both language manifests, reject unsafe archives, switch the language pair atomically, and restore the previous release if local health checks fail.
 
 #### Scenario: Publish main
-- **WHEN** the main workflow completes all build and verification steps
+- **WHEN** the release workflow publishes and verifies packages and builds both demo targets
 - **THEN** CI uploads only ready static files and the two language domains serve the new release
 
 #### Scenario: Reject a failed release
