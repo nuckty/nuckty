@@ -52,14 +52,8 @@ CLI сам загружает конфигурацию на TypeScript. Отде
 
 ## Выпуски
 
-Все официальные пакеты находятся в [монорепозитории nuckty](https://github.com/nuckty/nuckty) и выпускаются вместе с одной версией. После публикации workflow выпуска проверяет пакеты из публичного реестра, выкладывает демо и обновляет сайт. См. [порядок выпуска](https://github.com/nuckty/nuckty/blob/main/RELEASE.md).
+Все официальные пакеты находятся в [монорепозитории nuckty](https://github.com/nuckty/nuckty) и выпускаются вместе с одной версией. После публикации workflow выпуска проверяет пакеты из публичного реестра, выкладывает демо и обновляет сайт. См. [историю изменений](https://github.com/nuckty/nuckty/blob/main/CHANGELOG.ru.md) и [порядок выпуска](https://github.com/nuckty/nuckty/blob/main/RELEASE.md).
 
 ## Лицензия
 
 MIT — см. [LICENSE](LICENSE).
-
-## Текущий кандидат
-
-`1.0.0-beta2` — We call its Beta, coz it's betta then nothin
-
-Изменения описаны в [CHANGELOG.ru.md](CHANGELOG.ru.md).

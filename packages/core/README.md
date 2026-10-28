@@ -52,14 +52,8 @@ The project's MIT license covers its own code. Installed dependencies keep their
 
 ## Releases
 
-All official packages live in the [nuckty monorepository](https://github.com/nuckty/nuckty) and release together with one version. After publication the release workflow verifies the packages from the public registry, deploys the demo and updates the website. See the [release procedure](https://github.com/nuckty/nuckty/blob/main/RELEASE.md).
+All official packages live in the [nuckty monorepository](https://github.com/nuckty/nuckty) and release together with one version. After publication the release workflow verifies the packages from the public registry, deploys the demo and updates the website. See the [changelog](https://github.com/nuckty/nuckty/blob/main/CHANGELOG.md) and the [release procedure](https://github.com/nuckty/nuckty/blob/main/RELEASE.md).
 
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
-## Current candidate
-
-`1.0.0-beta2` — We call its Beta, coz it's betta then nothin
-
-See [CHANGELOG.md](CHANGELOG.md) for the source release notes.
