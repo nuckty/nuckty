@@ -1,5 +1,4 @@
-import { block } from '@nuckty/core';
-import { attributes } from '../bem/bem.js';
+import { block, attributes } from '@nuckty/core';
 
 export default function templates(): void {
     block('source-link')({

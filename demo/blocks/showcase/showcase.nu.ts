@@ -1,8 +1,7 @@
 import { messages } from './showcase.i18n/index.js';
 import { highlightCode } from '../../ext/highlight.js';
 import { cardExample } from '../playground/card-example.js';
-import { b, attributes } from '../bem/bem.js';
-import { block, type BEMTree, type BemNode } from '@nuckty/core';
+import { block, type BEMTree, type BemNode, b, attributes } from '@nuckty/core';
 
 const arrow = (): BemNode => b('demo-arrow', undefined, b('showcase', 'arrow-path'));
 function showcaseContent(

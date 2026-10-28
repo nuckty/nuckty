@@ -1,6 +1,5 @@
 import { messages } from './root.i18n/index.js';
-import { b, attributes } from '../bem/bem.js';
-import { block, type BEMTree, type BemNode, type DocumentData } from '@nuckty/core';
+import { block, type BEMTree, type BemNode, type DocumentData, b, attributes } from '@nuckty/core';
 
 function documentTree(
     node: Omit<BemNode, 'props'> & {

@@ -1,6 +1,5 @@
 import { messages } from './playground.i18n/index.js';
-import { b, attributes } from '../bem/bem.js';
-import { block, type BEMTree, type BemNode } from '@nuckty/core';
+import { block, type BEMTree, type BemNode, b, attributes } from '@nuckty/core';
 
 function playgroundTree(
     node: Omit<BemNode, 'props'> & {

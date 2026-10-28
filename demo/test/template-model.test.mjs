@@ -24,7 +24,7 @@ const source =
     '\nexport const templates = [' +
     declarations.map((_, index) => 'template' + index).join(',') +
     '];' +
-    '\nexport { b } from "./blocks/bem/bem.ts";';
+    '\nexport { b } from "@nuckty/core";';
 const compiled = await bundle(source);
 const templates = new Templates();
 runWithTemplates(templates, () => {

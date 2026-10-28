@@ -84,6 +84,15 @@ const tree = render(page, { templates, output: 'bemjson' });
 
 This is useful for debugging ("why did the page come out this way?") and custom tools that cache by tree hash. The ordinary `nuckty build` command clears the output directory and rebuilds the artifact; the engine does not perform incremental builds automatically.
 
+To compose nodes in code, `b(block, elem?, content?, props?, entity?)` from `@nuckty/core` builds a `BemNode` and omits empty `elem` and `props`; `entity` carries `mods`, `elemMods` and `mix`. Tags and attributes stay in [nu.ts templates](templates.md):
+
+```ts
+import { b } from '@nuckty/core';
+
+const link = b('text-link', undefined, 'Docs', { href: '/docs' }, { mods: { theme: 'muted' } });
+// { block: 'text-link', mods: { theme: 'muted' }, content: 'Docs', props: { href: '/docs' } }
+```
+
 ## Where the tree comes from
 
 The tree has two sources.

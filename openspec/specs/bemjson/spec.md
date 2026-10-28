@@ -72,3 +72,11 @@ Stringification of a BemEntity element SHALL select its element modifiers rather
 - **WHEN** an entity has block menu, element item and an active element modifier
 - **THEN** stringification returns menu__item_active
 - **AND** supplying unrelated block modifiers does not substitute them for the element’s modifier
+
+### Requirement: Composition helpers
+The core SHALL export `b(block, elem?, content?, props?, entity?)`, which returns a BemNode with the block, the element only when given, the entity fields `mods`, `elemMods` and `mix`, the content (null by default) and `props` only when nonempty. It SHALL export `attributes(node, names)`, which returns the listed props whose values are strings or booleans and omits every other prop.
+
+#### Scenario: Template exposes selected props
+- **WHEN** a node composed with `b('link', undefined, null, { href: '/x', count: 3, extra: 'y' })` is passed to `attributes(node, ['href', 'count'])`
+- **THEN** the result is `{ href: '/x' }`
+- **AND** the composed node has no `elem` field

@@ -1,12 +1,13 @@
-import type { BEMTree, BemEntity, BemNode } from '@nuckty/core';
+import type { BEMTree, BemEntity, BemNode } from './types.js';
 
-interface EntityOptions {
-    mods?: BemNode['mods'];
-    elemMods?: BemNode['elemMods'];
+/** Entity fields of a composed node; HTML display modes stay in nu.ts templates. */
+export interface EntityOptions {
+    mods?: NonNullable<BemNode['mods']>;
+    elemMods?: NonNullable<BemNode['elemMods']>;
     mix?: BemEntity | BemEntity[];
 }
 
-/** Compose a BEM tree; HTML display modes are declared in nu.ts templates. */
+/** Compose a BEM tree node; HTML display modes are declared in nu.ts templates. */
 export function b(
     block: string,
     elem?: string,
@@ -17,7 +18,7 @@ export function b(
     return { block, ...(elem ? { elem } : {}), ...entity, content, ...(Object.keys(props).length ? { props } : {}) };
 }
 
-/** Expose only the fields explicitly named by the HTML template. */
+/** Expose only the props explicitly named by an HTML template as attributes; other types are dropped. */
 export function attributes(node: BemNode, names: string[]): NonNullable<BemNode['attrs']> {
     const result: NonNullable<BemNode['attrs']> = {};
 

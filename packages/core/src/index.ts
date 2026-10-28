@@ -6,6 +6,10 @@ export { block, createBlockFor } from './bem/api.js';
 export type { BlockEntry, Selector } from './bem/api.js';
 export type { Modes, Predicate } from './bem/template-types.js';
 
+// BEMJSON composition for content code and attribute selection for nu.ts templates.
+export { b, attributes } from './bem/compose.js';
+export type { EntityOptions } from './bem/compose.js';
+
 // Consumer-owned document entry point.
 export { DocumentFacade } from './document/document.js';
 export type { DocumentAssets, DocumentData, DocumentHandler } from './document/document.js';

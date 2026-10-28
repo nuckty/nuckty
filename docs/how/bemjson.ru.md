@@ -84,6 +84,15 @@ const tree = render(page, { templates, output: 'bemjson' });
 
 Это удобно для отладки («почему страница вышла такой?») и собственных инструментов кеширования по хешу дерева. Обычная команда `nuckty build` очищает выходной каталог и собирает артефакт заново; инкрементальную сборку движок автоматически не выполняет.
 
+Для сборки узлов в коде `b(block, elem?, content?, props?, entity?)` из `@nuckty/core` создаёт `BemNode` и пропускает пустые `elem` и `props`; `entity` передаёт `mods`, `elemMods` и `mix`. Теги и атрибуты остаются в [шаблонах nu.ts](templates.ru.md):
+
+```ts
+import { b } from '@nuckty/core';
+
+const link = b('text-link', undefined, 'Документация', { href: '/docs' }, { mods: { theme: 'muted' } });
+// { block: 'text-link', mods: { theme: 'muted' }, content: 'Документация', props: { href: '/docs' } }
+```
+
 ## Откуда берётся дерево
 
 У дерева два источника.

@@ -94,6 +94,21 @@ block<{ trackId?: string }>('button')({
 
 In the control modes `replace`, `wrap`, and `def`, `next()` returns the whole node with display modes and `content` already applied. It does not call a less specific control mode. For example, a more specific `wrap` does not invoke the previous wrapper.
 
+## Attributes from props
+
+Content code passes data in `props`; the `attrs` mode of the template decides which of them become HTML attributes. `attributes(node, names)` from `@nuckty/core` copies only the listed props with string or boolean values, so an unlisted or non-scalar prop never reaches the markup:
+
+```ts
+import { block, attributes } from '@nuckty/core';
+
+export default function templates(): void {
+    block('text-link')({
+        tag: 'a',
+        attrs: (n, next) => ({ ...next(), ...attributes(n, ['href', 'hreflang']) }),
+    });
+}
+```
+
 ## Specificity
 
 Specificity adds weights by selector kind: named block 1, named element 2, block modifier 4, element modifier 8, predicate 16. Repeating a condition of the same kind does not add that weight again:
