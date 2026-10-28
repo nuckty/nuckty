@@ -17,7 +17,7 @@ cd nuckty-starter
 npm install
 ```
 
-`package.json` pins exact versions of `@nuckty/core`, the `root` document wrapper and the `serve` preview commands from public npm. Follow the [catalogue](../ext/index.md) to install other extensions at compatible versions. This project does not need sibling source repositories.
+`package.json` pins exact versions of `@nuckty/core`, the `root` document wrapper and the `serve` preview commands from public npm. Follow the [catalog](../ext/index.md) to install other extensions at compatible versions.
 
 ## 2. Build and preview the page
 
