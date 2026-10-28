@@ -11,12 +11,15 @@ permissions:
 jobs:
   paths:
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     outputs:
       native: ${{ steps.filter.outputs.native }}
       demo: ${{ steps.filter.outputs.demo }}
       packages: ${{ steps.filter.outputs.packages }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
       - uses: dorny/paths-filter@15192bc058cc28a13dbf6cde61f19e18988b7af6 # v3
         id: filter
         with:
@@ -36,8 +39,11 @@ jobs:
               - 'packages/*/package.json'
   verify:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
@@ -52,9 +58,12 @@ jobs:
   native:
     needs: paths
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         if: needs.paths.outputs.native == 'true'
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         if: needs.paths.outputs.native == 'true'
         with:
@@ -70,9 +79,12 @@ jobs:
   demo:
     needs: paths
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         if: needs.paths.outputs.demo == 'true'
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         if: needs.paths.outputs.demo == 'true'
         with:
@@ -94,13 +106,16 @@ jobs:
             demo/site-en
           include-hidden-files: true
           if-no-files-found: error
+          retention-days: 7
   changeset:
     needs: paths
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         if: github.event_name == 'pull_request' && needs.paths.outputs.packages == 'true' && !(github.event.pull_request.user.login == 'github-actions[bot]' && startsWith(github.head_ref, 'changeset-release/'))
         with:
+          persist-credentials: false
           fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         if: github.event_name == 'pull_request' && needs.paths.outputs.packages == 'true' && !(github.event.pull_request.user.login == 'github-actions[bot]' && startsWith(github.head_ref, 'changeset-release/'))
