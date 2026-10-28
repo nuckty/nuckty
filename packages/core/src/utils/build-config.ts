@@ -3,6 +3,7 @@ import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import type { BuildContext } from '../pipeline/pipeline.js';
 import { loadConfig, type SiteConfig } from './site-config.js';
+import { parseExternalSources } from './external.js';
 
 export interface BuildConfigSnapshot {
     site: SiteConfig;
@@ -27,11 +28,26 @@ function readStrings(file: string, fallback: string[] | undefined): string[] | u
     }
 }
 
+function readExternalUrls(file: string): string[] | undefined {
+    let value: unknown;
+
+    try {
+        value = JSON.parse(readFileSync(file, 'utf8'));
+    } catch (error) {
+        if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+            return undefined;
+        }
+        throw error;
+    }
+
+    return parseExternalSources(value, file).map((source) => source.url);
+}
+
 export function loadBuildConfig(cwd: string, configDir: string): BuildConfigSnapshot {
     const directory = path.resolve(cwd, configDir);
     const levels = readStrings(path.join(directory, 'levels.json'), ['content', 'blocks'])!;
     const contentDir = path.resolve(cwd, levels[0] ?? 'content');
-    const externalUrls = readStrings(path.join(directory, 'external.json'), undefined);
+    const externalUrls = readExternalUrls(path.join(directory, 'external.json'));
 
     for (const [index, url] of (externalUrls ?? []).entries()) {
         const name = url.replace(/\.git$/, '').split('/').pop() ?? '';

@@ -15,6 +15,7 @@
 
 import path from 'node:path';
 import fs from 'node:fs';
+import type { ExternalSource } from '@nuckty/core';
 
 /** One repo URL parsed into its target directory name (without `.git`). */
 export interface RepoPlan {
@@ -24,6 +25,10 @@ export interface RepoPlan {
     name: string;
     /** Destination `<externalDir>/<name>`; absolute when externalDir is absolute. */
     dir: string;
+    /** Tag or commit the working copy is pinned to; absent follows the default branch. */
+    ref?: string;
+    /** Subdirectory kept in a sparse working copy; absent keeps the whole tree. */
+    path?: string;
     /** Clone an absent destination, update a verified clean copy, or refuse
      *  an existing dirty, mismatched or unverifiable destination. Refused
      *  destinations are left untouched. */
@@ -128,12 +133,15 @@ export function getRepoName(repoUrl: string): string {
 /** Ownership and working-tree status for an existing destination. Async: the
  *  real `fsStatus` goes through simple-git; tests inject a sync map. */
 export type RepoStatusCheck = (dir: string, url?: string) => Promise<RepoStatus> | RepoStatus;
+/** Pin and sparse-checkout options of one planned repository. */
+export type CheckoutOptions = Pick<ExternalSource, 'ref' | 'path'>;
+
 /** Runs git for a planned repo. Injected so tests do not spawn git. */
 export interface GitRunner {
-    /** Clone `url` into `dir` (parent exists). Resolves on success, rejects on error. */
-    clone(url: string, dir: string): Promise<void>;
-    /** Update the copy: pull, inspect LFS, then fetch listed LFS files. */
-    update(dir: string, url?: string): Promise<void>;
+    /** Clone `url` into `dir` (parent exists), limited to `path` and checked out at `ref`. Resolves on success, rejects on error. */
+    clone(url: string, dir: string, options?: CheckoutOptions): Promise<void>;
+    /** Update the copy: move a pinned copy to `ref` or pull the branch, inspect LFS, then fetch listed LFS files. */
+    update(dir: string, url?: string, options?: CheckoutOptions): Promise<void>;
 }
 
 /**
@@ -143,13 +151,14 @@ export interface GitRunner {
  * without git and reused by the command handler with the real `fsStatus`.
  */
 export async function planRepos(
-    urls: string[],
+    sources: Array<string | ExternalSource>,
     externalDir: string,
     status: RepoStatusCheck,
 ): Promise<RepoPlan[]> {
     const plans: RepoPlan[] = [];
     const dirsByUrl = new Map<string, string>();
-    for (const url of urls) {
+    for (const source of sources) {
+        const { url, ref, path: subdirectory } = typeof source === 'string' ? { url: source } as ExternalSource : source;
         const name = getRepoName(url);
         const dir = path.join(externalDir, name);
         // CMD-08: containment — the planned directory must stay inside
@@ -189,7 +198,15 @@ export async function planRepos(
                 : st === 'unknown'
                     ? 'repository-status-unknown'
                     : undefined;
-        plans.push({ url, name, dir, action, ...(refusalReason ? { refusalReason } : {}) });
+        plans.push({
+            url,
+            name,
+            dir,
+            action,
+            ...(ref ? { ref } : {}),
+            ...(subdirectory ? { path: subdirectory } : {}),
+            ...(refusalReason ? { refusalReason } : {}),
+        });
     }
     return plans;
 }
@@ -229,12 +246,14 @@ export interface RepoResult {
 
 /**
  * Build a GitRunner backed by simple-git. Clone publishes a temporary sibling
- * after success. Update runs pull, then git lfs ls-files; only a nonempty list
- * triggers git lfs pull. LFS inspection and fetch errors fail the update.
+ * after success; a pinned or partial clone checks out `ref` and keeps only
+ * `path` in a sparse cone. Update moves a pinned copy to `ref` or pulls the
+ * branch, then runs git lfs ls-files; only a nonempty list triggers git lfs
+ * pull. LFS inspection and fetch errors fail the update.
  */
 export function makeGitRunner(loadGit: () => Promise<Pick<typeof import('simple-git'), 'simpleGit'>> = () => import('simple-git')): GitRunner {
     return {
-        async clone(url, dir) {
+        async clone(url, dir, options = {}) {
             const { simpleGit } = await loadGit();
             // Clone into a TEMP SIBLING, then rename on success (CMD-07): an
             // interrupted clone must never leave a half-finished directory
@@ -245,7 +264,16 @@ export function makeGitRunner(loadGit: () => Promise<Pick<typeof import('simple-
             fs.mkdirSync(path.dirname(dir), { recursive: true });
             const tmp = fs.mkdtempSync(`${dir}.cloning-`);
             try {
-                await simpleGit().clone(url, tmp);
+                if (options.ref || options.path) {
+                    await simpleGit().clone(url, tmp, ['--no-checkout']);
+                    const g = simpleGit(tmp);
+                    if (options.path) {
+                        await g.raw(['sparse-checkout', 'set', '--cone', '--', options.path]);
+                    }
+                    await g.raw(options.ref ? ['checkout', '--detach', options.ref, '--'] : ['checkout']);
+                } else {
+                    await simpleGit().clone(url, tmp);
+                }
                 if (fs.lstatSync(dir, { throwIfNoEntry: false })) {
                     throw new Error(`Repository destination appeared during clone: ${dir}`);
                 }
@@ -256,13 +284,26 @@ export function makeGitRunner(loadGit: () => Promise<Pick<typeof import('simple-
                 throw err;
             }
         },
-        async update(dir, url) {
+        async update(dir, url, options = {}) {
             const { simpleGit } = await loadGit();
             const g = simpleGit(dir);
             if (url && await fsStatus(dir, url) !== 'clean') {
                 throw new Error('Repository identity or clean status changed; refusing update');
             }
-            await g.pull();
+            if (options.path) {
+                await g.raw(['sparse-checkout', 'set', '--cone', '--', options.path]);
+            } else if (String(await g.raw(['config', '--bool', '--default', 'false', 'core.sparseCheckout'])).trim() === 'true') {
+                await g.raw(['sparse-checkout', 'disable']);
+            }
+            if (options.ref) {
+                await g.fetch(['--tags', 'origin']);
+                await g.raw(['checkout', '--detach', options.ref, '--']);
+            } else {
+                if (!String(await g.raw(['branch', '--show-current'])).trim()) {
+                    throw new Error('Working copy is pinned to a detached commit; set ref or remove it to follow a branch');
+                }
+                await g.pull();
+            }
             // An empty LFS listing skips the fetch. Inspection and fetch errors
             // must propagate so success does not hide missing binary assets.
             const usesLfs = String(await g.raw(['lfs', 'ls-files'])).trim().length > 0;
@@ -295,10 +336,11 @@ export async function runPlan(
             continue;
         }
         try {
+            const options: CheckoutOptions = { ...(repo.ref ? { ref: repo.ref } : {}), ...(repo.path ? { path: repo.path } : {}) };
             if (repo.action === 'clone') {
-                await runner.clone(repo.url, repo.dir);
+                await runner.clone(repo.url, repo.dir, options);
             } else if (repo.action === 'update') {
-                await runner.update(repo.dir, repo.url);
+                await runner.update(repo.dir, repo.url, options);
             } else {
                 // 'refuse': never delete or update an existing unverified copy.
                 results.push({

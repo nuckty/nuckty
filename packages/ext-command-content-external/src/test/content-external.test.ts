@@ -15,7 +15,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import fs from 'node:fs';
-import { getRepoName, planRepos, runPlan, type GitRunner, type RepoStatus } from '../content-external.js';
+import { getRepoName, planRepos, runPlan, type CheckoutOptions, type GitRunner, type RepoStatus } from '../content-external.js';
 import { register } from '../index.js';
 import type { CommandArgs, CommandHandler, CommandOptions, NucktyEnv } from '@nuckty/core';
 
@@ -152,16 +152,16 @@ test('planRepos: empty url array → empty plan (no work)', async () => {
 // ---- runPlan ----------------------------------------------------------------
 
 /** A fake runner that records calls and can be made to fail on a chosen repo. */
-function fakeRunner(failOn?: string): GitRunner & { calls: Array<{ kind: string; url?: string; dir: string }> } {
-    const calls: Array<{ kind: string; url?: string; dir: string }> = [];
+function fakeRunner(failOn?: string): GitRunner & { calls: Array<{ kind: string; url?: string; dir: string; options?: CheckoutOptions }> } {
+    const calls: Array<{ kind: string; url?: string; dir: string; options?: CheckoutOptions }> = [];
     return {
         calls,
-        async clone(url, dir) {
-            calls.push({ kind: 'clone', url, dir });
+        async clone(url, dir, options) {
+            calls.push({ kind: 'clone', url, dir, ...(options ? { options } : {}) });
             if (failOn !== undefined && dir.endsWith(failOn)) throw new Error('boom');
         },
-        async update(dir) {
-            calls.push({ kind: 'update', dir });
+        async update(dir, _url, options) {
+            calls.push({ kind: 'update', dir, ...(options ? { options } : {}) });
             if (failOn !== undefined && dir.endsWith(failOn)) throw new Error('boom');
         },
     };
@@ -281,6 +281,12 @@ for (const mode of ['empty', 'list-error', 'pull-error'] as const) {
         const fake = (() => ({
             pull: async () => {},
             raw: async (args: string[]) => {
+                if (args[0] === 'config') {
+                    return 'false';
+                }
+                if (args[0] === 'branch') {
+                    return 'main';
+                }
                 commands.push(args.join(' '));
                 if (mode === 'list-error' || args[1] === 'pull') {
                     throw new Error('LFS failure');
@@ -401,3 +407,54 @@ for (const mode of ['failed-clone', 'destination-appeared'] as const) {
         }
     });
 }
+
+test('runner pins a sparse clone to ref and moves it on update', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'nuckty-content-pinned-'));
+    const source = path.join(root, 'source');
+    const destination = path.join(root, 'external', 'source');
+    const commit = async (file: string, text: string, message: string) => {
+        await mkdir(path.dirname(path.join(source, file)), { recursive: true });
+        await writeFile(path.join(source, file), text);
+        await git('git', ['-C', source, 'add', '-A']);
+        await git('git', ['-C', source, '-c', 'user.name=fixture', '-c', 'user.email=fixture@invalid', 'commit', '-qm', message]);
+    };
+    try {
+        await git('git', ['init', '-q', source]);
+        await commit('docs/a.md', 'one', 'one');
+        await commit('other/b.md', 'other', 'other');
+        await git('git', ['-C', source, 'tag', 'v1']);
+        await commit('docs/a.md', 'two', 'two');
+        const head = (await git('git', ['-C', source, 'rev-parse', 'HEAD'])).stdout.trim();
+        const runner = makeGitRunner();
+
+        await runner.clone(source, destination, { ref: 'v1', path: 'docs' });
+        assert.deepEqual(await readdir(destination), ['.git', 'docs']);
+        assert.equal(await readFile(path.join(destination, 'docs', 'a.md'), 'utf8'), 'one');
+        assert.equal(await fsStatus(destination, source), 'clean');
+
+        await runner.update(destination, source, { ref: head, path: 'docs' });
+        assert.equal(await readFile(path.join(destination, 'docs', 'a.md'), 'utf8'), 'two');
+
+        await runner.update(destination, source, { ref: head, path: 'other' });
+        assert.deepEqual(await readdir(destination), ['.git', 'other']);
+
+        await runner.update(destination, source, { ref: head });
+        assert.deepEqual((await readdir(destination)).sort(), ['.git', 'docs', 'other']);
+
+        await assert.rejects(runner.update(destination, source), /pinned to a detached commit/);
+    } finally {
+        await rm(root, { recursive: true, force: true });
+    }
+});
+
+test('planRepos and dry-run carry ref and path of object sources', async () => {
+    const plan = await planRepos([{ url: 'https://github.com/nuckty/nuckty.git', ref: 'v1', path: 'docs' }, 'https://github.com/acme/content.git'], '/x', () => 'none');
+    assert.deepEqual(plan.map(({ name, ref, path: subdirectory }) => ({ name, ref, path: subdirectory })), [
+        { name: 'nuckty', ref: 'v1', path: 'docs' },
+        { name: 'content', ref: undefined, path: undefined },
+    ]);
+    const runner = fakeRunner();
+    await runPlan(plan, runner, false);
+    assert.deepEqual(runner.calls[0]!.options, { ref: 'v1', path: 'docs' });
+    assert.deepEqual(runner.calls[1]!.options, {});
+});

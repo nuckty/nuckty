@@ -15,7 +15,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import process from 'node:process';
-import type { NucktyEnv, CommandArgs } from '@nuckty/core';
+import { parseExternalSources, type NucktyEnv, type CommandArgs, type ExternalSource } from '@nuckty/core';
 
 /** `nuckty content-external [--dry-run]` — clone or update external content repos. */
 async function contentExternal(args: CommandArgs): Promise<number> {
@@ -38,20 +38,12 @@ async function contentExternal(args: CommandArgs): Promise<number> {
     const externalDir = path.resolve(args.cwd, 'external');
     const configPath = path.resolve(args.cwd, 'config', 'external.json');
 
-    let urls: string[] = [];
+    let sources: ExternalSource[] = [];
     if (fs.existsSync(configPath)) {
         try {
-            const parsed: unknown = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-            // CMD-09: the schema is `string[]`, the WHOLE schema. A wrong
-            // shape must fail loudly — an object or a list with non-string
-            // values used to be filtered down to [] and exit 0 ("success"
-            // while preparing nothing).
-            if (!Array.isArray(parsed) || parsed.some((u) => typeof u !== 'string')) {
-                throw new Error(
-                    'config/external.json must be a JSON array of repository URL strings',
-                );
-            }
-            urls = parsed;
+            // CMD-09: a wrong shape must fail loudly rather than prepare
+            // nothing and exit 0.
+            sources = parseExternalSources(JSON.parse(fs.readFileSync(configPath, 'utf8')));
         } catch (e) {
             process.stderr.write(`nuckty: content-external failed to parse config/external.json: ${(e as Error).message}\n`);
             return 1;
@@ -68,7 +60,7 @@ async function contentExternal(args: CommandArgs): Promise<number> {
     // `planRepos` with the real `fsStatus` (async through simple-git).
     let plan;
     try {
-        plan = await planRepos(urls, externalDir, fsStatus);
+        plan = await planRepos(sources, externalDir, fsStatus);
     } catch (error) {
         process.stderr.write(`nuckty: content-external planning failed: ${(error as Error).message}\n`);
         return 1;
@@ -77,9 +69,11 @@ async function contentExternal(args: CommandArgs): Promise<number> {
     const runner = makeGitRunner();
     const results = await runPlan(plan, runner, dryRun);
 
-    for (const r of results) {
+    for (const [index, r] of results.entries()) {
         if (dryRun) {
-            process.stdout.write(`nuckty: content-external — would ${r.action} ${r.name}\n`);
+            const { ref, path: subdirectory } = plan[index]!;
+            const detail = [ref ? `at ${ref}` : '', subdirectory ? `path ${subdirectory}` : ''].filter(Boolean).join(', ');
+            process.stdout.write(`nuckty: content-external — would ${r.action} ${r.name}${detail ? ` (${detail})` : ''}\n`);
         } else if (!r.ok) {
             process.stderr.write(`nuckty: content-external — ${r.action} ${r.name} failed: ${r.error ?? ''}\n`);
         } else {

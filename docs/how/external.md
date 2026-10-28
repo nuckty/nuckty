@@ -20,7 +20,7 @@ This mirrors [image encoding](../ext/command/convert-images.md): the engine copi
 
 Repository preparation requires `git` in `PATH`, and updates also require Git LFS; see the [preparation command](../ext/command/content-external.md).
 
-The preparation command reads the global `config/external.json`, an array of Git URLs. It accepts no target argument; a missing file or an empty array prepares nothing:
+The preparation command reads the global `config/external.json`, an array of Git URLs. An entry can pin a version and keep only one subdirectory of the repository; see the [preparation command](../ext/command/content-external.md#version-and-subdirectory). It accepts no target argument; a missing file or an empty array prepares nothing:
 
 ```json
 [

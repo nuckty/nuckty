@@ -33,6 +33,9 @@ export { getFileTimestamp, formatLastUpdated } from './utils/timestamp.js';
 // A pipeline-extension that reads source files (e.g. for mtime) resolves them
 // against the content root.
 export { getRoot, getExternalContent } from './utils/dir.js';
+// Entries of config/external.json, shared with the content-external command.
+export { parseExternalSources } from './utils/external.js';
+export type { ExternalSource } from './utils/external.js';
 
 // Programmatic pipeline.
 export { Pipeline } from './pipeline/pipeline.js';

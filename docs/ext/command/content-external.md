@@ -6,15 +6,34 @@ Populating the content root from external git repositories. The `nuckty content-
 
 [command](../../how/ext/command.md) — adds the `content-external` command via `env.commands`.
 
-It requires `git` in `PATH`. Updates also require Git LFS: after `git pull`, the command always runs `git lfs ls-files`, and runs `git lfs pull` only when LFS files are listed. An inspection or fetch error fails the update; the preceding `git pull` may already have changed the working copy.
+It requires `git` in `PATH`. Updates also require Git LFS: after `git pull` or moving a pinned copy to its `ref`, the command always runs `git lfs ls-files`, and runs `git lfs pull` only when LFS files are listed. An inspection or fetch error fails the update; the preceding pull or checkout may already have changed the working copy.
 
 ## What it does
 
-1. Reads `config/external.json` — an array of git URLs.
+1. Reads `config/external.json` — an array of Git URLs or objects with a pinned version and subdirectory (see below).
 2. Clones into `external/<repo>/`; updates an existing copy only when the origin matches and the working tree is clean. Foreign, modified, unverifiable, or symlinked copies are rejected.
 3. After preparation, add the clone as the first level in [levels.json](../../how/blocks/levels.md), and `nuckty build` reads the content from disk.
 
 The command reads only the global `config/external.json`, not a target’s `configDir`, and accepts no target name. A missing file or an empty array `[]` means there is nothing to prepare. Keep separate target lists consistent with the global file; see [external repositories](../../how/external.md).
+
+## Version and subdirectory
+
+An entry can be an object instead of a URL string:
+
+```json
+[
+    "git@github.com:acme/acme-content.git",
+    { "url": "https://github.com/nuckty/nuckty.git", "ref": "v1.0.0", "path": "docs" }
+]
+```
+
+| Field | Meaning |
+|---|---|
+| `url` | Repository URL, as in the string form. |
+| `ref` | Tag or commit to check out. The copy is detached at this ref; the next run fetches and moves it to the ref currently in the file. Without `ref`, the command pulls the default branch. |
+| `path` | Subdirectory to keep. The working copy is sparse and contains only this directory, at `external/<repo>/<path>/`. Without `path`, the whole repository is checked out. |
+
+A copy pinned to a commit stays detached. If you remove `ref` from its entry, the command refuses to update it; delete `external/<repo>/` to follow the branch again. Unknown fields, a `ref` that is not a tag or commit name, and a `path` that is absolute or contains `.` or `..` stop the command before any Git work.
 
 ## Options
 
@@ -24,7 +43,7 @@ nuckty content-external [--dry-run]
 
 | Option | Action |
 |---|---|
-| `--dry-run` | Show which repositories would be cloned, updated, or refused, without writing to disk. |
+| `--dry-run` | Show which repositories would be cloned, updated, or refused, with their `ref` and `path`, without writing to disk. |
 
 ## Why a separate command instead of part of the build
 

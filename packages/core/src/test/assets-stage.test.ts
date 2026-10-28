@@ -255,6 +255,21 @@ test('assetsStage reports available and missing repos together in a mixed config
     }
 });
 
+test('assetsStage resolves pinned partial external sources by repository name', async () => {
+    const { ctx, dir } = await makeCtx();
+    try {
+        await writeFile(path.join(dir, 'config', 'external.json'), JSON.stringify([{ url: 'https://github.com/nuckty/nuckty.git', ref: 'v1.0.0', path: 'docs' }]));
+        await mkdir(path.join(dir, 'external', 'nuckty', 'docs'), { recursive: true });
+        await writeFile(path.join(dir, 'external', 'nuckty', 'docs', 'guide.pdf'), PDF_BYTES);
+
+        await assetsStage(ctx);
+
+        assert.deepEqual(await readFile(path.join(ctx.outDir, 'guide.pdf')), PDF_BYTES);
+    } finally {
+        await rm(dir, { recursive: true, force: true });
+    }
+});
+
 test('assetsStage still copies robots.txt from config/ alongside external assets', async () => {
     const { ctx, dir } = await makeCtx();
     try {

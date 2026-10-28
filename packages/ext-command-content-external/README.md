@@ -18,7 +18,7 @@ nuckty content-external [--dry-run]
 
 ## How it works
 
-1. Reads `config/external.json` — an array of git repo URLs.
+1. Reads `config/external.json` — an array of Git repository URLs or objects `{ "url", "ref", "path" }`: `ref` pins a tag or commit, `path` keeps only that subdirectory in a sparse working copy.
 2. For each URL, resolves the repo name (last path segment without `.git`).
 3. An existing `external/<name>/` is updated only when it is the configured repository and its working tree is clean. GitHub HTTPS, SSH scp, and `ssh://` URLs for the same owner/repository are treated as the same identity; other hosts and different GitHub paths are not. Dirty, mismatched, or unverifiable copies are refused and left untouched.
 4. `--dry-run` prints the plan (`would clone <name>` / `would update <name>`).
