@@ -46,7 +46,6 @@ export function register(env: NucktyEnv): void {
       gallery.js             скрипты (лайтбокс)
   src/index.ts               register(env)
   package.json
-  AGENTS.md                  подключает nuckty-codestyle
 ```
 
 Каталог `blocks/` расширения повторяет структуру блоков сайта. Блок `gallery` лежит в `blocks/gallery/gallery.nu.ts`, как и любой блок.

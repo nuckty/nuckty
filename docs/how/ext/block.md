@@ -46,7 +46,6 @@ The extension does not register each block by name: it puts `.nu.ts` files into 
       gallery.js             scripts (lightbox)
   src/index.ts               register(env)
   package.json
-  AGENTS.md                  wires up nuckty-codestyle
 ```
 
 The extension's `blocks/` directory mirrors the structure of the site's blocks. The `gallery` block lives in `blocks/gallery/gallery.nu.ts`, just like any other block.

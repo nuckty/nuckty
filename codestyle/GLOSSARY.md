@@ -1,6 +1,6 @@
 # English terminology glossary
 
-Shared reference for all `nuckty-*` repositories; paired with `GLOSSARY.ru.md` — edit both in sync. The canonical form is in the left column; the variants on the right are not used. Code keeps English identifiers; English prose uses these terms as-is.
+Shared reference for the nuckty monorepository and its external consumers; paired with `GLOSSARY.ru.md` — edit both in sync. The canonical form is in the left column; the variants on the right are not used. Code keeps English identifiers; English prose uses these terms as-is.
 
 ## Architecture
 

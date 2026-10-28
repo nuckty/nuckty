@@ -31,7 +31,7 @@ The core provides `nuckty build [target]`. Serving, validation, deployment, and 
 
 Official extensions follow the naming convention `@nuckty/ext-<type>-<name>`, where the type is one of `pipeline`, `markdown`, `block`, `command`, `document`. The package name reads straight from its docs URL: `/ext/block/root` → `@nuckty/ext-block-root`.
 
-Third-party extensions may use any npm name, including their author’s scope; list the complete package name in `ext`. The official organization owns `@nuckty/core` and `@nuckty/ext-*`; repository names and the `nuckty` executable remain unchanged.
+Third-party extensions may use any npm name, including their author’s scope; list the complete package name in `ext`. The official organization owns `@nuckty/core` and `@nuckty/ext-*`; the CLI command is `nuckty`.
 
 ## Requirements
 
