@@ -1,5 +1,0 @@
-- [x] Add failing regression tests for explicit tags and entity matching.
-- [x] Fix the matcher and tag resolution without changing other output modes.
-- [x] Update affected expectations and paired documentation.
-- [x] Remove website and demo template predicates and verify integration.
-- [x] Run build, tests, lint and coverage.

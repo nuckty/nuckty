@@ -44,3 +44,8 @@ logs/
 .claude/
 .zcode/
 /plans/
+
+/demo/config/auth-ftp.json
+/demo/config/auth-ftp.yml
+/demo/site-en/
+/docs/report.md

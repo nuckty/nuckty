@@ -1,2 +1,0 @@
-- [x] Implement the approved change.
-- [x] Run build and relevant verification.
