@@ -33,15 +33,6 @@ export function escapeAttr(s: string): string {
     return s.replace(ATTR_ESCAPE_RE, (c) => ATTR_MAP[c]!);
 }
 
-/** Characters that must be escaped in HTML text content and `"`-quoted attr values. */
-const TEXT_RE = /&/g;
-const TEXT_MAP: Record<string, string> = { '&': '&amp;' };
-
-/** Encode ampersands only. Use escapeText/escapeAttr when writing HTML. */
-export function escapeHtml(s: string): string {
-    return s.replace(TEXT_RE, (c) => TEXT_MAP[c]!);
-}
-
 const QUOTE_TRIGGERS_RE = /[\s"'`<>=]/;
 
 /** Empty string and strings containing a trigger char must be quoted. */

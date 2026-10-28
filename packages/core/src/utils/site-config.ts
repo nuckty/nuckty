@@ -119,18 +119,6 @@ export function getRootTitle(from: string = process.cwd(), configDir?: string): 
     return loadConfig(from, configDir).rootTitle;
 }
 
-export function getContentRepo(from: string = process.cwd(), configDir?: string): string {
-    return loadConfig(from, configDir).contentRepo;
-}
-
-export function getAssetRepos(from: string = process.cwd(), configDir?: string): string[] {
-    return loadConfig(from, configDir).assetRepos;
-}
-
-export function getGithubRawBase(from: string = process.cwd(), configDir?: string): string | string[] | null {
-    return loadConfig(from, configDir).githubRawBase;
-}
-
 export function getBundles(from: string = process.cwd(), configDir?: string): string[] {
     return loadConfig(from, configDir).bundles;
 }

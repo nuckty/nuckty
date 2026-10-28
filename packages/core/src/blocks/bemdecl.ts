@@ -2,11 +2,6 @@ import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { existsSync } from 'node:fs';
 
-/** Resolve the blocks level (the one named `blocks`, else the last level). */
-export function resolveBlocksLevel(levels: string[]): string | undefined {
-    return levels.find((level) => level === 'blocks') ?? levels[levels.length - 1];
-}
-
 /**
  * Read a BEM declaration for the given bundle as a flat array of block names.
  * Missing declarations are optional. Existing invalid declarations fail rather
