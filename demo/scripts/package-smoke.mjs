@@ -19,7 +19,7 @@ const userConfig = path.join(temp, 'user.npmrc');
 const globalConfig = path.join(temp, 'global.npmrc');
 writeFileSync(userConfig, '');
 writeFileSync(globalConfig, '');
-const npm = (args, cwd) => execFileSync('npm', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, npm_config_registry: 'https://registry.npmjs.org', npm_config_userconfig: userConfig, npm_config_globalconfig: globalConfig, npm_config_cache: process.env.npm_config_cache ?? path.join(temp, 'cache') } });
+const npm = (args, cwd, timeout) => execFileSync('npm', args, { cwd, timeout, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, npm_config_registry: 'https://registry.npmjs.org', npm_config_userconfig: userConfig, npm_config_globalconfig: globalConfig, npm_config_cache: process.env.npm_config_cache ?? path.join(temp, 'cache') } });
 
 try {
     mkdirSync(consumer);
@@ -44,11 +44,11 @@ try {
     const deadline = Date.now() + 10 * 60 * 1000;
     for (;;) {
         try {
-            npm(['install', '--ignore-scripts', '--no-audit', '--no-fund'], consumer);
+            npm(['install', '--ignore-scripts', '--no-audit', '--no-fund'], consumer, Math.max(1, deadline - Date.now()));
             break;
         } catch (error) {
             if (Date.now() >= deadline) throw error;
-            await new Promise((resolve) => setTimeout(resolve, 10000));
+            await new Promise((resolve) => setTimeout(resolve, Math.min(10000, deadline - Date.now())));
         }
     }
     const lock = JSON.parse(readFileSync(path.join(consumer, 'package-lock.json'), 'utf8'));
