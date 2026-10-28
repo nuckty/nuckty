@@ -1,9 +1,23 @@
 # Release procedure
 
-Add a changeset to each pull request that changes a published package. All eleven public packages release together.
+All eleven public packages release together with one version. Changes are committed directly to `main`.
 
-The release workflow creates or updates a Version Packages pull request. Review the versions, peer dependencies, and the root English and Russian changelogs before merging it.
+## Record changes
 
-After the version pull request is merged, the release workflow publishes the packages using npm trusted publishing. It verifies the published packages in an isolated registry consumer, builds and deploys the demo, and dispatches the website update for the release channel.
+Commit each change to a published package together with a changeset: run `npm run changeset`, choose the bump level and describe the change. Changesets accumulate on `main` until the next release.
+
+## Prepare a release
+
+1. Run `npm run version-packages`. It applies the accumulated changesets: all public packages get the new version, extension peer dependencies follow the core version, and `package-lock.json` is refreshed.
+2. Review the versions and peer dependencies, then add the release entry to both root changelogs, `CHANGELOG.md` and `CHANGELOG.ru.md`.
+3. Commit and push to `main`.
+
+While `.changeset/pre.json` exists, versions are release candidates (`1.0.0-rc.N`) published under the `rc` dist-tag. Run `npx changeset pre exit` before `npm run version-packages` to release a stable version under `latest`.
+
+## Publication
+
+After CI succeeds on a `main` commit, the release workflow checks the registry. If any public package version from that commit is not yet published, it builds and publishes the missing versions using npm trusted publishing and pushes the package tags. Commits whose versions are already published do not release anything. The workflow can be rerun with `workflow_dispatch` to resume a partial publication; published versions are skipped.
+
+After publication the workflow installs the published packages in an isolated registry consumer, builds and deploys the demo from the release commit, and dispatches the website update for the release channel.
 
 Check the registry versions, dist-tag and provenance, the workflow results, both demo domains, and the website update after the release.

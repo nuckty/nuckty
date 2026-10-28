@@ -7,7 +7,6 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-  pull-requests: read
 jobs:
   paths:
     runs-on: ubuntu-24.04
@@ -15,7 +14,6 @@ jobs:
     outputs:
       native: ${{ steps.filter.outputs.native }}
       demo: ${{ steps.filter.outputs.demo }}
-      packages: ${{ steps.filter.outputs.packages }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -33,10 +31,6 @@ jobs:
               - 'demo/**'
               - 'packages/**'
               - 'package-lock.json'
-            packages:
-              - 'packages/*/src/**'
-              - 'packages/*/blocks/**'
-              - 'packages/*/package.json'
   verify:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -107,22 +101,3 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
-  changeset:
-    needs: paths
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        if: github.event_name == 'pull_request' && needs.paths.outputs.packages == 'true' && !(github.event.pull_request.user.login == 'github-actions[bot]' && startsWith(github.head_ref, 'changeset-release/'))
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        if: github.event_name == 'pull_request' && needs.paths.outputs.packages == 'true' && !(github.event.pull_request.user.login == 'github-actions[bot]' && startsWith(github.head_ref, 'changeset-release/'))
-        with:
-          node-version: 24
-      - if: github.event_name == 'pull_request' && needs.paths.outputs.packages == 'true' && !(github.event.pull_request.user.login == 'github-actions[bot]' && startsWith(github.head_ref, 'changeset-release/'))
-        run: |
-          npm ci
-          npx changeset status --since=origin/main --output=/tmp/changeset-status.json
-          node -e 'if (!JSON.parse(require("fs").readFileSync("/tmp/changeset-status.json")).releases.length) process.exit(1)'
