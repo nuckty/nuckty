@@ -1,0 +1,27 @@
+{
+    "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
+    "changelog": false,
+    "commit": false,
+    "fixed": [
+        [
+            "@nuckty/core",
+            "@nuckty/ext-block-gallery",
+            "@nuckty/ext-block-grid",
+            "@nuckty/ext-block-root",
+            "@nuckty/ext-command-content-external",
+            "@nuckty/ext-command-convert-images",
+            "@nuckty/ext-command-deploy-ftp",
+            "@nuckty/ext-command-serve",
+            "@nuckty/ext-command-validate-vnu",
+            "@nuckty/ext-markdown-typography-ru",
+            "@nuckty/ext-markdown-video"
+        ]
+    ],
+    "linked": [],
+    "access": "public",
+    "baseBranch": "main",
+    "updateInternalDependencies": "patch",
+    "ignore": [
+        "@nuckty/demo"
+    ]
+}
