@@ -1,4 +1,4 @@
-# review-round2 Specification
+# output-integrity Specification
 
 ## Purpose
 Preserve authored values and output integrity across rendering, routing, assets and image conversion.
