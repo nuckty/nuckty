@@ -7,11 +7,20 @@
         "url": "git+https://github.com/nuckty/nuckty.git",
         "directory": "packages/ext-markdown-typography-ru"
     },
+    "homepage": "https://nuckty.com/ext/markdown/typography-ru",
+    "bugs": {
+        "url": "https://github.com/nuckty/nuckty/issues"
+    },
     "publishConfig": {
         "registry": "https://registry.npmjs.org",
         "access": "public"
     },
     "description": "nuckty markdown-extension: Russian em-dash + nbsp typography",
+    "keywords": [
+        "nuckty",
+        "nuckty-extension",
+        "nuckty-markdown-extension"
+    ],
     "type": "module",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -36,5 +45,8 @@
     "author": {
         "name": "Vitaly Harisov",
         "email": "vitaly@harisov.name"
+    },
+    "engines": {
+        "node": ">=24"
     }
 }

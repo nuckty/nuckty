@@ -2,6 +2,13 @@
     "name": "@nuckty/core",
     "version": "1.0.0-rc.0",
     "description": "All static site generators suck. This one just sucks less. BEMJSON template engine, programmatic pipeline, multi-target builds.",
+    "keywords": [
+        "nuckty",
+        "static-site-generator",
+        "bemjson",
+        "markdown",
+        "ssg"
+    ],
     "license": "MIT",
     "type": "module",
     "repository": {
@@ -9,11 +16,14 @@
         "url": "git+https://github.com/nuckty/nuckty.git",
         "directory": "packages/core"
     },
+    "homepage": "https://nuckty.com",
+    "bugs": {
+        "url": "https://github.com/nuckty/nuckty/issues"
+    },
     "publishConfig": {
         "registry": "https://registry.npmjs.org",
         "access": "public"
     },
-    "homepage": "https://github.com/nuckty",
     "bin": {
         "nuckty": "dist/bin/nuckty.js"
     },

@@ -7,11 +7,20 @@
         "url": "git+https://github.com/nuckty/nuckty.git",
         "directory": "packages/ext-command-deploy-ftp"
     },
+    "homepage": "https://nuckty.com/ext/command/deploy-ftp",
+    "bugs": {
+        "url": "https://github.com/nuckty/nuckty/issues"
+    },
     "publishConfig": {
         "registry": "https://registry.npmjs.org",
         "access": "public"
     },
     "description": "nuckty command-extension: deploy a built site over FTP/FTPS",
+    "keywords": [
+        "nuckty",
+        "nuckty-extension",
+        "nuckty-command-extension"
+    ],
     "type": "module",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -34,5 +43,8 @@
     "author": {
         "name": "Vitaly Harisov",
         "email": "vitaly@harisov.name"
+    },
+    "engines": {
+        "node": ">=24"
     }
 }

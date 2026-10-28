@@ -7,11 +7,20 @@
         "url": "git+https://github.com/nuckty/nuckty.git",
         "directory": "packages/ext-block-gallery"
     },
+    "homepage": "https://nuckty.com/ext/block/gallery",
+    "bugs": {
+        "url": "https://github.com/nuckty/nuckty/issues"
+    },
     "publishConfig": {
         "registry": "https://registry.npmjs.org",
         "access": "public"
     },
     "description": "nuckty block+markdown-extension: image gallery with lightbox via :::gallery",
+    "keywords": [
+        "nuckty",
+        "nuckty-extension",
+        "nuckty-block-extension"
+    ],
     "type": "module",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -32,5 +41,8 @@
     "author": {
         "name": "Vitaly Harisov",
         "email": "vitaly@harisov.name"
+    },
+    "engines": {
+        "node": ">=24"
     }
 }

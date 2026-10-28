@@ -7,11 +7,20 @@
         "url": "git+https://github.com/nuckty/nuckty.git",
         "directory": "packages/ext-command-serve"
     },
+    "homepage": "https://nuckty.com/ext/command/serve",
+    "bugs": {
+        "url": "https://github.com/nuckty/nuckty/issues"
+    },
     "publishConfig": {
         "registry": "https://registry.npmjs.org",
         "access": "public"
     },
     "description": "nuckty command-extension: serve the built site locally + stop",
+    "keywords": [
+        "nuckty",
+        "nuckty-extension",
+        "nuckty-command-extension"
+    ],
     "type": "module",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -31,5 +40,8 @@
     "author": {
         "name": "Vitaly Harisov",
         "email": "vitaly@harisov.name"
+    },
+    "engines": {
+        "node": ">=24"
     }
 }
