@@ -1,0 +1,6 @@
+sitemap:
+  - nuckty in action [/, index.en.md, { layout: "landing" }]
+  - Markdown and links [/markdown, markdown.en.md]
+  - Gallery and grid [/media, media.en.md]
+  - Live engine [/playground, playground.en.md]
+  - Build output [/output, output.en.md]

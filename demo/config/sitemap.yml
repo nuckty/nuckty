@@ -1,0 +1,6 @@
+sitemap:
+  - Возможности nuckty [/, index.md, { layout: "landing" }]
+  - Markdown и ссылки [/markdown, markdown.md]
+  - Галерея и сетка [/media, media.md]
+  - Живой движок [/playground, playground.md]
+  - Результат сборки [/output, output.md]

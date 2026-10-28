@@ -1,0 +1,13 @@
+{
+    "@nuckty/core": "1.0.0-beta3",
+    "@nuckty/ext-block-gallery": "1.0.0-beta3",
+    "@nuckty/ext-block-grid": "1.0.0-beta3",
+    "@nuckty/ext-block-root": "1.0.0-beta3",
+    "@nuckty/ext-command-content-external": "1.0.0-beta3",
+    "@nuckty/ext-command-convert-images": "1.0.0-beta3",
+    "@nuckty/ext-command-deploy-ftp": "1.0.0-beta3",
+    "@nuckty/ext-command-serve": "1.0.0-beta3",
+    "@nuckty/ext-command-validate-vnu": "1.0.0-beta3",
+    "@nuckty/ext-markdown-typography-ru": "1.0.0-beta3",
+    "@nuckty/ext-markdown-video": "1.0.0-beta3"
+}

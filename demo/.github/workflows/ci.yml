@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          path: nuckty-demo
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: nuckty-demo/package-lock.json
+      - name: Require system Java before installing validator dependencies
+        run: java -version
+      - name: Verify both language artifacts
+        working-directory: nuckty-demo
+        run: |
+          npm ci --no-audit --no-fund --registry=https://registry.npmjs.org
+          npm run lint
+          npm run build
+          npm test
+          npm run validate
+      - name: Audit demo lockfile
+        working-directory: nuckty-demo
+        run: npm audit --package-lock-only --audit-level=low --registry=https://registry.npmjs.org
+      - name: Verify smoke snapshot boundaries
+        working-directory: nuckty-demo
+        run: npm run test:copy-filter
+      - name: Verify clean demo install and build
+        working-directory: nuckty-demo
+        run: npm_config_cache="$(npm config get cache)" npm run test:clean-install
+      - name: Verify all published package boundaries
+        working-directory: nuckty-demo
+        run: npm_config_cache="$(npm config get cache)" npm run test:package
+      - name: Save RU static site
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: nuckty-demo-ru-${{ github.sha }}
+          path: nuckty-demo/site/
+          include-hidden-files: true
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+      - name: Save EN static site
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: nuckty-demo-en-${{ github.sha }}
+          path: nuckty-demo/site-en/
+          include-hidden-files: true
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+      - name: Deploy verified static artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          DEPLOY_KEY: ${{ secrets.NUCKTY_DEPLOY_KEY }}
+          DEPLOY_HOST: ${{ vars.NUCKTY_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ vars.NUCKTY_DEPLOY_USER }}
+          KNOWN_HOSTS: ${{ vars.NUCKTY_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_KEY" && test -n "$DEPLOY_HOST" && test -n "$DEPLOY_USER" && test -n "$KNOWN_HOSTS"
+          stage="$(mktemp -d)"
+          trap 'rm -rf "$stage"' EXIT
+          umask 077
+          printf '%s\n' "$DEPLOY_KEY" > "$stage/key"
+          printf '%s\n' "$KNOWN_HOSTS" > "$stage/known_hosts"
+          cp -a nuckty-demo/site "$stage/ru"
+          cp -a nuckty-demo/site-en "$stage/en"
+          tar -C "$stage" -czf - ru en | ssh -i "$stage/key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$stage/known_hosts" "$DEPLOY_USER@$DEPLOY_HOST" "deploy $GITHUB_SHA $GITHUB_RUN_ID"

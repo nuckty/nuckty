@@ -1,0 +1,68 @@
+name: Update published packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Verified npm release channel
+        required: true
+        type: choice
+        options: [beta, latest]
+
+concurrency:
+  group: update-published-packages
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  update:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Resolve compatible published package versions
+        env:
+          RELEASE_CHANNEL: ${{ inputs.channel }}
+        run: node scripts/update-packages.mjs "$RELEASE_CHANNEL"
+      - name: Detect dependency changes
+        id: changes
+        run: |
+          if git diff --quiet -- package.json package-lock.json config/config-packages.json; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Verify compatible registry install and consumer
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          java -version
+          npm ci --no-audit --no-fund --registry=https://registry.npmjs.org --strict-peer-deps
+          npm audit --package-lock-only --audit-level=low --registry=https://registry.npmjs.org
+          npm run build
+          npm run lint
+          npm test
+          npm run validate
+          npm run test:copy-filter
+          npm_config_cache="$(npm config get cache)" npm run test:clean-install
+          npm_config_cache="$(npm config get cache)" npm run test:package
+      - name: Commit verified dependency inputs and dispatch deployment CI
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json package-lock.json config/config-packages.json
+          git commit -m 'Update verified npm releases'
+          git -c credential.helper='!gh auth git-credential' push origin HEAD:main
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref main

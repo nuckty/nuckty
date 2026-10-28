@@ -1,0 +1,3 @@
+- [x] Implement restricted artifact deployment and CI ordering.
+- [x] Test archive validation, rollback and language artifacts.
+- [x] Configure HTTPS and receiver health checks for all four domains.
