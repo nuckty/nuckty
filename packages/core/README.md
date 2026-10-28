@@ -12,10 +12,10 @@ The core provides `nuckty build [target]`. Serving, validation, deployment, and 
 
 ## Ecosystem
 
-| Repository | Role |
+| Package or directory | Role |
 |---|---|
-| [`nuckty`](https://github.com/nuckty/nuckty) | **Core** — the `nuckty build` engine. This repo. |
-| [`nuckty-codestyle`](https://github.com/nuckty/nuckty/tree/main/codestyle) | Shared code and documentation rules for all `nuckty-*` repos. |
+| [`@nuckty/core`](https://github.com/nuckty/nuckty/tree/main/packages/core) | **Core** — the `nuckty build` engine. This package. |
+| [`codestyle`](https://github.com/nuckty/nuckty/tree/main/codestyle) | Shared code and documentation rules. |
 | [`@nuckty/ext-block-root`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-root) | Extension: HTML page shell (`root`). |
 | [`@nuckty/ext-block-gallery`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-gallery) | Extension: image gallery + lightbox. |
 | [`@nuckty/ext-command-deploy-ftp`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-deploy-ftp) | Extension: FTP deploy via manifest sync. |
@@ -26,8 +26,8 @@ The core provides `nuckty build [target]`. Serving, validation, deployment, and 
 | [`@nuckty/ext-markdown-typography-ru`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-typography-ru) | Russian typography. |
 | [`@nuckty/ext-command-content-external`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-content-external) | Prepare external content repositories. |
 | [`@nuckty/ext-command-convert-images`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-convert-images) | Prepare AVIF/WebP image variants. |
-| [`nuckty-demo`](https://github.com/nuckty/nuckty/tree/main/demo) | Quick-start demo consumer. |
-| [`nuckty-docs`](https://github.com/nuckty/nuckty/tree/main/docs) | Source content for the documentation site. |
+| [`demo`](https://github.com/nuckty/nuckty/tree/main/demo) | Feature showcase built from all official packages. |
+| [`docs`](https://github.com/nuckty/nuckty/tree/main/docs) | Source content for the documentation site. |
 
 Official extensions follow the naming convention `@nuckty/ext-<type>-<name>`, where the type is one of `pipeline`, `markdown`, `block`, `command`, `document`. The package name reads straight from its docs URL: `/ext/block/root` → `@nuckty/ext-block-root`.
 
@@ -50,9 +50,9 @@ Content hashes use truncated MD5 for filenames and change detection, not authent
 
 The project's MIT license covers its own code. Installed dependencies keep their licenses, including Lightning CSS (MPL-2.0) and sharp's native libvips (LGPL-3.0-or-later). Preserve applicable upstream notices and distribution obligations when redistributing them.
 
-## Public-site CI
+## Releases
 
-Publishing a versioned GitHub Release starts npm publication after verification of that commit's successful main CI. Website and demo update exact registry dependencies only after public package integrity is confirmed and deploy after their checks pass. See [npm release operation and trusted publisher setup](.github/RELEASING.md).
+All official packages live in the [nuckty monorepository](https://github.com/nuckty/nuckty) and release together with one version. After publication the release workflow verifies the packages from the public registry, deploys the demo and updates the website. See the [release procedure](https://github.com/nuckty/nuckty/blob/main/RELEASE.md).
 
 ## License
 

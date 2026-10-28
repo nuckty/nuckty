@@ -12,10 +12,10 @@ nuckty — генератор статических сайтов для док�
 
 ## Экосистема
 
-| Репозиторий | Роль |
+| Пакет или каталог | Роль |
 |---|---|
-| [`nuckty`](https://github.com/nuckty/nuckty) | **Ядро** — движок `nuckty build`. Этот репозиторий. |
-| [`nuckty-codestyle`](https://github.com/nuckty/nuckty/tree/main/codestyle) | Общие правила кода и документации для всех репозиториев `nuckty-*`. |
+| [`@nuckty/core`](https://github.com/nuckty/nuckty/tree/main/packages/core) | **Ядро** — движок `nuckty build`. Этот пакет. |
+| [`codestyle`](https://github.com/nuckty/nuckty/tree/main/codestyle) | Общие правила кода и документации. |
 | [`@nuckty/ext-block-root`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-root) | Расширение: обёртка страницы (`root`). |
 | [`@nuckty/ext-block-gallery`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-gallery) | Расширение: галерея изображений + лайтбокс. |
 | [`@nuckty/ext-command-deploy-ftp`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-deploy-ftp) | Расширение: публикация по FTP с синхронизацией по манифесту. |
@@ -26,8 +26,8 @@ nuckty — генератор статических сайтов для док�
 | [`@nuckty/ext-markdown-typography-ru`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-typography-ru) | Русская типографика. |
 | [`@nuckty/ext-command-content-external`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-content-external) | Подготовка внешних репозиториев контента. |
 | [`@nuckty/ext-command-convert-images`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-convert-images) | Подготовка вариантов AVIF/WebP. |
-| [`nuckty-demo`](https://github.com/nuckty/nuckty/tree/main/demo) | Демо-проект для быстрого старта. |
-| [`nuckty-docs`](https://github.com/nuckty/nuckty/tree/main/docs) | Исходный контент сайта документации. |
+| [`demo`](https://github.com/nuckty/nuckty/tree/main/demo) | Витрина возможностей, собранная из всех официальных пакетов. |
+| [`docs`](https://github.com/nuckty/nuckty/tree/main/docs) | Исходный контент сайта документации. |
 
 Официальные расширения следуют соглашению `@nuckty/ext-<тип>-<имя>`, где тип — один из `pipeline`, `markdown`, `block`, `command`, `document`. Имя пакета читается прямо из его URL в документации: `/ext/block/root` → `@nuckty/ext-block-root`.
 
@@ -50,9 +50,9 @@ CLI сам загружает конфигурацию на TypeScript. Отде
 
 Лицензия MIT проекта относится к его собственному коду. Установленные зависимости сохраняют свои лицензии, в том числе Lightning CSS (MPL-2.0) и нативный libvips в sharp (LGPL-3.0-or-later). При распространении этих зависимостей сохраняйте применимые уведомления и выполняйте условия исходных проектов.
 
-## CI публичных сайтов
+## Выпуски
 
-Публикация GitHub Release с версией запускает выпуск в npm после проверки успешного CI для этого коммита в main. Сайт и демо обновляют точные зависимости из реестра после подтверждения контрольной суммы публичного пакета и выполняют деплой после своих проверок. См. [порядок выпуска и настройку trusted publisher](.github/RELEASING.ru.md).
+Все официальные пакеты находятся в [монорепозитории nuckty](https://github.com/nuckty/nuckty) и выпускаются вместе с одной версией. После публикации workflow выпуска проверяет пакеты из публичного реестра, выкладывает демо и обновляет сайт. См. [порядок выпуска](https://github.com/nuckty/nuckty/blob/main/RELEASE.md).
 
 ## Лицензия
 

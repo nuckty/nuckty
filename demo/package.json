@@ -4,7 +4,8 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git@github.com:nuckty/nuckty-demo.git"
+        "url": "git+https://github.com/nuckty/nuckty.git",
+        "directory": "demo"
     },
     "private": true,
     "description": "Interactive nuckty feature showcase and package integration consumer.",
