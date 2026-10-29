@@ -79,3 +79,18 @@ test('later BEM declaration levels override blocks and normalize object dependen
         await rm(dir, { recursive: true, force: true });
     }
 });
+
+test('object declarations expand elem and elems into element entities', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-bemdecl-elems-'));
+    try {
+        await mkdir(path.join(dir, 'blocks', 'page'), { recursive: true });
+        await writeFile(path.join(dir, 'blocks', 'package.json'), JSON.stringify({ type: 'commonjs' }));
+        await writeFile(path.join(dir, 'blocks', 'page', 'page.bemdecl.js'), "module.exports = ['root', { block: 'menu', elem: 'item' }, { block: 'nav', elems: ['link', 'icon'] }, { block: 'card', elem: ['title', 'body'] }];\n");
+        assert.deepEqual(readBemDeclaration('page', dir, ['blocks']), ['root', 'menu__item', 'nav', 'nav__link', 'nav__icon', 'card__title', 'card__body']);
+
+        await writeFile(path.join(dir, 'blocks', 'page', 'page.bemdecl.js'), "module.exports = [{ block: 'menu', mods: { theme: 'dark' } }];\n");
+        assert.throws(() => readBemDeclaration('page', dir, ['blocks']), /Unknown dependency field "mods"/);
+    } finally {
+        await rm(dir, { recursive: true, force: true });
+    }
+});

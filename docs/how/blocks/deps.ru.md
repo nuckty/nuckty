@@ -20,7 +20,7 @@ module.exports = {
 };
 ```
 
-Файл читается как CommonJS. Запись — строка (`'menu'`) или объект (`{ block: 'menu' }`); допустим и плоский массив (`module.exports = ['root', 'docs-layout', 'menu']`), и объект с `mustDeps`/`shouldDeps` — оба списка объединяются в один.
+Файл читается как CommonJS. Запись — строка, блок `'menu'` или элемент `'menu__item'`, либо объект: `{ block: 'menu' }` обозначает блок, `{ block: 'menu', elem: 'item' }` — только этот элемент (`elem` может быть массивом), а `{ block: 'menu', elems: ['item', 'link'] }` — блок и перечисленные элементы; другие поля вызывают ошибку. Элементы добавляют свои файлы `menu/__item/menu__item.css` и `.js`; допустим и плоский массив (`module.exports = ['root', 'docs-layout', 'menu']`), и объект с `mustDeps`/`shouldDeps` — оба списка объединяются в один.
 
 ## Список плоский, без транзитивности
 

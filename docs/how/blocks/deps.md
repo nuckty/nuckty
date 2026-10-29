@@ -20,7 +20,7 @@ module.exports = {
 };
 ```
 
-The file is read as CommonJS. An entry is a string (`'menu'`) or an object (`{ block: 'menu' }`); a flat array (`module.exports = ['root', 'docs-layout', 'menu']`) and an object with `mustDeps`/`shouldDeps` are both valid — the two lists are merged into one.
+The file is read as CommonJS. An entry is a string — a block `'menu'` or an element `'menu__item'` — or an object: `{ block: 'menu' }` names the block, `{ block: 'menu', elem: 'item' }` only that element (`elem` may be an array), and `{ block: 'menu', elems: ['item', 'link'] }` the block and those elements; other fields are an error. Elements contribute their `menu/__item/menu__item.css` and `.js` files; a flat array (`module.exports = ['root', 'docs-layout', 'menu']`) and an object with `mustDeps`/`shouldDeps` are both valid — the two lists are merged into one.
 
 ## The list is flat, with no transitivity
 

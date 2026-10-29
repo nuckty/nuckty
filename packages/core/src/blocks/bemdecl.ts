@@ -48,19 +48,51 @@ export function readBemDeclaration(
     }
 }
 
+function nonEmptyName(value: unknown, what: string): string {
+    if (typeof value !== 'string' || value.trim() === '') {
+        throw new Error(`Each dependency must name ${what}`);
+    }
+
+    return value;
+}
+
+/**
+ * Bundle entity names from declaration entries. A string names a block or a
+ * `block__elem` element. An object `{ block }` names the block; `{ block, elem }`
+ * names only that element (or each of an `elem` array); `{ block, elems }`
+ * names the block and each listed element, as in BEM deps.
+ */
 function dependencyNames(value: unknown): string[] {
     if (!Array.isArray(value)) {
         throw new Error('Dependencies must be an array');
     }
 
-    const names = value.map((entry: unknown) => {
-        const name = entry && typeof entry === 'object' && 'block' in entry ? entry.block : entry;
+    const names = value.flatMap((entry: unknown): string[] => {
+        if (!entry || typeof entry !== 'object') {
+            return [nonEmptyName(entry, 'a block')];
+        }
+        const record = entry as Record<string, unknown>;
+        const block = nonEmptyName(record['block'], 'a block');
+        const unknownKey = Object.keys(record).find((key) => !['block', 'elem', 'elems'].includes(key));
 
-        if (typeof name !== 'string' || name.trim() === '') {
-            throw new Error('Each dependency must name a block');
+        if (unknownKey !== undefined) {
+            throw new Error(`Unknown dependency field ${JSON.stringify(unknownKey)}`);
+        }
+        const elements = (field: string): string[] => {
+            const list = record[field];
+
+            if (list === undefined) {
+                return [];
+            }
+
+            return (Array.isArray(list) ? list : [list]).map((elem) => `${block}__${nonEmptyName(elem, 'an element')}`);
+        };
+
+        if (record['elem'] !== undefined) {
+            return elements('elem');
         }
 
-        return name;
+        return [block, ...elements('elems')];
     });
 
     return [...new Set(names)];
