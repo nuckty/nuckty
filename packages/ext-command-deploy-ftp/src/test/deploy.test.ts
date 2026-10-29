@@ -139,7 +139,7 @@ async function fixture(run: (dir: string, server: Server) => Promise<void>, entr
     }
 }
 
-function deploy(dir: string, server: Server, opts: { force?: boolean; dryRun?: boolean } = {}) {
+function deploy(dir: string, server: Server, opts: { force?: boolean; allowMassDelete?: boolean; dryRun?: boolean } = {}) {
     return ftpDeploy({ outDir: dir, auth, ...opts }, { createClient: server.createClient, retryDelayMs: 0 });
 }
 
@@ -152,7 +152,7 @@ test('force uploads same-size changed bytes before manifest and preserves deleti
         server.files.set('/site/a.txt', Buffer.from('OLD'));
         server.files.set('/site/orphan', Buffer.from('x'));
         server.manifest({ 'a.txt': { size: 3, hash: 'old' } });
-        const result = await deploy(dir, server, { force: true });
+        const result = await deploy(dir, server, { force: true, allowMassDelete: true });
 
         assert.deepEqual(mutations(server), ['remove:manifest.json', 'upload:a.txt', 'remove:orphan', 'upload:manifest.json']);
         assert.equal(server.files.get('/site/a.txt')?.toString(), 'NNN');
@@ -288,7 +288,7 @@ test('delete errors and false delete acknowledgments do not publish manifest', a
             server.files.set('/site/orphan', Buffer.from('x'));
             server.failRemove = !ignored;
             server.ignoreRemove = ignored;
-            await assert.rejects(deploy(dir, server, { force: true }), /manifest not uploaded|Manifest not uploaded/);
+            await assert.rejects(deploy(dir, server, { force: true, allowMassDelete: true }), /manifest not uploaded|Manifest not uploaded/);
             assert.ok(!server.calls.includes('upload:manifest.json'));
         });
     }
@@ -390,14 +390,14 @@ test('CLI parser and deploy handler preserve target order and reject unsafe bool
             flags: Record<string, string | boolean>;
         };
     };
-    const calls: Array<{ outDir: string; dryRun?: boolean; force?: boolean }> = [];
+    const calls: Array<{ outDir: string; dryRun?: boolean; force?: boolean; allowMassDelete?: boolean }> = [];
     const config = {
         targets: {
             production: { configDir: 'config/', outDir: 'public/' },
             staging: { configDir: 'config/', outDir: 'preview/' },
         },
     } as CommandArgs['config'];
-    const fakeFtpDeploy = async (options: { outDir: string; dryRun?: boolean; force?: boolean }) => {
+    const fakeFtpDeploy = async (options: { outDir: string; dryRun?: boolean; force?: boolean; allowMassDelete?: boolean }) => {
         calls.push(options);
         return {
             stats: { uploaded: 0, deleted: 0, errors: 0, zipUploaded: 0, totalSize: 0, startTime: null, endTime: null },
@@ -405,7 +405,7 @@ test('CLI parser and deploy handler preserve target order and reject unsafe bool
         };
     };
     const invoke = async (tokens: string[]) => {
-        const parsed = parseArgs(['deploy-ftp', ...tokens], { booleanFlags: ['dry-run', 'force'] });
+        const parsed = parseArgs(['deploy-ftp', ...tokens], { booleanFlags: ['dry-run', 'force', 'allow-mass-delete'] });
 
         return deployFtp({
             positional: parsed.positional.slice(1),
@@ -419,11 +419,13 @@ test('CLI parser and deploy handler preserve target order and reject unsafe bool
     assert.equal(await invoke(['--dry-run', 'staging']), 0);
     assert.equal(await invoke(['--dry-run=true', 'staging', '--force=false']), 0);
     assert.equal(await invoke(['staging', '--dry-run=false', '--force=true']), 0);
+    assert.equal(await invoke(['staging', '--allow-mass-delete']), 0);
     assert.deepEqual(calls, [
-        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, dryRun: true, progress: true },
-        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, dryRun: true, progress: true },
-        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, dryRun: true, progress: true },
-        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: true, dryRun: false, progress: true },
+        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true, progress: true },
+        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true, progress: true },
+        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true, progress: true },
+        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: true, allowMassDelete: false, dryRun: false, progress: true },
+        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: true, dryRun: false, progress: true },
     ]);
 
     calls.length = 0;
@@ -471,5 +473,16 @@ test('an interrupted deploy cannot leave stale hashes that hide a same-size serv
         await deploy(dir, server);
         assert.equal(server.files.get('/site/a.txt')?.toString(), 'NNN');
         assert.ok(mutations(server).includes('upload:a.txt'));
+    });
+});
+
+test('force re-uploads but keeps the mass-deletion guard; only allowMassDelete lifts it', async () => {
+    await fixture(async (dir, server) => {
+        server.files.set('/site/a.txt', Buffer.from('NNN'));
+        server.files.set('/site/orphan', Buffer.from('x'));
+        await assert.rejects(deploy(dir, server, { force: true }), /Safety abort.*--allow-mass-delete/);
+        assert.deepEqual(mutations(server), []);
+        await deploy(dir, server, { allowMassDelete: true });
+        assert.ok(mutations(server).includes('remove:orphan'));
     });
 });

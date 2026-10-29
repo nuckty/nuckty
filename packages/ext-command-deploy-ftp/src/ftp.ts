@@ -81,6 +81,8 @@ export interface DeployOpts {
     cwd?: string;
     /** Re-upload every file regardless of the diff. */
     force?: boolean;
+    /** Allow deleting more remote files than the mass-deletion guard permits. */
+    allowMassDelete?: boolean;
     /** Read remote state and print the diff without uploads, deletions or directory creation. */
     dryRun?: boolean;
     /** Print progress to stdout. Defaults to `auth.progress`. */
@@ -622,7 +624,7 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
     const cwd = opts.cwd ?? process.cwd();
     const auth = opts.auth ?? loadAuthConfig(cwd);
     const progress = opts.progress ?? auth.progress;
-    const { force = false, dryRun = false } = opts;
+    const { force = false, allowMassDelete = false, dryRun = false } = opts;
 
     const state: DeployState = {
         client: null, stats: emptyStats(), auth,
@@ -678,10 +680,10 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
             comparison.unchanged = [];
             comparison.totalUnchanged = 0;
         }
-        if (!force && shouldSafetyAbort(comparison.totalToDelete, Object.keys(serverFiles).length)) {
+        if (!allowMassDelete && shouldSafetyAbort(comparison.totalToDelete, Object.keys(serverFiles).length)) {
             throw new Error(
                 `Safety abort: would delete ${comparison.totalToDelete} of ${Object.keys(serverFiles).length} files (>30%). ` +
-                'Run with --force to override.',
+                'Run with --allow-mass-delete to override.',
             );
         }
 

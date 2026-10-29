@@ -9,11 +9,12 @@ A command extension for [nuckty](https://github.com/nuckty/nuckty). It publishes
 One CLI command, registered through `env.commands`:
 
 ```
-nuckty deploy-ftp [target] [--force] [--dry-run]
+nuckty deploy-ftp [target] [--force] [--allow-mass-delete] [--dry-run]
 ```
 
 - `target` — selects a target from `config/config-nuckty.ts`; no argument selects the first declared target, and unknown names fail before connecting.
-- `--force` — uploads every local file and bypasses the mass-deletion guard; orphan deletion remains enabled.
+- `--force` — uploads every local file without comparing hashes; the mass-deletion guard still applies.
+- `--allow-mass-delete` — allows deleting more remote files than the guard permits.
 - `--dry-run` — reads the server and reports the plan without changing local or remote files.
 
 ## How it works
@@ -27,7 +28,7 @@ nuckty deploy-ftp [target] [--force] [--dry-run]
 
 ### Mass-deletion guard
 
-If the share of files to delete exceeds a threshold (default 30%), the command stops and points to `--force` — to protect against an accidental wipe.
+If the share of files to delete exceeds a threshold (default 30%), the command stops and points to `--allow-mass-delete` — to protect against an accidental wipe.
 
 ## Credentials
 
@@ -52,7 +53,7 @@ export default defineNucktyConfig({
 
 ## Contract
 
-`register(env: NucktyEnv)` registers the command through `env.commands.add` and declares `force` and `dry-run` as boolean flags.
+`register(env: NucktyEnv)` registers the command through `env.commands.add` and declares `force`, `allow-mass-delete` and `dry-run` as boolean flags.
 
 ## Spec
 

@@ -13,7 +13,7 @@ The command reads [manifest.json](../../out/assets.md) from the built artifact, 
 1. **File list** — a recursive `LIST` request returns a "path → size" mapping that the command checks files against.
 2. **Server manifest** — without `--force`, an existing `manifest.json` is downloaded for hash comparison. If absent, all local files are uploaded; `--force` skips its download.
 3. **Change calculation** — the command finds new, changed, and deleted files. Hashes are compared only when sizes match.
-4. **Accidental-wipe protection** — if the share of deleted files exceeds a threshold (30% by default), the command stops and suggests using `--force`.
+4. **Accidental-wipe protection** — if the share of deleted files exceeds a threshold (30% by default), the command stops and suggests `--allow-mass-delete`.
 5. **Upload** — only the changed files. Passive mode; plain FTP by default, explicit FTPS when enabled. After each upload, the command attempts `MFMT` to preserve modification time; unsupported timestamp restoration does not stop deployment.
 6. **Deleting extra files on the server** — files no longer present in the artifact are deleted (`manifest.json` is left alone).
 7. **Verify and retry** — after the transfer, the command runs `LIST` again and retries the upload on failure.
@@ -22,13 +22,14 @@ The command reads [manifest.json](../../out/assets.md) from the built artifact, 
 ## Options
 
 ```
-nuckty deploy-ftp [target] [--force] [--dry-run]
+nuckty deploy-ftp [target] [--force] [--allow-mass-delete] [--dry-run]
 ```
 
 | Option | Action |
 |---|---|
 | `target` | Target name from `config-nuckty.ts`. Without an argument — the first target. |
-| `--force` | Upload every local file and bypass the mass-deletion guard; orphan deletion remains enabled. |
+| `--force` | Upload every local file without comparing hashes; the mass-deletion guard still applies. |
+| `--allow-mass-delete` | Allow deleting more remote files than the guard permits. |
 | `--dry-run` | Show what would be uploaded or deleted, without performing the real actions. |
 
 `--dry-run` connects and reads server state without changing files. Publication is not atomic: transferred files may remain after a later failure; the final manifest is sent only after successful operations.

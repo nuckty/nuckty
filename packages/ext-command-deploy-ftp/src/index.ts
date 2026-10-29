@@ -15,13 +15,13 @@ import type { DeployOpts, DeployResult } from './ftp.js';
 
 export type FtpDeploy = (options: DeployOpts) => Promise<DeployResult>;
 
-/** `nuckty deploy-ftp [target] [--force] [--dry-run]` — deploy the built site over FTP. */
+/** `nuckty deploy-ftp [target] [--force] [--allow-mass-delete] [--dry-run]` — deploy the built site over FTP. */
 export async function deployFtp(args: CommandArgs, inject?: { ftpDeploy?: FtpDeploy }): Promise<number> {
     // Lazy-import the ftp logic so `register(env)` does not pull `basic-ftp` —
     // only an actual `nuckty deploy-ftp` invocation pays that import cost (and
     // needs basic-ftp installed in the consumer, not the core).
     const target = args.positional[0];
-    const unknownFlags = Object.keys(args.flags).filter((name) => !['force', 'dry-run'].includes(name));
+    const unknownFlags = Object.keys(args.flags).filter((name) => !['force', 'allow-mass-delete', 'dry-run'].includes(name));
 
     if (unknownFlags.length > 0) {
         process.stderr.write(`nuckty: deploy-ftp failed: unknown option(s): ${unknownFlags.map((name) => `--${name}`).join(', ')}\n`);
@@ -35,10 +35,12 @@ export async function deployFtp(args: CommandArgs, inject?: { ftpDeploy?: FtpDep
         return 1;
     }
     let force: boolean;
+    let allowMassDelete: boolean;
     let dryRun: boolean;
 
     try {
         force = readBooleanFlag(args.flags, 'force');
+        allowMassDelete = readBooleanFlag(args.flags, 'allow-mass-delete');
         dryRun = readBooleanFlag(args.flags, 'dry-run');
     } catch (error) {
         process.stderr.write(`nuckty: deploy-ftp failed: ${(error as Error).message}\n`);
@@ -61,6 +63,7 @@ export async function deployFtp(args: CommandArgs, inject?: { ftpDeploy?: FtpDep
             outDir,
             cwd: args.cwd,
             force,
+            allowMassDelete,
             dryRun,
             progress: true,
         });
@@ -74,7 +77,7 @@ export async function deployFtp(args: CommandArgs, inject?: { ftpDeploy?: FtpDep
     }
 }
 
-function readBooleanFlag(flags: CommandArgs['flags'], name: 'force' | 'dry-run'): boolean {
+function readBooleanFlag(flags: CommandArgs['flags'], name: 'force' | 'allow-mass-delete' | 'dry-run'): boolean {
     const value = flags[name];
 
     if (value === undefined) {
@@ -113,7 +116,7 @@ export function register(env: NucktyEnv): void {
         'deploy-ftp',
         'deploy the built site over FTP/FTPS',
         deployFtp,
-        { booleanFlags: ['force', 'dry-run'] },
+        { booleanFlags: ['force', 'allow-mass-delete', 'dry-run'] },
     );
 }
 
