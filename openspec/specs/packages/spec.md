@@ -53,3 +53,15 @@ Registry installation SHALL retry until all published versions are available, wi
 #### Scenario: Publication propagation delay
 - **WHEN** an exact version is temporarily unavailable after publication
 - **THEN** verification retries within the bounded interval without republishing
+
+### Requirement: Latest dist-tag promotion
+The release workflow SHALL accept a manual `promote-latest` input on `main` that names an exact version. It SHALL verify that every public package has that version before any write, move only the `latest` dist-tag through npm trusted publishing without long-lived tokens, and read every package's dist-tags back, waiting for registry propagation and honoring Retry-After on 429 without retrying permission errors. Promotion SHALL NOT publish packages, create Git tags, deploy the demo or update the website, and an ordinary manual run without the input SHALL keep its publishing behavior.
+
+#### Scenario: Promote a release candidate
+- **WHEN** the workflow runs on `main` with `promote-latest` set to `1.0.0-rc.1`
+- **THEN** `latest` of all eleven packages reads back as `1.0.0-rc.1`
+- **AND** their `rc` and `beta` tags are unchanged
+
+#### Scenario: Version missing from one package
+- **WHEN** one package has no such version
+- **THEN** the run fails before changing any dist-tag

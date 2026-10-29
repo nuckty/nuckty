@@ -21,3 +21,7 @@ After CI succeeds on a `main` commit, the release workflow checks the registry. 
 After publication the workflow installs the published packages in an isolated registry consumer, builds and deploys the demo from the release commit, and dispatches the website update for the release channel.
 
 Check the registry versions, dist-tag and provenance, the workflow results, both demo domains, and the website update after the release.
+
+## Promote a version to latest
+
+Release candidates are published under `rc`. To make an already published version the default install, run the release workflow manually on `main` with `promote-latest` set to that exact version, for example `1.0.0-rc.1`. The run checks that every public package has the version, moves only `latest` through npm trusted publishing and reads every package's dist-tags back; `rc` and `beta` stay unchanged. It publishes nothing, creates no tags and deploys nothing. The trusted publisher of each package needs the npm dist-tag permission.

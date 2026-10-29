@@ -49,6 +49,7 @@ jobs:
       - run: npm test
       - run: node docs/scripts/check-source-links.mjs
       - run: node docs/scripts/check-pages.mjs
+      - run: node --test scripts/*.test.mjs
       - run: cmp logo/nuckty-logo-black-transparent.svg demo/blocks/brand/brand.svg && node scripts/check-imports.mjs
   native:
     needs: paths

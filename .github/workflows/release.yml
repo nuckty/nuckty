@@ -5,6 +5,12 @@ on:
     branches: [main]
     types: [completed]
   workflow_dispatch:
+    inputs:
+      promote-latest:
+        description: Move the latest dist-tag of every package to this already published version; leave empty to publish
+        required: false
+        type: string
+        default: ''
 concurrency:
   group: release
   cancel-in-progress: false
@@ -13,7 +19,7 @@ env:
   RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
 jobs:
   release:
-    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    if: (github.event_name == 'workflow_dispatch' && inputs.promote-latest == '') || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     environment: npm
@@ -120,3 +126,26 @@ jobs:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           CHANNEL: ${{ needs.release.outputs.channel }}
         run: gh api --method POST repos/nuckty/nuckty-site/actions/workflows/update-packages.yml/dispatches -f ref=main -f "inputs[channel]=$CHANNEL"
+  promote-latest:
+    if: github.event_name == 'workflow_dispatch' && inputs.promote-latest != '' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm install --global npm@11.21.1
+      - name: Keep npm configuration free of token credentials
+        run: printf 'registry=https://registry.npmjs.org/\n' > "$NPM_CONFIG_USERCONFIG"
+      - name: Promote the published version to latest
+        env:
+          PROMOTE_VERSION: ${{ inputs.promote-latest }}
+        run: node scripts/promote-latest.mjs
