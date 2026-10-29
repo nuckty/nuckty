@@ -154,7 +154,7 @@ test('force uploads same-size changed bytes before manifest and preserves deleti
         server.manifest({ 'a.txt': { size: 3, hash: 'old' } });
         const result = await deploy(dir, server, { force: true });
 
-        assert.deepEqual(mutations(server), ['upload:a.txt', 'remove:orphan', 'upload:manifest.json']);
+        assert.deepEqual(mutations(server), ['remove:manifest.json', 'upload:a.txt', 'remove:orphan', 'upload:manifest.json']);
         assert.equal(server.files.get('/site/a.txt')?.toString(), 'NNN');
         assert.equal(result.comparison.toUpload[0]?.reason, 'force');
         assert.ok(server.clients.every((client) => client.closed));
@@ -267,15 +267,14 @@ test('depth-two and sibling directories upload relative to saved root, including
     }, { 'html/sub/a.txt': { size: 3, hash: 'h' }, 'html/other/b.txt': { size: 3, hash: 'h' } });
 });
 
-test('same-size upload failure leaves old manifest; a subsequent run retries the content', async () => {
+test('same-size upload failure removes the old manifest; a subsequent run retries the content', async () => {
     await fixture(async (dir, server) => {
         server.files.set('/site/a.txt', Buffer.from('OLD'));
         server.manifest({ 'a.txt': { size: 3, hash: 'old' } });
-        const old = server.files.get('/site/manifest.json');
 
         server.failUpload = 'a.txt';
         await assert.rejects(deploy(dir, server), /Manifest not uploaded/);
-        assert.equal(server.files.get('/site/manifest.json'), old);
+        assert.equal(server.files.has('/site/manifest.json'), false);
         server.failUpload = '';
         server.calls = [];
         await deploy(dir, server);
@@ -377,7 +376,7 @@ test('same-size remote content without a hash entry is uploaded rather than assu
         server.files.set('/site/a.txt', Buffer.from('OLD'));
         server.manifest({});
         await deploy(dir, server);
-        assert.deepEqual(mutations(server), ['upload:a.txt', 'upload:manifest.json']);
+        assert.deepEqual(mutations(server), ['remove:manifest.json', 'upload:a.txt', 'upload:manifest.json']);
     });
 });
 
@@ -454,4 +453,23 @@ test('malformed target output never invokes FTP or falls back to site', async (t
         assert.equal(code, 1);
         assert.equal(calls, 0);
     }
+});
+
+test('an interrupted deploy cannot leave stale hashes that hide a same-size server file', async () => {
+    await fixture(async (dir, server) => {
+        const local = createHash('md5').update(Buffer.alloc(3, 78)).digest('hex').slice(0, 16);
+        server.files.set('/site/a.txt', Buffer.from('NNN'));
+        server.manifest({ 'a.txt': { size: 3, hash: local } });
+
+        server.failUpload = 'a.txt';
+        server.files.set('/site/a.txt', Buffer.from('XXX'));
+        await assert.rejects(deploy(dir, server, { force: true }), /Manifest not uploaded/);
+        assert.equal(server.files.has('/site/manifest.json'), false);
+
+        server.failUpload = '';
+        server.calls = [];
+        await deploy(dir, server);
+        assert.equal(server.files.get('/site/a.txt')?.toString(), 'NNN');
+        assert.ok(mutations(server).includes('upload:a.txt'));
+    });
 });

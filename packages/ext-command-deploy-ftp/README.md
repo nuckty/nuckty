@@ -23,7 +23,7 @@ nuckty deploy-ftp [target] [--force] [--dry-run]
 3. Without `--force`, downloads a manifest when the complete listing contains it; a failed download or invalid manifest aborts. Absence is determined by the listing, not an FTP error code. `--force` skips the download and uploads every local file.
 4. Computes uploads and deletions, applies the mass-deletion guard, creates upload directories and transfers content. Failed uploads stop the deployment before deletions.
 5. Deletes orphans, verifies the complete listing and retries missing or mismatched uploads. Upload, deletion or verification failures prevent publication of the manifest.
-6. Uploads `manifest.json` last; a failed manifest transfer fails the command. This is not an atomic publication of the entire site: files already transferred remain on the server if a later operation fails.
+6. Removes the server `manifest.json` before the first change, so an interrupted run leaves none and the next run uploads every file, and uploads the new `manifest.json` last; a failed manifest transfer fails the command. This is not an atomic publication of the entire site: files already transferred remain on the server if a later operation fails.
 
 ### Mass-deletion guard
 

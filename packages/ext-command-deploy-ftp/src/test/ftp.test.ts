@@ -484,7 +484,7 @@ test('CMD-04 pin: no argument = first declared target; unknown explicit name fai
 });
 
 test('CMD-04 pin: an empty config fails clearly (no implicit site/ fallback)', () => {
-    assert.throws(() => resolveOutDir({ targets: {}, ext: [] } as never, undefined, '/p'), /no targets/);
+    assert.throws(() => resolveOutDir({ targets: {}, ext: [] } as never, undefined, '/p'), /at least one target/);
 });
 for (const name of ['constructor', 'toString', '__proto__']) {
     test(`FTP diff handles ${name} as an own filename rather than a prototype entry`, () => {

@@ -17,7 +17,7 @@ The command reads [manifest.json](../../out/assets.md) from the built artifact, 
 5. **Upload** — only the changed files. Passive mode; plain FTP by default, explicit FTPS when enabled. After each upload, the command attempts `MFMT` to preserve modification time; unsupported timestamp restoration does not stop deployment.
 6. **Deleting extra files on the server** — files no longer present in the artifact are deleted (`manifest.json` is left alone).
 7. **Verify and retry** — after the transfer, the command runs `LIST` again and retries the upload on failure.
-8. **Manifest last** — `manifest.json` is uploaded after all files have been transferred successfully.
+8. **Manifest last** — before the first change on the server the old `manifest.json` is removed, and the new one is uploaded after all files have been transferred successfully. An interrupted deploy leaves no manifest, so the next run uploads every file instead of trusting stale hashes.
 
 ## Options
 

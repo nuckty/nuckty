@@ -71,3 +71,11 @@ The public FTP comparison helper SHALL use own dictionary keys for local manifes
 #### Scenario: Prototype-like orphan and new file
 - **WHEN** constructor or another inherited object name is absent from the own local/server records
 - **THEN** orphan deletion and new-file classification remain correct
+
+### Requirement: Interrupted deploy invalidates the server manifest
+Before the first upload or deletion, a non-dry-run deploy SHALL remove an existing server manifest. A deploy interrupted before the new manifest is uploaded SHALL therefore leave no manifest, and the next deploy SHALL upload every local file instead of trusting stale hashes.
+
+#### Scenario: Same-size file after an interrupted deploy
+- **WHEN** a deploy fails after changing the server and a server file now has the local size but different bytes
+- **THEN** no server manifest remains
+- **AND** the next deploy uploads that file

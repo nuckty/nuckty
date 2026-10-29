@@ -10,7 +10,7 @@
 
 import path from 'node:path';
 import process from 'node:process';
-import type { NucktyEnv, CommandArgs } from '@nuckty/core';
+import { resolveTarget, type NucktyEnv, type CommandArgs } from '@nuckty/core';
 import type { DeployOpts, DeployResult } from './ftp.js';
 
 export type FtpDeploy = (options: DeployOpts) => Promise<DeployResult>;
@@ -90,31 +90,19 @@ function readBooleanFlag(flags: CommandArgs['flags'], name: 'force' | 'dry-run')
 }
 
 /**
- * Resolve the target's `outDir` from the loaded config. Contract (CMD-04):
- * no argument selects the first declared target; an
- * EXPLICIT unknown name is a hard error — a typo must never silently deploy
- * another target's artifact. There is no implicit `site/` fallback: consumers
- * declare their targets in `defineNucktyConfig`.
+ * Resolve the target's `outDir` from the loaded config with the core target
+ * rules: no argument selects the first declared target, and an explicit
+ * unknown name is a hard error, so a typo never deploys another target's
+ * artifact. There is no implicit `site/` fallback.
  */
 export function resolveOutDir(
     config: CommandArgs['config'],
     target: string | undefined,
     cwd: string,
 ): string {
-    const targets = config.targets ?? {};
-    const names = Object.keys(targets);
-    const name = target ?? names[0];
-    if (name === undefined) {
-        throw new Error('nuckty: no targets declared in the config — nothing to deploy');
-    }
-    const t = targets[name];
-    if (!Object.hasOwn(targets, name) || !t) {
-        throw new Error(
-            `nuckty: unknown target "${target}". Known: ${names.join(', ')}`,
-        );
-    }
+    const t = resolveTarget({ ...config, targets: config.targets ?? {} }, target);
     if (typeof t.outDir !== 'string' || t.outDir.trim() === '') {
-        throw new Error(`nuckty: target "${name}" must declare a nonempty outDir`);
+        throw new Error(`nuckty: target "${t.name}" must declare a nonempty outDir`);
     }
 
     return path.resolve(cwd, t.outDir);

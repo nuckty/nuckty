@@ -696,6 +696,13 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
             }
         }
 
+        // The server manifest describes the last committed deploy. Remove it
+        // before the first change, so an interrupted deploy is never compared
+        // against stale hashes; the next run then uploads every file.
+        if (!dryRun && !noServerManifest && (comparison.totalToUpload > 0 || comparison.totalToDelete > 0)) {
+            await state.client!.remove(MANIFEST_FILE);
+        }
+
         // Upload changed/new files. First upload into each remote directory
         // creates it (CMD-03): `uploadFrom` does not create parents.
         const ensuredDirs = new Set<string>();
@@ -842,8 +849,8 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
             // errors would mark failed files as deployed — size-based
             // verification cannot catch a same-size failure, and the next run
             // would diff against the committed manifest and skip the retry.
-            // Refuse to upload it when anything failed; the next deploy
-            // re-diffs against the OLD remote manifest and re-uploads.
+            // Refuse to upload it when anything failed; the old remote manifest
+            // was removed before the first change, so the next deploy re-uploads.
             if (state.stats.errors > 0) {
                 throw new Error(
                     `Manifest not uploaded: ${state.stats.errors} error(s) during ` +
@@ -854,11 +861,8 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
             if (JSON.stringify(await loadLocalManifest(artifactRoot)) !== JSON.stringify(localManifest)) {
                 throw new Error('Local manifest changed during deployment; manifest not uploaded');
             }
+            // Re-hash every file: content changed during the transfer must not be committed.
             await preflightFiles(artifactRoot, localManifest);
-            const localManifestPath = fileMap.get(MANIFEST_FILE);
-            if (!localManifestPath) {
-                throw new Error('Invalid local artifact file: manifest.json');
-            }
             const finalManifestPath = await preflightArtifactFile(artifactRoot, MANIFEST_FILE, undefined, true);
             if (!(await uploadFile(state, finalManifestPath, MANIFEST_FILE, false))) {
                 throw new Error('Manifest upload failed — deploy not committed');
