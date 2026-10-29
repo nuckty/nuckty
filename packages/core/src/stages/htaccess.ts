@@ -6,17 +6,19 @@ import type { Stage, BuildContext } from '../pipeline/pipeline.js';
 export function generateHtaccess(_root: string): string {
     return `DirectoryIndex index.html
 
+# The site's own /404 page answers missing routes, as in the nginx configuration
+ErrorDocument 404 /404
+
 RewriteEngine On
 
 # Block direct codec URLs, allowing internal negotiation and error documents.
+# Match the decoded, normalized path so encoded and dot-segment forms are covered.
 RewriteCond %{ENV:REDIRECT_STATUS} ^$
-RewriteCond %{THE_REQUEST} "[ ]/+((brotli|gzip)(/|[ ?]))" [NC]
-RewriteRule .* - [R=404,L]
+RewriteRule ^(brotli|gzip)(/|$) - [R=404,L,NC]
 
 # Block direct access to .html files with 404
 RewriteCond %{ENV:REDIRECT_STATUS} ^$
-RewriteCond %{THE_REQUEST} "[ ]/+[^ ?]*\\.html(?:[ ?])" [NC]
-RewriteRule .* - [R=404,L]
+RewriteRule \\.html$ - [R=404,L,NC]
 
 # The deployment manifest is read over FTP, not served to visitors.
 # Match the decoded, normalized path so encoded and dot-segment forms are covered.

@@ -68,6 +68,7 @@ for (const server of ['nginx', 'apache']) {
             'html/index.html': '<title>ROOT</title>',
             'html/404.html': marker,
             'html/a_b.html': 'NESTED',
+            'html/_start.html': '<title>UNDERSCORE PAGE</title>',
             'css/aaaaaaaaaaaaaaaa.css': 'body{color:red}',
             'css/dddddddddddddddd.css': 'body{color:blue}',
             'js/bbbbbbbbbbbbbbbb.js': 'console.log(1)',
@@ -102,7 +103,7 @@ for (const server of ['nginx', 'apache']) {
             }
         }
         await fs.rm(path.join(out, 'brotli/dddddddddddddddd.css.br'));
-        await write('.htaccess', `${generateHtaccess(out)}\nErrorDocument 404 /404\n`);
+        await write('.htaccess', generateHtaccess(out));
         const config = path.join(root, `${server}.conf`);
         let binary: string;
         let args: string[];
@@ -220,10 +221,21 @@ Options FollowSymLinks
                 assert.equal(response.status, 200);
                 assert.equal(response.body, body);
             }
+            for (const url of ['/_c5555555555555555', '/_j6666666666666666', '/_s7777777777777777']) {
+                const hashed = await request(port, url, {});
+                assert.match(hashed.headers['cache-control'] ?? '', /immutable/, url);
+                assert.equal((hashed.headers['cache-control'] ?? '').match(/immutable/g)?.length, 1, url);
+            }
+            for (const url of ['/_start', '/?utm_content=banner.png']) {
+                const page = await request(port, url, {});
+                assert.equal(page.status, 200, url);
+                assert.match(page.headers['cache-control'] ?? '', /no-cache/, url);
+                assert.doesNotMatch(page.headers['cache-control'] ?? '', /immutable/, url);
+            }
             const queryRoute = await request(port, '/?download=guide.html', {});
             assert.equal(queryRoute.status, 200, 'query must not trigger direct HTML denial');
             assert.equal(queryRoute.body, files['html/index.html']);
-            for (const url of ['/missing', '/missing/nested', '/missing.txt', '/404.html', '/manifest.json', '/MANIFEST.json', '/manifest%2ejson', '/%6danifest.json', '/./manifest.json', '/x/../manifest.json', '/a/b/c/d/e/f', '/brotli/aaaaaaaaaaaaaaaa.css.br', '/gzip/aaaaaaaaaaaaaaaa.css.gz']) {
+            for (const url of ['/missing', '/missing/nested', '/missing.txt', '/404.html', '/manifest.json', '/manifest%2Ejson', '/./manifest.json', '/index%2Ehtml', '/%62rotli/aaaaaaaaaaaaaaaa.css.br', '/MANIFEST.json', '/manifest%2ejson', '/%6danifest.json', '/./manifest.json', '/x/../manifest.json', '/a/b/c/d/e/f', '/brotli/aaaaaaaaaaaaaaaa.css.br', '/gzip/aaaaaaaaaaaaaaaa.css.gz']) {
                 for (const encoding of ['identity', 'gzip', 'br']) {
                     const response = await request(port, url, { 'Accept-Encoding': encoding });
                     assert.equal(response.status, 404, url);

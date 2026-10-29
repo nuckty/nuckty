@@ -5,10 +5,12 @@ import { generateHtaccess } from '../stages/htaccess.js';
 const config = generateHtaccess('/artifact');
 
 test('Apache rejects direct HTML, codec and manifest requests only outside internal error handling', () => {
-    assert.match(config, /RewriteCond %\{ENV:REDIRECT_STATUS\} \^\$\nRewriteCond %\{THE_REQUEST\}/);
-    assert.equal(config.split('RewriteCond %{ENV:REDIRECT_STATUS} ^$').length, 4);
-    assert.ok(config.includes('RewriteRule ^manifest\\.json$ - [R=404,L,NC]'));
-    assert.match(config, /brotli\|gzip/);
+    // Each block matches the decoded per-directory path behind the internal-redirect guard.
+    for (const rule of ['RewriteRule ^(brotli|gzip)(/|$) - [R=404,L,NC]', 'RewriteRule \\.html$ - [R=404,L,NC]', 'RewriteRule ^manifest\\.json$ - [R=404,L,NC]']) {
+        assert.ok(config.includes(`RewriteCond %{ENV:REDIRECT_STATUS} ^$\n${rule}`), rule);
+    }
+    assert.doesNotMatch(config, /THE_REQUEST/);
+    assert.match(config, /^ErrorDocument 404 \/404$/m);
 });
 
 test('Apache encoding and modern image negotiation excludes zero quality and partial tokens', () => {

@@ -176,8 +176,8 @@ http {
     # Detect hashed static files for cache control
     map $request_uri $is_hashed_static {
         default                                 0;
-        ~*\\.(css|js|svg|jpg|jpeg|png|gif|ico|avif|webp|mp4)(?:[?].*)?$ 1;
-        ~*^/_[cjs]                              1;
+        ~*^[^?]*\\.(css|js|svg|jpg|jpeg|png|gif|ico|avif|webp|mp4)(?:[?].*)?$ 1;
+        ~*^/_[cjs][a-f0-9]+(?:[?].*)?$          1;
     }
 
     map $is_hashed_static $expires_time {
@@ -250,7 +250,6 @@ http {
             add_header Vary "Accept-Encoding" always;
             add_header Content-Encoding $encoding_header always;
             default_type image/svg+xml;
-            add_header Cache-Control "public,immutable" always;
         }
 
         # Hash-prefixed CSS files (_c*) with compression support
@@ -282,7 +281,6 @@ http {
             add_header Vary "Accept-Encoding" always;
             add_header Content-Encoding $encoding_header always;
             default_type text/css;
-            add_header Cache-Control "public,immutable" always;
         }
 
         # Hash-prefixed JS files (_j*) with compression support
@@ -314,7 +312,6 @@ http {
             add_header Vary "Accept-Encoding" always;
             add_header Content-Encoding $encoding_header always;
             default_type application/javascript;
-            add_header Cache-Control "public,immutable" always;
         }
 
         # CSS files with pre-compression
