@@ -332,7 +332,7 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
             const remarkPlugins = ctx.env.markdown.list();
             if (remarkPlugins.length > 0) mdOpts.remarkPlugins = remarkPlugins as MarkdownOptions['remarkPlugins'];
             const directives = ctx.env.markdown.directiveMappings();
-            if (directives.size > 0) mdOpts.directiveMappings = directives as unknown as MarkdownOptions['directiveMappings'];
+            if (directives.size > 0) mdOpts.directiveMappings = directives;
             const renderer = createMarkdown(mdOpts);
             const { tree, headings } = renderer.render(content);
             // lastUpdated: git commit timestamp of the source .md, formatted

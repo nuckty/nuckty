@@ -27,19 +27,9 @@ import { toString } from 'mdast-util-to-string';
 import { buildHierarchicalAnchor } from './anchors.js';
 import { transformImagePathShared } from './image-mapping.js';
 import type { BemNode, BEMTree } from '../bem/types.js';
+import type { DirectiveConverters, DirectiveHandler, DirectiveNode } from '../env/env.js';
 
-/** Converters a directive handler uses to render its children with this page's resolution. */
-export interface DirectiveConverters {
-    inline(children: unknown[]): BEMTree;
-    blocks(children: unknown[]): BEMTree;
-}
-
-/** A directive handler maps a directive node to a BemNode (or null → fallback). */
-export type DirectiveHandler = (
-    node: { name: string; children?: unknown[]; attributes?: Record<string, string> },
-    env: unknown,
-    convert: DirectiveConverters,
-) => BemNode | null;
+export type { DirectiveHandler } from '../env/env.js';
 
 export interface RemarkOptions {
     /** Map of original image paths → hashed filenames (built by the images stage). */
@@ -223,8 +213,7 @@ function blocksToBem(
             // back to its plain content.
             case 'containerDirective': {
                 const d = node as unknown as { children?: Root['children']; name: string; attributes?: Record<string, string> };
-                const handler = env.directiveMappings?.get(d.name);
-                const rendered = handler ? handler(d, env, directiveConverters(env)) : null;
+                const rendered = invokeDirective(d, 'containerDirective', env);
                 if (rendered) out.push(rendered);
                 else if (d.children && d.children.length > 0) {
                     for (const c of blocksToBem(d.children, env, false)) out.push(c);
@@ -235,8 +224,7 @@ function blocksToBem(
             // plain content (openspec: unknown directive → plain content).
             case 'leafDirective': {
                 const d = node as unknown as { children?: Root['children']; name: string; attributes?: Record<string, string> };
-                const handler = env.directiveMappings?.get(d.name);
-                const rendered = handler ? handler(d, env, directiveConverters(env)) : null;
+                const rendered = invokeDirective(d, 'leafDirective', env);
                 if (rendered) out.push(rendered);
                 else if (d.children && d.children.length > 0) {
                     for (const c of phrasingToBem(d.children as unknown as PhrasingContent[], env)) out.push(c as BemNode);
@@ -258,12 +246,51 @@ function blocksToBem(
     return out;
 }
 
-/** Converters handed to directive handlers, bound to the current bridge env. */
+const BLOCK_TYPES = new Set(['paragraph', 'heading', 'list', 'listItem', 'blockquote', 'code', 'table', 'thematicBreak', 'containerDirective', 'leafDirective', 'footnoteDefinition', 'definition']);
+const converters = new WeakMap<BridgeEnv, DirectiveConverters>();
+
+/** Converters handed to directive handlers, created once per bridge env. */
 function directiveConverters(env: BridgeEnv): DirectiveConverters {
-    return {
-        inline: (children) => phrasingToBem(children as PhrasingContent[], env) as BEMTree,
-        blocks: (children) => blocksToBem(children as Root['children'], env, false),
-    };
+    let convert = converters.get(env);
+    if (!convert) {
+        convert = {
+            inline: (children) => {
+                const block = (children as Array<{ type?: string }>).find((child) => BLOCK_TYPES.has(child.type ?? ''));
+                if (block) {
+                    throw new Error(`convert.inline received block node ${block.type}; use convert.blocks`);
+                }
+                return phrasingToBem(children as PhrasingContent[], env) as BEMTree;
+            },
+            blocks: (children) => blocksToBem(children as Root['children'], env, false),
+        };
+        converters.set(env, convert);
+    }
+    return convert;
+}
+
+/**
+ * Call the registered handler for a directive. A handler that declines with
+ * null may already have converted children; restore the page's heading and id
+ * state so the plain-content fallback does not register them twice.
+ */
+function invokeDirective(
+    node: { name: string; children?: unknown[]; attributes?: Record<string, string> },
+    type: NonNullable<DirectiveNode['type']>,
+    env: BridgeEnv,
+): BemNode | null {
+    const handler = env.directiveMappings?.get(node.name);
+    if (!handler) return null;
+    const headings = env.headings.length;
+    const generatedIds = new Set(env.generatedIds);
+    const headingStack = [...env.headingStack];
+    const rendered = handler({ ...node, type }, env, directiveConverters(env));
+    if (!rendered) {
+        env.headings.length = headings;
+        env.generatedIds = generatedIds;
+        env.headingStack.splice(0, env.headingStack.length, ...headingStack);
+        return null;
+    }
+    return rendered as BemNode;
 }
 
 function headingToBem(node: Heading, env: BridgeEnv): BemNode {
@@ -507,7 +534,7 @@ function phrasingToBem(
             }
             case 'textDirective': {
                 const d = node as unknown as { name: string; children?: PhrasingContent[]; attributes?: Record<string, string> };
-                const rendered = env.directiveMappings?.get(d.name)?.(d, env, directiveConverters(env));
+                const rendered = invokeDirective(d, 'textDirective', env);
                 if (rendered) {
                     out.push(rendered);
                 } else if (d.children?.length) {

@@ -23,7 +23,7 @@ Third column.
 :::
 ```
 
-Each child paragraph with text or an image becomes a `grid__item` rendered like an ordinary paragraph: links, emphasis, inline code and images keep their markup, and images use the hashed files. Child lists and headings cause an error. An empty container falls back to content. Without the extension, the engine processes the directive's Markdown normally.
+Each child paragraph with text or an image, and each HTML block, becomes a `grid__item` rendered like ordinary content: links, emphasis, inline code and images keep their markup, and images use the hashed files. Child lists and headings cause an error. An empty container falls back to content. Without the extension, the engine processes the directive's Markdown normally.
 
 ## Behavior
 

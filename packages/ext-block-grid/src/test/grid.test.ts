@@ -102,3 +102,15 @@ test('leaf and text grid directives fall back to plain content instead of failin
     assert.match(html, /лист/);
     assert.match(html, /grid__item/);
 });
+
+test('cells holding only a reference image or inline img HTML are kept', () => {
+    const env = new NucktyEnv();
+    registerExtension(env);
+    const templateSet = new Templates();
+    runWithTemplates(templateSet, gridTemplates);
+    const parser = createMarkdown({ directiveMappings: env.markdown.directiveMappings(), imageMapping: { 'logo.png': 'abcdef0123456789.png' }, sourceFile: 'index.md' });
+    const html = render(parser.render(':::grid\n![Logo][logo]\n\n<img src="x.png" alt="X">\n:::\n\n[logo]: logo.png\n').tree, { templates: templateSet });
+
+    assert.equal(html.match(/grid__item/g)?.length, 2, html);
+    assert.match(html, /src=\/abcdef0123456789\.png alt=Logo/);
+});

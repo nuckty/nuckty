@@ -193,8 +193,12 @@ A directive handler SHALL receive the directive form as `type`: `containerDirect
 - **THEN** the directive falls back to its plain content
 
 ### Requirement: Directive child converters
-A directive handler SHALL receive a third argument with `inline(children)` and `blocks(children)`, which render mdast children to BEMJSON with the same link, anchor and image resolution as the page's ordinary Markdown.
+A directive handler SHALL receive a third argument with `inline(children)` and `blocks(children)`, which render mdast children to BEMJSON with the same link, anchor and image resolution as the page's ordinary Markdown. `inline` SHALL reject block nodes with an error naming the node. The converters SHALL be created once per page render. When a handler returns null, headings, generated anchors and the heading stack recorded during its conversions SHALL be restored before the plain-content fallback.
 
 #### Scenario: Handler renders an image child
 - **WHEN** a handler calls `convert.inline` with an image node whose file is in the image mapping
 - **THEN** the result contains an img node pointing at the hashed file
+
+#### Scenario: Handler converts and then declines
+- **WHEN** a handler converts a `## Intro` heading with `convert.blocks` and returns null
+- **THEN** the page lists `Intro` once and its anchor is `intro`

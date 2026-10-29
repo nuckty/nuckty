@@ -110,13 +110,6 @@ export interface DirectiveNode {
     attributes?: Record<string, string>;
 }
 
-/**
- * A directive handler maps a directive node to a `BemNode`. Returns `null` to
- * fall back to the directive's plain content (openspec `markdown` spec:
- * unknown directive → plain content, no break). The `env` is the markdown
- * bridge environment the remark processor carries (image mapping, page input
- * path, …) — opaque to the core contract.
- */
 /** Converters a directive handler uses to render its mdast children with the page's link and image resolution. */
 export interface DirectiveConverters {
     /** Render inline (phrasing) children: text, emphasis, links, images, inline code. */
@@ -125,6 +118,15 @@ export interface DirectiveConverters {
     blocks(children: unknown[]): BEMTree;
 }
 
+/**
+ * A directive handler maps a directive node to a `BemNode`. Returns `null` to
+ * fall back to the directive's plain content (openspec `markdown` spec:
+ * unknown directive → plain content, no break). The `env` is the markdown
+ * bridge environment the remark processor carries (image mapping, page input
+ * path, …) — opaque to the core contract. `convert` renders the directive's
+ * children with the page's link and image resolution; `inline` rejects block
+ * nodes. When the handler returns `null`, page state from conversions is reset.
+ */
 export type DirectiveHandler = (node: DirectiveNode, env: unknown, convert: DirectiveConverters) => { raw?: string; [k: string]: unknown } | null;
 
 export class MarkdownFacade {

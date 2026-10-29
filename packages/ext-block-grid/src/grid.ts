@@ -39,13 +39,20 @@ export function paragraphText(paragraph: MdastNode): string {
 }
 
 function hasImage(node: MdastNode): boolean {
-    return node.type === 'image' || (node.children ?? []).some(hasImage);
+    return node.type === 'image'
+        || node.type === 'imageReference'
+        || (node.type === 'html' && /<img\b/i.test(node.value ?? ''))
+        || (node.children ?? []).some(hasImage);
 }
 
-/** Collect cells: the inline children of each paragraph with text or an image; other blocks are errors. */
+/** Collect cells: the inline children of each paragraph with text or an image, and each HTML block; other blocks are errors. */
 export function extractItems(children: MdastNode[]): MdastNode[][] {
     const items: MdastNode[][] = [];
     for (const child of children) {
+        if (child.type === 'html') {
+            if ((child.value ?? '').trim()) items.push([child]);
+            continue;
+        }
         if (child.type !== 'paragraph') {
             throw new Error(`Grid supports paragraph cells only; received ${child.type}`);
         }

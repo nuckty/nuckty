@@ -12,7 +12,7 @@ Specify `@nuckty/ext-block-grid`, a package combining a block and a markdown con
 ## Requirements
 
 ### Requirement: Combined block + markdown package
-The package SHALL register the grid level and the :::grid directive through one register(env). Each paragraph with text or an image SHALL become one grid item rendered like an ordinary paragraph's inline content: links, emphasis, inline code and images SHALL keep their markup, and images SHALL use the page's image mapping. Unsupported non-paragraph children SHALL fail; an empty container SHALL fall back to ordinary content.
+The package SHALL register the grid level and the :::grid directive through one register(env). Each paragraph with text or an image, including a reference image, SHALL become one grid item, and each HTML block SHALL become one grid item with its HTML unchanged. A paragraph item SHALL render like an ordinary paragraph's inline content: links, emphasis, inline code and images SHALL keep their markup, and images SHALL use the page's image mapping. Unsupported non-paragraph children SHALL fail; an empty container SHALL fall back to ordinary content.
 
 #### Scenario: Construct expands into the grid block
 - **WHEN** a `.md` contains a `:::grid` container and the extension is loaded
@@ -23,6 +23,10 @@ The package SHALL register the grid level and the :::grid directive through one 
 - **WHEN** a `:::grid` contains a paragraph with `![Logo](logo.png)` and a paragraph with `[Docs](/docs)`
 - **THEN** the first cell contains an img element with the hashed image file
 - **AND** the second cell contains a link to `/docs`
+
+#### Scenario: Reference image and HTML cells
+- **WHEN** a `:::grid` holds a paragraph with only `![Logo][logo]` and an `<img>` HTML block
+- **THEN** the grid has two items and the first uses the hashed image file
 
 ### Requirement: Multi-column responsive layout
 The `grid` block SHALL lay its items out in a multi-column responsive layout via the block's CSS, with no external CSS/JS dependencies.
