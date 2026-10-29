@@ -22,7 +22,8 @@ export interface ParsedLine {
 }
 
 export function parseSitemapLine(line: string): ParsedLine | null {
-    const match = line.match(/^(.+?)\s*\[([^,]+),\s*([^,]+)(?:,\s*(\{.*\s*))?\]$/);
+    // The title runs up to the last bracketed definition, so titles may contain brackets.
+    const match = line.match(/^(.+)\s*\[([^,[\]]+),\s*([^,[\]]+)(?:,\s*(\{.*\s*))?\]$/);
     if (!match) return null;
     const result: ParsedLine = {
         title: match[1]!.trim(),
@@ -132,6 +133,7 @@ export function parseIndentedSitemap(content: string): unknown[] {
 export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): SitemapArtifact {
     const sitemap: unknown[] = [];
     const pages: Record<string, SitemapPage> = Object.create(null);
+    const crossOnly = new Set<string>();
 
     function pushPageData(parsed: ParsedLine, fullUrl: string, crossSection = false): void {
         const urlParts = fullUrl.split('/').filter((p) => p);
@@ -145,6 +147,13 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
         // in its home section wins for the menu name. 1:1 with build-sitemap.js
         // :326-328 (cross-section early-return) vs :348 (non-cross overwrite).
         if (crossSection && pages[fullUrl]) return;
+        const existing = pages[fullUrl];
+        // Two home-section entries for one URL with different files would drop a page silently.
+        if (!crossSection && existing && !crossOnly.has(fullUrl) && existing.file !== parsed.file) {
+            throw new Error(`nuckty: sitemap — URL "${fullUrl}" is defined for both "${existing.file}" and "${parsed.file}"`);
+        }
+        if (crossSection) crossOnly.add(fullUrl);
+        else crossOnly.delete(fullUrl);
         const pageData: SitemapPage = {
             file: parsed.file,
             url: fullUrl,

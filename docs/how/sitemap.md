@@ -12,8 +12,8 @@ The `.yml` file is read by a custom indentation parser; full YAML syntax is not 
 Title [address, file.md, { layout: "name" }]
 ```
 
-- **Title** — the text before the brackets. The engine includes it in the sitemap data; the registered document handler receives it, and the standard root extension uses it in `<title>`. The engine composes that value from the page title, the titles of its parents starting with the nearest one, and the root title: `Page | Section | Site`. The root title is the title of the `/` page; without a root page it is `rootTitle` from `site.json`, `Site` by default.
-- **address** — the last segment of the page URL. The engine uses an absolute one (with a leading `/`) as is; a relative one is appended to the parent's URL.
+- **Title** — the text before the last bracketed definition; it may itself contain brackets, as in `Release [beta] notes [/notes, notes.md]`. The engine includes it in the sitemap data; the registered document handler receives it, and the standard root extension uses it in `<title>`. The engine composes that value from the page title, the titles of its parents starting with the nearest one, and the root title: `Page | Section | Site`. The root title is the title of the `/` page; without a root page it is `rootTitle` from `site.json`, `Site` by default.
+- **address** — the last segment of the page URL. The engine uses an absolute one (with a leading `/`) as is; a relative one is appended to the parent's URL. Two entries in a page's own section may not give one URL different files; the build fails instead of dropping one of them.
 - **file.md** — the path to the content file relative to the content root: the first level in [levels.json](blocks/levels.md) (`content/` by default). The root can be a local directory or a clone of an [external repository](external.md).
 - **`{ layout: "name" }`** — optional page metadata. The engine stores the value in `page.layout` and passes it to the registered document handler. The handler may use it when choosing a template; the engine does not select a template or provide a default `page` template.
 

@@ -65,3 +65,15 @@ test('HTML prepares single and array content equivalently and keeps empty trees 
     }
 });
 
+
+test('sitemap titles may contain brackets and one URL cannot name two files', () => {
+    const titled = processSitemap(parseIndentedSitemap('sitemap:\n  - Home [/, index.md]\n  - Release [beta] notes [/notes, notes.md]\n'));
+    assert.equal(titled.pages['/notes']?.name, 'Release [beta] notes');
+
+    assert.throws(
+        () => processSitemap(parseIndentedSitemap('sitemap:\n  - Home [/, index.md]\n  - Guide [/guide, guide.md]\n  - Guide v2 [/guide, guide-v2.md]\n')),
+        /URL "\/guide" is defined for both "guide.md" and "guide-v2.md"/,
+    );
+    const repeated = processSitemap(parseIndentedSitemap('sitemap:\n  - Home [/, index.md]\n  - Guide [/guide, guide.md]\n  - Guide again [/guide, guide.md]\n'));
+    assert.equal(repeated.pages['/guide']?.file, 'guide.md');
+});
