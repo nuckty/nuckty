@@ -11,7 +11,7 @@ At build time, nuckty generates a separate configuration for each class of hosti
 
 A configuration generator builds both files: it emits the lines directly, without template engines like Nunjucks. There is nothing to write by hand.
 
-The build always generates `nginx.conf`, including when you only need the Apache artifact. The nginx config generator rejects filesystem paths containing a dollar sign (`$`) or control characters.
+The build always generates `nginx.conf`, including when you only need the Apache artifact. The nginx config generator rejects filesystem paths containing a dollar sign (`$`) or control characters. The generated config writes `/tmp/nginx-logs/<logPrefix>_access.log` and `<logPrefix>_error.log`; `logPrefix` in `site.json` defaults to `nuckty`.
 
 ## What's inside
 
