@@ -54,3 +54,10 @@ The validate command SHALL accept `--port` with an integer from 1 through 65535,
 #### Scenario: Requested behavior
 - **WHEN** a caller chooses a free port
 - **THEN** validation and cleanup use that port without touching services on the default port
+
+### Requirement: Validation timeouts and failed start cleanup
+Each page validation request SHALL allow 60 seconds; readiness probes SHALL allow 5 seconds each within the startup deadline. A daemon that does not become ready SHALL be terminated before the start fails, so a later validation starts a new daemon.
+
+#### Scenario: Startup timeout
+- **WHEN** the daemon does not answer readiness probes before the startup deadline
+- **THEN** validation fails and the spawned process is terminated

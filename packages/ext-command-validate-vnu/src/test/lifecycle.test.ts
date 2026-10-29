@@ -73,6 +73,11 @@ for (const mode of ['missing-java', 'early-exit', 'foreign-json', 'malformed-mes
                 assert.equal(killed, 1);
             } else {
                 await assert.rejects(validation, mode === 'missing-java' ? /ENOENT/ : mode === 'early-exit' ? /exited/ : mode === 'timeout' ? /ready/ : /protocol/);
+                if (mode === 'timeout') {
+                    // The daemon that never became ready is terminated, not left for reuse.
+                    assert.equal(killed, 1);
+                    assert.equal(exited, true);
+                }
             }
         } finally {
             await validator.stop();

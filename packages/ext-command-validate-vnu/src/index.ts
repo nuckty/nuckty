@@ -175,27 +175,38 @@ export class VnuHttpValidator {
         proc.stdout?.resume();
         proc.stderr?.resume();
         const deadline = Date.now() + (this.runtime.startupTimeoutMs ?? 30_000);
-        while (Date.now() < deadline) {
-            lifetime.signal.throwIfAborted();
-            try {
-                await this.postToVnu('<!doctype html><html><body></body></html>');
+        try {
+            while (Date.now() < deadline) {
                 lifetime.signal.throwIfAborted();
-                return;
-            } catch (error) {
-                lifetime.signal.throwIfAborted();
-                if (error instanceof Error && /protocol|HTTP/.test(error.message)) {
-                    throw error;
+                try {
+                    await this.postToVnu('<!doctype html><html><body></body></html>', this.runtime.requestTimeoutMs ?? 5_000);
+                    lifetime.signal.throwIfAborted();
+                    return;
+                } catch (error) {
+                    lifetime.signal.throwIfAborted();
+                    if (error instanceof Error && /protocol|HTTP/.test(error.message)) {
+                        throw error;
+                    }
                 }
+                await sleep(Math.min(100, Math.max(0, deadline - Date.now())));
             }
-            await sleep(Math.min(100, Math.max(0, deadline - Date.now())));
+            throw new Error(`vnu HTTP daemon did not become ready on ${this.host}:${this.port}`);
+        } catch (error) {
+            // A daemon that never became ready must not outlive the failed
+            // start: a later call would otherwise reuse it without readiness.
+            if (this.proc === proc) {
+                proc.kill('SIGKILL');
+                await this.waitForClose().catch(() => {});
+                this.proc = null;
+            }
+            throw error;
         }
-        throw new Error(`vnu HTTP daemon did not become ready on ${this.host}:${this.port}`);
     }
 
-    private async postToVnu(html: string): Promise<ValidationError[]> {
+    private async postToVnu(html: string, timeoutMs = this.runtime.requestTimeoutMs ?? 60_000): Promise<ValidationError[]> {
         const signal = AbortSignal.any([
             this.lifetime.signal,
-            AbortSignal.timeout(this.runtime.requestTimeoutMs ?? 5_000),
+            AbortSignal.timeout(timeoutMs),
         ]);
         const res = await (this.runtime.fetch ?? fetch)(`http://${this.host}:${this.port}/?out=json&level=error`, {
             method: 'POST',
