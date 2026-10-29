@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0-rc.1
+
+- `config/external.json` entries may be objects `{ "url", "ref", "path" }`. `content-external` checks out the pinned tag or commit, accepts tags moved upstream, keeps only the configured subdirectory without top-level files, fetches only its blobs and LFS files, and refuses an unknown ref, a missing path or a detached copy without `ref` before changing the working copy. The core reads both entry forms and exports `parseExternalSources`, `externalRepoName` and `ExternalSource`.
+- `@nuckty/core` exports `b()`, `attributes()` and `EntityOptions` for composing BEMJSON in code and selecting template attributes from props.
+- Extensions declare `exports` with their entry and `package.json` only; deep imports of `dist/` modules are no longer resolved. Every extension declares the Node.js 24 engine, and every package lists its homepage, issue tracker and keywords.
+- The generated nginx configuration includes the installed `mime.types`, including Homebrew on Intel Macs.
+- The documentation publishes its reading order in `docs/pages.json`, and the guides describe `rootTitle`, `baseUrl`, `logPrefix` and `validate --port`.
+
 ## 1.0.0-rc.0
 
 - All official packages are developed in the nuckty monorepository and released together through Changesets. Package contents and public APIs are unchanged.

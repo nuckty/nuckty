@@ -46,7 +46,7 @@ block<{ lang?: string }>('root').wrap((n) => ({
 Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
 ```
-npm install --save-exact @nuckty/ext-block-root@1.0.0-rc.0
+npm install --save-exact @nuckty/ext-block-root@1.0.0-rc.1
 ```
 
 Подключите расширение в `config-nuckty.ts`:

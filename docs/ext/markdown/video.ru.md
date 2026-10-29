@@ -54,7 +54,7 @@ export function register(env: NucktyEnv): void {
 Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
 ```
-npm install --save-exact @nuckty/ext-markdown-video@1.0.0-rc.0
+npm install --save-exact @nuckty/ext-markdown-video@1.0.0-rc.1
 ```
 
 ```ts

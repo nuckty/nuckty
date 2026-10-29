@@ -46,7 +46,7 @@ Add the package to `ext` in the global `config/config-nuckty.ts`. It registers t
 Install the extension from npm in the extracted [starter project](../../how/start.md):
 
 ```
-npm install --save-exact @nuckty/ext-block-root@1.0.0-rc.0
+npm install --save-exact @nuckty/ext-block-root@1.0.0-rc.1
 ```
 
 Register the extension in `config-nuckty.ts`:
