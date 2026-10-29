@@ -2,7 +2,7 @@
 
 Site content does not have to live in the same repository as blocks and configs. Texts and [images](../out/images.md) can live in separate content repositories, and the engine assembles the site from them. This is convenient when one content set serves several sites, or when a separate team works on the texts.
 
-A clean separation matters here: **the core reads content from a directory on disk**, and **an extension fills that directory**. Cloning git repositories is not part of the core — it is an optional tool, like everything else in the ecosystem (see the [repository family](../why/repos.md)).
+A clean separation matters here: **the core reads content from a directory on disk**, and **an extension fills that directory**. Cloning git repositories is not part of the core — it is an optional tool, like everything else in the ecosystem (see [packages and repository](../why/repos.md)).
 
 ## Core: the content root
 

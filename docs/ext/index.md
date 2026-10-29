@@ -2,7 +2,7 @@
 
 The catalog of nuckty ecosystem extensions. Extensions fall into [five types](../how/ext/index.md); each type has its own section. A page's address mirrors the package name: `/ext/block/root` → `@nuckty/ext-block-root`.
 
-Each extension lives in its own repository and implements the [`register(env)` contract](../how/ext/index.md). The nuckty core depends on none of them.
+Each official extension is a separate npm package in the nuckty monorepository and implements the [`register(env)` contract](../how/ext/index.md). The nuckty core depends on none of them.
 
 ## By type
 
@@ -14,7 +14,7 @@ Each extension lives in its own repository and implements the [`register(env)` c
 
 ## How to add your own
 
-An extension implements `register(env)`. The [guide](../how/ext/index.md) describes the contract. To document one, add a page, a catalog link, and an entry in the consumer [sitemap](../how/sitemap.md). Publishing an npm package alone does not change the catalog.
+An extension implements `register(env)`. The [guide](../how/ext/index.md) describes the contract. To document one, add a page, a catalog link and an entry in the documentation's `pages.json`. Publishing an npm package alone does not change the catalog.
 
 ## What is in the ecosystem
 
