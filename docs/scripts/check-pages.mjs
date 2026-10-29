@@ -17,8 +17,8 @@ async function collect(directory, prefix = '') {
             if (entry.name !== 'scripts' && !entry.name.startsWith('.')) {
                 pages.push(...await collect(path.join(directory, entry.name), name));
             }
-        } else if (entry.name.endsWith('.md') && !entry.name.endsWith('.ru.md')) {
-            const page = name.slice(0, -'.md'.length);
+        } else if (entry.name.endsWith('.md')) {
+            const page = name.replace(/(?:\.ru)?\.md$/, '');
 
             if (!excluded.has(page)) {
                 pages.push(page);
@@ -49,9 +49,9 @@ for (const page of order) {
         }
     }
 }
-for (const page of await collect(root)) {
+for (const page of new Set(await collect(root))) {
     if (!listed.has(page)) {
-        issues.push(`pages.json: ${page}.md is not listed`);
+        issues.push(`pages.json: ${page} is not listed`);
     }
 }
 if (issues.length > 0) {

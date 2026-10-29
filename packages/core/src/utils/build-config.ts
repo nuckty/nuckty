@@ -3,7 +3,7 @@ import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import type { BuildContext } from '../pipeline/pipeline.js';
 import { loadConfig, type SiteConfig } from './site-config.js';
-import { parseExternalSources } from './external.js';
+import { externalRepoName, parseExternalSources } from './external.js';
 
 export interface BuildConfigSnapshot {
     site: SiteConfig;
@@ -50,7 +50,7 @@ export function loadBuildConfig(cwd: string, configDir: string): BuildConfigSnap
     const externalUrls = readExternalUrls(path.join(directory, 'external.json'));
 
     for (const [index, url] of (externalUrls ?? []).entries()) {
-        const name = url.replace(/\.git$/, '').split('/').pop() ?? '';
+        const name = externalRepoName(url);
 
         if (!name || name === '.' || name === '..' || /[\\\x00-\x1f\x7f]/.test(name)) {
             throw new Error(`nuckty: Unsafe external repository directory at entry ${index + 1}`);

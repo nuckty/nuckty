@@ -9,7 +9,7 @@ export interface ExternalSource {
 
 const KEYS = new Set(['url', 'ref', 'path']);
 const REF = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/;
-const SEGMENT = /^[A-Za-z0-9_][A-Za-z0-9._-]*$/;
+const SEGMENT = /^[A-Za-z0-9._+-]+$/;
 
 function invalid(file: string, index: number, reason: string): Error {
     return new Error(`nuckty: ${file} entry ${index + 1}: ${reason}`);
@@ -20,7 +20,19 @@ function validRef(ref: string): boolean {
 }
 
 function validPath(value: string): boolean {
-    return value.split('/').every((segment) => SEGMENT.test(segment) && segment !== '..');
+    return value.split('/').every((segment) => SEGMENT.test(segment) && segment !== '.' && segment !== '..' && !segment.startsWith('-'));
+}
+
+/**
+ * Directory name of an external repository under `external/`: the last path segment of the URL without `.git`,
+ * after the host of an SSH scp URL. `git@host:acme/content.git` and `https://host/acme/content` both give `content`.
+ */
+export function externalRepoName(url: string): string {
+    const withoutSuffix = url.replace(/\.git$/, '');
+    const colon = withoutSuffix.lastIndexOf(':');
+    const repositoryPath = colon >= 0 ? withoutSuffix.slice(colon + 1) : withoutSuffix;
+
+    return repositoryPath.split('/').pop() ?? '';
 }
 
 /**
@@ -64,7 +76,7 @@ export function parseExternalSources(value: unknown, file = 'config/external.jso
         }
         if (record['path'] !== undefined) {
             if (typeof record['path'] !== 'string' || !validPath(record['path'])) {
-                throw invalid(file, index, 'path must be a relative subdirectory without . or .. segments');
+                throw invalid(file, index, 'path must be a relative subdirectory of letters, digits, ., _, + and - without . or .. segments');
             }
             source.path = record['path'];
         }

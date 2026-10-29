@@ -30,10 +30,10 @@ An entry can be an object instead of a URL string:
 | Field | Meaning |
 |---|---|
 | `url` | Repository URL, as in the string form. |
-| `ref` | Tag or commit to check out. The copy is detached at this ref; the next run fetches and moves it to the ref currently in the file. Without `ref`, the command pulls the default branch. |
-| `path` | Subdirectory to keep. The working copy is sparse and contains only this directory, at `external/<repo>/<path>/`. Without `path`, the whole repository is checked out. |
+| `ref` | Tag or commit to check out; a branch name is rejected because a pin must not move. The copy is detached at this ref. The next run fetches, including tags moved upstream, and moves the copy to the ref currently in the file; a full 40-character commit that is already present needs no network. Without `ref`, the command pulls the default branch. |
+| `path` | Subdirectory to keep. It must be a directory at the checked-out commit. The clone fetches only the files it checks out, and the working copy contains only this directory, without top-level files, at `external/<repo>/<path>/`. Git LFS files are fetched for this directory only. Without `path`, the whole repository is checked out. |
 
-A copy pinned to a commit stays detached. If you remove `ref` from its entry, the command refuses to update it; delete `external/<repo>/` to follow the branch again. Unknown fields, a `ref` that is not a tag or commit name, and a `path` that is absolute or contains `.` or `..` stop the command before any Git work.
+A copy pinned to a commit stays detached. If you remove `ref` from its entry, the command refuses to update it; delete `external/<repo>/` to follow the branch again. Unknown fields, a malformed `ref`, and a `path` that is absolute, contains `.` or `..` segments, or uses characters other than letters, digits, `.`, `_`, `+` and `-` stop the command before any Git work. A `ref` that is not a tag or commit of the repository, or a `path` missing at that commit, fails that repository before its working copy changes.
 
 ## Options
 

@@ -244,12 +244,70 @@ export interface RepoResult {
     error?: string;
 }
 
+type Git = ReturnType<typeof import('simple-git')['simpleGit']>;
+
+const COMMIT = /^[0-9a-f]{7,40}$/i;
+
+async function revParse(g: Git, spec: string): Promise<string | undefined> {
+    try {
+        const value = String(await g.raw(['rev-parse', '--verify', '--quiet', spec])).trim();
+
+        return value || undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+/** Resolve a configured ref to a commit: a tag first, then a commit name. Branch names are rejected because a pin must not move. */
+async function resolveRef(g: Git, ref: string): Promise<string> {
+    const commit = await revParse(g, `refs/tags/${ref}^{commit}`) ?? (COMMIT.test(ref) ? await revParse(g, `${ref}^{commit}`) : undefined);
+
+    if (!commit) {
+        throw new Error(`ref ${ref} is not a tag or commit of the repository`);
+    }
+
+    return commit;
+}
+
+async function requireDirectory(g: Git, commit: string, subdirectory: string): Promise<void> {
+    let type = '';
+
+    try {
+        type = String(await g.raw(['cat-file', '-t', `${commit}:${subdirectory}`])).trim();
+    } catch {
+        // Reported below.
+    }
+    if (type !== 'tree') {
+        throw new Error(`path ${subdirectory} is not a directory at ${commit.slice(0, 12)}`);
+    }
+}
+
+async function pullLfs(g: Git, subdirectory: string | undefined): Promise<void> {
+    // An empty LFS listing skips the fetch. Inspection and fetch errors must
+    // propagate so success does not hide missing binary assets. A partial
+    // copy inspects and fetches only its own path.
+    const include = subdirectory ? [`--include=${subdirectory}/**`] : [];
+    const usesLfs = String(await g.raw(['lfs', 'ls-files', ...include])).trim().length > 0;
+
+    if (!usesLfs) {
+        return;
+    }
+    try {
+        await g.raw(['lfs', 'pull', ...include]);
+    } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        throw new Error(`git lfs pull failed (repo uses LFS assets): ${msg}`);
+    }
+}
+
 /**
  * Build a GitRunner backed by simple-git. Clone publishes a temporary sibling
- * after success; a pinned or partial clone checks out `ref` and keeps only
- * `path` (without top-level files) in a sparse working copy. Update moves a pinned copy to `ref` or pulls the
- * branch, then runs git lfs ls-files; only a nonempty list triggers git lfs
- * pull. LFS inspection and fetch errors fail the update.
+ * after success. A pinned or partial clone fetches only the blobs it checks
+ * out, resolves `ref` to a tag or commit, verifies that `path` is a directory
+ * there and keeps only that directory, without top-level files, in a sparse
+ * working copy. Update checks every precondition before it changes the copy:
+ * a pinned copy fetches only when the commit is missing, a branch copy must
+ * not be detached. LFS inspection and fetch errors fail the operation.
  */
 export function makeGitRunner(loadGit: () => Promise<Pick<typeof import('simple-git'), 'simpleGit'>> = () => import('simple-git')): GitRunner {
     return {
@@ -265,12 +323,14 @@ export function makeGitRunner(loadGit: () => Promise<Pick<typeof import('simple-
             const tmp = fs.mkdtempSync(`${dir}.cloning-`);
             try {
                 if (options.ref || options.path) {
-                    await simpleGit().clone(url, tmp, ['--no-checkout']);
+                    await simpleGit().clone(url, tmp, ['--no-checkout', ...(options.path ? ['--filter=blob:none'] : [])]);
                     const g = simpleGit(tmp);
+                    const commit = options.ref ? await resolveRef(g, options.ref) : String(await g.raw(['rev-parse', 'HEAD'])).trim();
                     if (options.path) {
+                        await requireDirectory(g, commit, options.path);
                         await g.raw(['sparse-checkout', 'set', '--no-cone', `/${options.path}/`]);
                     }
-                    await g.raw(options.ref ? ['checkout', '--detach', options.ref, '--'] : ['checkout']);
+                    await g.raw(options.ref ? ['checkout', '--detach', commit] : ['checkout']);
                 } else {
                     await simpleGit().clone(url, tmp);
                 }
@@ -290,30 +350,31 @@ export function makeGitRunner(loadGit: () => Promise<Pick<typeof import('simple-
             if (url && await fsStatus(dir, url) !== 'clean') {
                 throw new Error('Repository identity or clean status changed; refusing update');
             }
-            if (options.path) {
-                await g.raw(['sparse-checkout', 'set', '--no-cone', `/${options.path}/`]);
-            } else if (String(await g.raw(['config', '--bool', '--default', 'false', 'core.sparseCheckout'])).trim() === 'true') {
-                await g.raw(['sparse-checkout', 'disable']);
-            }
+            let commit: string;
             if (options.ref) {
-                await g.fetch(['--tags', 'origin']);
-                await g.raw(['checkout', '--detach', options.ref, '--']);
+                const local = /^[0-9a-f]{40}$/i.test(options.ref) ? await revParse(g, `${options.ref}^{commit}`) : undefined;
+                if (!local) {
+                    // --force accepts tags that were moved upstream.
+                    await g.fetch(['--force', '--tags', 'origin']);
+                }
+                commit = local ?? await resolveRef(g, options.ref);
             } else {
                 if (!String(await g.raw(['branch', '--show-current'])).trim()) {
                     throw new Error('Working copy is pinned to a detached commit; set ref or remove it to follow a branch');
                 }
                 await g.pull();
+                commit = String(await g.raw(['rev-parse', 'HEAD'])).trim();
             }
-            // An empty LFS listing skips the fetch. Inspection and fetch errors
-            // must propagate so success does not hide missing binary assets.
-            const usesLfs = String(await g.raw(['lfs', 'ls-files'])).trim().length > 0;
-            if (!usesLfs) return;
-            try {
-                await g.raw(['lfs', 'pull']);
-            } catch (err) {
-                const msg = err instanceof Error ? err.message : String(err);
-                throw new Error(`git lfs pull failed (repo uses LFS assets): ${msg}`);
+            if (options.path) {
+                await requireDirectory(g, commit, options.path);
+                await g.raw(['sparse-checkout', 'set', '--no-cone', `/${options.path}/`]);
+            } else if (String(await g.raw(['config', '--bool', '--default', 'false', 'core.sparseCheckout'])).trim() === 'true') {
+                await g.raw(['sparse-checkout', 'disable']);
             }
+            if (options.ref) {
+                await g.raw(['checkout', '--detach', commit]);
+            }
+            await pullLfs(g, options.path);
         },
     };
 }

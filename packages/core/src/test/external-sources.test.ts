@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { parseExternalSources } from '../utils/external.js';
+import { externalRepoName, parseExternalSources } from '../utils/external.js';
 
 test('string and object external entries normalize to sources', () => {
     assert.deepEqual(parseExternalSources([
@@ -30,9 +30,22 @@ test('malformed external entries name the file and entry', () => {
         [[{ url: 'u', path: '/docs' }], /path must be/],
         [[{ url: 'u', path: 'docs/./api' }], /path must be/],
         [[{ url: 'u', path: '-docs' }], /path must be/],
+        [[{ url: 'u', path: 'docs/*' }], /path must be/],
+        [[{ url: 'u', path: 'docs/..' }], /path must be/],
     ];
 
     for (const [value, error] of cases) {
         assert.throws(() => parseExternalSources(value, 'config/external.json'), error);
     }
+});
+
+test('dot-prefixed and plus-sign path segments are accepted', () => {
+    assert.deepEqual(parseExternalSources([{ url: 'u', path: '.vitepress' }, { url: 'u', path: 'docs/c++' }]).map((source) => source.path), ['.vitepress', 'docs/c++']);
+});
+
+test('external repository names follow the URL path after an scp host', () => {
+    assert.equal(externalRepoName('git@github.com:acme/content.git'), 'content');
+    assert.equal(externalRepoName('git@host:content.git'), 'content');
+    assert.equal(externalRepoName('https://github.com/nuckty/nuckty'), 'nuckty');
+    assert.equal(externalRepoName('ssh://git@host:22/acme/assets.git'), 'assets');
 });

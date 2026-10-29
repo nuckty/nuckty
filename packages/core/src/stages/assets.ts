@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import { assertArtifactPath } from './artifact-path.js';
 import type { Stage, BuildContext } from '../pipeline/pipeline.js';
 import { getBuildConfig } from '../utils/build-config.js';
+import { externalRepoName } from '../utils/external.js';
 import { generateFileHash } from '../utils/hash.js';
 
 /** Static config files copied verbatim into the site root. */
@@ -80,7 +81,7 @@ async function resolveSourceRepos(root: string, urls: string[] | undefined): Pro
         }
     }
     return urls.map((url) => {
-        const name = url.replace(/\.git$/, '').split('/').pop() ?? url;
+        const name = externalRepoName(url) || url;
         return { name, path: path.join(root, 'external', name) };
     });
 }

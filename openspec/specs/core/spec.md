@@ -242,7 +242,7 @@ The maintained public consumer's CSS lint gate SHALL reject unknown standard pro
 - **THEN** CSS lint reports the unknown declarations instead of passing them silently
 
 ### Requirement: External source entries
-The core SHALL read `external.json` entries as repository URL strings or objects `{ url, ref?, path? }`, map both forms to `external/<repo>/` by repository name, and expose the URLs as `externalUrls` in the target snapshot. It SHALL reject non-array content, empty URLs, unknown fields, refs that are not tag or commit names and paths that are absolute or contain `.` or `..` segments, naming the file and entry. The core SHALL export `parseExternalSources` and `ExternalSource` so the preparation command uses the same rules.
+The core SHALL read `external.json` entries as repository URL strings or objects `{ url, ref?, path? }`, map both forms to `external/<repo>/` by repository name, and expose the URLs as `externalUrls` in the target snapshot. It SHALL reject non-array content, empty URLs, unknown fields, refs that are not tag or commit names and paths that are absolute, contain `.` or `..` segments or use characters other than letters, digits, `.`, `_`, `+` and `-`, naming the file and entry. The directory name SHALL be the last URL path segment without `.git`, after the host of an SSH scp URL. The core SHALL export `parseExternalSources`, `externalRepoName` and `ExternalSource` so the preparation command uses the same rules.
 
 #### Scenario: Pinned partial entry in a target
 - **WHEN** a target's `external.json` contains `{ "url": "https://github.com/nuckty/nuckty.git", "ref": "v1.0.0", "path": "docs" }`

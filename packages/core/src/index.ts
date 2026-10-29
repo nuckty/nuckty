@@ -38,7 +38,7 @@ export { getFileTimestamp, formatLastUpdated } from './utils/timestamp.js';
 // against the content root.
 export { getRoot, getExternalContent } from './utils/dir.js';
 // Entries of config/external.json, shared with the content-external command.
-export { parseExternalSources } from './utils/external.js';
+export { externalRepoName, parseExternalSources } from './utils/external.js';
 export type { ExternalSource } from './utils/external.js';
 
 // Programmatic pipeline.

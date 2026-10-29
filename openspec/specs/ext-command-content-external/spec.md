@@ -19,7 +19,7 @@ The extension SHALL add `nuckty content-external [--dry-run]` via `env.commands`
 - **THEN** the command reports the entry and exits nonzero without cloning or updating
 
 ### Requirement: Clone or update into external/
-The command SHALL clone each repository into `external/<repo>/` (dir name = repo name without `.git`) on first run and update the working copy on later runs. The destination directory name SHALL be a plain directory segment — `.`/`..`, path separators, and duplicate destinations from same-basename URLs are hard errors before any runner executes. A clone goes to a temporary sibling first and is renamed on success, so an interrupted clone never leaves a partial directory at the final path. A repository with uncommitted local changes is REFUSED with the reason (never silently deleted and re-cloned); a failed LFS fetch on an LFS-using repository is a reported error, not a silent skip. An entry with `ref` SHALL be checked out detached at that ref, and later runs SHALL fetch and move the copy to the configured ref; an entry with `path` SHALL keep only that subdirectory in a sparse working copy without top-level files, and removing `path` SHALL restore the full tree. A detached copy whose entry has no `ref` SHALL be refused with an error instead of pulled. `--dry-run` SHALL report what would be cloned, updated, or refused, including the configured ref and path. The `external/` directory is a working copy, not part of the site repo's own git.
+The command SHALL clone each repository into `external/<repo>/` (dir name = repo name without `.git`) on first run and update the working copy on later runs. The destination directory name SHALL be a plain directory segment — `.`/`..`, path separators, and duplicate destinations from same-basename URLs are hard errors before any runner executes. A clone goes to a temporary sibling first and is renamed on success, so an interrupted clone never leaves a partial directory at the final path. A repository with uncommitted local changes is REFUSED with the reason (never silently deleted and re-cloned); a failed LFS fetch on an LFS-using repository is a reported error, not a silent skip. An entry with `ref` SHALL be checked out detached at the tag or commit it names; a branch name SHALL be rejected. Later runs SHALL fetch, accepting tags moved upstream, and move the copy to the configured ref; a full commit already present SHALL NOT require network access. An entry with `path` SHALL fetch only the blobs it checks out, keep only that subdirectory in a sparse working copy without top-level files, and scope Git LFS inspection and fetches to it; removing `path` SHALL restore the full tree. A ref that is not a tag or commit, a `path` missing at the resolved commit and a detached copy whose entry has no `ref` SHALL fail before the working copy changes. `--dry-run` SHALL report what would be cloned, updated, or refused, including the configured ref and path. The `external/` directory is a working copy, not part of the site repo's own git.
 
 #### Scenario: First run clones, later runs update
 - **WHEN** the command runs against an empty `external/`
@@ -40,6 +40,11 @@ The command SHALL clone each repository into `external/<repo>/` (dir name = repo
 - **WHEN** an entry sets `ref` to a tag and `path` to `docs`
 - **THEN** `external/<repo>/` contains only `docs/` at that tag
 - **AND** a later run with a new commit as `ref` moves the copy to that commit
+
+#### Scenario: Unsafe pin is refused without changes
+- **WHEN** an entry names a branch as `ref`, or a `path` that does not exist at its ref
+- **THEN** the repository fails with the reason
+- **AND** no partial clone remains and an existing copy is unchanged
 
 ### Requirement: Build stays offline and deterministic
 The core build SHALL NOT clone or fetch repositories automatically. The command SHALL prepare files explicitly, analogous to convert-images. Build stages SHALL read the selected target’s levels and external.json; preparation SHALL read the global list. Consumers SHALL keep these lists consistent. The command requires Git, and the core MAY use Git for commit metadata without managing repositories.

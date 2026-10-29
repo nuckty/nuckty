@@ -287,6 +287,9 @@ for (const mode of ['empty', 'list-error', 'pull-error'] as const) {
                 if (args[0] === 'branch') {
                     return 'main';
                 }
+                if (args[0] === 'rev-parse') {
+                    return 'a'.repeat(40);
+                }
                 commands.push(args.join(' '));
                 if (mode === 'list-error' || args[1] === 'pull') {
                     throw new Error('LFS failure');
@@ -483,6 +486,48 @@ test('runner keeps only path in a branch clone and pulls it on update', async ()
         await runner.update(destination, source, { path: 'docs' });
         assert.equal(await readFile(path.join(destination, 'docs', 'a.md'), 'utf8'), 'two');
         assert.deepEqual((await readdir(destination)).sort(), ['.git', 'docs']);
+    } finally {
+        await rm(root, { recursive: true, force: true });
+    }
+});
+
+test('runner refuses unsafe pins and paths before changing the copy', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'nuckty-content-guards-'));
+    const source = path.join(root, 'source');
+    const destination = path.join(root, 'external', 'source');
+    const commit = async (file: string, text: string) => {
+        await mkdir(path.dirname(path.join(source, file)), { recursive: true });
+        await writeFile(path.join(source, file), text);
+        await git('git', ['-C', source, 'add', '-A']);
+        await git('git', ['-C', source, '-c', 'user.name=fixture', '-c', 'user.email=fixture@invalid', 'commit', '-qm', file]);
+    };
+    const tag = (name: string) => git('git', ['-C', source, 'tag', '-f', name]);
+    try {
+        await git('git', ['init', '-q', '-b', 'main', source]);
+        await commit('docs/a.md', 'one');
+        await commit('other/b.md', 'other');
+        await tag('v1');
+        const runner = makeGitRunner();
+
+        await assert.rejects(runner.clone(source, destination, { ref: 'main' }), /not a tag or commit/);
+        await assert.rejects(runner.clone(source, destination, { ref: 'v1', path: 'doc' }), /path doc is not a directory/);
+        await assert.deepEqual(await readdir(path.join(root, 'external')), []);
+
+        await runner.clone(source, destination, { ref: 'v1', path: 'docs' });
+        await commit('docs/a.md', 'moved');
+        await tag('v1');
+        await runner.update(destination, source, { ref: 'v1', path: 'docs' });
+        assert.equal(await readFile(path.join(destination, 'docs', 'a.md'), 'utf8'), 'moved');
+
+        await assert.rejects(runner.update(destination, source, { path: 'other' }), /pinned to a detached commit/);
+        assert.deepEqual(await readdir(destination), ['.git', 'docs']);
+        await assert.rejects(runner.update(destination, source, { ref: 'v1', path: 'missing' }), /path missing is not a directory/);
+        assert.deepEqual(await readdir(destination), ['.git', 'docs']);
+
+        const head = (await git('git', ['-C', destination, 'rev-parse', 'HEAD'])).stdout.trim();
+        await git('git', ['-C', destination, 'remote', 'set-url', 'origin', path.join(root, 'unreachable')]);
+        await runner.update(destination, undefined, { ref: head, path: 'docs' });
+        assert.equal(await readFile(path.join(destination, 'docs', 'a.md'), 'utf8'), 'moved');
     } finally {
         await rm(root, { recursive: true, force: true });
     }

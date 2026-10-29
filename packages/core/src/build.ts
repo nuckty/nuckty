@@ -8,6 +8,7 @@ import { registerDefaultStages, finalizeArtifact } from './stages/index.js';
 import { loadBlocks } from './blocks/loader.js';
 import { loadBuildConfig, type BuildConfigSnapshot } from './utils/build-config.js';
 import { preflightOutDirs } from './utils/outdir-preflight.js';
+import { externalRepoName } from './utils/external.js';
 import { Templates } from './bem/templates.js';
 
 export interface BuildCommand {
@@ -40,7 +41,7 @@ async function runBuildTargets(config: NucktyConfig, cmd: BuildCommand): Promise
     const prepared: Array<{ target: Target; env: NucktyEnv; snapshot: BuildConfigSnapshot }> = [];
     const inputs = declaredTargets.flatMap((target) => {
         const snapshot = snapshots.get(target.name)!;
-        const externalDirs = (snapshot.externalUrls ?? []).map((url) => path.join('external', url.replace(/\.git$/, '').split('/').pop() ?? url));
+        const externalDirs = (snapshot.externalUrls ?? []).map((url) => path.join('external', externalRepoName(url) || url));
         return [target.configDir, ...snapshot.levels, ...externalDirs];
     });
 

@@ -2,7 +2,7 @@ import { accessSync, readdirSync, existsSync, statSync, readFileSync } from 'nod
 import { promises as fs, type Dirent } from 'node:fs';
 import * as path from 'node:path';
 import process from 'node:process';
-import { parseExternalSources } from './external.js';
+import { externalRepoName, parseExternalSources } from './external.js';
 
 /**
  * Read current `config/levels.json` for standalone directory accessors.
@@ -107,7 +107,7 @@ export function getExternalRepoDirs(root: string = process.cwd()): string[] {
     try {
         const raw = readFileSync(path.join(r, 'config', 'external.json'), 'utf8');
         const urls = parseExternalSources(JSON.parse(raw)).map((source) => source.url);
-        names = urls.map((url) => url.replace(/\.git$/, '').split('/').pop() ?? url);
+        names = urls.map((url) => externalRepoName(url) || url);
     } catch {
         // no external.json — fall back to whatever external/ contains.
     }
