@@ -17,6 +17,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildAnchorMap, resolvePageAnchors } from '../markdown/resolve-anchors.js';
+import { createMarkdown } from '../markdown/index.js';
 import type { SitemapArtifact, SitemapPage } from '../stages/types.js';
 import type { BemNode, BEMTree } from '../bem/types.js';
 
@@ -306,4 +307,22 @@ test('resolvePageAnchors resolves fragments using pathname while retaining queri
     const nodes = source.tree as BemNode[];
     assert.equal(nodes[0]!.attrs!['href'], '/target?q=1#target-child');
     assert.equal(nodes[1]!.attrs!['href'], '?q=2#source-child');
+});
+
+test('resolvePageAnchors leaves generated heading self-links on their final ids', () => {
+    const { tree, headings } = createMarkdown({ slugify: { case: 'lower' } }).render('# Intro\n\n## Setup\n\n## Intro Setup\n\n[authored](#intro-setup)');
+    const p = { ...page('/docs', tree), headings };
+    resolvePageAnchors(p, sitemapOf([p]), new Map([['/docs', buildAnchorMap(headings)]]));
+    const hrefs: string[] = [];
+    const collect = (node: BEMTree): void => {
+        if (Array.isArray(node)) { node.forEach(collect); return; }
+        if (!node || typeof node !== 'object') return;
+        if (node.tag === 'a') hrefs.push(String(node.attrs?.['href']));
+        if (node.content) collect(node.content);
+    };
+    collect(tree);
+    const setup = headings.find((h) => h.rawText === 'Setup')!.anchor;
+    assert.ok(hrefs.includes(`#${setup}`), `${setup}: ${hrefs.join(' ')}`);
+    // An authored link keeps GitHub semantics: #intro-setup names the "Intro Setup" heading.
+    assert.equal(hrefs.at(-1), `#${headings.find((h) => h.rawText === 'Intro Setup')!.anchor}`);
 });

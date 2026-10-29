@@ -213,3 +213,11 @@ A relative Markdown link to a `.pdf`, `.zip` or `.ini` file SHALL resolve agains
 #### Scenario: A download the assets stage did not publish
 - **WHEN** content/guide.md links to manual.pdf and no external repository provides manual.pdf, or the published manual.pdf comes from another repository
 - **THEN** the build fails instead of emitting a link that 404s or serves another file
+
+### Requirement: Heading self-links keep final ids
+Anchor resolution SHALL NOT rewrite the self-link the bridge generates inside a heading; that link SHALL point at the heading's own final id. Authored same-page and cross-page fragments SHALL keep resolving through the GitHub-slug map.
+
+#### Scenario: A final id equals another heading's GitHub slug
+- **WHEN** a page has `# Intro`, `## Setup` with final id `intro-setup`, and `## Intro Setup`
+- **THEN** the self-link of `Setup` points at `#intro-setup`
+- **AND** an authored link `#intro-setup` points at the `Intro Setup` heading

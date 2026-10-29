@@ -64,6 +64,7 @@ function resolveAnchor(anchor: string, pageMap: Map<string, string> | undefined)
  *   - same-doc (`#anchor` or `<thisUrl>#anchor`): resolve against this page's map;
  *   - cross-doc (`<url>#anchor`): resolve against the target page's map (if the
  *     target is in the sitemap).
+ * Generated heading self-links are skipped: they already point at final ids.
  * Unresolved anchors pass through verbatim (matches the legacy fallback).
  */
 export function resolvePageAnchors(page: SitemapPage, sitemap: SitemapArtifact, anchorMaps: Map<string, Map<string, string>>): void {
@@ -71,6 +72,8 @@ export function resolvePageAnchors(page: SitemapPage, sitemap: SitemapArtifact, 
     const thisMap = anchorMaps.get(page.url);
     walk(page.tree, (node) => {
         if (node.tag !== 'a' || !node.attrs || !node.attrs['href']) return;
+        // Heading self-links already carry final ids; their GitHub-slug keys may name another heading.
+        if (node.block === 'article' && node.elem === 'heading-anchor') return;
         const href = String(node.attrs['href']);
         if (!href.includes('#')) return;
         const hashIdx = href.indexOf('#');
