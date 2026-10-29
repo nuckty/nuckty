@@ -33,3 +33,10 @@ The gallery block SHALL lay images out as a responsive CSS grid; a click SHALL o
 #### Scenario: Site overrides the gallery block
 - **WHEN** a site places its own `gallery.nu.ts` on a later level
 - **THEN** the site's version wins by level priority
+
+### Requirement: Gallery holds images only
+A `:::gallery` container SHALL contain only images, optionally separated by whitespace and line breaks. Text, links, captions outside alt text and other blocks SHALL fail the build with an error naming the unsupported node instead of being dropped.
+
+#### Scenario: Caption paragraph in a gallery
+- **WHEN** a gallery paragraph contains an image followed by caption text
+- **THEN** the build fails with an error that names the text node

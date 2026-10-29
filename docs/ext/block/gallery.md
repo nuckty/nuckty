@@ -21,7 +21,7 @@ The author writes:
 :::
 ```
 
-The markdown extension finds the container node and turns it into the [BEMJSON](../../how/bemjson.md) of a `gallery` block with a list of images. For each image, the engine substitutes the hashed name from `image-mapping.json` (see [images](../../out/images.md)).
+The markdown extension finds the container node and turns it into the [BEMJSON](../../how/bemjson.md) of a `gallery` block with a list of images. For each image, the engine substitutes the hashed name from `image-mapping.json` (see [images](../../out/images.md)). The container holds images only: text, captions outside the alt text, links and other blocks inside it stop the build with an error instead of disappearing.
 
 ## Behavior
 

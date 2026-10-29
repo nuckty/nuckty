@@ -111,3 +111,13 @@ test('gallery blocks render the construct tree into gallery HTML', () => {
     assert.ok(html.includes('aria-label="Close image"'));
     assert.ok(html.includes('autofocus'));
 });
+
+test('extractImages rejects captions, links and other content instead of dropping them', () => {
+    const image = (url: string): MdastNode => ({ type: 'image', url, alt: url });
+    const paragraph = (...children: MdastNode[]): MdastNode => ({ type: 'paragraph', children });
+
+    assert.deepEqual(extractImages([paragraph(image('a.png'), { type: 'text', value: '\n' }, image('b.png'), { type: 'break' })]).map((item) => item.src), ['a.png', 'b.png']);
+    assert.throws(() => extractImages([paragraph(image('a.png'), { type: 'text', value: ' подпись' })]), /images only; received text/);
+    assert.throws(() => extractImages([paragraph({ type: 'link', children: [image('a.png')] })]), /received link/);
+    assert.throws(() => extractImages([{ type: 'heading', children: [] }]), /received heading/);
+});

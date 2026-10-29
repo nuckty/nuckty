@@ -18,6 +18,7 @@ import { transformImagePathShared } from '@nuckty/core';
 /** Structural mdast view of the directive's children (duck-typed). */
 export interface MdastNode {
     type: string;
+    value?: string;
     url?: string;
     alt?: string | null;
     children?: MdastNode[];
@@ -39,13 +40,23 @@ export function extractImages(children: MdastNode[]): GalleryImage[] {
     const push = (node: MdastNode): void => {
         if (node.url) images.push({ src: node.url, alt: node.alt ?? '' });
     };
+    const reject = (node: MdastNode): never => {
+        throw new Error(`Gallery supports images only; received ${node.type}`);
+    };
+    const blank = (node: MdastNode): boolean => (node.type === 'text' && !(node.value ?? '').trim()) || node.type === 'break';
     for (const child of children) {
         if (child.type === 'image') {
             push(child);
         } else if (child.type === 'paragraph') {
             for (const c of child.children ?? []) {
-                if (c.type === 'image') push(c);
+                if (c.type === 'image') {
+                    push(c);
+                } else if (!blank(c)) {
+                    reject(c);
+                }
             }
+        } else {
+            reject(child);
         }
     }
     return images;
