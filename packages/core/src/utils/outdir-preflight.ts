@@ -2,7 +2,7 @@
 import path from 'node:path';
 import { realpathSync, lstatSync, statSync } from 'node:fs';
 
-export const PROTECTED_INPUT_DIRS = ['config', 'content', 'blocks', 'src', 'lib', 'openspec'] as const;
+export const PROTECTED_INPUT_DIRS = ['config', 'content', 'blocks', 'external', 'src', 'lib', 'openspec'] as const;
 const PROTECTED_RUNTIME_DIRS = ['.git', '.github', 'node_modules'] as const;
 
 export class UnsafeOutDirError extends Error {

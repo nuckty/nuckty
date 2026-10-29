@@ -20,6 +20,7 @@ const cases: Array<{ name: string; targets: Array<{ name: string; outDir: string
     { name: 'outDir "config/backup" rejected', targets: [{ name: 'a', outDir: 'config/backup' }], ok: false },
     { name: 'outDir "src" rejected', targets: [{ name: 'a', outDir: 'src' }], ok: false },
     { name: 'outDir "content" rejected', targets: [{ name: 'a', outDir: 'content' }], ok: false },
+    { name: 'outDir "external/site" rejected without external.json', targets: [{ name: 'a', outDir: 'external/site' }], ok: false },
     { name: 'outDir ".build" rejected', targets: [{ name: 'a', outDir: '.build/' }], ok: false },
     { name: 'sibling outDirs pass', targets: [{ name: 'a', outDir: 'dist/x' }, { name: 'b', outDir: 'dist/y' }], ok: true },
     { name: 'same outDirs rejected', targets: [{ name: 'a', outDir: 'dist/x' }, { name: 'b', outDir: 'dist/x' }], ok: false },
