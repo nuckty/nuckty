@@ -114,3 +114,18 @@ test('cleanHeadingText preserves a version number that is the whole text', () =>
 test('cleanHeadingText trims surrounding whitespace', () => {
     assert.equal(cleanHeadingText('  Заголовок  '), 'Заголовок');
 });
+
+test('slugs keep letters of every script so sibling headings stay distinct', () => {
+    assert.equal(slugify('Ελληνικά'), 'ελληνικά');
+    assert.equal(slugify('概要'), '概要');
+    assert.equal(slugify('Résumé'), 'résumé');
+    assert.equal(slugify('Привет, мир'), 'привет-мир');
+    assert.equal(createGitHubSlug('Ρυθμίσεις'), 'ρυθμίσεις');
+});
+
+test('sibling headings in non-Latin scripts build with distinct anchors', async () => {
+    const { createMarkdown } = await import('../index.js');
+    const result = createMarkdown().render('# Guide\n\n## 概要\n\n## 安装\n\n## Ελληνικά\n');
+
+    assert.deepEqual(result.headings.slice(1).map((heading) => heading.anchor), ['guide-概要', 'guide-安装', 'guide-ελληνικά']);
+});

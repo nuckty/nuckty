@@ -36,8 +36,8 @@ export function createSlugify(opts: SlugifyOptions = {}): (text: string) => stri
         // Whitespace/underscores → separator.
         text = text.replace(/[\s_]+/g, () => separator);
 
-        // Keep Latin, Cyrillic, digits, dots, separator; drop the rest.
-        const keep = new RegExp(`[^a-zA-Z0-9\\u0400-\\u04FF\\.${classSeparator}]+`, 'gu');
+        // Keep letters, combining marks and digits of every script, dots and the separator; drop the rest.
+        const keep = new RegExp(`[^\\p{L}\\p{M}\\p{N}\\.${classSeparator}]+`, 'gu');
         text = text.replace(keep, '');
 
         // Trim leading/trailing separators.
@@ -55,8 +55,9 @@ export const slugify = createSlugify();
 
 export function createGitHubSlug(text: string): string {
     return text
+        .normalize('NFC')
         .toLowerCase()
-        .replace(/[^\w\sЀ-ӿ-]/g, '')
+        .replace(/[^\p{L}\p{M}\p{N}_\s-]/gu, '')
         .replace(/\s+/g, '-')
         .trim();
 }
@@ -80,7 +81,7 @@ export function createGitHubSlugify(opts: SlugifyOptions = {}): (text: string) =
         // GitHub removes slashes completely (no separator inserted).
         text = text.replace(/[/\\]+/g, '');
         text = text.replace(/[\s_]+/g, () => separator);
-        const keep = new RegExp(`[^a-zA-Z0-9\\u0400-\\u04FF\\.${classSeparator}]+`, 'gu');
+        const keep = new RegExp(`[^\\p{L}\\p{M}\\p{N}\\.${classSeparator}]+`, 'gu');
         text = text.replace(keep, '');
 
         if (separator !== '') {

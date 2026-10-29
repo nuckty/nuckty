@@ -18,7 +18,7 @@ The engine assigns identifiers to headings by the hierarchical anchors rule. Whe
 ### Шипованные       → id="шины-зимние-шипованные"
 ```
 
-Cyrillic is preserved in identifiers — no transliteration, no encoding. A numbered prefix (`1. `, `1.2. `) is removed from the visible heading and anchor; a slash becomes a hyphen. Periods elsewhere remain: `# Version 2.4.3.` gets the anchor `version-2.4.3.`. You can link to an anchor in Cyrillic directly.
+Letters and digits of every script — Cyrillic, accented Latin, Greek, CJK and others — are preserved in identifiers, without transliteration or encoding; other punctuation is dropped. A numbered prefix (`1. `, `1.2. `) is removed from the visible heading and anchor; a slash becomes a hyphen. Periods elsewhere remain: `# Version 2.4.3.` gets the anchor `version-2.4.3.`. You can link to an anchor in Cyrillic directly.
 
 A custom ID can be supplied as a trailing plain-text `{#id}` suffix, for example `# **Title** {#custom}`. The suffix is removed from visible heading content; the same text inside code, a link, or emphasis remains literal.
 
