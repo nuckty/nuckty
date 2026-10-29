@@ -21,7 +21,7 @@ Nu Html Checker checks minimal HTML using the standard's optional-tag omission r
 
 Starting the JVM has a cost, so the extension is optional. Tests of the [minimization rules](../../out/html.md) verify specific transformations and do not replace validation of consumer [templates](../../how/templates.md).
 
-Port `127.0.0.1:8888` must be free: an already occupied port fails before Java starts. The availability check does not eliminate a race with another process binding between the check and Java startup. Unit tests do not certify arbitrary consumer templates.
+The selected port on `127.0.0.1`, 8888 by default, must be free: an already occupied port fails before Java starts. The availability check does not eliminate a race with another process binding between the check and Java startup. Unit tests do not certify arbitrary consumer templates.
 
 ## When to run the check
 
@@ -36,7 +36,7 @@ npx @nuckty/core build main
 npx @nuckty/core validate main
 ```
 
-`validate [target]` selects the named target, or the first declared target when omitted. Build it first: the command recursively checks `.html` files in `<outDir>/html/`, including nested directories. An unknown target, missing directory, empty file set, or validation errors produce a nonzero exit code. Flags are not supported.
+`validate [target] [--port N]` selects the named target, or the first declared target when omitted. Build it first: the command recursively checks `.html` files in `<outDir>/html/`, including nested directories. An unknown target, missing directory, empty file set, or validation errors produce a nonzero exit code. `--port N` moves the validator from the default port 8888 when it is occupied; the port must be an integer from 1 through 65535, and validation and cleanup use it. Other flags are rejected.
 
 ## Installation
 
