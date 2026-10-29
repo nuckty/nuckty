@@ -64,15 +64,18 @@ test('galleryNode rewrites srcs via image-mapping, lazies all but the first, app
     assert.equal((items[2]!.content as { attrs: Record<string, string> }).attrs.loading, 'lazy');
 });
 
+const convert = { inline: () => [], blocks: () => [] };
+
 test('galleryHandler maps a container with images and falls back on an empty one', () => {
     const withImages = galleryHandler(
         { name: 'gallery', children: [paragraph(image('a.png'))] },
         { imageMapping: { 'a.png': '_iaaa' } },
+        convert,
     );
     assert.ok(withImages);
     assert.equal((withImages as { block?: string }).block, 'gallery');
 
-    const empty = galleryHandler({ name: 'gallery', children: [paragraph({ type: 'text' })] }, { imageMapping: {} });
+    const empty = galleryHandler({ name: 'gallery', children: [paragraph({ type: 'text' })] }, { imageMapping: {} }, convert);
     assert.equal(empty, null);
 });
 
