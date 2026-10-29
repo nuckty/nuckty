@@ -80,3 +80,10 @@ Image mapping for raw HTML and CSS SHALL normalize surrounding C0/space and embe
 #### Scenario: Encoded filename spaces
 - **WHEN** spaces are percent-encoded in the image filename
 - **THEN** they are retained as filename characters for mapping
+
+### Requirement: External asset discovery skips tooling directories
+The assets stage SHALL NOT collect files from hidden directories such as `.git` or `.venv` or from `node_modules` of external repositories.
+
+#### Scenario: Credential file in a hidden directory
+- **WHEN** an external repository contains `.venv/db.ini` and `docs/guide.pdf`
+- **THEN** only `guide.pdf` is copied to the artifact

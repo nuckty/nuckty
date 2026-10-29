@@ -63,3 +63,10 @@ Consumer block ownership lint SHALL inspect actual named block import bindings r
 #### Scenario: Shadowed helper
 - **WHEN** a local helper shadows an imported block name
 - **THEN** its calls do not receive API ownership diagnostics
+
+### Requirement: Element entries in declarations
+A declaration entry SHALL be a block or `block__elem` string, or an object: `{ block }` names the block, `{ block, elem }` names only that element (or each of an `elem` array), and `{ block, elems }` names the block and each listed element. Element entities SHALL bundle their element CSS and JavaScript files. An object field other than `block`, `elem` and `elems` SHALL fail the declaration.
+
+#### Scenario: Object element entries
+- **WHEN** a declaration lists `{ block: 'nav', elems: ['link'] }`
+- **THEN** the bundle includes `nav` and `nav__link`

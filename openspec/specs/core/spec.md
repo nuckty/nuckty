@@ -248,3 +248,10 @@ The core SHALL read `external.json` entries as repository URL strings or objects
 - **WHEN** a target's `external.json` contains `{ "url": "https://github.com/nuckty/nuckty.git", "ref": "v1.0.0", "path": "docs" }`
 - **THEN** build stages resolve the repository at `external/nuckty/`
 - **AND** an entry with an unknown field fails the build with the file and entry number
+
+### Requirement: External directory is a protected input
+The output preflight SHALL treat `external/` as a protected input whether or not `external.json` exists, and SHALL reject an `outDir` inside it before the clean stage.
+
+#### Scenario: Output inside external
+- **WHEN** a target sets `outDir` to `external/site` and the project has no `external.json`
+- **THEN** the build fails before deleting anything

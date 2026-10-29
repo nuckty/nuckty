@@ -228,3 +228,10 @@ The plain-content fallback of an unknown or declined leaf directive SHALL render
 #### Scenario: A leaf directive between paragraphs
 - **WHEN** `::note[Visible label]` without a handler stands between two paragraphs
 - **THEN** its label renders as a third paragraph rather than bare text between block elements
+
+### Requirement: Anchors keep every script
+Heading anchors SHALL keep letters, combining marks and digits of every script, not only Latin and Cyrillic, so headings in Greek, CJK and accented Latin produce non-empty anchors that keep their letters.
+
+#### Scenario: Non-Latin sibling headings
+- **WHEN** a page has `# Guide` followed by `## 概要` and `## 安装`
+- **THEN** their anchors are `guide-概要` and `guide-安装` and the build succeeds

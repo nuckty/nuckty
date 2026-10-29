@@ -74,3 +74,10 @@ The indentation parser SHALL reject empty list entries and unsupported nonempty 
 - **WHEN** a sitemap source contains an empty dash or a page declaration missing its list marker
 - **THEN** parsing reports that offending line rather than returning only the other pages
 - **AND** ordinary comments and blank lines still parse
+
+### Requirement: Sitemap line titles and URL ownership
+A sitemap title SHALL run up to the last bracketed definition, so titles may contain brackets. Two home-section entries that give one URL different files SHALL fail the build; a cross-section entry SHALL still yield to the page's home-section entry.
+
+#### Scenario: Conflicting entries
+- **WHEN** a sitemap lists `Guide [/guide, guide.md]` and `Guide v2 [/guide, guide-v2.md]` in the same section
+- **THEN** the build fails naming both files
