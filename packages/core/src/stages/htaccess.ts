@@ -18,10 +18,10 @@ RewriteCond %{ENV:REDIRECT_STATUS} ^$
 RewriteCond %{THE_REQUEST} "[ ]/+[^ ?]*\\.html(?:[ ?])" [NC]
 RewriteRule .* - [R=404,L]
 
-# The deployment manifest is read over FTP, not served to visitors
+# The deployment manifest is read over FTP, not served to visitors.
+# Match the decoded, normalized path so encoded and dot-segment forms are covered.
 RewriteCond %{ENV:REDIRECT_STATUS} ^$
-RewriteCond %{THE_REQUEST} "[ ]/+manifest\\.json(?:[ ?])" [NC]
-RewriteRule .* - [R=404,L]
+RewriteRule ^manifest\\.json$ - [R=404,L,NC]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} ^(.+)/$
