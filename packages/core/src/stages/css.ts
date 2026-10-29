@@ -128,10 +128,8 @@ export async function processImageReferences(css: string, imageMapping: Record<s
         if (hashedFilename === undefined) {
             return undefined;
         }
-        const ext = path.extname(hashedFilename).toLowerCase();
-        const subdir = ext === '.png' ? 'png/' : ext === '.jpg' || ext === '.jpeg' ? 'jpg/' : ext === '.webp' ? 'webp/' : '';
-
-        return cssUrl(`/${subdir}${hashedFilename}${suffix}`);
+        // The images stage maps raster images to negotiated `_i<hash>` URLs and SVGs to `<hash>.svg`.
+        return cssUrl(`/${hashedFilename}${suffix}`);
     });
 }
 

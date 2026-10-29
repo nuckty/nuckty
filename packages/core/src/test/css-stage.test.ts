@@ -148,13 +148,12 @@ test('cssStage rewrites url() image references through the image-mapping and inl
         await writeFile(path.join(dir, 'blocks', 'hero', 'hero.css'),
             '.hero{background:url(./logo.png)}.icon{background:url(./icon.svg)}');
 
-        // Image mapping from the images stage: the hashed filename carries its
-        // extension so processImageReferences can route it to the format subdir
-        // (png → /png/, svg → root). SVG is later inlined as a data URI.
+        // Image mapping as the images stage writes it: rasters map to negotiated
+        // `_i<hash>` URLs, SVGs to `<hash>.svg`, which is later inlined as a data URI.
         const pngHash = generateHash('fake-png');
         const svgHash = generateHash(svgContent);
         ctx.store['imageMapping'] = {
-            'hero/logo.png': `${pngHash}.png`,
+            'hero/logo.png': `_i${pngHash}`,
             'hero/icon.svg': `${svgHash}.svg`,
         };
         ctx.store['blockDeps'] = { page: ['hero'] };
@@ -168,8 +167,8 @@ test('cssStage rewrites url() image references through the image-mapping and inl
 
         const cssHash = ctx.store['cssHash'] as Record<string, { hash: string }>;
         const css = await readFile(path.join(ctx.outDir, 'css', `${cssHash.page!.hash}.css`), 'utf8');
-        // PNG rewritten to /png/<hash>.png.
-        assert.ok(css.includes(`url(/png/${pngHash}.png)`), 'png url rewritten to /png/ subdir');
+        // PNG rewritten to its negotiated image URL.
+        assert.ok(css.includes(`url(/_i${pngHash})`), 'png url rewritten to /_i<hash>');
         assert.ok(!css.includes('logo.png'), 'original png path is gone');
         // SVG inlined as a data URI (encodeURIComponent of the SVG content).
         assert.ok(css.includes('data:image/svg+xml,'), 'svg inlined as a data URI');
