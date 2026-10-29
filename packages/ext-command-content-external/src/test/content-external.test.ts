@@ -459,3 +459,31 @@ test('planRepos and dry-run carry ref and path of object sources', async () => {
     assert.deepEqual(runner.calls[0]!.options, { ref: 'v1', path: 'docs' });
     assert.deepEqual(runner.calls[1]!.options, {});
 });
+
+test('runner keeps only path in a branch clone and pulls it on update', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'nuckty-content-partial-'));
+    const source = path.join(root, 'source');
+    const destination = path.join(root, 'external', 'source');
+    const commit = async (file: string, text: string) => {
+        await mkdir(path.dirname(path.join(source, file)), { recursive: true });
+        await writeFile(path.join(source, file), text);
+        await git('git', ['-C', source, 'add', '-A']);
+        await git('git', ['-C', source, '-c', 'user.name=fixture', '-c', 'user.email=fixture@invalid', 'commit', '-qm', file]);
+    };
+    try {
+        await git('git', ['init', '-q', source]);
+        await commit('package.json', '{}');
+        await commit('docs/a.md', 'one');
+        const runner = makeGitRunner();
+
+        await runner.clone(source, destination, { path: 'docs' });
+        assert.deepEqual((await readdir(destination)).sort(), ['.git', 'docs']);
+
+        await commit('docs/a.md', 'two');
+        await runner.update(destination, source, { path: 'docs' });
+        assert.equal(await readFile(path.join(destination, 'docs', 'a.md'), 'utf8'), 'two');
+        assert.deepEqual((await readdir(destination)).sort(), ['.git', 'docs']);
+    } finally {
+        await rm(root, { recursive: true, force: true });
+    }
+});
