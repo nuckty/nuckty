@@ -184,3 +184,10 @@ Raw asset rewriting in inline and fenced code SHALL match configured prefixes at
 - **WHEN** a configured URL prefix contains a valid ampersand path character
 - **THEN** inline and fenced code match the same logical prefix before serialization escaping
 - **AND** rewritten code is escaped once without losing its literal text
+
+### Requirement: Directive node form
+A directive handler SHALL receive the directive form as `type`: `containerDirective`, `leafDirective` or `textDirective`, so one handler name can treat the forms differently.
+
+#### Scenario: Handler declines an inline form
+- **WHEN** a handler returns null for a `textDirective`
+- **THEN** the directive falls back to its plain content

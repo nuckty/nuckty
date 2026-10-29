@@ -99,6 +99,8 @@ export type RemarkPlugin = import('unified').Plugin<[], import('mdast').Root>;
  * mdast internals.
  */
 export interface DirectiveNode {
+    /** Directive form: container `:::name`, leaf `::name` or text `:name`. */
+    type?: 'containerDirective' | 'leafDirective' | 'textDirective';
     /** Directive name (the `name` in `:::name` / `::name` / `:name`). */
     name: string;
     /** The directive's mdast children; inline or block nodes depend on its type. */

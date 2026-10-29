@@ -33,3 +33,10 @@ The `grid` block SHALL lay its items out in a multi-column responsive layout via
 #### Scenario: Site overrides the grid block
 - **WHEN** a site places its own `grid.nu.ts` on a later level
 - **THEN** the site's version wins by level priority
+
+### Requirement: Grid directive forms
+Only the container form `:::grid` SHALL become a grid. Leaf `::grid` and text `:grid` directives SHALL fall back to their plain content without failing the build.
+
+#### Scenario: Inline grid directive
+- **WHEN** a paragraph contains `:grid[text]`
+- **THEN** the page builds and shows `text`

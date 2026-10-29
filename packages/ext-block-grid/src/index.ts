@@ -19,10 +19,12 @@ export { extractItems, gridNode, paragraphText } from './grid.js';
 export type { MdastNode } from './grid.js';
 
 /**
- * Map the `:::grid` container to the grid tree. Returns `null` for a container
- * without items — the engine then falls back to the directive's plain content.
+ * Map the `:::grid` container to the grid tree. Returns `null` for a leaf or
+ * text directive and for a container without items — the engine then falls
+ * back to the directive's plain content.
  */
 export const gridHandler: DirectiveHandler = (node) => {
+    if (node.type !== undefined && node.type !== 'containerDirective') return null;
     const items = extractItems((node.children ?? []) as import('./grid.js').MdastNode[]);
     if (items.length === 0) return null;
     // The engine's handler contract is structural ({ raw?, ...unknown }); the

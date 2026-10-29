@@ -14,7 +14,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { NucktyEnv, Templates, render, runWithTemplates } from '@nuckty/core';
+import { NucktyEnv, Templates, createMarkdown, render, runWithTemplates } from '@nuckty/core';
 import { register as registerExtension, gridHandler } from '../index.js';
 import { extractItems, gridNode } from '../grid.js';
 import type { MdastNode } from '../grid.js';
@@ -88,4 +88,15 @@ test('grid keeps text in all inline formatting and rejects mixed unsupported blo
     )]);
     assert.deepEqual(items, ['KEEPEMCODEDEL']);
     assert.throws(() => extractItems([paragraph({ type: 'text', value: 'Cell' }), { type: 'list', children: [] }]), /Grid supports paragraph cells only; received list/);
+});
+
+test('leaf and text grid directives fall back to plain content instead of failing the build', () => {
+    const env = new NucktyEnv();
+    registerExtension(env);
+    const parser = createMarkdown({ directiveMappings: env.markdown.directiveMappings() });
+    const html = render(parser.render('Текст :grid[в строке] и\n\n::grid[лист]\n\n:::grid\nячейка\n:::').tree, { templates: new Templates() });
+
+    assert.match(html, /в строке/);
+    assert.match(html, /лист/);
+    assert.match(html, /grid__item/);
 });
