@@ -202,3 +202,14 @@ A directive handler SHALL receive a third argument with `inline(children)` and `
 #### Scenario: Handler converts and then declines
 - **WHEN** a handler converts a `## Intro` heading with `convert.blocks` and returns null
 - **THEN** the page lists `Intro` once and its anchor is `intro`
+
+### Requirement: Relative download links
+A relative Markdown link to a `.pdf`, `.zip` or `.ini` file SHALL resolve against the current source file relative to the consumer root and point to `/<filename>` at the artifact root, with the filename percent-encoded and the query and fragment preserved. When the assets stage selection is known, the resolved source SHALL equal the source the assets stage published under that filename; otherwise the build SHALL fail naming the link, the resolved source and the published owner, if any.
+
+#### Scenario: A download from an external repository
+- **WHEN** external/docs/docs/guide.md links to files/tool.zip and the assets stage published tool.zip from external/docs/docs/files/tool.zip
+- **THEN** the link points to /tool.zip
+
+#### Scenario: A download the assets stage did not publish
+- **WHEN** content/guide.md links to manual.pdf and no external repository provides manual.pdf, or the published manual.pdf comes from another repository
+- **THEN** the build fails instead of emitting a link that 404s or serves another file

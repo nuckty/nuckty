@@ -84,6 +84,12 @@ test('assetsStage recursively discovers and copies nested PDF/ZIP/INI from multi
         const repos = ctx.store['assetRepos'] as { available: string[]; missing: string[] };
         assert.deepEqual(repos.available.sort(), ['docs', 'install']);
         assert.deepEqual(repos.missing, []);
+        // The markdown bridge validates download links against this selection.
+        assert.deepEqual(ctx.store['downloads'], {
+            'guide.pdf': 'external/docs/manual/pdf/guide.pdf',
+            'archive.zip': 'external/install/downloads/archive.zip',
+            'settings.ini': 'external/install/settings.ini',
+        });
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
@@ -270,13 +276,17 @@ test('assetsStage resolves pinned partial external sources by repository name', 
     }
 });
 
-test('assetsStage never ships files from external Git metadata', async () => {
+test('assetsStage never ships files from Git metadata, hidden tooling directories or node_modules', async () => {
     const { ctx, dir } = await makeCtx();
     try {
         await writeFile(path.join(dir, 'config', 'external.json'), JSON.stringify(['https://github.com/nuckty/docs.git']));
         await mkdir(path.join(dir, 'external', 'docs', '.git', 'lfs'), { recursive: true });
         await writeFile(path.join(dir, 'external', 'docs', '.git', 'lfs', 'leak.pdf'), PDF_BYTES);
         await writeFile(path.join(dir, 'external', 'docs', '.git', 'leak.mp4'), 'video');
+        await mkdir(path.join(dir, 'external', 'docs', 'node_modules', 'pkg'), { recursive: true });
+        await writeFile(path.join(dir, 'external', 'docs', 'node_modules', 'pkg', 'setup.ini'), 'x');
+        await mkdir(path.join(dir, 'external', 'docs', '.venv'), { recursive: true });
+        await writeFile(path.join(dir, 'external', 'docs', '.venv', 'db.ini'), 'password=x');
         await writeFile(path.join(dir, 'external', 'docs', 'guide.pdf'), PDF_BYTES);
 
         await assetsStage(ctx);

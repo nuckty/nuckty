@@ -86,6 +86,14 @@ async function resolveSourceRepos(root: string, urls: string[] | undefined): Pro
     });
 }
 
+/**
+ * Hidden directories (`.git`, `.venv`, `.idea`, …) and `node_modules` hold
+ * tooling and dependencies, not site content; their files must never ship.
+ */
+function isToolingDirectory(name: string): boolean {
+    return name.startsWith('.') || name === 'node_modules';
+}
+
 /** Recursively find asset files (by extension) under a directory. */
 async function findAssetFiles(dirPath: string, basePath = dirPath): Promise<AssetFile[]> {
     const results: AssetFile[] = [];
@@ -101,8 +109,7 @@ async function findAssetFiles(dirPath: string, basePath = dirPath): Promise<Asse
     for (const entry of entries) {
         const fullPath = path.join(dirPath, entry.name);
         if (entry.isDirectory()) {
-            // Git metadata is not repository content and must never ship.
-            if (entry.name === '.git') continue;
+            if (isToolingDirectory(entry.name)) continue;
             const sub = await findAssetFiles(fullPath, basePath);
             for (const f of sub) results.push(f);
         } else if (
@@ -134,7 +141,7 @@ async function findVideoFiles(basePath: string): Promise<Array<{ filename: strin
     for (const entry of entries) {
         const fullPath = path.join(basePath, entry.name);
         if (entry.isDirectory()) {
-            if (entry.name === '.git') continue;
+            if (isToolingDirectory(entry.name)) continue;
             const sub = await findVideoFiles(fullPath);
             for (const f of sub) results.push(f);
         } else if (entry.isFile() && entry.name.endsWith('.mp4')) {
@@ -228,6 +235,7 @@ export const assetsStage: Stage<BuildContext> = async (ctx: BuildContext): Promi
     }
 
     const selectedAssets = selectAssetSources(root, candidates, configuredSources);
+    const downloads: Record<string, string> = {};
     for (const fileInfo of selectedAssets) {
         if (fileInfo.filename.endsWith('.mp4')) {
             continue;
@@ -240,7 +248,9 @@ export const assetsStage: Stage<BuildContext> = async (ctx: BuildContext): Promi
             await fs.rm(destination, { force: true });
             throw error;
         }
+        downloads[fileInfo.filename] = assetSourcePath(root, fileInfo.fullPath);
     }
+    ctx.store['downloads'] = downloads;
 
     // Copy MP4 videos with content-hash filenames.
     const videoHash: Record<string, string> =

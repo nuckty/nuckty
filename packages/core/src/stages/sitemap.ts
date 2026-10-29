@@ -327,6 +327,8 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
             };
             const imageMapping = ctx.store['imageMapping'] as Record<string, string> | undefined;
             if (imageMapping) mdOpts.imageMapping = imageMapping;
+            const downloads = ctx.store['downloads'] as Record<string, string> | undefined;
+            if (downloads) mdOpts.downloads = downloads;
             // Pass extension-registered remark plugins (env.markdown.use) and
             // generic-directive mappings (env.markdown.directive) into the bridge.
             const remarkPlugins = ctx.env.markdown.list();

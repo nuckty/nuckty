@@ -19,6 +19,8 @@ export interface MarkdownOptions {
     sourceFile?: string;
     /** Page inputPath (relative to consumer root) — drives section-prefix image lookup. */
     inputPath?: string;
+    /** Published download filename → source path relative to the consumer root (built by the assets stage). */
+    downloads?: Record<string, string>;
     /** Extra remark plugins (mdast transforms) registered via `env.markdown.use`. */
     remarkPlugins?: RemarkOptions['remarkPlugins'] | undefined;
     /** Generic-directive mappings registered via `env.markdown.directive(name, handler)`. */

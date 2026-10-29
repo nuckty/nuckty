@@ -351,3 +351,20 @@ test('postprocess: authored prose whitespace is preserved without typography ext
     const out = postprocessHtml('<p>a  b</p>');
     assert.equal(out, '<p>a  b</p>');
 });
+
+test('relative download links point at the flat artifact root where the assets stage copies them', () => {
+    const downloads = { 'tool.zip': 'external/docs/docs/files/tool.zip', 'manual.pdf': 'external/docs/manual.pdf', 'setup.ini': 'external/docs/docs/setup.ini', 'my#a.zip': 'external/docs/docs/my#a.zip' };
+    const md = createMarkdown({ sourceFile: 'docs/guide.md', inputPath: './external/docs/docs/guide.md', downloads, md2url: { 'docs/guide.md': '/docs/guide' }, currentUrl: '/docs/guide' });
+    const html = render(md.render('[tool](files/tool.zip) [manual](../manual.pdf) [cfg](setup.ini?v=2) [hash](my%23a.zip)').tree, { templates: new Templates() });
+    assert.ok(html.includes('href=/tool.zip>'), html);
+    assert.ok(html.includes('href=/manual.pdf>'), html);
+    assert.ok(html.includes('href="/setup.ini?v=2"') || html.includes('href=/setup.ini?v=2>'), html);
+    assert.ok(html.includes('href=/my%23a.zip>'), html);
+});
+
+test('relative download links fail when the assets stage did not publish that exact file', () => {
+    const render = (link: string, downloads: Record<string, string>) => createMarkdown({ inputPath: './content/guide.md', downloads }).render(`[file](${link})`);
+    assert.throws(() => render('manual.pdf', {}), /points to content\/manual\.pdf, but no external repository provides it/);
+    assert.throws(() => render('manual.pdf', { 'manual.pdf': 'external/other/manual.pdf' }), /comes from external\/other\/manual\.pdf/);
+    assert.doesNotThrow(() => render('manual.pdf', { 'manual.pdf': 'content/manual.pdf' }));
+});

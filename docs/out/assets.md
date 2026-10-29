@@ -4,7 +4,7 @@ The engine bundles CSS and JS by [block dependencies](../how/blocks/deps.md). Ev
 
 ## Static files from external repositories
 
-The `assets` stage copies PDF, ZIP, and INI files from declared external repositories to the artifact root, using each filename as the output name. If multiple candidates have the same filename, the build fails. Set `assetSources` in `config/site.json` to select an owner explicitly; map the output filename to the exact source path relative to the consumer project root:
+The `assets` stage copies PDF, ZIP, and INI files from declared external repositories to the artifact root, using each filename as the output name. Hidden directories such as `.git` or `.venv` and `node_modules` are skipped. If multiple candidates have the same filename, the build fails. Set `assetSources` in `config/site.json` to select an owner explicitly; map the output filename to the exact source path relative to the consumer project root:
 
 ```json
 {
@@ -15,6 +15,8 @@ The `assets` stage copies PDF, ZIP, and INI files from declared external reposit
 ```
 
 The selected path must match an existing candidate for that filename. A missing or mismatched candidate fails the build. Unique filenames need no entry. MP4 files use the same collision and `assetSources` rules, but their output names include a streamed content hash.
+
+A relative Markdown link to a PDF, ZIP, or INI file points to `/<filename>`. The build fails if the link resolves to a file other than the one the stage copied under that name, for example a file outside the external repositories or a same-named file from another repository.
 
 ## Bundles by dependencies
 

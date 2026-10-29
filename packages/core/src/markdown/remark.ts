@@ -48,6 +48,8 @@ export interface RemarkOptions {
     sourceFile?: string;
     /** Page inputPath (relative to consumer root) — drives section-prefix image lookup. */
     inputPath?: string;
+    /** Published download filename → source path relative to the consumer root (built by the assets stage). */
+    downloads?: Record<string, string>;
     /** Extra remark plugins to apply after the core parse (mdast transforms).
      * Registered by extensions via `env.markdown.use(plugin)` (openspec `extensions`). */
     remarkPlugins?: Array<import('unified').Plugin<[], Root>> | undefined;
@@ -91,6 +93,8 @@ interface BridgeEnv {
     sourceFile?: string;
     /** Page inputPath (relative, e.g. `./external/<repo>/<section>/<file>.md`) — used by section-prefix image lookup. */
     inputPath?: string;
+    /** Published download filename → source path relative to the consumer root (built by the assets stage). */
+    downloads?: Record<string, string>;
     /** Generic-directive mappings (env.markdown.directive) — name → handler. */
     directiveMappings?: Map<string, DirectiveHandler> | undefined;
     /** GitHub-raw rewrite base (from `config/site.json` `githubRawBase`); null = no rewrite. */
@@ -135,6 +139,7 @@ export function createRemarkMarkdown(opts: RemarkOptions = {}): {
             env.sourceFile = opts.sourceFile;
         }
         if (opts.githubRawBase !== undefined) env.githubRawBase = opts.githubRawBase;
+        if (opts.downloads !== undefined) env.downloads = opts.downloads;
         const nodes = blocksToBem(tree.children, env, false);
         return { tree: nodes, headings: env.headings };
     };
@@ -622,8 +627,8 @@ function resolveLink(href: string, env: BridgeEnv): string {
     } catch {
         // Keep malformed URI escapes literal for the diagnostic.
     }
-    if (/\.(zip|ini)$/i.test(target)) {
-        return '/' + target + suffix;
+    if (/\.(zip|ini|pdf)$/i.test(target)) {
+        return resolveDownload(href, target, suffix, env);
     }
     if (/\.(html|php|asp|jsp)$/i.test(target)) {
         throw new Error(`Unknown relative link type in ${env.inputPath ?? 'unknown file'}: "${href}"`);
@@ -654,6 +659,28 @@ function resolveLink(href: string, env: BridgeEnv): string {
     }
 
     return mapped + suffix;
+}
+
+/**
+ * The assets stage copies downloads flat to the artifact root under their file
+ * names. When its selection is known, the link must name exactly the copied
+ * source; anything else would silently 404 or serve a same-named file from
+ * another repository.
+ */
+function resolveDownload(href: string, target: string, suffix: string, env: BridgeEnv): string {
+    const normalized = path.posix.normalize(target.replace(/\\/g, '/'));
+    const filename = path.posix.basename(normalized);
+    if (env.downloads !== undefined) {
+        const input = env.inputPath?.replace(/\\/g, '/').replace(/^\.\//, '');
+        const source = input ? path.posix.join(path.posix.dirname(input), normalized) : normalized;
+        const published = env.downloads[filename];
+        if (published !== source) {
+            const owner = published === undefined ? 'no external repository provides it' : `the published "${filename}" comes from ${published}`;
+            throw new Error(`Download link "${href}" in ${env.inputPath ?? 'unknown file'} points to ${source}, but ${owner}`);
+        }
+    }
+
+    return '/' + encodeURIComponent(filename) + suffix;
 }
 
 function findClosestUrl(urls: string[], currentUrl: string): string {
