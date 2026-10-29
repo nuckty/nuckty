@@ -101,6 +101,8 @@ async function findAssetFiles(dirPath: string, basePath = dirPath): Promise<Asse
     for (const entry of entries) {
         const fullPath = path.join(dirPath, entry.name);
         if (entry.isDirectory()) {
+            // Git metadata is not repository content and must never ship.
+            if (entry.name === '.git') continue;
             const sub = await findAssetFiles(fullPath, basePath);
             for (const f of sub) results.push(f);
         } else if (
@@ -132,6 +134,7 @@ async function findVideoFiles(basePath: string): Promise<Array<{ filename: strin
     for (const entry of entries) {
         const fullPath = path.join(basePath, entry.name);
         if (entry.isDirectory()) {
+            if (entry.name === '.git') continue;
             const sub = await findVideoFiles(fullPath);
             for (const f of sub) results.push(f);
         } else if (entry.isFile() && entry.name.endsWith('.mp4')) {

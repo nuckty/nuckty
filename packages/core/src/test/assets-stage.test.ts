@@ -13,7 +13,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, rm, readFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, rm, readFile, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { assetsStage } from '../stages/assets.js';
@@ -265,6 +265,23 @@ test('assetsStage resolves pinned partial external sources by repository name', 
         await assetsStage(ctx);
 
         assert.deepEqual(await readFile(path.join(ctx.outDir, 'guide.pdf')), PDF_BYTES);
+    } finally {
+        await rm(dir, { recursive: true, force: true });
+    }
+});
+
+test('assetsStage never ships files from external Git metadata', async () => {
+    const { ctx, dir } = await makeCtx();
+    try {
+        await writeFile(path.join(dir, 'config', 'external.json'), JSON.stringify(['https://github.com/nuckty/docs.git']));
+        await mkdir(path.join(dir, 'external', 'docs', '.git', 'lfs'), { recursive: true });
+        await writeFile(path.join(dir, 'external', 'docs', '.git', 'lfs', 'leak.pdf'), PDF_BYTES);
+        await writeFile(path.join(dir, 'external', 'docs', '.git', 'leak.mp4'), 'video');
+        await writeFile(path.join(dir, 'external', 'docs', 'guide.pdf'), PDF_BYTES);
+
+        await assetsStage(ctx);
+
+        assert.deepEqual((await readdir(ctx.outDir)).sort(), ['guide.pdf']);
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
