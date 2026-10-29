@@ -1,15 +1,22 @@
-import { promises as fs } from 'node:fs';
+import { existsSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { resolveBuildFile } from './artifact-path.js';
 import type { Stage, BuildContext } from '../pipeline/pipeline.js';
 import { getBuildConfig } from '../utils/build-config.js';
 
-/** Resolve the platform-appropriate mime.types include path. */
+/** mime.types locations of nginx packages: Linux distributions, Homebrew on Apple silicon and on Intel. */
+const MIME_TYPES = ['/etc/nginx/mime.types', '/opt/homebrew/etc/nginx/mime.types', '/usr/local/etc/nginx/mime.types'];
+
+/** Resolve the installed mime.types include path, falling back to the platform default. */
 function mimeTypesPath(): string {
-    const isCI = process.env.CI === 'true';
-    const isLinux = process.platform === 'linux';
-    return (isCI || isLinux) ? '/etc/nginx/mime.types' : '/opt/homebrew/etc/nginx/mime.types';
+    const installed = MIME_TYPES.find((candidate) => existsSync(candidate));
+
+    if (installed) {
+        return installed;
+    }
+
+    return process.env.CI === 'true' || process.platform === 'linux' ? MIME_TYPES[0]! : MIME_TYPES[1]!;
 }
 
 /** Quote a filesystem path as one nginx config argument. */

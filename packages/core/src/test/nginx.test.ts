@@ -147,7 +147,7 @@ test('nginx: a trailing slash on root is stripped', () => {
 test('nginx: filesystem paths are quoted and escape quotes and backslashes', () => {
     const c = generateNginxConfig('/tmp/site "quoted" \\dir Ω/', 'serve', '/tmp/build "quoted"/nginx.pid', 8080, '/tmp/logs \\quoted');
 
-    assert.ok(c.includes('include "/opt/homebrew/etc/nginx/mime.types";') || c.includes('include "/etc/nginx/mime.types";'));
+    assert.ok(['/etc/nginx/mime.types', '/opt/homebrew/etc/nginx/mime.types', '/usr/local/etc/nginx/mime.types'].some((file) => c.includes(`include "${file}";`)));
     assert.ok(c.includes('pid "/tmp/build \\"quoted\\"/nginx.pid";'), c);
     assert.ok(c.includes('access_log "/tmp/logs \\\\"quoted/serve_access.log";') || c.includes('access_log "/tmp/logs \\\\quoted/serve_access.log";'), c);
     assert.ok(c.includes('root "/tmp/site \\"quoted\\" \\\\dir Ω";'), c);
