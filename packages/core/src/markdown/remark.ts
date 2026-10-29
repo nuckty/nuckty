@@ -232,7 +232,8 @@ function blocksToBem(
                 const rendered = invokeDirective(d, 'leafDirective', env);
                 if (rendered) out.push(rendered);
                 else if (d.children && d.children.length > 0) {
-                    for (const c of phrasingToBem(d.children as unknown as PhrasingContent[], env)) out.push(c as BemNode);
+                    // The label is phrasing content: render it as the paragraph it stands in for.
+                    out.push(...blocksToBem([{ type: 'paragraph', children: d.children as unknown as PhrasingContent[] }], env, insideListItem));
                 }
                 break;
             }

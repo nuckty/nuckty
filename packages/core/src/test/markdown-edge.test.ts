@@ -279,8 +279,13 @@ test('directive: unknown and declined leaf directives preserve visible labels', 
     for (const directiveMappings of [undefined, mappings]) {
         const html = mdToHtml('::video[Кот]{provider=youtube id=x}', { directiveMappings });
 
-        assert.equal(html, '<div class=article>Кот</div>');
+        assert.equal(html, '<div class=article><p class=article__paragraph>Кот</div>');
     }
+});
+
+test('directive: an unknown leaf directive between paragraphs stays a paragraph, and tight list items stay unwrapped', () => {
+    assert.equal(mdToHtml('Before\n\n::note[Visible *label*]\n\nAfter'), '<div class=article><p class=article__paragraph>Before<p class=article__paragraph>Visible <em>label</em><p class=article__paragraph>After</div>');
+    assert.ok(!mdToHtml('- ::note[item]\n- other').includes('<p'));
 });
 
 // ---- Mapped directives (a markdown-extension maps `:::name` → BemNode) ------

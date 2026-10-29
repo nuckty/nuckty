@@ -221,3 +221,10 @@ Anchor resolution SHALL NOT rewrite the self-link the bridge generates inside a 
 - **WHEN** a page has `# Intro`, `## Setup` with final id `intro-setup`, and `## Intro Setup`
 - **THEN** the self-link of `Setup` points at `#intro-setup`
 - **AND** an authored link `#intro-setup` points at the `Intro Setup` heading
+
+### Requirement: Leaf fallback is a paragraph
+The plain-content fallback of an unknown or declined leaf directive SHALL render its label as a paragraph, with the same wrapping rules as an ordinary paragraph in that position, including no wrapper inside tight list items.
+
+#### Scenario: A leaf directive between paragraphs
+- **WHEN** `::note[Visible label]` without a handler stands between two paragraphs
+- **THEN** its label renders as a third paragraph rather than bare text between block elements
