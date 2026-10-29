@@ -18,6 +18,11 @@ RewriteCond %{ENV:REDIRECT_STATUS} ^$
 RewriteCond %{THE_REQUEST} "[ ]/+[^ ?]*\\.html(?:[ ?])" [NC]
 RewriteRule .* - [R=404,L]
 
+# The deployment manifest is read over FTP, not served to visitors
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteCond %{THE_REQUEST} "[ ]/+manifest\\.json(?:[ ?])" [NC]
+RewriteRule .* - [R=404,L]
+
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} ^(.+)/$
 RewriteRule ^(.+)/$ /$1 [R=301,L]

@@ -86,7 +86,7 @@ site/ (outDir, публикуется)
 ├── html/, css/, js/, avif/, webp/, png/, jpg/, svg/
 ├── brotli/, gzip/
 ├── .htaccess          ← едет с артефактом на виртуальный хостинг
-└── manifest.json
+└── manifest.json      ← манифест для деплоя; nginx и Apache отвечают на него 404
 
 .build/ (buildDir, служебный)
 └── nginx.conf         ← конфигурация nginx; для Apache не нужен

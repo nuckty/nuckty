@@ -4,9 +4,10 @@ import { generateHtaccess } from '../stages/htaccess.js';
 
 const config = generateHtaccess('/artifact');
 
-test('Apache rejects direct HTML and codec requests only outside internal error handling', () => {
+test('Apache rejects direct HTML, codec and manifest requests only outside internal error handling', () => {
     assert.match(config, /RewriteCond %\{ENV:REDIRECT_STATUS\} \^\$\nRewriteCond %\{THE_REQUEST\}/);
-    assert.equal(config.split('RewriteCond %{ENV:REDIRECT_STATUS} ^$').length, 3);
+    assert.equal(config.split('RewriteCond %{ENV:REDIRECT_STATUS} ^$').length, 4);
+    assert.ok(config.includes('manifest\\.json'));
     assert.match(config, /brotli\|gzip/);
 });
 

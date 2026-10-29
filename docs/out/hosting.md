@@ -86,7 +86,7 @@ site/ (outDir, deployed)
 ├── html/, css/, js/, avif/, webp/, png/, jpg/, svg/
 ├── brotli/, gzip/
 ├── .htaccess          ← travels with the artifact to shared hosting
-└── manifest.json
+└── manifest.json      ← deployment manifest; nginx and Apache answer 404 for it
 
 .build/ (buildDir, internal)
 └── nginx.conf         ← generated nginx configuration; not needed on shared hosting
