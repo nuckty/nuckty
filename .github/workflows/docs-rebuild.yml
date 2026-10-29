@@ -6,6 +6,7 @@ on:
     types: [completed]
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: rebuild-documentation-site
   cancel-in-progress: false
@@ -19,10 +20,21 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ github.event.workflow_run.head_sha }}
-          fetch-depth: 2
+          fetch-depth: 0
       - id: changes
+        name: Detect documentation changes since the previous successful CI on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          if git diff-tree --no-commit-id --name-only -r HEAD^ HEAD | grep -q '^docs/'; then echo 'changed=true' >> "$GITHUB_OUTPUT"; fi
+          set -euo pipefail
+          previous="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?branch=main&event=push&status=success&per_page=20" --jq "[.workflow_runs[] | select(.head_sha != \"$HEAD_SHA\") | .head_sha][0] // \"\"")"
+          # One push may carry several commits; compare against the last verified commit, not only HEAD^.
+          if [ -z "$previous" ] || ! git merge-base --is-ancestor "$previous" HEAD 2>/dev/null; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          elif ! git diff --quiet "$previous" HEAD -- docs/; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
       - id: app
         if: steps.changes.outputs.changed == 'true'
         uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
