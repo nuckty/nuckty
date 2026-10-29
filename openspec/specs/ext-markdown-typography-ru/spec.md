@@ -52,3 +52,10 @@ Supported em-dash prose patterns SHALL converge to one NBSP before the existing 
 - **THEN** the same canonical horizontal spacing is produced
 - **AND** applying the transform again changes nothing
 - **AND** newlines, leading dialogue dashes and code retain their structure
+
+### Requirement: Dash after inline markup
+A text node that starts with horizontal whitespace and an em dash after an inline sibling such as a link, emphasis or inline code SHALL receive a non-breaking space before the dash and a regular space after it. A dash after a line break SHALL remain authored.
+
+#### Scenario: Link followed by a dash
+- **WHEN** Markdown contains `[ссылка](/x) — описание`
+- **THEN** the rendered text after the link is a non-breaking space, the dash and a space

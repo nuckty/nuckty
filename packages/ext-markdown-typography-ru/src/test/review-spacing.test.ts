@@ -30,3 +30,13 @@ test('Markdown link and literal-code spacing survive the typography bridge', () 
     assert(html.includes('слово\u00a0— <a'));
     assert(html.includes('код — без замен'));
 });
+
+test('a dash after inline markup gets a non-breaking space before it', () => {
+    const parser = createMarkdown({ remarkPlugins: [remarkTypographyRu] });
+    const html = render(parser.render('[ссылка](/x) — описание, *слово*  —текст, `код` — после кода\\\n— реплика').tree, { templates: new Templates() });
+
+    assert(html.includes('</a>\u00a0— описание'));
+    assert(html.includes('</em>\u00a0— текст'));
+    assert(html.includes('</code>\u00a0— после кода'));
+    assert(/<br>\n?— реплика/.test(html), html);
+});
