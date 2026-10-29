@@ -28,10 +28,17 @@ import { buildHierarchicalAnchor } from './anchors.js';
 import { transformImagePathShared } from './image-mapping.js';
 import type { BemNode, BEMTree } from '../bem/types.js';
 
+/** Converters a directive handler uses to render its children with this page's resolution. */
+export interface DirectiveConverters {
+    inline(children: unknown[]): BEMTree;
+    blocks(children: unknown[]): BEMTree;
+}
+
 /** A directive handler maps a directive node to a BemNode (or null → fallback). */
 export type DirectiveHandler = (
     node: { name: string; children?: unknown[]; attributes?: Record<string, string> },
     env: unknown,
+    convert: DirectiveConverters,
 ) => BemNode | null;
 
 export interface RemarkOptions {
@@ -217,7 +224,7 @@ function blocksToBem(
             case 'containerDirective': {
                 const d = node as unknown as { children?: Root['children']; name: string; attributes?: Record<string, string> };
                 const handler = env.directiveMappings?.get(d.name);
-                const rendered = handler ? handler(d, env) : null;
+                const rendered = handler ? handler(d, env, directiveConverters(env)) : null;
                 if (rendered) out.push(rendered);
                 else if (d.children && d.children.length > 0) {
                     for (const c of blocksToBem(d.children, env, false)) out.push(c);
@@ -229,7 +236,7 @@ function blocksToBem(
             case 'leafDirective': {
                 const d = node as unknown as { children?: Root['children']; name: string; attributes?: Record<string, string> };
                 const handler = env.directiveMappings?.get(d.name);
-                const rendered = handler ? handler(d, env) : null;
+                const rendered = handler ? handler(d, env, directiveConverters(env)) : null;
                 if (rendered) out.push(rendered);
                 else if (d.children && d.children.length > 0) {
                     for (const c of phrasingToBem(d.children as unknown as PhrasingContent[], env)) out.push(c as BemNode);
@@ -249,6 +256,14 @@ function blocksToBem(
         }
     }
     return out;
+}
+
+/** Converters handed to directive handlers, bound to the current bridge env. */
+function directiveConverters(env: BridgeEnv): DirectiveConverters {
+    return {
+        inline: (children) => phrasingToBem(children as PhrasingContent[], env) as BEMTree,
+        blocks: (children) => blocksToBem(children as Root['children'], env, false),
+    };
 }
 
 function headingToBem(node: Heading, env: BridgeEnv): BemNode {
@@ -492,7 +507,7 @@ function phrasingToBem(
             }
             case 'textDirective': {
                 const d = node as unknown as { name: string; children?: PhrasingContent[]; attributes?: Record<string, string> };
-                const rendered = env.directiveMappings?.get(d.name)?.(d, env);
+                const rendered = env.directiveMappings?.get(d.name)?.(d, env, directiveConverters(env));
                 if (rendered) {
                     out.push(rendered);
                 } else if (d.children?.length) {

@@ -16,7 +16,7 @@ An unknown directive falls back to plain content. Attributes are available as `n
 
 ## API and example
 
-`env.markdown.directive(name, handler)` accepts a `DirectiveHandler`: `(node: DirectiveNode, env: unknown) => { raw?: string; [key: string]: unknown } | null`. The second argument is the bridge environment. Returning `null` enables normal content conversion.
+`env.markdown.directive(name, handler)` accepts a `DirectiveHandler`: `(node: DirectiveNode, env: unknown, convert: DirectiveConverters) => { raw?: string; [key: string]: unknown } | null`. `node.type` is the directive form: `containerDirective`, `leafDirective` or `textDirective`. The second argument is the bridge environment. `convert.inline(children)` and `convert.blocks(children)` render the directive's children to BEMJSON the way the page renders ordinary Markdown, with link and image resolution. Returning `null` enables normal content conversion.
 
 The example deliberately reduces content to text; formatting and links are not retained. For richer content, implement an appropriate node transformation.
 

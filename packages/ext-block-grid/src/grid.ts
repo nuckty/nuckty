@@ -1,7 +1,7 @@
 /**
  * `:::grid` construct logic (openspec `ext-block-grid`): turn the container's
  * children into the `grid` BemNode tree — each child paragraph becomes one
- * grid item (cell) with its plain text.
+ * grid item (cell) rendered like an ordinary paragraph's inline content.
  *
  * Children arrive as mdast nodes (the engine hands the raw directive node to
  * the handler); we duck-type on `node.type` to stay free of mdast deps, the
@@ -10,7 +10,7 @@
  * @module grid
  */
 
-import type { BemNode } from '@nuckty/core';
+import type { BEMTree, BemNode } from '@nuckty/core';
 
 /** Structural mdast view of the directive's children (duck-typed). */
 export interface MdastNode {
@@ -21,7 +21,7 @@ export interface MdastNode {
     children?: MdastNode[];
 }
 
-/** Flatten a paragraph's inline children to plain text (soft breaks kept as `\n`). */
+/** Flatten a paragraph's inline children to plain text (soft breaks kept as `\n`, images as their alt text). */
 export function paragraphText(paragraph: MdastNode): string {
     let out = '';
     for (const c of paragraph.children ?? []) {
@@ -30,7 +30,7 @@ export function paragraphText(paragraph: MdastNode): string {
         } else if (c.type === 'break') {
             out += '\n';
         } else if (c.type === 'image') {
-            out += `![${c.alt ?? ''}](${c.url ?? ''})`;
+            out += c.alt ?? '';
         } else if (c.children) {
             out += paragraphText(c);
         }
@@ -38,21 +38,24 @@ export function paragraphText(paragraph: MdastNode): string {
     return out;
 }
 
-/** Collect item texts: each non-empty paragraph child of the container is one item. */
-export function extractItems(children: MdastNode[]): string[] {
-    const items: string[] = [];
+function hasImage(node: MdastNode): boolean {
+    return node.type === 'image' || (node.children ?? []).some(hasImage);
+}
+
+/** Collect cells: the inline children of each paragraph with text or an image; other blocks are errors. */
+export function extractItems(children: MdastNode[]): MdastNode[][] {
+    const items: MdastNode[][] = [];
     for (const child of children) {
         if (child.type !== 'paragraph') {
             throw new Error(`Grid supports paragraph cells only; received ${child.type}`);
         }
-        const text = paragraphText(child).trim();
-        if (text) items.push(text);
+        if (paragraphText(child).trim() || hasImage(child)) items.push(child.children ?? []);
     }
     return items;
 }
 
-/** Build the grid tree: one `grid__item` cell per item text (escaped by the serializer). */
-export function gridNode(items: string[]): BemNode {
+/** Build the grid tree: one `grid__item` cell per rendered paragraph. */
+export function gridNode(items: BEMTree[]): BemNode {
     return {
         block: 'grid',
         content: items.map((text) => ({ block: 'grid', elem: 'item', content: text })),

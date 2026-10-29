@@ -21,7 +21,7 @@ The core provides `nuckty build [target]`. Serving, validation, deployment, and 
 | [`@nuckty/ext-command-deploy-ftp`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-deploy-ftp) | Extension: FTP deploy via manifest sync. |
 | [`@nuckty/ext-command-serve`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-serve) | Extension: local `nuckty serve` and `nuckty stop` (nginx). |
 | [`@nuckty/ext-command-validate-vnu`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-validate-vnu) | Extension: W3C Nu Html Checker (optional, JVM). |
-| [`@nuckty/ext-block-grid`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-grid) | Responsive grid of text cells. |
+| [`@nuckty/ext-block-grid`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-grid) | Responsive multi-column grid (`:::grid`). |
 | [`@nuckty/ext-markdown-video`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-video) | Video embedding in Markdown. |
 | [`@nuckty/ext-markdown-typography-ru`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-typography-ru) | Russian typography. |
 | [`@nuckty/ext-command-content-external`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-content-external) | Prepare external content repositories. |

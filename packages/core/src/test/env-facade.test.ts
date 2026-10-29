@@ -15,10 +15,12 @@ import assert from 'node:assert/strict';
 import { MarkdownFacade, PipelineFacade, NucktyEnv } from '../env/env.js';
 import { DocumentFacade } from '../document/document.js';
 import type { DocumentData } from '../document/document.js';
-import type { DirectiveNode, DirectiveHandler } from '../env/env.js';
+import type { DirectiveConverters, DirectiveNode, DirectiveHandler } from '../env/env.js';
 import { Pipeline } from '../pipeline/pipeline.js';
 import type { BuildContext } from '../pipeline/pipeline.js';
 import { Templates } from '../bem/templates.js';
+
+const convert: DirectiveConverters = { inline: () => [], blocks: () => [] };
 
 /** A remark plugin stand-in — `use` stores it verbatim. */
 const pluginA = (() => {}) as unknown as Parameters<MarkdownFacade['use']>[0];
@@ -114,7 +116,7 @@ test('directive handler returning null signals "fall back to plain content"', ()
     const fallthrough: DirectiveHandler = () => null;
     md.directive('callout', fallthrough);
     const node: DirectiveNode = { name: 'callout', children: [] };
-    assert.equal(md.directiveHandler('callout')!(node, {}), null);
+    assert.equal(md.directiveHandler('callout')!(node, {}, convert), null);
 });
 
 test('directive handler receives the structural node and an opaque env', () => {
@@ -130,7 +132,7 @@ test('directive handler receives the structural node and an opaque env', () => {
     });
     const node: DirectiveNode = { name: 'grid', children: [{ type: 'paragraph' }], attributes: { id: 'a' } };
     const bridgeEnv = { imageMapping: {} };
-    md.directiveHandler('grid')!(node, bridgeEnv);
+    md.directiveHandler('grid')!(node, bridgeEnv, convert);
     assert.equal(received, node);
     assert.equal(receivedEnv, bridgeEnv);
     assert.equal(received?.attributes?.id, 'a');
@@ -204,7 +206,7 @@ test('independent environments keep extension registrations and behavior isolate
     assert.equal(await first.commands.get('custom')!.handler(args), 7);
     assert.equal(await second.commands.get('custom')!.handler(args), 9);
     assert.deepEqual(first.levels.list(), ['/first']);
-    assert.deepEqual(first.markdown.directiveHandler('custom')!({ name: 'custom' }, {}), { raw: 'first' });
+    assert.deepEqual(first.markdown.directiveHandler('custom')!({ name: 'custom' }, {}, convert), { raw: 'first' });
     assert.equal(await first.document.render(documentData), 'first document');
     assert.equal(await second.document.render(documentData), 'second document');
 

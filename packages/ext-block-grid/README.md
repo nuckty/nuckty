@@ -19,7 +19,7 @@ Third column.
 :::
 ```
 
-The handler turns each nonempty child paragraph into a plain-text `grid__item`. Links and emphasis become text; lists, headings, and other non-paragraph children cause an error. An empty container falls back to plain content.
+The handler turns each child paragraph with text or an image into a `grid__item` rendered like an ordinary paragraph: links, emphasis, inline code and images keep their markup; lists, headings, and other non-paragraph children cause an error. An empty container falls back to plain content.
 
 ## Behavior
 

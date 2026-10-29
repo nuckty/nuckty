@@ -48,7 +48,7 @@ export { generateNginxConfig } from './stages/nginx.js';
 
 // Plugin environment.
 export { NucktyEnv } from './env/env.js';
-export type { CommandArgs, CommandHandler, CommandEntry, CommandOptions, DirectiveNode, DirectiveHandler } from './env/env.js';
+export type { CommandArgs, CommandHandler, CommandEntry, CommandOptions, DirectiveNode, DirectiveHandler, DirectiveConverters } from './env/env.js';
 export { loadPlugins } from './env/loader.js';
 export type { PluginModule, LoadOptions } from './env/loader.js';
 

@@ -9,6 +9,7 @@
  */
 
 import type { NucktyConfig } from '../targets/config.js';
+import type { BEMTree } from '../bem/types.js';
 import { DocumentFacade } from '../document/document.js';
 
 /**
@@ -116,7 +117,15 @@ export interface DirectiveNode {
  * bridge environment the remark processor carries (image mapping, page input
  * path, …) — opaque to the core contract.
  */
-export type DirectiveHandler = (node: DirectiveNode, env: unknown) => { raw?: string; [k: string]: unknown } | null;
+/** Converters a directive handler uses to render its mdast children with the page's link and image resolution. */
+export interface DirectiveConverters {
+    /** Render inline (phrasing) children: text, emphasis, links, images, inline code. */
+    inline(children: unknown[]): BEMTree;
+    /** Render block children: paragraphs, lists, headings and other blocks. */
+    blocks(children: unknown[]): BEMTree;
+}
+
+export type DirectiveHandler = (node: DirectiveNode, env: unknown, convert: DirectiveConverters) => { raw?: string; [k: string]: unknown } | null;
 
 export class MarkdownFacade {
     private readonly plugins: RemarkPlugin[] = [];

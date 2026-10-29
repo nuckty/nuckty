@@ -16,7 +16,7 @@ Markdown-расширение добавляет [конструкции markdow
 
 ## API и пример
 
-`env.markdown.directive(name, handler)` принимает `DirectiveHandler`: `(node: DirectiveNode, env: unknown) => { raw?: string; [key: string]: unknown } | null`. Второй аргумент — окружение моста. `null` включает обычное преобразование содержимого.
+`env.markdown.directive(name, handler)` принимает `DirectiveHandler`: `(node: DirectiveNode, env: unknown, convert: DirectiveConverters) => { raw?: string; [key: string]: unknown } | null`. `node.type` — форма директивы: `containerDirective`, `leafDirective` или `textDirective`. Второй аргумент — окружение моста. `convert.inline(children)` и `convert.blocks(children)` преобразуют дочерние узлы директивы в BEMJSON так же, как страница преобразует обычный Markdown, с разрешением ссылок и изображений. `null` включает обычное преобразование содержимого.
 
 В примере обработчик намеренно сводит текст к строке; оформление и ссылки не сохраняются. Для сложного содержимого реализуйте собственное преобразование узлов.
 

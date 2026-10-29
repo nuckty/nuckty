@@ -191,3 +191,10 @@ A directive handler SHALL receive the directive form as `type`: `containerDirect
 #### Scenario: Handler declines an inline form
 - **WHEN** a handler returns null for a `textDirective`
 - **THEN** the directive falls back to its plain content
+
+### Requirement: Directive child converters
+A directive handler SHALL receive a third argument with `inline(children)` and `blocks(children)`, which render mdast children to BEMJSON with the same link, anchor and image resolution as the page's ordinary Markdown.
+
+#### Scenario: Handler renders an image child
+- **WHEN** a handler calls `convert.inline` with an image node whose file is in the image mapping
+- **THEN** the result contains an img node pointing at the hashed file

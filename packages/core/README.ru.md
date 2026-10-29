@@ -21,7 +21,7 @@ nuckty — генератор статических сайтов для док�
 | [`@nuckty/ext-command-deploy-ftp`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-deploy-ftp) | Расширение: публикация по FTP с синхронизацией по манифесту. |
 | [`@nuckty/ext-command-serve`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-serve) | Расширение: локальный просмотр `nuckty serve` и остановка `nuckty stop` (nginx). |
 | [`@nuckty/ext-command-validate-vnu`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-validate-vnu) | Расширение: W3C Nu Html Checker (необязательно, JVM). |
-| [`@nuckty/ext-block-grid`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-grid) | Адаптивная сетка текстовых ячеек. |
+| [`@nuckty/ext-block-grid`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-grid) | Адаптивная многоколоночная сетка (`:::grid`). |
 | [`@nuckty/ext-markdown-video`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-video) | Видео в Markdown. |
 | [`@nuckty/ext-markdown-typography-ru`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-typography-ru) | Русская типографика. |
 | [`@nuckty/ext-command-content-external`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-content-external) | Подготовка внешних репозиториев контента. |

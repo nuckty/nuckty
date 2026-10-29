@@ -24,18 +24,16 @@ function paragraph(...children: MdastNode[]): MdastNode {
     return { type: 'paragraph', children };
 }
 
-test('extractItems maps container paragraphs to item texts', () => {
-    const children: MdastNode[] = [
-        paragraph({ type: 'text' }, { type: 'break' }, { type: 'text' }),
-        paragraph({ type: 'text' }),
-        paragraph({ type: 'image', url: 'a.png', alt: 'A' }),
-        paragraph({ type: 'link', children: [{ type: 'text', value: 'p3l0' }] }),
-    ];
-    const items = extractItems(children.map((p, i) => ({
-        ...p,
-        children: (p.children ?? []).map((c, j) => (c.type === 'text' ? { type: 'text', value: `p${i}l${j}` } : c)),
-    })));
-    assert.deepEqual(items, ['p0l0\np0l2', 'p1l0', '![A](a.png)', 'p3l0']);
+test('extractItems keeps the inline children of paragraphs with text or an image', () => {
+    const image: MdastNode = { type: 'image', url: 'a.png', alt: '' };
+    const link: MdastNode = { type: 'link', url: '/x', children: [{ type: 'text', value: 'L' }] };
+    const items = extractItems([
+        paragraph({ type: 'text', value: 'A' }),
+        paragraph({ type: 'text', value: '  ' }),
+        paragraph(image),
+        paragraph(link),
+    ]);
+    assert.deepEqual(items, [[{ type: 'text', value: 'A' }], [image], [link]]);
 });
 
 test('gridNode wraps item texts into grid__item cells', () => {
@@ -49,11 +47,12 @@ test('gridNode wraps item texts into grid__item cells', () => {
 });
 
 test('gridHandler maps a container with items and falls back on an empty one', () => {
-    const withItems = gridHandler({ name: 'grid', children: [paragraph({ type: 'text', value: 'Cell' })] }, undefined);
+    const convert = { inline: (children: unknown[]) => children.length ? 'cell' : '', blocks: () => [] };
+    const withItems = gridHandler({ name: 'grid', children: [paragraph({ type: 'text', value: 'Cell' })] }, undefined, convert);
     assert.ok(withItems);
     assert.equal((withItems as { block?: string }).block, 'grid');
 
-    const empty = gridHandler({ name: 'grid', children: [] }, undefined);
+    const empty = gridHandler({ name: 'grid', children: [] }, undefined, convert);
     assert.equal(empty, null);
 });
 
@@ -79,14 +78,17 @@ test('grid block templates render the tree with escaped item text', () => {
     assert.ok(html.includes('A &amp; B'));
 });
 
-test('grid keeps text in all inline formatting and rejects mixed unsupported blocks', () => {
-    const items = extractItems([paragraph(
-        { type: 'strong', children: [{ type: 'text', value: 'KEEP' }] },
-        { type: 'emphasis', children: [{ type: 'text', value: 'EM' }] },
-        { type: 'inlineCode', value: 'CODE' },
-        { type: 'delete', children: [{ type: 'text', value: 'DEL' }] },
-    )]);
-    assert.deepEqual(items, ['KEEPEMCODEDEL']);
+test('grid cells render links, emphasis, code and images like paragraphs and reject other blocks', () => {
+    const env = new NucktyEnv();
+    registerExtension(env);
+    const templateSet = new Templates();
+    runWithTemplates(templateSet, gridTemplates);
+    const parser = createMarkdown({ directiveMappings: env.markdown.directiveMappings(), imageMapping: { 'logo.png': 'abcdef0123456789.png' }, sourceFile: 'index.md' });
+    const html = render(parser.render(':::grid\n![Logo](logo.png)\n\n[Docs](https://example.com/docs) and *em* `code`\n:::').tree, { templates: templateSet });
+
+    assert.match(html, /grid__item><img [^>]*src=\/abcdef0123456789\.png alt=Logo>/);
+    assert.doesNotMatch(html, /!\[Logo\]/);
+    assert.match(html, /<a [^>]*href=https:\/\/example\.com\/docs>Docs<\/a> and <em>em<\/em> <code/);
     assert.throws(() => extractItems([paragraph({ type: 'text', value: 'Cell' }), { type: 'list', children: [] }]), /Grid supports paragraph cells only; received list/);
 });
 
