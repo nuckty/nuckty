@@ -140,7 +140,8 @@ DocumentRoot "${out}"
 <Directory "${out}">
 AllowOverride All
 Require all granted
-Options FollowSymLinks
+# Hosts often enable listings; the generated rules must not depend on them being off.
+Options FollowSymLinks Indexes
 </Directory>
 `);
             await exec(binary, ['-t', '-f', config]);
@@ -232,10 +233,16 @@ Options FollowSymLinks
                 assert.match(page.headers['cache-control'] ?? '', /no-cache/, url);
                 assert.doesNotMatch(page.headers['cache-control'] ?? '', /immutable/, url);
             }
+            // Trailing slashes canonicalize even for artifact directories, which never list or index.
+            for (const url of ['/png/', '/html/', '/missing/']) {
+                const response = await request(port, url, {});
+                assert.equal(response.status, 301, url);
+                assert.equal(new URL(response.headers['location'] ?? '', 'http://localhost').pathname, url.slice(0, -1), url);
+            }
             const queryRoute = await request(port, '/?download=guide.html', {});
             assert.equal(queryRoute.status, 200, 'query must not trigger direct HTML denial');
             assert.equal(queryRoute.body, files['html/index.html']);
-            for (const url of ['/missing', '/missing/nested', '/missing.txt', '/404.html', '/manifest.json', '/manifest%2Ejson', '/./manifest.json', '/index%2Ehtml', '/%62rotli/aaaaaaaaaaaaaaaa.css.br', '/MANIFEST.json', '/manifest%2ejson', '/%6danifest.json', '/./manifest.json', '/x/../manifest.json', '/a/b/c/d/e/f', '/brotli/aaaaaaaaaaaaaaaa.css.br', '/gzip/aaaaaaaaaaaaaaaa.css.gz']) {
+            for (const url of ['/missing', '/missing/nested', '/missing.txt', '/404.html', '/manifest.json', '/manifest%2Ejson', '/./manifest.json', '/index%2Ehtml', '/%62rotli/aaaaaaaaaaaaaaaa.css.br', '/MANIFEST.json', '/manifest%2ejson', '/%6danifest.json', '/./manifest.json', '/x/../manifest.json', '/a/b/c/d/e/f', '/brotli/aaaaaaaaaaaaaaaa.css.br', '/gzip/aaaaaaaaaaaaaaaa.css.gz', '/png', '/html', '/css', '/nested']) {
                 for (const encoding of ['identity', 'gzip', 'br']) {
                     const response = await request(port, url, { 'Accept-Encoding': encoding });
                     assert.equal(response.status, 404, url);

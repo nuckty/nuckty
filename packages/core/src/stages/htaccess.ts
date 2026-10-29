@@ -25,9 +25,13 @@ RewriteRule \\.html$ - [R=404,L,NC]
 RewriteCond %{ENV:REDIRECT_STATUS} ^$
 RewriteRule ^manifest\\.json$ - [R=404,L,NC]
 
-RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} ^(.+)/$
 RewriteRule ^(.+)/$ /$1 [R=301,L]
+
+# Artifact directories are storage, not pages: no listings, index files or slash redirects.
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^. - [R=404,L]
 
 # Hash-prefixed images (_i*) with AVIF support - highest priority
 RewriteCond %{HTTP:Accept} "(?:^|,)[ ]*image/avif[ ]*(?:;[ ]*q=(?!0(?:[.]0*)?[ ]*(?:,|$))[01](?:[.][0-9]+)?)?[ ]*(?:,|$)" [NC]

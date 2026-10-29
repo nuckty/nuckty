@@ -109,3 +109,10 @@ The generated nginx server SHALL disable dynamic gzip regardless of inherited HT
 - **WHEN** global gzip is enabled and a browser accepts gzip, deflate and br
 - **THEN** the generated server returns the Brotli artifact with only Content-Encoding br
 - **AND** decoding it once reproduces the original HTML or static asset
+
+### Requirement: Artifact directories are not pages
+Generated hosting rules SHALL redirect a trailing-slash URL with 301 to its slashless form and SHALL answer a request for an existing artifact directory other than the root with the site's 404 page. They SHALL NOT emit directory listings or directory index files, independent of the host's directory listing and slash settings.
+
+#### Scenario: A host enables directory listings
+- **WHEN** Apache runs with `Options Indexes` and a client requests `/png`, `/html` or `/png/`
+- **THEN** the slash form redirects to the slashless form and the slashless form returns the 404 page

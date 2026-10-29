@@ -11,6 +11,8 @@ test('Apache rejects direct HTML, codec and manifest requests only outside inter
     }
     assert.doesNotMatch(config, /THE_REQUEST/);
     assert.match(config, /^ErrorDocument 404 \/404$/m);
+    assert.ok(config.includes('RewriteCond %{ENV:REDIRECT_STATUS} ^$\nRewriteCond %{REQUEST_FILENAME} -d\nRewriteRule ^. - [R=404,L]'));
+    assert.ok(config.indexOf('RewriteRule ^(.+)/$ /$1 [R=301,L]') < config.indexOf('RewriteRule ^. - [R=404,L]'));
 });
 
 test('Apache encoding and modern image negotiation excludes zero quality and partial tokens', () => {
