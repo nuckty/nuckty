@@ -90,7 +90,7 @@ site/
 └── manifest.json          ← sizes and hashes for publication
 ```
 
-The artifact can be copied to a compatible server. Apache needs the required modules and permission to use `.htaccess`; see [hosting configuration](../out/hosting.md).
+The artifact can be copied to a compatible server. Apache must provide the required modules and allow `.htaccess` overrides; see [hosting configuration](../out/hosting.md).
 
 ## What's next
 

@@ -29,7 +29,7 @@ Brotli has no such header, so it needs no extra normalization.
 
 The [hosting configuration](hosting.md) looks for explicit `br` and `gzip` tokens with nonzero `q` and selects an available copy in a fixed order: Brotli, then Gzip, then the original. `Content-Encoding` matches the selected file. A simplified word match does not reproduce these rules.
 
-The rules do not rank codecs by their `q` values or enable a codec from `*` alone. The fallback is the original file; `identity;q=0` does not make the generated configuration return `406`. If a site needs different negotiation behavior, customize its serving rules.
+The rules do not rank codecs by their `q` values or enable a codec from `*` alone. The fallback is the original file; `identity;q=0` does not make the generated configuration return `406`. If a site needs different negotiation behavior, change its serving rules.
 
 ## Why compress in advance, not on the fly
 

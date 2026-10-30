@@ -20,7 +20,7 @@ The core ships no page blocks — only default templates for its Markdown output
 
 ### One engine for content and layout
 
-Markdown becomes a [BEMJSON tree](how/bemjson.md). The same nu engine processes content and document blocks: the document handler places the content tree in the document, and the page renders in one pass, so layout templates also apply to content nodes.
+Markdown becomes a [BEMJSON tree](how/bemjson.md). The same nu engine processes content and document blocks: the document handler places the content tree in the document, and the page is built in one pass, so layout templates also apply to content nodes.
 
 ### Compression at build time
 

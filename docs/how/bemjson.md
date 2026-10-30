@@ -100,4 +100,4 @@ The tree has two sources.
 
 2. **Page layout.** The block template (through the `wrap`, `replace`, and `content` modes) builds the page wrapper tree. The `root` block wraps the content in `<html>`. See [nu.ts templates](templates.md).
 
-The HTML stage passes the content tree to the document handler and renders the returned document, content included, in one render, so layout templates apply to content nodes too.
+The HTML stage passes the content tree to the document handler and builds the returned document, content included, in one pass, so layout templates apply to content nodes too.
