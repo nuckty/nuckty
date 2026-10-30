@@ -84,4 +84,4 @@ The core does not depend on basic-ftp — the dependency lives only in this exte
 
 Before connecting, the command verifies every local file size and MD5 against the manifest. It repeats verification before the final manifest transfer and rejects a changed artifact. Remote verification uses LIST and size; it does not independently verify remote content hashes. Do not modify an artifact during deployment.
 
-FTPS with certificate verification is the default; TLS failure never falls back to plain FTP. `secure: false` or `FTP_SECURE=false` selects plain FTP, which sends the password unencrypted; the command then prints a warning. `port` defaults to 21 and must be an integer from 1 to 65535.
+FTPS with certificate verification is the default; TLS failure never falls back to plain FTP. `secure: false` or `FTP_SECURE=false` selects plain FTP, which sends the password unencrypted; the command then prints a warning. `port` defaults to 21 and must be an integer from 1 to 65535. `progress: false` in `auth-ftp.json` turns off progress output; environment configuration always prints it.

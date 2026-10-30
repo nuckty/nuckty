@@ -17,9 +17,6 @@ export type FtpDeploy = (options: DeployOpts) => Promise<DeployResult>;
 
 /** `nuckty deploy-ftp [target] [--force] [--allow-mass-delete] [--dry-run]` — deploy the built site over FTP. */
 export async function deployFtp(args: CommandArgs, inject?: { ftpDeploy?: FtpDeploy }): Promise<number> {
-    // Lazy-import the ftp logic so `register(env)` does not pull `basic-ftp` —
-    // only an actual `nuckty deploy-ftp` invocation pays that import cost (and
-    // needs basic-ftp installed in the consumer, not the core).
     const target = args.positional[0];
     const force = args.flags['force'] === true;
     const allowMassDelete = args.flags['allow-mass-delete'] === true;
@@ -34,14 +31,16 @@ export async function deployFtp(args: CommandArgs, inject?: { ftpDeploy?: FtpDep
         return 1;
     }
     try {
+        // Lazy-import the ftp logic so `register(env)` does not pull `basic-ftp`;
+        // only an actual `nuckty deploy-ftp` invocation pays that import cost.
         const ftpDeploy = inject?.ftpDeploy ?? (await import('./ftp.js')).ftpDeploy;
+        // Progress output follows `progress` of the FTP configuration.
         const result = await ftpDeploy({
             outDir,
             cwd: args.cwd,
             force,
             allowMassDelete,
             dryRun,
-            progress: true,
         });
         process.stdout.write(
             `nuckty: deploy-ftp — ${result.stats.uploaded} uploaded, ${result.stats.deleted} deleted\n`,

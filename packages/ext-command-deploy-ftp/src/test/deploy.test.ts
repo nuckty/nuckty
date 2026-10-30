@@ -425,11 +425,11 @@ test('the declared arguments keep target order and reject unsafe boolean values'
     assert.equal(await invoke(['staging', '--dry-run=false', '--force=true']), 0);
     assert.equal(await invoke(['staging', '--allow-mass-delete']), 0);
     assert.deepEqual(calls, [
-        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true, progress: true },
-        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true, progress: true },
-        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true, progress: true },
-        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: true, allowMassDelete: false, dryRun: false, progress: true },
-        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: true, dryRun: false, progress: true },
+        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true },
+        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true },
+        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true },
+        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: true, allowMassDelete: false, dryRun: false },
+        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: true, dryRun: false },
     ]);
 
     calls.length = 0;
