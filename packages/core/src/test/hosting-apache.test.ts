@@ -40,3 +40,8 @@ test('Apache routes identity text assets and preserves JPEG/GIF original extensi
     assert.ok(config.includes('Header always merge Vary "Accept-Encoding"'));
     assert.ok(!config.includes('Header always set Content-Encoding'));
 });
+
+test('Apache has no rules for asset names the build never produces', () => {
+    assert.ok(!/\^_\[?[cjs]/.test(config), 'extensionless _c/_j/_s rules');
+    assert.ok(!config.includes('$1.ico'), '.ico image probe');
+});

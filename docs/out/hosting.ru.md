@@ -38,7 +38,7 @@ map $http_accept_encoding $compression_dir {
 ```nginx
 location ~ ^/_i([a-f0-9]+)$ {
     set $hash $1;
-    try_files $avif_dir/$hash.avif $webp_dir/$hash.webp /png/$hash.png /jpg/$hash.jpg /jpg/$hash.jpeg /svg/$hash.svg /$hash.gif /$hash.ico /webp/$hash.webp =404;
+    try_files $avif_dir/$hash.avif $webp_dir/$hash.webp /png/$hash.png /jpg/$hash.jpg /jpg/$hash.jpeg /svg/$hash.svg /$hash.gif /webp/$hash.webp =404;
 }
 ```
 
@@ -54,7 +54,7 @@ location ~ ^/_i([a-f0-9]+)$ {
 
 Адрес остаётся чистым иерархическим, а файловая структура — плоской.
 
-Адреса страниц не должны занимать техническое пространство: расширения статических файлов (`html`, `css`, `js`, `svg`, `xml`, `jpg`, `jpeg`, `png`, `gif`, `ico`, `avif`, `webp`, `pdf`, `zip`, `ini`, `mp4`), `/brotli` и `/gzip` с вложенными путями, старые `/_c<hex>`, `/_j<hex>`, `/_s<hex>`, `/_i<hex>`, `/robots.txt`, `/manifest.json`, `/__nuckty_404`, а также точные адреса каталогов артефакта `/html`, `/css`, `/js`, `/svg`, `/xml`, `/png`, `/jpg`, `/webp`, `/avif`. Сборка отклоняет их до записи [страниц HTML](html.ru.md). Другие адреса с точкой, например `/release/1.0.0`, поддерживаются. Упоминание `.html` в query не активирует ограничение Apache прямого доступа к файлам.
+Адреса страниц не должны занимать техническое пространство: расширения статических файлов (`html`, `css`, `js`, `svg`, `xml`, `jpg`, `jpeg`, `png`, `gif`, `ico`, `avif`, `webp`, `pdf`, `zip`, `ini`, `mp4`), `/brotli` и `/gzip` с вложенными путями, адреса изображений `/_i<hex>`, `/robots.txt`, `/manifest.json`, `/__nuckty_404`, а также точные адреса каталогов артефакта `/html`, `/css`, `/js`, `/svg`, `/xml`, `/png`, `/jpg`, `/webp`, `/avif`. Сборка отклоняет их до записи [страниц HTML](html.ru.md). Другие адреса с точкой, например `/release/1.0.0`, поддерживаются. Упоминание `.html` в query не активирует ограничение Apache прямого доступа к файлам.
 
 ### 4. Кэширование
 

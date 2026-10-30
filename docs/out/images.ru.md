@@ -28,7 +28,7 @@ site/
 ```nginx
 location ~ ^/_i([a-f0-9]+)$ {
     set $hash $1;
-    try_files $avif_dir/$hash.avif $webp_dir/$hash.webp /png/$hash.png /jpg/$hash.jpg /jpg/$hash.jpeg /svg/$hash.svg /$hash.gif /$hash.ico /webp/$hash.webp =404;
+    try_files $avif_dir/$hash.avif $webp_dir/$hash.webp /png/$hash.png /jpg/$hash.jpg /jpg/$hash.jpeg /svg/$hash.svg /$hash.gif /webp/$hash.webp =404;
 }
 ```
 

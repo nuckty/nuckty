@@ -66,13 +66,17 @@ test('nginx: compression suffix/content-encoding map (br/.gz)', () => {
     assert.ok(/"gzip\/"\s+"gzip";/.test(c), 'gzip content-encoding gzip');
 });
 
-// ---- image negotiation order (AVIF → WebP → PNG → JPG → SVG → GIF → ICO) -----
+// ---- image negotiation order (AVIF → WebP → PNG → JPG → SVG → GIF) ------------
 
 test('nginx: hashed-image location tries formats in AVIF→WebP→PNG→JPG→SVG→GIF order', () => {
     const c = cfg();
     const tryLine = c.split('\n').find((l) => l.includes('try_files $avif_dir/'));
     assert.ok(tryLine, 'no hashed-image try_files line');
     assert.ok(tryLine!.includes('$avif_dir/$hash.avif $webp_dir/$hash.webp /png/$hash.png /jpg/$hash.jpg /jpg/$hash.jpeg /svg/$hash.svg /$hash.gif /webp/$hash.webp =404'), tryLine);
+});
+
+test('nginx: no locations for asset names the build never produces', () => {
+    assert.ok(!/location ~ \^\/_[cjs]/.test(cfg()));
 });
 
 test('nginx: hashed images get immutable cache + Vary: Accept', () => {

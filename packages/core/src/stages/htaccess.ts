@@ -58,9 +58,6 @@ RewriteRule ^_i([a-f0-9]+)$ jpg/$1.jpeg [L,E=IS_IMAGE:1]
 RewriteCond %{DOCUMENT_ROOT}/$1.gif -f
 RewriteRule ^_i([a-f0-9]+)$ $1.gif [L,E=IS_IMAGE:1]
 
-RewriteCond %{DOCUMENT_ROOT}/$1.ico -f
-RewriteRule ^_i([a-f0-9]+)$ $1.ico [L,E=IS_IMAGE:1]
-
 # Hash-prefixed images (_i*) fallback to SVG
 RewriteCond %{DOCUMENT_ROOT}/svg/$1.svg -f
 RewriteRule ^_i([a-f0-9]+)$ svg/$1.svg [L,E=IS_IMAGE:1]
@@ -246,11 +243,6 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ html/$1_$2_$3_$4_$5.html [
 
 <FilesMatch "\\.txt(\\.br|\\.gz)?$">
     Header set Content-Type "text/plain;charset=utf-8"
-</FilesMatch>
-
-# Hash-prefixed SVG files (_s*) - all compression formats
-<FilesMatch "^_s[a-f0-9]+(\\.br|\\.gz)?$">
-    Header set Content-Type "image/svg+xml;charset=utf-8"
 </FilesMatch>
 
 # Image format Content-Type headers

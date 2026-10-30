@@ -38,7 +38,7 @@ The server serves the first existing format in order for a single address: AVIF 
 ```nginx
 location ~ ^/_i([a-f0-9]+)$ {
     set $hash $1;
-    try_files $avif_dir/$hash.avif $webp_dir/$hash.webp /png/$hash.png /jpg/$hash.jpg /jpg/$hash.jpeg /svg/$hash.svg /$hash.gif /$hash.ico /webp/$hash.webp =404;
+    try_files $avif_dir/$hash.avif $webp_dir/$hash.webp /png/$hash.png /jpg/$hash.jpg /jpg/$hash.jpeg /svg/$hash.svg /$hash.gif /webp/$hash.webp =404;
 }
 ```
 
@@ -54,7 +54,7 @@ The engine stores the hierarchical path `/how/bemjson` on disk as `how_bemjson.h
 
 The address stays cleanly hierarchical while the file layout stays flat.
 
-Page routes must not occupy the technical namespace: static file extensions (`html`, `css`, `js`, `svg`, `xml`, `jpg`, `jpeg`, `png`, `gif`, `ico`, `avif`, `webp`, `pdf`, `zip`, `ini`, `mp4`), `/brotli` and `/gzip` with descendants, legacy `/_c<hex>`, `/_j<hex>`, `/_s<hex>`, `/_i<hex>`, `/robots.txt`, `/manifest.json`, `/__nuckty_404`, and the exact artifact directory roots `/html`, `/css`, `/js`, `/svg`, `/xml`, `/png`, `/jpg`, `/webp`, `/avif`. The build rejects them before emitting any [HTML](html.md) page. Other dotted routes, such as `/release/1.0.0`, are supported. A query mentioning `.html` does not trigger the Apache direct-file restriction.
+Page routes must not occupy the technical namespace: static file extensions (`html`, `css`, `js`, `svg`, `xml`, `jpg`, `jpeg`, `png`, `gif`, `ico`, `avif`, `webp`, `pdf`, `zip`, `ini`, `mp4`), `/brotli` and `/gzip` with descendants, negotiated image URLs `/_i<hex>`, `/robots.txt`, `/manifest.json`, `/__nuckty_404`, and the exact artifact directory roots `/html`, `/css`, `/js`, `/svg`, `/xml`, `/png`, `/jpg`, `/webp`, `/avif`. The build rejects them before emitting any [HTML](html.md) page. Other dotted routes, such as `/release/1.0.0`, are supported. A query mentioning `.html` does not trigger the Apache direct-file restriction.
 
 ### 4. Caching
 
