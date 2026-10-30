@@ -86,6 +86,7 @@ for (const server of ['nginx', 'apache']) {
             'webp/3333333333333333.webp': 'WEBP',
             'webp/4444444444444444.webp': 'WEBP-ORIGINAL',
             'avif/3333333333333333.avif': 'AVIF',
+            'eeeeeeeeeeeeeeee.mp4': 'MP4',
         };
         const write = async (name: string, data: string | Buffer): Promise<void> => {
             const file = path.join(out, name);
@@ -216,10 +217,12 @@ Options FollowSymLinks Indexes
                 assert.equal(response.status, 200);
                 assert.equal(response.body, body);
             }
-            for (const url of ['/_i3333333333333333', '/dddddddddddddddd.css']) {
+            for (const url of ['/_i3333333333333333', '/dddddddddddddddd.css', '/eeeeeeeeeeeeeeee.mp4']) {
                 const hashed = await request(port, url, {});
+                assert.equal(hashed.status, 200, url);
                 assert.match(hashed.headers['cache-control'] ?? '', /immutable/, url);
                 assert.equal((hashed.headers['cache-control'] ?? '').match(/immutable/g)?.length, 1, url);
+                assert.ok(Date.parse(hashed.headers['expires'] ?? '') > Date.now() + 5 * 365 * 24 * 3600 * 1000, `${url}: long-lived Expires`);
             }
             for (const url of ['/_start', '/?utm_content=banner.png']) {
                 const page = await request(port, url, {});

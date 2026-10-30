@@ -45,3 +45,10 @@ test('Apache has no rules for asset names the build never produces', () => {
     assert.ok(!/\^_\[?[cjs]/.test(config), 'extensionless _c/_j/_s rules');
     assert.ok(!config.includes('$1.ico'), '.ico image probe');
 });
+
+test('Apache gives every immutable asset type the 10-year expiry', () => {
+    const files = (comment: string): string | undefined => config.split('\n\n').find((block) => block.startsWith(`# ${comment}`))?.match(/FilesMatch "([^"]+)"/)?.[1];
+
+    assert.equal(files('Hashed static files (CSS, JS, images, video) - 10 years'), files('Hashed static files (CSS, JS, images, video) - immutable'));
+    assert.match(files('Hashed static files (CSS, JS, images, video) - 10 years') ?? '', /\|mp4\)/);
+});

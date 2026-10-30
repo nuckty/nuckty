@@ -306,7 +306,7 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ html/$1_$2_$3_$4_$5.html [
     Header always set Cache-Control "public,no-cache"
 </FilesMatch>
 
-# Hashed static files (CSS, JS, images) - immutable
+# Hashed static files (CSS, JS, images, video) - immutable
 <FilesMatch "\\.(css|js|svg|jpg|jpeg|png|gif|ico|avif|webp|mp4)(\\.br|\\.gz)?$">
     Header always set Cache-Control "public,immutable"
 </FilesMatch>
@@ -323,8 +323,8 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ html/$1_$2_$3_$4_$5.html [
 
 ExpiresActive On
 
-# Hashed static files (CSS, JS, images) - 10 years
-<FilesMatch "\\.(css|js|svg|jpg|jpeg|png|gif|ico|avif|webp)(\\.br|\\.gz)?$">
+# Hashed static files (CSS, JS, images, video) - 10 years
+<FilesMatch "\\.(css|js|svg|jpg|jpeg|png|gif|ico|avif|webp|mp4)(\\.br|\\.gz)?$">
     ExpiresDefault "access plus 10 years"
 </FilesMatch>
 
