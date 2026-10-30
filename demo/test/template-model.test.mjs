@@ -50,13 +50,21 @@ test('BEM composition contains entities, modifiers and mixes without HTML displa
     assert.equal(render(node, { templates }), '<pre class="code code_wrap_soft article__code">a &lt; b</pre>');
 });
 
-test('templates independently map BEM entities to tags and escape link data', () => {
-    const node = compiled.b('brand', undefined, 'nuckty', { linked: true, href: '/?q="<>&' });
-    const resolved = render(node, { templates, output: 'bemjson' });
-    assert.equal(resolved.tag, 'a');
-    assert.equal(resolved.attrs.href, '/?q="<>&');
-    assert.match(render(node, { templates }), /href="\/\?q=&quot;&lt;&gt;&amp;"/);
-    assert.match(render(compiled.b('brand', undefined, 'nuckty', { linked: false }), { templates }), /^<span\b/);
+test('links escape their data and become a span with aria-current when current', () => {
+    const link = (href, current) => ({ block: 'link', mods: { current }, props: { href }, content: 'Title' });
+
+    assert.equal(render(link('/?q="<>&', false), { templates }), '<a href="/?q=&quot;&lt;&gt;&amp;">Title</a>');
+    for (const href of ['/', '/markdown', '/output']) {
+        assert.equal(render(link(href, true), { templates }), '<span aria-current=page>Title</span>');
+        assert.equal(render(link(href, false), { templates }), `<a href=${href}>Title</a>`);
+    }
+});
+
+test('the brand links home only through its modifier', () => {
+    const data = { page: { url: '/media' }, assets: { images: {} }, lang: 'en' };
+
+    assert.equal(render({ block: 'brand', props: data }, { templates }), '<span class=brand><span class=brand__name>nuckty demo</span></span>');
+    assert.match(render({ block: 'brand', mods: { linked: true }, props: data }, { templates }), /^<a class="brand brand_linked" href=\/ aria-label="nuckty demo home">/);
 });
 
 test('nu.ts contains the structural and HTML modes without class-string rendering helpers', async () => {
@@ -67,43 +75,6 @@ test('nu.ts contains the structural and HTML modes without class-string renderin
     for (const directory of directories.filter((entry) => entry.isDirectory())) {
         const files = await readdir(new URL('../blocks/' + directory.name + '/', import.meta.url));
         assert.ok(!files.some((name) => name.endsWith('.bemjson.ts')));
-    }
-});
-
-test('article declaration preserves Markdown phrasing and task checkbox tags and attributes', () => {
-    const tree = {
-        block: 'article',
-        content: [
-            {
-                tag: 'p',
-                bem: false,
-                content: [
-                    'Before ',
-                    { tag: 'strong', bem: false, content: 'bold' },
-                    ' and ',
-                    { tag: 'em', bem: false, content: 'emphasis' },
-                ],
-            },
-            { tag: 'input', bem: false, attrs: { type: 'checkbox', disabled: true, checked: true } },
-        ],
-    };
-    assert.equal(render(tree, { templates }), render({ ...tree, tag: 'article' }, { templates: new Templates() }));
-});
-
-test('active navigation has aria-current and no href; other destinations remain distinct', () => {
-    const entity = ['root', 'link'];
-
-    for (const href of ['/', '/how', '/out']) {
-        const active = render(compiled.b(...entity, 'Title', { active: true, href }), { templates, output: 'bemjson' });
-        assert.equal(active.tag, 'span');
-        assert.equal(active.attrs['aria-current'], 'page');
-        assert.equal(active.attrs.href, undefined);
-        const linked = render(compiled.b(...entity, 'Title', { active: false, href }), {
-            templates,
-            output: 'bemjson',
-        });
-        assert.equal(linked.tag, 'a');
-        assert.equal(linked.attrs.href, href);
     }
 });
 

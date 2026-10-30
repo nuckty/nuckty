@@ -1,4 +1,4 @@
-import { block } from '@nuckty/core';
+import { block, attributes } from '@nuckty/core';
 
 export default function templates(): void {
     block('control-icon')({
@@ -15,5 +15,10 @@ export default function templates(): void {
             'aria-hidden': 'true',
             focusable: 'false',
         },
+    });
+    block('control-icon').elem('path')({
+        tag: 'path',
+        bem: false,
+        attrs: (node, next) => ({ ...next(), ...attributes(node, ['d']) }),
     });
 }

@@ -1,5 +1,6 @@
 module.exports = [
     'root',
+    'link',
     'code',
     'card',
     'article',
@@ -23,7 +24,6 @@ module.exports = [
     'brand',
     'header',
     'control-icon',
-    'search-trigger',
     'icon-button',
     'language-link',
     'menu-toggle',
@@ -35,7 +35,5 @@ module.exports = [
     'demo-wordmark',
     'footer',
     'source-link',
-    'search-dialog',
-    'search-results',
     'skip-link',
 ];

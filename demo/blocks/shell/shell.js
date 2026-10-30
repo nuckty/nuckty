@@ -3,7 +3,7 @@ const locale = document.documentElement.lang;
 const t = messages(locale);
 const themeButton = document.querySelector('.theme-toggle');
 
-const languageLinks = [...document.querySelectorAll('.language-link, .header__language')];
+const languageLinks = [...document.querySelectorAll('.language-link')];
 const currentUrl = new URL(location.href);
 const incomingTheme = currentUrl.searchParams.get('theme');
 
