@@ -143,4 +143,3 @@ export function urlToFlat(url: string): string {
     }
     return segments.join('_') + '.html';
 }
-

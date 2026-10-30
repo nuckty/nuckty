@@ -221,4 +221,3 @@ function applyTemplates(node: BemNode, matched: Template[], suppressed: Readonly
 
     return { node: result, folded: result, controlled: false };
 }
-

@@ -515,4 +515,3 @@ for (const name of ['constructor', 'toString', '__proto__']) {
         assert.deepEqual(compareWithServer(local, inherited, sizes).toUpload, [{ path: name, reason: 'changed' }]);
     });
 }
-

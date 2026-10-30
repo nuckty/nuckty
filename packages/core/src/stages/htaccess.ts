@@ -352,4 +352,3 @@ export const htaccessStage: Stage<BuildContext> = async (ctx: BuildContext): Pro
     await assertArtifactPath(ctx.outDir, destination);
     await fs.writeFile(destination, content, 'utf8');
 };
-

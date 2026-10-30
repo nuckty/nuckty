@@ -144,4 +144,3 @@ test('resource URL input whitespace normalizes before percent-decoded filename l
 
     assert.equal(postprocessHtml(missing, { imageMapping: mapping }), missing);
 });
-

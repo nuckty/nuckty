@@ -29,4 +29,3 @@ Flat filenames are part of the model: the hierarchical path `/how/bemjson` becom
 ## Ready to publish
 
 The artifact includes `.htaccess` for compatible Apache hosting. `nginx.conf` is separate in `.build`; `nuckty serve` generates its own runtime file. Copy `outDir` using the chosen delivery method; the [FTP extension](../ext/command/deploy-ftp.md) supports FTP/FTPS. The remote server must apply the required serving rules.
-

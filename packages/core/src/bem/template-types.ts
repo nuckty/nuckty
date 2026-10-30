@@ -65,4 +65,3 @@ export interface Template {
     /** Declaration order; higher = later = wins on equal specificity. */
     order: number;
 }
-

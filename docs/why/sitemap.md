@@ -29,4 +29,3 @@ The sitemap passes `layout` as page metadata. The registered document handler an
 Adding a Markdown file alone does not publish a page: add a sitemap entry. This makes the publication list explicit, but does not review the content of registered pages.
 
 As the site grows, the sitemap needs editorial maintenance. For automatically generated or dynamic routes, a different routing model may be more suitable.
-

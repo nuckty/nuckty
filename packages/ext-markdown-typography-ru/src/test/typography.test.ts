@@ -110,4 +110,3 @@ test('plugin: prose around inline code is typographied, code is not', () => {
     assert.ok(joined.includes('слово —'), `prose typographied: ${JSON.stringify(joined)}`);
     assert.ok(!joined.includes('code —'), `inline code value leaked into text: ${JSON.stringify(joined)}`);
 });
-

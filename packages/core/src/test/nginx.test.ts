@@ -208,4 +208,3 @@ test('nginx: serving logs can stay in the project build directory', () => {
     assert.ok(c.includes('access_log "/build/nginx-logs/serve_access.log";'));
     assert.ok(c.includes('error_log "/build/nginx-logs/serve_error.log";'));
 });
-

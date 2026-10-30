@@ -45,4 +45,3 @@ docs-layout.bemdecl.js → root, docs-layout, menu, article, button, icon
 Декларация — явный список блоков бандла. Она одновременно задаёт [шаблоны](../templates.ru.md), CSS и JS; добавление блока в контент не обновляет её автоматически. Файл `.deps.js` не обходится. Где движок ищет файлы — [уровни блоков](levels.ru.md).
 
 В проекте с `"type":"module"` добавьте `blocks/package.json` с `{"type":"commonjs"}`, чтобы `.bemdecl.js` оставался CommonJS. Декларация с позднего уровня заменяет декларацию с раннего целиком.
-

@@ -80,4 +80,3 @@ function serializeAttrs(attrs: AttrMap | undefined, js: BemNode['js'], node: Bem
 
     return parts.join('');
 }
-

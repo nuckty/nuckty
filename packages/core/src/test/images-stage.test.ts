@@ -463,4 +463,3 @@ test('image family preserves inside variant aliases under a symbolic source root
         await rm(dir, { recursive: true, force: true });
     }
 });
-

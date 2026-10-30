@@ -240,4 +240,3 @@ export class NucktyEnv {
     /** CLI command registry — `build` is core; every other command is an extension. */
     readonly commands: Commands = new Commands();
 }
-

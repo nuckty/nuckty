@@ -296,4 +296,3 @@ function serializeAttrs(attrs: BemNode['attrs'], js: BemNode['js'], node: BemNod
 function quoteOrNot(value: string): string {
     return needsQuotes(value) ? `"${value}"` : value;
 }
-

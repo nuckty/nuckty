@@ -57,4 +57,3 @@ For Russian-language sites there is a [typography extension](ext/markdown/typogr
 - [The output](out/index.md) — build results: HTML, assets, compression, hosting.
 - [Extensions](ext/index.md) — the ecosystem extension catalog.
 - [Why this way](why/index.md) — architectural decisions and their rationale.
-

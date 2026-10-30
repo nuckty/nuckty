@@ -284,4 +284,3 @@ Options FollowSymLinks Indexes
         }
     });
 }
-

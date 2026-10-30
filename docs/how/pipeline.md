@@ -74,4 +74,3 @@ The pipeline is code, not YAML. A stage and a hook are typed functions. Hence th
 - build extensions are written in plain TypeScript, not a separate configuration language: there is nothing to relearn, and no config-language limits on what an extension can do.
 
 When `config-nuckty.ts` runs out of options and you need something nontrivial (a custom stage, a special order, a conditional build), you write it as extension code instead of complicating `config-nuckty.ts`. For details, see the [extensions](ext/index.md) section.
-

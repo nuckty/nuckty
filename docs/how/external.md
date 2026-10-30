@@ -65,4 +65,3 @@ The first `levels.json` entry selects the Markdown root; `external.json` in the 
 ## What this does not replace
 
 External repositories are about content sources, not publication: the finished artifact is still built in `outDir` and published as a whole (see [FTP publication](../ext/command/deploy-ftp.md)). And this is not a replacement for [extensions](ext/index.md): extensions are connected through `ext[]`, while `external.json` merely lists content sources.
-

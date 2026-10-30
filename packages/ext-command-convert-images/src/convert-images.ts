@@ -221,4 +221,3 @@ export function startQuality(kind: ImageKind, format: OutFormat, q: QualityDefau
         ? (format === 'avif' ? q.pngAvif : q.pngWebp)
         : (format === 'avif' ? q.jpegAvif : q.jpegWebp);
 }
-

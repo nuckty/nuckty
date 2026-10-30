@@ -76,4 +76,3 @@ for (const symbolicRoot of [false, true]) {
         assert.ok(html.includes('Allowed alias'));
     });
 }
-

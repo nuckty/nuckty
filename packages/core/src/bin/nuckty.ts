@@ -126,4 +126,3 @@ main().catch((err) => {
     process.stderr.write(`nuckty: ${(err instanceof Error ? err.message : String(err)).replace(/^nuckty: /, '')}\n`);
     process.exit(1);
 });
-

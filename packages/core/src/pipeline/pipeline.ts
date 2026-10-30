@@ -147,4 +147,3 @@ export class Pipeline<C extends BuildContext = BuildContext> {
         }
     }
 }
-

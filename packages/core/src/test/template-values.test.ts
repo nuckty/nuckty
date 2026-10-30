@@ -87,4 +87,3 @@ test('wildcard element selectors refine elements without matching block roots', 
     assert.equal(render({ block: 'other' }, { templates: global }), '<div class=other></div>');
     assert.equal(render({ block: 'other', elem: 'item' }, { templates: global }), '<b class=other__item></b>');
 });
-

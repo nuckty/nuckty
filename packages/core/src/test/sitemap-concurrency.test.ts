@@ -60,4 +60,3 @@ test('sitemap bounds Git queries while preserving every page and timestamp', asy
         await rm(root, { recursive: true, force: true });
     }
 });
-

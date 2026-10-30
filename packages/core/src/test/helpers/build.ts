@@ -35,4 +35,3 @@ export async function runBuild(command: BuildCommand): Promise<void> {
         }
     }
 }
-

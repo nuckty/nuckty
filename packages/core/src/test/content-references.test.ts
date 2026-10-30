@@ -127,4 +127,3 @@ test('malformed sitemap entries reject invalid metadata instead of losing it', (
         assert.throws(() => processSitemap(parseIndentedSitemap(source)), /Invalid sitemap metadata/);
     }
 });
-

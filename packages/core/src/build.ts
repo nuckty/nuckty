@@ -104,4 +104,3 @@ async function buildOne(config: NucktyConfig, target: Target, cwd: string, env: 
 
     process.stdout.write(`nuckty: built target "${target.name}" → ${target.outDir}\n`);
 }
-

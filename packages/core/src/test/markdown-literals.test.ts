@@ -190,4 +190,3 @@ test('inline and fenced code match raw prefixes before HTML escaping', () => {
         assert.ok(html(source, options).includes('https://site.example/manual.zip'));
     }
 });
-

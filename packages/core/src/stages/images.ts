@@ -201,4 +201,3 @@ async function readImageSource(file: string, sourceRoot: string): Promise<Buffer
 
     return fs.readFile(resolved);
 }
-

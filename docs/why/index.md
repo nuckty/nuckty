@@ -21,4 +21,3 @@ Every record follows the same template: **Decision → Context → Alternatives 
 The criteria running through every decision: long-term support of a TypeScript project, ease of maintenance, and speed. The amount of code already written and the cost of migration are not counted. Sunk costs are not an argument for a worse decision going forward.
 
 Each record connects the choice to concrete data structures, extension contracts, and maintenance tradeoffs. Comparisons of build speed or maintenance cost require separate evidence; the records do not establish a measured advantage by themselves.
-

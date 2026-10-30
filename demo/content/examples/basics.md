@@ -11,4 +11,3 @@
 ```ts
 const page = { block: 'article', content: 'Hello, nuckty' };
 ```
-

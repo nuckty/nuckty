@@ -74,4 +74,3 @@ test('coverage output replaces only a dedicated report directory and keeps nativ
         await rm(root, { recursive: true, force: true });
     }
 });
-

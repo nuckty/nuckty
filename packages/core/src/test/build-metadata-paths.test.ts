@@ -91,4 +91,3 @@ test('bundle metadata traversal fails before overwriting project files', async (
         await rm(cwd, { recursive: true, force: true });
     }
 });
-

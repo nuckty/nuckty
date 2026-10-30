@@ -29,4 +29,3 @@ The choice is based on the structure and extension contract. This documentation 
 The Markdown bridge and its transformations use mdast. Extension authors receive mdast children, not HTML or BEMJSON children, in directive handlers.
 
 Russian typography is optional. An English-language site can omit that extension. For supported syntax and link-resolution behavior, see the [Markdown guide](../how/markdown.md).
-

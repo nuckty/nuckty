@@ -498,4 +498,3 @@ export const nginxStage: Stage<BuildContext> = async (ctx: BuildContext): Promis
 
     await fs.writeFile(destination, config, 'utf8');
 };
-

@@ -99,4 +99,3 @@ A public `.txt` file emitted by an extension is served as `text/plain`, using it
 ## What is not there yet
 
 The configuration handles the technical side of delivery: content negotiation, caching, security. Redirects like `Redirect 301 /old /new` are not part of it — they are added through the `after` hook of the `htaccess` and `nginx` stages (see [pipeline extensions](../how/ext/pipeline.md)). This is deliberate: redirects are the site's job, not the engine's.
-

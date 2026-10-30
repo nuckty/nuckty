@@ -41,4 +41,3 @@ export function postprocessHtml(html: string, imageEnv?: ImageMappingEnv): strin
         });
     });
 }
-

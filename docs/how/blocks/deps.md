@@ -45,4 +45,3 @@ The same list defines the style and script bundles. If a block is in the depende
 The declaration is an explicit bundle block list. It selects [templates](../templates.md), CSS, and JavaScript together; adding a block to content does not update it automatically. The loader does not traverse `.deps.js` files. See [block levels](levels.md) for file lookup.
 
 In a project with `"type":"module"`, add `blocks/package.json` containing `{"type":"commonjs"}` so `.bemdecl.js` remains CommonJS. A later-level declaration replaces the earlier declaration in full.
-

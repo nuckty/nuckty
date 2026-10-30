@@ -34,4 +34,3 @@ export const remarkTypographyRu: Plugin<[], Root> = () => (tree: Root) => {
     };
     walk(tree);
 };
-

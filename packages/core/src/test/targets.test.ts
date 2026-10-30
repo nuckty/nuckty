@@ -123,4 +123,3 @@ test('alternate languages ignore ASCII case while retaining distinct regional ta
     assert.deepEqual([...alternates.keys()], ['en-GB']);
     assert.equal(alternates.get('en-GB')?.url, 'https://gb.example.com/page');
 });
-

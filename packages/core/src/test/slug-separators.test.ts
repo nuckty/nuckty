@@ -23,4 +23,3 @@ test('custom intra-heading separators keep the established hierarchy join', () =
 
     assert.deepEqual(result.headings.map(heading => heading.anchor), ['parent::one', 'parent::one-child::two']);
 });
-

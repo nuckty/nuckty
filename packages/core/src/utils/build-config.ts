@@ -74,4 +74,3 @@ export function getBuildConfig(ctx: Pick<BuildContext, 'cwd' | 'configDir' | 'st
     ctx.store.configSnapshot = snapshot;
     return snapshot;
 }
-

@@ -29,4 +29,3 @@ Apache must have the required modules and permit the generated `.htaccess` direc
 `.htaccess` belongs to `outDir`; `nginx.conf` belongs to `.build`. The [preview extension](../ext/command/serve.md) generates its own runtime configuration and does not automatically reproduce consumer hooks or Apache behavior in production.
 
 A new format may require changes to image collection, conversion, and hosting generation. Logical URLs keep page markup stable while the serving contract changes.
-

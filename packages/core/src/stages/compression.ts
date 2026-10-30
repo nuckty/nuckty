@@ -132,4 +132,3 @@ export const compressionStage: Stage<BuildContext> = async (ctx: BuildContext): 
         await compressFile(file, ctx.outDir);
     }
 };
-

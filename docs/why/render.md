@@ -27,4 +27,3 @@ Template authors describe a block in one `.nu.ts` file. The engine prevents a co
 Use `render(tree, { templates, output: 'bemjson' })` to inspect the resolved tree and `render(tree, { templates })` for an HTML fragment. Add `document: true` to include the doctype and document ending.
 
 There is one rendering behavior for development and production. A second pass does not guarantee that arbitrary input is valid HTML: validation remains a separate [command](../ext/command/validate-vnu.md).
-

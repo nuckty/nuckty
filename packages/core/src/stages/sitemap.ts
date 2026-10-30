@@ -425,4 +425,3 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
         throw new Error(`Sitemap generation failed: ${msg}`, { cause: error });
     }
 };
-

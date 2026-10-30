@@ -14,4 +14,3 @@ export function applyRussianTypography(text: string): string {
             return `${previous}\u00a0— `;
         });
 }
-

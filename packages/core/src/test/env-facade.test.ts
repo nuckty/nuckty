@@ -222,4 +222,3 @@ test('independent environments keep extension registrations and behavior isolate
         assert.deepEqual(calls, env === second ? [] : ['first']);
     }
 });
-

@@ -416,4 +416,3 @@ test('unsafe external names fail before cleaning or copying project-root files',
         await rm(dir, { recursive: true, force: true });
     }
 });
-

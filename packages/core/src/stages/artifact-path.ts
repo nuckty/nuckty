@@ -37,4 +37,3 @@ export async function resolveBuildFile(buildDir: string, filename: string): Prom
 
     return destination;
 }
-

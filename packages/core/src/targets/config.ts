@@ -145,4 +145,3 @@ export function resolveAlternates(
 function withName(name: string, t: Omit<Target, 'name'>): Target {
     return { ...t, name };
 }
-

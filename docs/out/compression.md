@@ -40,4 +40,3 @@ At request time, the generated configuration selects a suitable prepared copy or
 ## What is not compressed
 
 Selection uses filenames, not content inspection. Files with other names, including `.json` and ordinary binary extensions, receive no compressed copies; neither do `robots.txt` or empty files. `.htaccess` and `manifest.json` are written after compression. Copies use flat directories, so matching basenames from different source directories cause an error.
-

@@ -22,4 +22,3 @@ There are no official pipeline extensions yet. Possible extensions:
 - A custom [hosting](../out/hosting.md) configuration — a stage in `emit`; generates a Caddy or other server configuration.
 - Image preparation — `before('images', ...)`: creates variants before the [images stage](../out/images.md) hashes and copies the family.
 - SEO sitemap or RSS/Atom — a stage generates XML from the [sitemap tree](../how/sitemap.md). The core copies a supplied `robots.txt` from the target configuration directory; an extension must generate `sitemap.xml`.
-

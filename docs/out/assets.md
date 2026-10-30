@@ -77,4 +77,3 @@ The hash is the first 16 hexadecimal characters of the MD5 of the full file cont
 ## Immutable cache
 
 The configuration gives files with hashed names a long cache lifetime (10 years) and `Cache-Control: public, immutable`. HTML uses `no-cache`: it may be stored, but must be revalidated before reuse. See [hosting configuration](hosting.md).
-

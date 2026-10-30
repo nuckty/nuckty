@@ -273,4 +273,3 @@ export const assetsStage: Stage<BuildContext> = async (ctx: BuildContext): Promi
 
     ctx.store.assetRepos = { available, missing };
 };
-
