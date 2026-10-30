@@ -1,8 +1,8 @@
 {
     "global": {
-        "lines": 87.5,
-        "branches": 83.6,
-        "functions": 84.8
+        "lines": 95,
+        "branches": 92,
+        "functions": 98
     },
-    "perFileLines": 80
+    "perFileLines": 88
 }

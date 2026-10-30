@@ -17,7 +17,8 @@
         "logo:optimize": "svgo --config config/config-svgo.js --folder logo --exclude \"_(source|grid)[.]svg$\" --eol lf --final-newline",
         "changeset": "changeset",
         "version-packages": "changeset version && npm install --package-lock-only --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org",
-        "release": "npm run build && changeset publish"
+        "release": "npm run build && changeset publish",
+        "test:coverage": "npm run test:coverage --workspaces --if-present"
     },
     "devDependencies": {
         "@changesets/cli": "3.0.3",

@@ -33,9 +33,10 @@
     },
     "scripts": {
         "build": "rm -rf dist && tsc -p config/config-ts.json",
-        "test": "tsx --test src/test/**/*.test.ts",
+        "test": "node --import tsx --test src/test/*.test.ts",
         "lint": "tsc --noEmit -p config/config-ts-test.json",
-        "prepack": "npm run build"
+        "prepack": "npm run build",
+        "test:coverage": "node --import tsx --test --experimental-test-coverage --test-coverage-include='src/**/*.ts' --test-coverage-exclude='src/test/**' --test-coverage-lines=87 --test-coverage-branches=84 --test-coverage-functions=87 src/test/*.test.ts"
     },
     "dependencies": {
         "basic-ftp": "6.2.1"
