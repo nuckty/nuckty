@@ -630,40 +630,40 @@ body:has(.menu-toggle[aria-expanded='true']) > .footer {
     --syntax-function: #d2b5ef;
 }
 
-.th-keyword,
-.th-deleted {
+.code__token_kind_keyword,
+.code__token_kind_deleted {
     color: var(--syntax-keyword);
 }
 
-.th-string,
-.th-tag,
-.th-selector,
-.th-inserted {
+.code__token_kind_string,
+.code__token_kind_tag,
+.code__token_kind_selector,
+.code__token_kind_inserted {
     color: var(--syntax-string);
 }
 
-.th-comment,
-.th-meta,
-.th-operator {
+.code__token_kind_comment,
+.code__token_kind_meta,
+.code__token_kind_operator {
     color: var(--syntax-comment);
 }
 
-.th-number,
-.th-literal,
-.th-type,
-.th-variable {
+.code__token_kind_number,
+.code__token_kind_literal,
+.code__token_kind_type,
+.code__token_kind_variable {
     color: var(--syntax-number);
 }
 
-.th-attr,
-.th-property,
-.th-heading,
-.th-link {
+.code__token_kind_attr,
+.code__token_kind_property,
+.code__token_kind_heading,
+.code__token_kind_link {
     color: var(--syntax-property);
 }
 
-.th-function,
-.th-command {
+.code__token_kind_function,
+.code__token_kind_command {
     color: var(--syntax-function);
 }
 

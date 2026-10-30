@@ -50,7 +50,7 @@ function exampleTree(
                 b(
                     'example',
                     'snippet',
-                    b('example', 'code', { raw: highlightCode(node.props?.source ?? '', 'markdown') }),
+                    b('example', 'code', highlightCode(node.props?.source ?? '', 'markdown')),
                 ),
                 {
                     id: `${id}-source`,

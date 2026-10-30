@@ -6,4 +6,5 @@ export default function templates(): void {
         attrs: (node, next) => ({ ...next(), ...attributes(node, ['id', 'tabindex']) }),
     });
     block('code').elem('content')({ tag: 'code', bem: false });
+    block('code').elem('token')({ tag: 'span' });
 }

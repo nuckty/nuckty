@@ -55,7 +55,7 @@ function showcaseContent(
                         {},
                         { mix: [{ block: 'demo-fragment' }] },
                     ),
-                    b('showcase', 'snippet', b('showcase', 'code', { raw: highlightCode(source, 'json') })),
+                    b('showcase', 'snippet', b('showcase', 'code', highlightCode(source, 'json'))),
                     b(
                         'showcase',
                         'paragraph',
