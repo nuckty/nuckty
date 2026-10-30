@@ -10,7 +10,7 @@ The entry point of the dependencies is the file `blocks/<bundle>/<bundle>.bemdec
 // blocks/docs-layout/docs-layout.bemdecl.js — CommonJS
 module.exports = {
     mustDeps: [
-        'root',          // Standard document wrapper
+        'root',          // Standard page wrapper
         'docs-layout',   // the frame itself
     ],
     shouldDeps: [

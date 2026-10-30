@@ -23,7 +23,7 @@ export function register(env) {
 | [`@nuckty/ext-command-deploy-ftp`](command/deploy-ftp.ru.md) | `nuckty deploy-ftp` | Публикация артефакта на виртуальный [хостинг](../out/hosting.ru.md) по FTP |
 | [`@nuckty/ext-command-convert-images`](command/convert-images.ru.md) | `nuckty convert-images` | Кодирование [изображений](../out/images.ru.md) в AVIF/WebP |
 | [`@nuckty/ext-command-content-external`](command/content-external.ru.md) | `nuckty content-external` | Контент из внешних репозиториев Git |
-| [`@nuckty/ext-command-serve`](command/serve.ru.md) | `nuckty serve`, `nuckty stop` | Локальная раздача сайта через nginx, остановка демона |
+| [`@nuckty/ext-command-serve`](command/serve.ru.md) | `nuckty serve`, `nuckty stop` | Локальная раздача сайта через nginx и её остановка |
 | [`@nuckty/ext-command-validate-vnu`](command/validate-vnu.ru.md) | `nuckty validate` | Проверка [HTML](../out/html.ru.md) внешним W3C Nu Checker |
 
 Добавьте нужное расширение в `config-nuckty.ts`, чтобы подключить его команду.

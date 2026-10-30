@@ -22,7 +22,7 @@
 
 | Пакет | Тип | Назначение |
 |---|---|---|
-| [`@nuckty/ext-block-root`](block/root.ru.md) | block, document | [обёртка страницы](../out/html.ru.md) (`root`) |
+| [`@nuckty/ext-block-root`](block/root.ru.md) | block, document | [Обёртка страницы](../out/html.ru.md) (`root`) |
 | [`@nuckty/ext-block-gallery`](block/gallery.ru.md) | block, markdown | Галерея с лайтбоксом |
 | [`@nuckty/ext-block-grid`](block/grid.ru.md) | block, markdown | Многоколоночная раскладка (`:::grid`) |
 | [`@nuckty/ext-markdown-video`](markdown/video.ru.md) | markdown | Встраивание видео `@[provider](id)` (YouTube/RuTube/VK) |

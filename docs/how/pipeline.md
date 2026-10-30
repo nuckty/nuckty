@@ -26,7 +26,7 @@ Inside the phases, the work is done by stages — named functions `(ctx) => void
 
 - `clean` (clean) — clears the output directory.
 - `images` (prepare) — copies original images and prepared variants, writes `.build/image-mapping.json`.
-- `assets` (prepare) — copies static files (PDF, ZIP, MP4, `robots.txt`) from the configuration and external repositories.
+- `assets` (prepare) — copies static files (PDF, ZIP, INI, MP4, `robots.txt`) from the configuration and external repositories.
 - `sitemap` (render) — parses `sitemap.yml`, converts Markdown into BEMJSON, builds the URL map.
 - `css` / `js` (render) — build bundles from dependencies, add a content-hash.
 - `resolve` (resolve) — a placeholder, reserved.

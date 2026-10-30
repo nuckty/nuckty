@@ -10,7 +10,7 @@
 // blocks/docs-layout/docs-layout.bemdecl.js — CommonJS
 module.exports = {
     mustDeps: [
-        'root',          // Standard document wrapper
+        'root',          // Стандартная обёртка страницы
         'docs-layout',   // сам каркас
     ],
     shouldDeps: [

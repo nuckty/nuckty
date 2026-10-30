@@ -26,7 +26,7 @@ clean → prepare → render → resolve → emit
 
 - `clean` (clean) — очистка выходного каталога.
 - `images` (prepare) — копирует исходные изображения и готовые варианты, строит `.build/image-mapping.json`.
-- `assets` (prepare) — копирует статические файлы (PDF, ZIP, MP4, `robots.txt`) из конфигурации и внешних репозиториев.
+- `assets` (prepare) — копирует статические файлы (PDF, ZIP, INI, MP4, `robots.txt`) из конфигурации и внешних репозиториев.
 - `sitemap` (render) — разбирает `sitemap.yml`, обрабатывает Markdown в BEMJSON, строит карту адресов.
 - `css` / `js` (render) — собирают бандлы по зависимостям, добавляют content-hash.
 - `resolve` (resolve) — заглушка, зарезервирован.

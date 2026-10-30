@@ -23,7 +23,7 @@ The full contract is in the [command extension guide](../how/ext/command.md).
 | [`@nuckty/ext-command-deploy-ftp`](command/deploy-ftp.md) | `nuckty deploy-ftp` | Publish the artifact to shared [hosting](../out/hosting.md) over FTP |
 | [`@nuckty/ext-command-convert-images`](command/convert-images.md) | `nuckty convert-images` | Encoding [images](../out/images.md) to AVIF/WebP |
 | [`@nuckty/ext-command-content-external`](command/content-external.md) | `nuckty content-external` | Content from external git repositories |
-| [`@nuckty/ext-command-serve`](command/serve.md) | `nuckty serve`, `nuckty stop` | Local site serving via nginx, daemon shutdown |
+| [`@nuckty/ext-command-serve`](command/serve.md) | `nuckty serve`, `nuckty stop` | Local site serving via nginx and stopping it |
 | [`@nuckty/ext-command-validate-vnu`](command/validate-vnu.md) | `nuckty validate` | [HTML](../out/html.md) validation with the external W3C Nu Checker |
 
 Add the extension you need to `config-nuckty.ts` to wire up its command.
