@@ -1,6 +1,6 @@
 # Assets: CSS and JS
 
-The engine bundles CSS and JS by [block dependencies](../how/blocks/deps.md). Every bundle name includes a content-hash, so the files can have a long cache lifetime. The manifest stores sizes and hashes — the [deploy command](../ext/command/deploy-ftp.md) uses it.
+The engine bundles CSS and JS by [block dependencies](../how/blocks/deps.md). Every bundle name includes a content-hash, so the files can have a long cache lifetime. The manifest stores sizes and hashes — the [publish command](../ext/command/deploy-ftp.md) uses it.
 
 ## Static files from external repositories
 
@@ -62,7 +62,7 @@ In CSS, [images](images.md) are referenced through `url(...)`. At build time the
 
 ## manifest.json
 
-The manifest records artifact files with sizes and hashes, excluding `manifest.json` itself. The scan runs after `.htaccess` is written. The [deploy extension](../ext/command/deploy-ftp.md) uses it to compare the manifest against the files on the server: only what has changed gets uploaded.
+The manifest records artifact files with sizes and hashes, excluding `manifest.json` itself. The scan runs after `.htaccess` is written. The [FTP publication extension](../ext/command/deploy-ftp.md) uses it to compare the manifest against the files on the server: only what has changed gets uploaded.
 
 ```json
 {

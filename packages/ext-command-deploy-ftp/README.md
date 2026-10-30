@@ -22,7 +22,7 @@ nuckty deploy-ftp [target] [--force] [--allow-mass-delete] [--dry-run]
 1. Validates the local manifest, relative paths, file containment, sizes and MD5 hashes before connecting.
 2. Lists every remote directory; any failed listing aborts the deployment.
 3. Without `--force`, downloads a manifest when the complete listing contains it; a failed download or invalid manifest aborts. Absence is determined by the listing, not an FTP error code. `--force` skips the download and uploads every local file.
-4. Computes uploads and deletions, applies the mass-deletion guard, creates upload directories and transfers content. Failed uploads stop the deployment before deletions.
+4. Computes uploads and deletions, applies the mass-deletion guard, creates upload directories and transfers content. Failed uploads stop the publication before deletions.
 5. Deletes orphans, verifies the complete listing and retries missing or mismatched uploads. Upload, deletion or verification failures prevent publication of the manifest.
 6. Removes the server `manifest.json` before the first change, so an interrupted run leaves none and the next run uploads every file, and uploads the new `manifest.json` last; a failed manifest transfer fails the command. This is not an atomic publication of the entire site: files already transferred remain on the server if a later operation fails.
 
@@ -59,7 +59,7 @@ export default defineNucktyConfig({
 
 ## Spec
 
-Behavior is fixed by the openspec `ext-command-deploy-ftp` spec (`openspec/specs/ext-command-deploy-ftp/spec.md`): deploy command, manifest-driven diff and minimal operations, mass-deletion guard, passive FTP and explicit FTPS.
+Behavior is fixed by the openspec `ext-command-deploy-ftp` spec (`openspec/specs/ext-command-deploy-ftp/spec.md`): publish command, manifest-driven diff and minimal operations, mass-deletion guard, passive FTP and explicit FTPS.
 
 ## License
 

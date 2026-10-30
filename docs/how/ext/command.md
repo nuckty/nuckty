@@ -1,6 +1,6 @@
 # Command extension
 
-A command extension adds a command to the CLI: `nuckty <command>`. The entry point is `env.commands`. Use it for actions beyond the built-in `build`: deploying to a server, local serving via `nuckty serve`, validity checks.
+A command extension adds a command to the CLI: `nuckty <command>`. The entry point is `env.commands`. Use it for actions beyond the built-in `build`: publishing to a server, local serving via `nuckty serve`, validity checks.
 
 ## API
 
@@ -64,13 +64,13 @@ It returns an exit code: `0` for success, a non-zero code for an error. The core
 
 ## Typical commands
 
-- **`nuckty deploy-ftp [target]`** — deploy the artifact to a server. See [`@nuckty/ext-command-deploy-ftp`](../../ext/command/deploy-ftp.md).
+- **`nuckty deploy-ftp [target]`** — publish the artifact to a server. See [`@nuckty/ext-command-deploy-ftp`](../../ext/command/deploy-ftp.md).
 - **`nuckty serve [--port N]`** — serve the site locally via nginx. See [`@nuckty/ext-command-serve`](../../ext/command/serve.md).
 - **`nuckty validate`** — check [HTML](../../out/html.md) with an external validator. See [`@nuckty/ext-command-validate-vnu`](../../ext/command/validate-vnu.md).
 
 ## When to choose command
 
-If the action is a standalone operation on the finished artifact (deploying, serving via `nuckty serve`, validation), it is a `command`. If the action changes the build process itself, it is a [pipeline extension](pipeline.md).
+If the action is a standalone operation on the finished artifact (publishing, serving via `nuckty serve`, validation), it is a `command`. If the action changes the build process itself, it is a [pipeline extension](pipeline.md).
 
 ## Command extension catalog
 

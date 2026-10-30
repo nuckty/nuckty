@@ -34,7 +34,7 @@ For a raster image, the build copies the original and available [AVIF/WebP varia
 
 The engine [minimizes HTML](out/html.md): it omits supported optional end tags and unnecessary quotes without adding formatting indentation. Newlines in text and `raw` are preserved. Document validity depends on templates and raw HTML; validate the actual artifact.
 
-### FTP deployment via a manifest
+### FTP publication via a manifest
 
 The [`nuckty deploy-ftp`](ext/command/deploy-ftp.md) command compares a local manifest (file sizes and hashes) against the state of the server and uploads only the files that changed. That is enough for the simplest shared hosting with FTP: no SSH, no rsync, no git on the server.
 

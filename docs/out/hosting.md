@@ -7,7 +7,7 @@ At build time, nuckty generates a separate configuration for each class of hosti
 | File | Where it goes | For which hosting |
 |---|---|---|
 | `nginx.conf` | `buildDir/` | nginx hosting and integration checks |
-| `.htaccess` | `outDir/` (deployed with the artifact) | Shared hosting with Apache and mod_rewrite |
+| `.htaccess` | `outDir/` (published with the artifact) | Shared hosting with Apache and mod_rewrite |
 
 A configuration generator builds both files: it emits the lines directly, without template engines like Nunjucks. There is nothing to write by hand.
 

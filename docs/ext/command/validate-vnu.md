@@ -27,7 +27,7 @@ Starting the JVM has a cost, so the extension is optional. Tests of the [minimiz
 
 - Before a site release — a final check that the artifact conforms to HTML5.
 - When debugging a complex block — to make sure the structure does not violate the specification.
-- In CI — as a gate before deploying (if the time budget allows starting the JVM).
+- In CI — as a gate before publishing (if the time budget allows starting the JVM).
 
 ## Running the check
 

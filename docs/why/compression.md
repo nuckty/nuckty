@@ -20,7 +20,7 @@ The [hosting configuration](../out/hosting.md) selects a prepared representation
 
 Two codecs give the current hosting generators a fixed selection order: Brotli, Gzip, then the original. They are part of the implemented artifact contract; this decision does not claim that Brotli beats every other codec on every input.
 
-Normalizing byte 9 of the gzip header removes one platform-dependent metadata field. Identical compressed bytes also require matching inputs and compatible runtime/compressor versions. Stable bytes avoid unnecessary changes in [manifest-based deployment](../ext/command/deploy-ftp.md).
+Normalizing byte 9 of the gzip header removes one platform-dependent metadata field. Identical compressed bytes also require matching inputs and compatible runtime/compressor versions. Stable bytes avoid unnecessary changes in [manifest-based publication](../ext/command/deploy-ftp.md).
 
 ## Consequences
 

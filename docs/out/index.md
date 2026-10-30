@@ -26,7 +26,7 @@ site/                        ← outDir, deployed in full
 
 Flat filenames are part of the model: the hierarchical path `/how/bemjson` becomes the file `how_bemjson.html`. On request, the server maps the URL to the corresponding flat filename. For details, see [hosting configuration](hosting.md).
 
-## Ready to deploy
+## Ready to publish
 
 The artifact includes `.htaccess` for compatible Apache hosting. `nginx.conf` is separate in `.build`; `nuckty serve` generates its own runtime file. Copy `outDir` using the chosen delivery method; the [FTP extension](../ext/command/deploy-ftp.md) supports FTP/FTPS. The remote server must apply the required serving rules.
 

@@ -15,7 +15,7 @@ import type { DeployOpts, DeployResult } from './ftp.js';
 
 export type FtpDeploy = (options: DeployOpts) => Promise<DeployResult>;
 
-/** `nuckty deploy-ftp [target] [--force] [--allow-mass-delete] [--dry-run]` — deploy the built site over FTP. */
+/** `nuckty deploy-ftp [target] [--force] [--allow-mass-delete] [--dry-run]` — publish the built site over FTP/FTPS. */
 export async function deployFtp(args: CommandArgs, inject?: { ftpDeploy?: FtpDeploy }): Promise<number> {
     const target = args.positional[0];
     const force = args.flags['force'] === true;
@@ -74,7 +74,7 @@ export function resolveOutDir(
 export function register(env: NucktyEnv): void {
     env.commands.add(
         'deploy-ftp',
-        'deploy the built site over FTP/FTPS',
+        'publish the built site over FTP/FTPS',
         deployFtp,
         { flags: { force: 'boolean', 'allow-mass-delete': 'boolean', 'dry-run': 'boolean' }, maxPositionals: 1 },
     );

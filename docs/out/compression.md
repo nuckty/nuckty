@@ -21,7 +21,7 @@ Each pre-compressed copy keeps the original's flat filename and adds a codec suf
 
 ## Build determinism
 
-The engine normalizes byte 9 (the tenth byte) of the gzip header (the OS field) to `0xFF` ("unknown"), so builds on macOS and on Linux use the same OS marker. Identical bytes also require the same compressor/runtime versions. A different OS marker changes the compressed file’s hash and causes unnecessary uploads during [manifest-based deployment](../ext/command/deploy-ftp.md); the manifest itself remains correct. For the full rationale, see the [compression decision](../why/compression.md).
+The engine normalizes byte 9 (the tenth byte) of the gzip header (the OS field) to `0xFF` ("unknown"), so builds on macOS and on Linux use the same OS marker. Identical bytes also require the same compressor/runtime versions. A different OS marker changes the compressed file’s hash and causes unnecessary uploads during [manifest-based publication](../ext/command/deploy-ftp.md); the manifest itself remains correct. For the full rationale, see the [compression decision](../why/compression.md).
 
 Brotli has no such header, so it needs no extra normalization.
 

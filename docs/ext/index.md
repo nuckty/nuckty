@@ -27,7 +27,7 @@ A quick summary:
 | [`@nuckty/ext-block-grid`](block/grid.md) | block, markdown | Multi-column page layout (`:::grid`) |
 | [`@nuckty/ext-markdown-video`](markdown/video.md) | markdown | Video embedding `@[provider](id)` (YouTube/RuTube/VK) |
 | [`@nuckty/ext-markdown-typography-ru`](markdown/typography-ru.md) | markdown | Russian typography (dashes, non-breaking spaces) |
-| [`@nuckty/ext-command-deploy-ftp`](command/deploy-ftp.md) | command | Deploy over FTP via a manifest |
+| [`@nuckty/ext-command-deploy-ftp`](command/deploy-ftp.md) | command | Publish over FTP via a manifest |
 | [`@nuckty/ext-command-convert-images`](command/convert-images.md) | command | Encoding [images](../out/images.md) to AVIF/WebP |
 | [`@nuckty/ext-command-content-external`](command/content-external.md) | command | Content from external git repositories |
 | [`@nuckty/ext-command-serve`](command/serve.md) | command | Local site serving and shutdown |

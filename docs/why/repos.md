@@ -6,7 +6,7 @@ Keep nuckty in one monorepository with separate packages and synchronized releas
 
 ## Context
 
-Sites need different capabilities. A site without [HTML](../out/html.md) validation or FTP deployment does not need those dependencies.
+Sites need different capabilities. A site without [HTML](../out/html.md) validation or FTP publication does not need those dependencies.
 
 ## Alternatives
 

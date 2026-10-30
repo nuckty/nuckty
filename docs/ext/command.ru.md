@@ -8,7 +8,7 @@ Command-расширение регистрирует команду:
 
 ```ts
 export function register(env) {
-    env.commands.add('deploy-ftp', 'deploy the built site over FTP/FTPS', deployHandler);
+    env.commands.add('deploy-ftp', 'publish the built site over FTP/FTPS', deployHandler);
 }
 ```
 

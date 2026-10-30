@@ -60,7 +60,7 @@ Stages communicate through `ctx` — the build context:
 - `ctx.cwd` — the root of the user's project.
 - `ctx.configDir` — the directory holding `sitemap.yml` and configuration files.
 - `ctx.buildDir` — the shared `.build/` workspace; after a multi-target build it contains the last target's intermediate results. `nuckty serve` keeps its own configuration in `.build/serve/<target>/`.
-- `ctx.outDir` — the final artifact (`site/`) that gets deployed to the server.
+- `ctx.outDir` — the final artifact (`site/`) that gets published to the server.
 - `ctx.store` — storage shared between stages: the sitemap, images, bundle hashes.
 
 Stages do not call each other directly. They read from and write to the shared storage, and the pipeline guarantees the execution order. Each stage must respect the shared data contract and the results it needs from earlier stages.

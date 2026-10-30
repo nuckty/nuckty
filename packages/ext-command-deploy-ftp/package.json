@@ -15,7 +15,7 @@
         "registry": "https://registry.npmjs.org",
         "access": "public"
     },
-    "description": "nuckty command-extension: deploy a built site over FTP/FTPS",
+    "description": "nuckty command-extension: publish a built site over FTP/FTPS",
     "keywords": [
         "nuckty",
         "nuckty-extension",
