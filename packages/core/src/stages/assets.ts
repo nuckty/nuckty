@@ -6,12 +6,11 @@ import { getBuildConfig } from '../utils/build-config.js';
 import { externalRepoName } from '../utils/external.js';
 import { generateFileHash } from '../utils/hash.js';
 import { isToolingDirectory } from '../utils/walk.js';
+import { isDownload } from '../utils/downloads.js';
 
 /** Static config files copied verbatim into the site root. */
 const CONFIG_FILES = ['robots.txt'];
 
-/** Extensions of static asset files copied from external repos. */
-const ASSET_EXTENSIONS = ['.pdf', '.zip', '.ini'];
 
 interface AssetFile {
     filename: string;
@@ -110,7 +109,7 @@ async function findAssetFiles(dirPath: string, basePath = dirPath): Promise<Asse
             }
         } else if (
             entry.isFile() &&
-            ASSET_EXTENSIONS.some((ext) => entry.name.endsWith(ext))
+            isDownload(entry.name)
         ) {
             results.push({
                 filename: entry.name,

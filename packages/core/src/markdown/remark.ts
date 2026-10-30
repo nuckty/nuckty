@@ -25,6 +25,7 @@ import { toString } from 'mdast-util-to-string';
 import { buildHierarchicalAnchor } from './anchors.js';
 import { transformImagePathShared } from './image-mapping.js';
 import { postprocessHtml } from './html-postprocess.js';
+import { isDownload } from '../utils/downloads.js';
 import type { BemNode, BEMTree } from '../bem/types.js';
 import type { DirectiveConverters, DirectiveHandler, DirectiveNode, MarkdownNode, MarkdownNodeHandler } from '../env/env.js';
 
@@ -555,7 +556,7 @@ function resolveLink(href: string, env: BridgeEnv): string {
     } catch {
         // Keep malformed URI escapes literal for the diagnostic.
     }
-    if (/\.(zip|ini|pdf)$/i.test(target)) {
+    if (isDownload(target)) {
         return resolveDownload(href, target, suffix, env);
     }
     if (/\.(html|php|asp|jsp)$/i.test(target)) {
