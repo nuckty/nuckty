@@ -38,18 +38,6 @@ The command SHALL read and verify the local manifest and recursively list server
 - **THEN** the command does not download that manifest
 - **AND** it plans every local file for upload and still derives deletions from LIST
 
-### Requirement: Mass-deletion guard
-The deploy-ftp command SHALL stop and suggest `--allow-mass-delete` when the share of files to delete exceeds a threshold (default 30%), to protect against an accidental wipe.
-
-#### Scenario: Large deletion is blocked without --force
-- **WHEN** a deploy would delete more than 30% of remote files
-- **THEN** the command stops and points to `--force`
-- **AND** `--force` proceeds with the deletion
-
-#### Scenario: Force does not lift the guard
-- **WHEN** `nuckty deploy-ftp --force` would delete more than 30% of remote files
-- **THEN** the command stops before any change and suggests `--allow-mass-delete`
-
 ### Requirement: Passive FTP and FTPS, credentials from config or env
 Deployment SHALL use passive explicit FTPS through basic-ftp by default, with no SSH dependency in the core. Consumers SHALL exclude `config/auth-ftp.json` from version control. Credentials SHALL come from that file or `FTP_HOST`, `FTP_USER`, `FTP_PASSWORD` (legacy `FTP_PASS`), `FTP_PATH` and `FTP_PORT` environment values, with environment credentials preferred in CI. A TLS connection SHALL use normal certificate and hostname verification and retries SHALL not downgrade it silently. Plain FTP SHALL be selected only by `secure: false` or `FTP_SECURE=false`, and the command SHALL warn before connecting without TLS. The port SHALL default to 21 and SHALL be rejected unless it is an integer from 1 to 65535.
 
@@ -88,3 +76,15 @@ Before the first upload or deletion, a non-dry-run deploy SHALL remove an existi
 - **WHEN** a deploy fails after changing the server and a server file now has the local size but different bytes
 - **THEN** no server manifest remains
 - **AND** the next deploy uploads that file
+
+### Requirement: Mass-deletion guard requires an explicit flag
+The deploy-ftp command SHALL stop and suggest `--allow-mass-delete` when the share of files to delete exceeds a threshold (default 30%), to protect against an accidental wipe.
+
+#### Scenario: Large deletion is blocked without --allow-mass-delete
+- **WHEN** a deploy would delete more than 30% of remote files
+- **THEN** the command stops and points to `--allow-mass-delete`
+- **AND** `--allow-mass-delete` proceeds with the deletion
+
+#### Scenario: Force does not lift the guard
+- **WHEN** `nuckty deploy-ftp --force` would delete more than 30% of remote files
+- **THEN** the command stops before any change and suggests `--allow-mass-delete`

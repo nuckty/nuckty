@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Specify the core Markdown pipeline: CommonMark and supported GFM features, hierarchical anchors, cross-link resolution, image mapping and trusted inline HTML. Typography and site-specific gallery, grid, callout or video constructs belong to extensions; generic directive parsing belongs to the core.
+Specify the core Markdown pipeline: CommonMark and supported GFM features, hierarchical anchors, cross-link resolution, image mapping and trusted inline HTML. Typography and gallery, grid or video constructs belong to extensions; generic directive parsing belongs to the core.
 
 ## Requirements
 

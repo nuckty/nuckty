@@ -72,14 +72,12 @@ Directive-based constructs SHALL be authored as generic directives (`:name` / `:
 - **THEN** the plugin transforms mdast before the mdast → BEMJSON bridge
 
 ### Requirement: levels entry point
-`env.levels` SHALL provide `add(dir)`, adding the extension's `blocks/` dir as a level. The engine loads blocks from it by deps, and a site can override them by placing its version on a later level.
+`env.levels` SHALL provide `add(dir)`, adding the extension's `blocks/` dir as a level. The engine loads blocks from it by deps, and a site can override them by placing its version on a later level. Block modules SHALL NOT receive `env`. Each `.nu.ts` module SHALL export default `templates()`, import `block` from `@nuckty/core`, and declare only its own block.
 
 #### Scenario: Block extension adds a level
 - **WHEN** an extension imports fileURLToPath from node:url and calls `env.levels.add(fileURLToPath(new URL('./blocks/', import.meta.url)))`
 - **THEN** its blocks are loadable by deps alongside the site's blocks
 - **AND** a later site level overrides them
-
-Block modules SHALL NOT receive `env`. Each `.nu.ts` module SHALL export default `templates()`, import `block` from `@nuckty/core`, and declare only its own block.
 
 ### Requirement: commands entry point
 `env.commands` SHALL provide `add(name, description, handler, options?)`. The core knows only `build`; any other command is a command-extension. `options.flags` SHALL declare each accepted option as `'boolean'` or `'string'`, and `options.maxPositionals` SHALL bound the positional arguments. Before calling the handler the CLI SHALL reject an undeclared option, a boolean option with a value other than `true` or `false`, a string option without a value and extra positional arguments, with exit code 1. `handler` receives `args.positional`, `args.flags` with boolean options as booleans, the already loaded `args.config` and the project-root `args.cwd`, and returns an exit code (`0` success, non-zero error) that the core passes to the process.
@@ -135,109 +133,32 @@ Local extension export targets SHALL preserve URL query and fragment identity an
 - **THEN** the module loads and observes the original query and fragment
 
 ### Requirement: Independent extension environments
-
 Each NucktyEnv instance SHALL retain its own command, document, Markdown, level and pending pipeline registrations.
 
 #### Scenario: Registrations stay with their build environment
-
 - **WHEN** an extension registers behavior in one of two independently created environments
 - **THEN** the second environment has no corresponding registration, and registering different behavior there does not change the first environment's observable results
 
 ### Requirement: External command separator rejection regression
-
 The content-external regression suite SHALL exercise a derived repository name containing a backslash when claiming separator rejection.
 
 #### Scenario: Backslash in repository name
-
 - **WHEN** getRepoName receives a URL whose last component contains a backslash
 - **THEN** the regression verifies an unsafe-name error rather than asserting only ordinary URL parsing
 
 ### Requirement: Observable startup cancellation fixture
-
 The validator startup cancellation regression SHALL synchronize stop with an observed pending health request rather than a fixed wall-clock delay.
 
 #### Scenario: Stop during readiness request
-
 - **WHEN** the owned validator has entered its pending readiness request and stop is called
 - **THEN** validation rejects with the stopped reason and the test verifies owned child termination
 
 ### Requirement: Owned preview output destinations
-
 Serve SHALL reject symbolic links in its build directory, preview config, PID and generated log destinations before output access or nginx launch. Symbolic consumer roots SHALL remain supported through their canonical root.
 
 #### Scenario: Linked runtime output
-
 - **WHEN** a preview output destination contains a symbolic link
 - **THEN** serve refuses without modifying outside bytes or launching nginx
-
-### Requirement: Accurate CI schedule reporting
-
-CI schedule comments SHALL describe day-of-month steps accurately. Cache metrics SHALL NOT predict the next execution from a fixed elapsed-day interval when the configured cron does not provide it.
-
-#### Scenario: Monthly step schedule
-
-- **WHEN** cron selects every fifth or sixth day-of-month value
-- **THEN** comments explain its monthly reset and metrics omit unsupported next-run predictions
-
-### Requirement: Literal-safe artifact link checks
-
-Artifact link checking SHALL ignore tag-shaped text in comments and raw-text element bodies, retain real opening-element attributes, decode their HTML character references, and tokenize quoted greater-than characters correctly.
-
-#### Scenario: Fake anchor identifier
-
-- **WHEN** a linked ID appears only in a comment or script string
-- **THEN** the checker reports a missing anchor
-
-#### Scenario: Named attribute reference
-
-- **WHEN** an actual element ID contains `&copy;` and a link names the corresponding percent-encoded Unicode character
-- **THEN** the checker compares the decoded attribute values and accepts the existing anchor
-
-### Requirement: Explicit snapshot repository names
-
-Snapshot resolve, prepare and verify SHALL accept only own configured repository names and reject unsupported inherited keys before filesystem access or Git runner invocation.
-
-#### Scenario: Prototype-looking repository name
-
-- **WHEN** an operation receives constructor, toString or __proto__ as a repository name
-- **THEN** it fails with unsupported-name error before accessing a directory or invoking Git
-
-### Requirement: Complete raw-text regions in artifact checks
-
-Link and gallery checkers SHALL treat iframe, xmp, noembed, noframes and plaintext bodies as literal text, in addition to script, style, textarea and title. Raw-text names SHALL match complete tag names. Real opening-tag IDs SHALL remain visible to link checking.
-
-#### Scenario: Raw-text fake ID
-
-- **WHEN** a linked ID appears only inside a raw-text body
-- **THEN** link checking reports the missing anchor
-
-#### Scenario: Similar custom tag name
-
-- **WHEN** an ordinary element name starts with a raw-text name followed by a hyphen
-- **THEN** its descendant elements remain visible to link checking
-
-### Requirement: Complete password hook synthetic configuration
-
-The synthetic password-hook fixture SHALL supply normal target site configuration and test missing/malformed optional password inputs independently, without unrelated successful-run configuration warnings.
-
-#### Scenario: Normal synthetic configuration
-
-- **WHEN** the password hook tests optional values
-- **THEN** site.json exists and missing-password checks remain observable
-
-### Requirement: Verified dependency audit remediation
-
-Maintained package and consumer dependencies SHALL use verified patched versions for confirmed audit findings while retaining their documented CLI, native runtime, lint and specification behavior. Remediation SHALL NOT hide advisories or substitute a narrower behavior contract to obtain a green audit.
-
-#### Scenario: Patched Git command dependency
-
-- **WHEN** the content preparation Git dependency is updated for command-execution advisories
-- **THEN** clean/origin/clone/LFS/refusal contracts continue passing meaningful tests and its lockfile audit has no unresolved finding
-
-#### Scenario: Unpatched transitive package
-
-- **WHEN** upstream has no patched release
-- **THEN** the review records that fact and verifies an actual compatible remediation rather than ignoring the advisory or claiming success from an unchanged version
 
 ### Requirement: Installed CLI package version
 The CLI SHALL print the installed `@nuckty/core` package manifest version for both `--version` and `-v`, independently of the consumer working directory.

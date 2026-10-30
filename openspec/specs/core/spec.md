@@ -41,14 +41,14 @@ The core CLI SHALL implement exactly one subcommand: `nuckty build [target]`. Th
 - **THEN** the core reads `config-nuckty.ts`, loads `ext[]`, registers default stages, runs the pipeline, and writes the artifact to each target's `outDir`
 
 ### Requirement: Minimal core runtime dependencies
-Core runtime dependencies SHALL be limited to the Markdown stack (`unified`, `remark-parse`, `remark-gfm`, `remark-directive`, `mdast-util-to-string`) and the asset builders (`esbuild`, `lightningcss`), with `entities` for standards-complete HTML attribute character-reference decoding. Image encoding, Git repository preparation, serving, external validation and FTP delivery SHALL belong to separately installed extensions.
+Core runtime dependencies SHALL be limited to the Markdown stack (`unified`, `remark-parse`, `remark-gfm`, `remark-directive`, `mdast-util-to-string`) and the asset builders (`esbuild`, `lightningcss`), with `entities` for standards-complete HTML attribute character-reference decoding and `@types/mdast` so the published declarations resolve. Image encoding, Git repository preparation, serving, external validation and FTP delivery SHALL belong to separately installed extensions.
 
 #### Scenario: Core runtime dependencies stay minimal
 - **WHEN** the core `package.json` is inspected
-- **THEN** runtime dependencies are the declared Markdown stack, esbuild, Lightning CSS and HTML character-reference decoding
+- **THEN** runtime dependencies are the declared Markdown stack, esbuild, Lightning CSS, HTML character-reference decoding and the mdast types
 
 ### Requirement: Consumption via dependency + CLI
-A consumer SHALL declare `nuckty` as a dependency (`file:` or git URL for 1.0.0; semver once published) and invoke builds via the `nuckty` CLI bin. The CLI SHALL resolve the consumer root as `process.cwd()`, never the package install dir. The consumer SHALL NOT vendor engine source.
+A consumer SHALL declare `@nuckty/core` as a dependency at a published registry version and invoke builds via the `nuckty` CLI bin. The CLI SHALL resolve the consumer root as `process.cwd()`, never the package install dir. The consumer SHALL NOT vendor engine source.
 
 #### Scenario: Consumer builds via CLI
 - **WHEN** a consumer's `package.json` has `"build": "nuckty build"`
@@ -90,7 +90,7 @@ The source repository SHALL provide the pipeline, BEMJSON engine, Markdown bridg
 - **AND** source tests and consumer content are not required to run it
 
 ### Requirement: No consumer payload in the distributed engine
-The published engine package SHALL NOT ship a consumer’s blocks, content or built `site/` output. Historical documentation in the source checkout MAY remain and SHALL NOT be mistaken for engine-owned site functionality.
+The published engine package SHALL NOT ship a consumer’s blocks, content or built `site/` output.
 
 #### Scenario: Package excludes consumer content
 - **WHEN** the published engine package is installed
@@ -211,15 +211,15 @@ Core stages SHALL validate build metadata destinations before reading or writing
 - **THEN** ordinary metadata generation remains supported
 
 ### Requirement: Public consumer artifact path checks
-The package SHALL export assertArtifactPath for consumer writers. XML sitemap and hosting-redirect hooks SHALL check their output destinations before reading or writing, rejecting linked files and intermediate directories without modifying outside bytes.
+The package SHALL export assertArtifactPath for consumer writers. A consumer hook that writes into the artifact SHALL be able to check its destination before reading or writing, rejecting linked files and intermediate directories without modifying outside bytes.
 
 #### Scenario: Linked consumer output
-- **WHEN** XML or hosting-redirect output follows a symbolic link outside the artifact
-- **THEN** the hook fails before reading or changing that outside file
+- **WHEN** a consumer hook checks a destination that follows a symbolic link outside the artifact
+- **THEN** assertArtifactPath fails before the hook reads or changes that outside file
 
 #### Scenario: Ordinary consumer output
-- **WHEN** destinations are owned regular artifact paths
-- **THEN** current generation and redirect behavior remain unchanged
+- **WHEN** the destination is an owned regular artifact path
+- **THEN** assertArtifactPath accepts it
 
 ### Requirement: Image family source realpath ownership
 Image originals and prepared variant reads SHALL remain inside the real source level selected for that image. Outside aliases SHALL fail before reading or publishing their bytes. Symbolic source roots and aliases to variants inside that real root SHALL remain supported.
@@ -231,15 +231,6 @@ Image originals and prepared variant reads SHALL remain inside the real source l
 #### Scenario: Inside variant alias
 - **WHEN** a symbolic source root contains a variant alias to another file within its real root
 - **THEN** the representation remains supported
-
-### Requirement: Consumer stylesheet property validation
-
-The maintained public consumer's CSS lint gate SHALL reject unknown standard property names while accepting CSS custom properties.
-
-#### Scenario: Misspelled border declarations
-
-- **WHEN** a stylesheet declares aborder or aborder-radius instead of a known property
-- **THEN** CSS lint reports the unknown declarations instead of passing them silently
 
 ### Requirement: External source entries
 The core SHALL read `external.json` entries as repository URL strings or objects `{ url, ref?, path? }`, map both forms to `external/<repo>/` by repository name, and expose the URLs as `externalUrls` in the target snapshot. It SHALL reject non-array content, empty URLs, unknown fields, refs that are not tag or commit names and paths that are absolute, contain `.` or `..` segments or use characters other than letters, digits, `.`, `_`, `+` and `-`, naming the file and entry. The directory name SHALL be the last URL path segment without `.git`, after the host of an SSH scp URL. The core SHALL export `parseExternalSources`, `externalRepoName` and `ExternalSource` so the preparation command uses the same rules.

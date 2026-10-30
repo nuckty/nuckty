@@ -68,22 +68,6 @@ MP4 assets SHALL use the same explicit collision selection as other assets, and 
 - **WHEN** an author supplies a signed owner ID and video ID separated by underscore
 - **THEN** the iframe URL contains separate oid and id parameters.
 
-### Requirement: Consumer XML sitemap integrity
-The consumer XML sitemap extension SHALL preserve valid page URL text through XML escaping, derive origin and source paths from the current target snapshot, and bound simultaneous source timestamp queries to eight workers. It SHALL retain sitemap entry order and settle started metadata work before publishing the completed XML. Repeated source paths within the hook SHALL reuse timestamp results.
-
-#### Scenario: Route contains an ampersand
-- **WHEN** a supported page route contains an ampersand
-- **THEN** the emitted sitemap is well-formed XML and its loc text retains that route
-
-#### Scenario: Targets select distinct origins and content roots
-- **WHEN** two targets use different configuration directories and source files
-- **THEN** each XML sitemap contains only its own origin and source timestamps
-- **AND** changing configuration files after capture does not substitute a different origin or source root
-
-#### Scenario: Many XML entries
-- **WHEN** the XML sitemap contains many source-backed entries
-- **THEN** at most eight timestamp queries are in flight and all entries retain their source metadata in sitemap order
-
 ### Requirement: CI dependency and action integrity
 CI SHALL pin third-party actions by commit and audit the workspace lockfile against the public registry. A failed audit or verification SHALL prevent deployment.
 
@@ -105,14 +89,3 @@ Coverage filtering SHALL validate resolved input/output ownership before recursi
 #### Scenario: Dedicated output is reused
 - **WHEN** an existing output contains only regular coverage reports
 - **THEN** filtering replaces stale reports and retains the selected source-range data
-
-### Requirement: Gallery checker container scope
-Artifact gallery validation SHALL apply eager-first and lazy-rest policy independently within each gallery container. Multiple valid galleries SHALL NOT be rejected as one global image list. A lazy first image or eager later image in any container SHALL be reported. Standalone image fragments used by existing tests SHALL retain their validation behavior, and unrelated or literal image-shaped text SHALL NOT affect a container's loading policy.
-
-#### Scenario: Two valid galleries
-- **WHEN** each gallery has an eager first image and lazy later images
-- **THEN** validation accepts both containers
-
-#### Scenario: A later container violates the policy
-- **WHEN** a second gallery has a lazy first image or an eager later image
-- **THEN** validation reports that violation rather than accepting it based on the first container

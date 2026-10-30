@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Specify prepared image families copied by the build. Standard HTML uses one logical raster URL; hosting selects an available AVIF/WebP representations selected by explicit Accept tokens, then the original fallback. The build does not encode variants; conversion is a separate command. This standard output does not require a picture/source wrapper or a CDN.
+Specify prepared image families copied by the build. Standard HTML uses one logical raster URL; hosting serves an available AVIF or WebP representation that the request explicitly accepts, else the original. The build does not encode variants; conversion is a separate command. This standard output does not require a picture/source wrapper or a CDN.
 
 ## Requirements
 
