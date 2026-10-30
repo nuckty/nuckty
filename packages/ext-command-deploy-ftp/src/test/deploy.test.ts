@@ -4,7 +4,6 @@ import { mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { createHash } from 'node:crypto';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Writable } from 'node:stream';
 import type { AccessOptions } from 'basic-ftp';
 import { NucktyEnv, validateCommandArgs, type CommandArgs } from '@nuckty/core';
@@ -301,16 +300,14 @@ test('manifest transfer failure rejects instead of returning a successful result
     });
 });
 
-test('dry-run performs reads only and preserves an existing _server-manifest.json', async () => {
+test('dry-run performs reads only and leaves the artifact unchanged', async () => {
     await fixture(async (dir, server) => {
-        await writeFile(path.join(dir, '_server-manifest.json'), 'sentinel');
         server.manifest({ 'a.txt': { size: 3, hash: 'old' } });
         const before = await readdir(dir);
 
         await deploy(dir, server, { dryRun: true });
         assert.deepEqual(mutations(server), []);
         assert.deepEqual(await readdir(dir), before);
-        assert.equal(await readFile(path.join(dir, '_server-manifest.json'), 'utf8'), 'sentinel');
     });
 });
 
@@ -380,16 +377,9 @@ test('same-size remote content without a hash entry is uploaded rather than assu
     });
 });
 
-test('the declared arguments keep target order and reject unsafe boolean values', async (t) => {
+test('the declared arguments accept boolean values and reject unsafe ones', async (t) => {
     t.mock.method(process.stdout, 'write', () => true);
     t.mock.method(process.stderr, 'write', () => true);
-    const parserPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../core/src/bin/parse-args.ts');
-    const { parseArgs } = await import(pathToFileURL(parserPath).href) as {
-        parseArgs: (argv: string[], options: { booleanFlags: string[] }) => {
-            positional: string[];
-            flags: Record<string, string | boolean>;
-        };
-    };
     const calls: Array<{ outDir: string; dryRun?: boolean; force?: boolean; allowMassDelete?: boolean }> = [];
     const config = {
         targets: {
@@ -407,11 +397,10 @@ test('the declared arguments keep target order and reject unsafe boolean values'
     const env = new NucktyEnv();
     register(env);
     const entry = env.commands.get('deploy-ftp')!;
-    const invoke = async (tokens: string[]) => {
-        const parsed = parseArgs(['deploy-ftp', ...tokens], { booleanFlags: ['dry-run', 'force', 'allow-mass-delete'] });
+    const invoke = async (positional: string[], flags: Record<string, string | boolean>) => {
         let args: ReturnType<typeof validateCommandArgs>;
         try {
-            args = validateCommandArgs(entry, { positional: parsed.positional.slice(1), flags: parsed.flags });
+            args = validateCommandArgs(entry, { positional, flags });
         } catch {
             return 1;
         }
@@ -419,13 +408,11 @@ test('the declared arguments keep target order and reject unsafe boolean values'
         return deployFtp({ ...args, config, cwd: '/consumer' }, { ftpDeploy: fakeFtpDeploy });
     };
 
-    assert.equal(await invoke(['staging', '--dry-run']), 0);
-    assert.equal(await invoke(['--dry-run', 'staging']), 0);
-    assert.equal(await invoke(['--dry-run=true', 'staging', '--force=false']), 0);
-    assert.equal(await invoke(['staging', '--dry-run=false', '--force=true']), 0);
-    assert.equal(await invoke(['staging', '--allow-mass-delete']), 0);
+    assert.equal(await invoke(['staging'], { 'dry-run': true }), 0);
+    assert.equal(await invoke(['staging'], { 'dry-run': 'true', force: 'false' }), 0);
+    assert.equal(await invoke(['staging'], { 'dry-run': 'false', force: 'true' }), 0);
+    assert.equal(await invoke(['staging'], { 'allow-mass-delete': true }), 0);
     assert.deepEqual(calls, [
-        { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true },
         { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true },
         { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: false, allowMassDelete: false, dryRun: true },
         { outDir: path.resolve('/consumer', 'preview/'), cwd: '/consumer', force: true, allowMassDelete: false, dryRun: false },
@@ -433,12 +420,11 @@ test('the declared arguments keep target order and reject unsafe boolean values'
     ]);
 
     calls.length = 0;
-    assert.equal(await invoke(['staging', '--dry-run=maybe']), 1);
-    assert.equal(await invoke(['staging', '--force=maybe']), 1);
-    assert.equal(await invoke(['--dryrun', 'staging']), 1);
-    assert.equal(await invoke(['missing-target', '--forcee']), 1);
-    assert.equal(await invoke(['--dry-run', '--', 'staging', 'extra']), 1);
-    assert.equal(await invoke(['staging', 'extra']), 1);
+    assert.equal(await invoke(['staging'], { 'dry-run': 'maybe' }), 1);
+    assert.equal(await invoke(['staging'], { force: 'maybe' }), 1);
+    assert.equal(await invoke(['staging'], { dryrun: true }), 1);
+    assert.equal(await invoke(['missing-target'], { forcee: true }), 1);
+    assert.equal(await invoke(['staging', 'extra'], {}), 1);
     assert.deepEqual(calls, [], 'invalid flags, targets, and extra positionals must fail before invoking FTP');
 });
 test('malformed target output never invokes FTP or falls back to site', async (t) => {

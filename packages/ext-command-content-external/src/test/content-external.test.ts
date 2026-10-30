@@ -12,15 +12,25 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import path from 'node:path';
-import { fsStatus, makeGitRunner, planRepos, runPlan, type CheckoutOptions, type GitRunner, type RepoStatus } from '../content-external.js';
-import { register } from '../index.js';
+import { execFile } from 'node:child_process';
 import { mkdtemp, mkdir, symlink, rm, readFile, writeFile, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import type { simpleGit } from 'simple-git';
-import { execFile } from 'node:child_process';
+import path from 'node:path';
 import { promisify } from 'node:util';
+import type { simpleGit } from 'simple-git';
 import { NucktyEnv, validateCommandArgs } from '@nuckty/core';
+import { fsStatus, makeGitRunner, planRepos, runPlan, type CheckoutOptions, type GitRunner, type RepoStatus } from '../content-external.js';
+import { register } from '../index.js';
+
+const git = promisify(execFile);
+
+/** Write `file` in the `source` repository and commit it. */
+async function commit(source: string, file: string, text: string, message = file): Promise<void> {
+    await mkdir(path.dirname(path.join(source, file)), { recursive: true });
+    await writeFile(path.join(source, file), text);
+    await git('git', ['-C', source, 'add', '-A']);
+    await git('git', ['-C', source, '-c', 'user.name=fixture', '-c', 'user.email=fixture@invalid', 'commit', '-qm', message]);
+}
 
 test('content-external declares only --dry-run and no positional arguments', async () => {
     const env = new NucktyEnv();
@@ -227,7 +237,7 @@ for (const mode of ['empty', 'list-error', 'pull-error'] as const) {
     });
 }
 
-test('ownership refuses repository symlinks and whitespace names', async () => {
+test('ownership refuses repository symlinks', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-content-owner-'));
     try {
         await mkdir(path.join(dir, 'external'));
@@ -239,8 +249,6 @@ test('ownership refuses repository symlinks and whitespace names', async () => {
         await rm(dir, { recursive: true, force: true });
     }
 });
-
-const git = promisify(execFile);
 
 test('filesystem ownership requires repository root and same configured origin', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-content-git-'));
@@ -329,19 +337,13 @@ test('runner pins a sparse clone to ref and moves it on update', async () => {
     const root = await mkdtemp(path.join(tmpdir(), 'nuckty-content-pinned-'));
     const source = path.join(root, 'source');
     const destination = path.join(root, 'external', 'source');
-    const commit = async (file: string, text: string, message: string) => {
-        await mkdir(path.dirname(path.join(source, file)), { recursive: true });
-        await writeFile(path.join(source, file), text);
-        await git('git', ['-C', source, 'add', '-A']);
-        await git('git', ['-C', source, '-c', 'user.name=fixture', '-c', 'user.email=fixture@invalid', 'commit', '-qm', message]);
-    };
     try {
         await git('git', ['init', '-q', source]);
-        await commit('README.md', 'root', 'root');
-        await commit('docs/a.md', 'one', 'one');
-        await commit('other/b.md', 'other', 'other');
+        await commit(source, 'README.md', 'root', 'root');
+        await commit(source, 'docs/a.md', 'one', 'one');
+        await commit(source, 'other/b.md', 'other', 'other');
         await git('git', ['-C', source, 'tag', 'v1']);
-        await commit('docs/a.md', 'two', 'two');
+        await commit(source, 'docs/a.md', 'two', 'two');
         const head = (await git('git', ['-C', source, 'rev-parse', 'HEAD'])).stdout.trim();
         const runner = makeGitRunner();
 
@@ -381,22 +383,16 @@ test('runner keeps only path in a branch clone and pulls it on update', async ()
     const root = await mkdtemp(path.join(tmpdir(), 'nuckty-content-partial-'));
     const source = path.join(root, 'source');
     const destination = path.join(root, 'external', 'source');
-    const commit = async (file: string, text: string) => {
-        await mkdir(path.dirname(path.join(source, file)), { recursive: true });
-        await writeFile(path.join(source, file), text);
-        await git('git', ['-C', source, 'add', '-A']);
-        await git('git', ['-C', source, '-c', 'user.name=fixture', '-c', 'user.email=fixture@invalid', 'commit', '-qm', file]);
-    };
     try {
         await git('git', ['init', '-q', source]);
-        await commit('package.json', '{}');
-        await commit('docs/a.md', 'one');
+        await commit(source, 'package.json', '{}');
+        await commit(source, 'docs/a.md', 'one');
         const runner = makeGitRunner();
 
         await runner.clone(source, destination, { path: 'docs' });
         assert.deepEqual((await readdir(destination)).sort(), ['.git', 'docs']);
 
-        await commit('docs/a.md', 'two');
+        await commit(source, 'docs/a.md', 'two');
         await runner.update(destination, source, { path: 'docs' });
         assert.equal(await readFile(path.join(destination, 'docs', 'a.md'), 'utf8'), 'two');
         assert.deepEqual((await readdir(destination)).sort(), ['.git', 'docs']);
@@ -409,26 +405,20 @@ test('runner refuses unsafe pins and paths before changing the copy', async () =
     const root = await mkdtemp(path.join(tmpdir(), 'nuckty-content-guards-'));
     const source = path.join(root, 'source');
     const destination = path.join(root, 'external', 'source');
-    const commit = async (file: string, text: string) => {
-        await mkdir(path.dirname(path.join(source, file)), { recursive: true });
-        await writeFile(path.join(source, file), text);
-        await git('git', ['-C', source, 'add', '-A']);
-        await git('git', ['-C', source, '-c', 'user.name=fixture', '-c', 'user.email=fixture@invalid', 'commit', '-qm', file]);
-    };
     const tag = (name: string) => git('git', ['-C', source, 'tag', '-f', name]);
     try {
         await git('git', ['init', '-q', '-b', 'main', source]);
-        await commit('docs/a.md', 'one');
-        await commit('other/b.md', 'other');
+        await commit(source, 'docs/a.md', 'one');
+        await commit(source, 'other/b.md', 'other');
         await tag('v1');
         const runner = makeGitRunner();
 
         await assert.rejects(runner.clone(source, destination, { ref: 'main' }), /not a tag or commit/);
         await assert.rejects(runner.clone(source, destination, { ref: 'v1', path: 'doc' }), /path doc is not a directory/);
-        await assert.deepEqual(await readdir(path.join(root, 'external')), []);
+        assert.deepEqual(await readdir(path.join(root, 'external')), []);
 
         await runner.clone(source, destination, { ref: 'v1', path: 'docs' });
-        await commit('docs/a.md', 'moved');
+        await commit(source, 'docs/a.md', 'moved');
         await tag('v1');
         await runner.update(destination, source, { ref: 'v1', path: 'docs' });
         assert.equal(await readFile(path.join(destination, 'docs', 'a.md'), 'utf8'), 'moved');

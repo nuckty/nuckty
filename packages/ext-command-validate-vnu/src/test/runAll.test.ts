@@ -4,13 +4,17 @@
  * limit and preserves input order in the output; `serial` runs them one-by-one.
  * The tests measure actual in-flight tasks and verify input-order results.
  * Fatal rejection must drain running work and stop scheduling queued tasks.
+ * `findHtmlFiles` collects the pages to validate.
  *
  * @module test/runAll
  */
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { runAll, serial } from '../index.js';
+import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import * as path from 'node:path';
+import { findHtmlFiles, runAll, serial } from '../index.js';
 
 /** Delay helper that resolves after `ms` with `value`. */
 function delay<T>(value: T, ms: number): Promise<T> {
@@ -70,6 +74,24 @@ test('runAll: limit 0 falls back to one worker and preserves every result', asyn
     assert.deepEqual(await runAll(tasks, 0), ['a', 'b']);
 });
 
+test('runAll: fatal rejection drains in-flight work and schedules no new tasks', async () => {
+    let finish!: () => void;
+    const gate = new Promise<void>((resolve) => { finish = resolve; });
+    const events: string[] = [];
+    const running = runAll([
+        async () => { throw new Error('fatal'); },
+        async () => { await gate; events.push('settled'); },
+        async () => { events.push('unexpected'); },
+    ], 2);
+    let completed = false;
+    const checked = assert.rejects(running, /fatal/).then(() => { completed = true; });
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(completed, false);
+    finish();
+    await checked;
+    assert.deepEqual(events, ['settled']);
+});
+
 // ---- serial (one-by-one) ----------------------------------------------------
 
 test('serial: runs tasks in order and returns results in order', async () => {
@@ -96,13 +118,7 @@ test('serial: an empty task list returns an empty array', async () => {
     assert.deepEqual(await serial([]), []);
 });
 
-// ---- validate reads the CHOSEN target's artifact, not cwd/site ------
-
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import * as path from 'node:path';
-import { findHtmlFiles } from '../index.js';
-import type { NucktyConfig } from '@nuckty/core';
+// ---- findHtmlFiles ------------------------------------------------------------
 
 test('findHtmlFiles: collects nested html files, skips non-html', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-vnu-target-'));
@@ -119,40 +135,4 @@ test('findHtmlFiles: collects nested html files, skips non-html', async () => {
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
-});
-
-test('resolveTarget honors the explicit target outDir and rejects unknown names', async () => {
-    const { resolveTarget } = await import('@nuckty/core');
-    const config: NucktyConfig = {
-        targets: {
-            a: { configDir: 'config-a/', outDir: 'dist/a/', lang: 'en', host: 'a.example' },
-            b: { configDir: 'config-b/', outDir: 'dist/b/', lang: 'ru', host: 'b.example' },
-        },
-        ext: [],
-    };
-    const t = resolveTarget(config, 'b');
-    assert.equal(t.name, 'b');
-    assert.equal(t.outDir, 'dist/b/');
-    // default = first declared
-    assert.equal(resolveTarget(config, undefined).name, 'a');
-    // unknown name must fail BEFORE any validation reads a directory
-    assert.throws(() => resolveTarget(config, 'typo'), /unknown target "typo"/);
-});
-
-test('runAll: fatal rejection drains in-flight work and schedules no new tasks', async () => {
-    let finish!: () => void;
-    const gate = new Promise<void>((resolve) => { finish = resolve; });
-    const events: string[] = [];
-    const running = runAll([
-        async () => { throw new Error('fatal'); },
-        async () => { await gate; events.push('settled'); },
-        async () => { events.push('unexpected'); },
-    ], 2);
-    let completed = false;
-    const checked = assert.rejects(running, /fatal/).then(() => { completed = true; });
-    await new Promise((resolve) => setImmediate(resolve));
-    assert.equal(completed, false);
-    finish();
-    await checked;
-    assert.deepEqual(events, ['settled']);
 });

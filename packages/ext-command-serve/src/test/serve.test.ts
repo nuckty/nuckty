@@ -1,14 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, writeFile, mkdir, readFile } from 'node:fs/promises';
+import { EventEmitter } from 'node:events';
+import { mkdtemp, rm, writeFile, mkdir, readFile, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { killNginxByPid, register, runtimeDirFor, serve, stop, type KillSpawn } from '../index.js';
-import { NucktyEnv, validateCommandArgs } from '@nuckty/core';
-import { EventEmitter } from 'node:events';
-import { symlink } from 'node:fs/promises';
 import type { spawn, ChildProcess } from 'node:child_process';
-import type { CommandArgs } from '@nuckty/core';
+import { NucktyEnv, validateCommandArgs, type CommandArgs } from '@nuckty/core';
+import { killNginxByPid, register, runtimeDirFor, serve, stop, type KillSpawn } from '../index.js';
 
 for (const outcome of ['success', 'error', 'denied', 'unrelated', 'reused', 'invalid', 'absent'] as const) {
     test(`stop: ${outcome} has truthful result and preserves nginx-owned pid file`, async () => {
@@ -63,7 +61,6 @@ for (const outcome of ['success', 'error', 'denied', 'unrelated', 'reused', 'inv
         }
     });
 }
-
 
 for (const mode of ['selected', 'unknown', 'invalid-port', 'default', 'spawn-error'] as const) {
     test(`serve command: ${mode}`, async () => {
@@ -158,16 +155,9 @@ import { appendFileSync } from 'node:fs';
 appendFileSync(process.env.NUCKTY_TEST_CALLS, JSON.stringify({ command: 'kill', args: process.argv.slice(2) }) + '\\n');
 ` , { mode: 0o755 });
 
-        const original = {
-            path: process.env.PATH,
-            all: process.env.LC_ALL,
-            ctype: process.env.LC_CTYPE,
-            time: process.env.LC_TIME,
-            config: process.env.NUCKTY_TEST_CONFIG,
-            calls: process.env.NUCKTY_TEST_CALLS,
-            testCtype: process.env.NUCKTY_TEST_CTYPE,
-        };
-        process.env.PATH = `${binDir}${path.delimiter}${original.path ?? ''}`;
+        const keys = ['PATH', 'LC_ALL', 'LC_CTYPE', 'LC_TIME', 'NUCKTY_TEST_CONFIG', 'NUCKTY_TEST_CALLS', 'NUCKTY_TEST_CTYPE'];
+        const original = new Map(keys.map((key) => [key, process.env[key]]));
+        process.env.PATH = `${binDir}${path.delimiter}${original.get('PATH') ?? ''}`;
         if (localeCase.all === undefined) {
             delete process.env.LC_ALL;
         } else {
@@ -200,40 +190,12 @@ appendFileSync(process.env.NUCKTY_TEST_CALLS, JSON.stringify({ command: 'kill', 
             }
             assert.deepEqual(calls.find((call) => call.command === 'kill')?.args, ['-QUIT', '424242']);
         } finally {
-            if (original.path === undefined) {
-                delete process.env.PATH;
-            } else {
-                process.env.PATH = original.path;
-            }
-            if (original.all === undefined) {
-                delete process.env.LC_ALL;
-            } else {
-                process.env.LC_ALL = original.all;
-            }
-            if (original.ctype === undefined) {
-                delete process.env.LC_CTYPE;
-            } else {
-                process.env.LC_CTYPE = original.ctype;
-            }
-            if (original.time === undefined) {
-                delete process.env.LC_TIME;
-            } else {
-                process.env.LC_TIME = original.time;
-            }
-            if (original.config === undefined) {
-                delete process.env.NUCKTY_TEST_CONFIG;
-            } else {
-                process.env.NUCKTY_TEST_CONFIG = original.config;
-            }
-            if (original.calls === undefined) {
-                delete process.env.NUCKTY_TEST_CALLS;
-            } else {
-                process.env.NUCKTY_TEST_CALLS = original.calls;
-            }
-            if (original.testCtype === undefined) {
-                delete process.env.NUCKTY_TEST_CTYPE;
-            } else {
-                process.env.NUCKTY_TEST_CTYPE = original.testCtype;
+            for (const [key, value] of original) {
+                if (value === undefined) {
+                    delete process.env[key];
+                } else {
+                    process.env[key] = value;
+                }
             }
             await rm(dir, { recursive: true, force: true });
         }

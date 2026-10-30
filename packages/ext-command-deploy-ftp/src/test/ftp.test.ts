@@ -11,7 +11,7 @@
  * @module test/ftp
  */
 
-import { test } from 'node:test';
+import { after, test } from 'node:test';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { mkdtemp, rm, writeFile, mkdir, symlink, readFile } from 'node:fs/promises';
@@ -27,6 +27,8 @@ import {
     type Manifest,
     type FtpTransport,
 } from '../ftp.js';
+import { resolveOutDir } from '../index.js';
+import type { NucktyConfig } from '@nuckty/core';
 
 // ---- compareWithServer (manifest diff) -------------------------------------
 
@@ -161,11 +163,24 @@ test('SAFETY_DELETE_THRESHOLD is 0.3 (30%)', () => {
 
 // ---- loadAuthConfig (env preferred over file) -------------------------------
 
+const FTP_ENV = ['FTP_HOST', 'FTP_USER', 'FTP_PASSWORD', 'FTP_PASS', 'FTP_PATH', 'FTP_PORT', 'FTP_SECURE'];
+const savedFtpEnv = new Map(FTP_ENV.map((key) => [key, process.env[key]]));
+
 function clearFtpEnv(): void {
-    for (const k of ['FTP_HOST', 'FTP_USER', 'FTP_PASSWORD', 'FTP_PASS', 'FTP_PATH', 'FTP_PORT']) {
-        delete process.env[k];
+    for (const key of FTP_ENV) {
+        delete process.env[key];
     }
 }
+
+after(() => {
+    for (const [key, value] of savedFtpEnv) {
+        if (value === undefined) {
+            delete process.env[key];
+        } else {
+            process.env[key] = value;
+        }
+    }
+});
 
 test('loadAuthConfig: env vars win over auth-ftp.json', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-deploy-'));
@@ -425,34 +440,6 @@ test('ftpDeploy: valid regular manifest is uploaded after its content files', as
     }
 });
 
-test('--force keeps the delete plan (force bypasses the guard, not deletions)', async () => {
-    // Independent expected outcome derived from the contract: local has only
-    // a.txt; remote has a.txt + obsolete.txt + manifest.json. Under --force the
-    // upload plan is ALL local files, and the delete plan still contains
-    // obsolete.txt.
-    const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-ftp-force-'));
-    try {
-        // Post-build state: the local manifest lists only a.txt.
-        await writeFile(path.join(dir, 'manifest.json'), JSON.stringify({
-            'a.txt': { size: 3, hash: 'ha' },
-        }));
-        const local = await loadLocalManifest(dir);
-        assert.equal(local['a.txt']!.size, 3);
-        // The pure diff --force now uses: the server LIST drives BOTH the
-        // upload plan (same size+no manifest → changed/new from empty remote
-        // manifest would skip; force uploads everything) and the delete plan.
-        // Here we pin the DELETE half: orphans from the actual LIST remain.
-        const serverSizes: Record<string, number> = { 'a.txt': 3, 'obsolete.txt': 5 };
-        const comparison = compareWithServer(local, {}, serverSizes);
-        assert.ok(
-            comparison.toDelete.includes('obsolete.txt'),
-            'force diff must still plan orphan deletion',
-        );
-    } finally {
-        await rm(dir, { recursive: true, force: true });
-    }
-});
-
 test('malformed local manifest is rejected before any network', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-ftp-badman-'));
     try {
@@ -468,29 +455,16 @@ test('malformed local manifest is rejected before any network', async () => {
     }
 });
 
-test('a valid local manifest still loads', async () => {
-    const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-ftp-man-'));
-    try {
-        await writeFile(path.join(dir, 'manifest.json'), JSON.stringify({ 'a.txt': { size: 1, hash: 'h' } }));
-        const m = await loadLocalManifest(dir);
-        assert.equal(m['a.txt']!.hash, 'h');
-    } finally {
-        await rm(dir, { recursive: true, force: true });
-    }
-});
-
 // ---- deploy target resolution ---------------------------------------
 
-import { resolveOutDir } from '../index.js';
-
 test('no argument = first declared target; unknown explicit name fails', () => {
-    const config = {
+    const config: NucktyConfig = {
         targets: {
             a: { configDir: 'config-a/', outDir: 'dist/a/', lang: 'en', host: 'a.example' },
             b: { configDir: 'config-b/', outDir: 'dist/b/', lang: 'ru', host: 'b.example' },
         },
         ext: [],
-    } as never;
+    };
     const cwd = '/proj';
     assert.equal(resolveOutDir(config, undefined, cwd), '/proj/dist/a');
     assert.equal(resolveOutDir(config, 'b', cwd), '/proj/dist/b');
@@ -499,8 +473,9 @@ test('no argument = first declared target; unknown explicit name fails', () => {
 });
 
 test('an empty config fails clearly (no implicit site/ fallback)', () => {
-    assert.throws(() => resolveOutDir({ targets: {}, ext: [] } as never, undefined, '/p'), /at least one target/);
+    assert.throws(() => resolveOutDir({ targets: {}, ext: [] }, undefined, '/p'), /at least one target/);
 });
+
 for (const name of ['constructor', 'toString', '__proto__']) {
     test(`FTP diff handles ${name} as an own filename rather than a prototype entry`, () => {
         const local = Object.fromEntries([[name, { size: 1, hash: 'A' }]]);

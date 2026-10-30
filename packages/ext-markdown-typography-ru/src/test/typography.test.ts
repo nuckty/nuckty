@@ -17,27 +17,27 @@ import { applyRussianTypography, remarkTypographyRu } from '../index.js';
 // ---- applyRussianTypography: 5 em-dash + nbsp patterns ----------------------
 
 test('pattern 1: space — em dash — space → nbsp + dash + space', () => {
-    assert.equal(applyRussianTypography('word — word'), 'word — word');
+    assert.equal(applyRussianTypography('word — word'), 'word\u00a0— word');
 });
 
 test('pattern 2: space — em dash — no space → nbsp + dash + space', () => {
-    assert.equal(applyRussianTypography('word —word'), 'word — word');
+    assert.equal(applyRussianTypography('word —word'), 'word\u00a0— word');
 });
 
 test('pattern 3: no space — em dash — space → nbsp + dash + space', () => {
-    assert.equal(applyRussianTypography('word— word'), 'word — word');
+    assert.equal(applyRussianTypography('word— word'), 'word\u00a0— word');
 });
 
 test('pattern 4: em dash between letters (no spaces) → nbsp + dash + space', () => {
-    assert.equal(applyRussianTypography('word—word'), 'word — word');
+    assert.equal(applyRussianTypography('word—word'), 'word\u00a0— word');
 });
 
 test('pattern 5: em dash + misplaced nbsp normalizes to dash + regular space', () => {
-    assert.equal(applyRussianTypography('word— word'), 'word — word');
+    assert.equal(applyRussianTypography('word—\u00a0word'), 'word\u00a0— word');
 });
 
 test('applyRussianTypography is idempotent on its canonical form', () => {
-    const canon = 'word — word';
+    const canon = 'word\u00a0— word';
     assert.equal(applyRussianTypography(canon), canon);
 });
 
@@ -78,7 +78,7 @@ function transform(src: string): { texts: string[]; htmls: string[] } {
 
 test('plugin: prose text node is typographied', () => {
     const { texts } = transform('word — word');
-    assert.ok(texts.some((t) => t === 'word — word'), `got ${JSON.stringify(texts)}`);
+    assert.ok(texts.some((t) => t === 'word\u00a0— word'), `got ${JSON.stringify(texts)}`);
 });
 
 test('plugin: raw HTML is preserved without touching prose or attributes inside it', () => {
@@ -107,6 +107,6 @@ test('plugin: inline code is skipped structurally', () => {
 test('plugin: prose around inline code is typographied, code is not', () => {
     const { texts } = transform('слово — `code — x` текст');
     const joined = texts.join('');
-    assert.ok(joined.includes('слово —'), `prose typographied: ${JSON.stringify(joined)}`);
-    assert.ok(!joined.includes('code —'), `inline code value leaked into text: ${JSON.stringify(joined)}`);
+    assert.ok(joined.includes('слово\u00a0—'), `prose typographied: ${JSON.stringify(joined)}`);
+    assert.ok(!joined.includes('code\u00a0—'), `inline code value leaked into text: ${JSON.stringify(joined)}`);
 });

@@ -1,8 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { applyRussianTypography } from '../index.js';
 import { createMarkdown, render, Templates, markdownTemplates, runWithTemplates } from '@nuckty/core';
-import { remarkTypographyRu } from '../index.js';
+import { applyRussianTypography, remarkTypographyRu } from '../index.js';
 
 /** A template collection with the default Markdown templates. */
 function withMarkdown(): Templates {

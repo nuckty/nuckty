@@ -39,30 +39,30 @@ function mdToHtml(src: string): string {
 
 test('bridge: prose em-dash gets nbsp before, regular space after', () => {
     const html = mdToHtml('Один — два');
-    assert.ok(html.includes('Один — два'));
+    assert.ok(html.includes('Один\u00a0— два'));
 });
 
 test('bridge: em-dash inside a fenced code block is NOT typographied', () => {
     const html = mdToHtml('```\na — b\n```\n');
     assert.ok(html.includes('<code>a — b\n</code>'));
-    assert.ok(!html.includes('a — b</code>'));
+    assert.ok(!html.includes('a\u00a0— b</code>'));
 });
 
 test('bridge: em-dash inside a heading IS typographied', () => {
     const html = mdToHtml('# Заголовок — текст');
-    assert.ok(html.includes('Заголовок — текст'));
+    assert.ok(html.includes('Заголовок\u00a0— текст'));
 });
 
 test('bridge: em-dash spacing before a link retains its ordinary trailing space', () => {
     const html = mdToHtml('слово — [link](/x)');
-    assert.ok(html.includes('слово — <a'));
+    assert.ok(html.includes('слово\u00a0— <a'));
 });
 
 test('bridge: nbsp before em-dash in real prose', () => {
     const md = 'eSender — это сервис виртуального китайского номера.';
     const html = mdToHtml(md);
     // Non-breaking space before the dash, regular space after.
-    assert.ok(html.includes('eSender — это'), 'nbsp + em-dash + space');
+    assert.ok(html.includes('eSender\u00a0— это'), 'nbsp + em-dash + space');
 });
 
 test('bridge: raw code, pre and attribute values are never typographied', () => {
@@ -75,6 +75,6 @@ test('bridge: custom tags beginning with literal element names retain prose typo
     for (const tag of ['code-widget', 'pre-view', 'script-note', 'style-note']) {
         const html = mdToHtml(`Text <${tag}>слово — текст</${tag}>.`);
 
-        assert.ok(html.includes(`<${tag}>слово — текст</${tag}>`), html);
+        assert.ok(html.includes(`<${tag}>слово\u00a0— текст</${tag}>`), html);
     }
 });
