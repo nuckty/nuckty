@@ -36,8 +36,6 @@ async function makeCtx(
     await writeFile(path.join(dir, 'config', 'site.json'), JSON.stringify({
         baseUrl: 'https://example.com',
         rootTitle: 'X',
-        contentRepo: 'content',
-        assetRepos: [],
         githubRawBase: null,
         bundles: ['page'],
     }));
@@ -81,11 +79,11 @@ test('assetsStage recursively discovers and copies nested PDF/ZIP/INI from multi
         assert.deepEqual(archive, ZIP_BYTES, 'zip content preserved byte-for-byte');
         assert.deepEqual(ini, INI_BYTES, 'ini content preserved byte-for-byte');
 
-        const repos = ctx.store['assetRepos'] as { available: string[]; missing: string[] };
+        const repos = ctx.store.assetRepos!;
         assert.deepEqual(repos.available.sort(), ['docs', 'install']);
         assert.deepEqual(repos.missing, []);
         // The markdown bridge validates download links against this selection.
-        assert.deepEqual(ctx.store['downloads'], {
+        assert.deepEqual(ctx.store.downloads, {
             'guide.pdf': 'external/docs/manual/pdf/guide.pdf',
             'archive.zip': 'external/install/downloads/archive.zip',
             'settings.ini': 'external/install/settings.ini',
@@ -106,7 +104,7 @@ test('assetsStage hashes MP4 videos by content and records videoHash', async () 
 
         const expectedHash = generateHash(MP4_BYTES);
         const expectedName = `${expectedHash}.mp4`;
-        const videoHash = ctx.store['videoHash'] as Record<string, string>;
+        const videoHash = ctx.store.videoHash!;
         assert.equal(videoHash['intro.mp4'], expectedName, 'videoHash maps original name to hashed name');
         // The hashed file is written to site/.
         const out = await readFile(path.join(ctx.outDir, expectedName));
@@ -192,7 +190,7 @@ test('MP4 collisions require an explicit source and never select the last repo s
         const nextBuild: BuildContext = { ...ctx, store: {} };
 
         await assetsStage(nextBuild);
-        const selected = (nextBuild.store['videoHash'] as Record<string, string>)['intro.mp4'];
+        const selected = nextBuild.store.videoHash!['intro.mp4'];
 
         assert.equal(selected, `${generateHash('AAA')}.mp4`);
         assert.equal(await readFile(path.join(ctx.outDir, selected!), 'utf8'), 'AAA');
@@ -231,7 +229,7 @@ test('assetsStage records a repo declared in external.json but absent on disk as
 
         await assetsStage(ctx);
 
-        const repos = ctx.store['assetRepos'] as { available: string[]; missing: string[] };
+        const repos = ctx.store.assetRepos!;
         assert.deepEqual(repos.available, [], 'absent repo is not available');
         assert.deepEqual(repos.missing, ['ghost'], 'absent repo recorded as missing');
     } finally {
@@ -253,7 +251,7 @@ test('assetsStage reports available and missing repos together in a mixed config
 
         await assetsStage(ctx);
 
-        const repos = ctx.store['assetRepos'] as { available: string[]; missing: string[] };
+        const repos = ctx.store.assetRepos!;
         assert.deepEqual(repos.available, ['present'], 'present repo is available');
         assert.deepEqual(repos.missing, ['absent'], 'absent repo is missing');
     } finally {
@@ -343,7 +341,7 @@ test('assetsStage rejects a partial copy failure and removes the damaged output'
 
         await assert.rejects(async () => await assetsStage(ctx), /EIO/);
         await assert.rejects(() => readFile(path.join(ctx.outDir, 'secret.pdf')));
-        assert.equal(ctx.store['assetRepos'], undefined);
+        assert.equal(ctx.store.assetRepos, undefined);
     } finally {
         fsPromises.copyFile = realCopyFile;
         await rm(dir, { recursive: true, force: true });
@@ -354,7 +352,7 @@ test('assetsStage with no external.json and no external/ dir reports empty repos
     const { ctx, dir } = await makeCtx();
     try {
         await assetsStage(ctx);
-        const repos = ctx.store['assetRepos'] as { available: string[]; missing: string[] };
+        const repos = ctx.store.assetRepos!;
         assert.deepEqual(repos.available, []);
         assert.deepEqual(repos.missing, []);
     } finally {

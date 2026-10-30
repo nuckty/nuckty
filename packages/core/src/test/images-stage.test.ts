@@ -64,7 +64,7 @@ test('imagesStage: PNG is copied to site/png/ and mapped to _i<hash>', async () 
 
         await imagesStage(ctx);
 
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         const ref = mapping['logo/logo.png'];
         assert.ok(ref);
         assert.match(ref, /^_i[a-f0-9]{16}$/, 'raster ref uses _i<hash>');
@@ -72,7 +72,7 @@ test('imagesStage: PNG is copied to site/png/ and mapped to _i<hash>', async () 
         // Physical file in site/png/<hash>.png.
         const out = await readFile(path.join(ctx.outDir, 'png', `${hash}.png`));
         assert.deepEqual(out, PNG_BYTES, 'png bytes preserved');
-        const stats = ctx.store['imageStats'] as Record<string, { format: string; hash: string; ref: string }>;
+        const stats = ctx.store.imageStats!;
         const entry = stats[`${hash}.png`];
         assert.ok(entry, 'stats keyed by <hash>.<ext>');
         assert.equal(entry!.format, 'png');
@@ -94,7 +94,7 @@ test('imagesStage: JPEG is copied to site/jpg/ and stats report format jpg', asy
         const hash = generateHash(Buffer.concat([Buffer.from(`.jpg\0${JPEG_BYTES.length}\0`), JPEG_BYTES]));
         const out = await readFile(path.join(ctx.outDir, 'jpg', `${hash}.jpg`));
         assert.deepEqual(out, JPEG_BYTES, 'jpg bytes preserved');
-        const stats = ctx.store['imageStats'] as Record<string, { format: string }>;
+        const stats = ctx.store.imageStats!;
         assert.equal(stats[`${hash}.jpg`]!.format, 'jpg');
     } finally {
         await rm(dir, { recursive: true, force: true });
@@ -126,7 +126,7 @@ test('imagesStage: GIF is copied to site/ root (no dedicated subdir for gif)', a
         await imagesStage(ctx);
 
         const hash = generateHash(Buffer.concat([Buffer.from(`.gif\0${GIF_BYTES.length}\0`), GIF_BYTES]));
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         assert.ok(mapping['anim/anim.gif'], 'gif mapped');
         // outputSubdirFor('.gif') falls through to the site root.
         const out = await readFile(path.join(ctx.outDir, `${hash}.gif`));
@@ -145,7 +145,7 @@ test('imagesStage: SVG is copied to site/svg/ and mapped to <hash>.svg', async (
         await imagesStage(ctx);
 
         const hash = generateHash(SVG_BYTES);
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         assert.equal(mapping['icon/icon.svg'], `${hash}.svg`, 'svg ref uses <hash>.svg');
         const out = await readFile(path.join(ctx.outDir, 'svg', `${hash}.svg`));
         assert.deepEqual(out, SVG_BYTES, 'svg bytes preserved');
@@ -165,7 +165,7 @@ test('imagesStage: WebP is copied to site/webp/ and mapped to _i<hash>', async (
         const hash = generateHash(Buffer.concat([Buffer.from(`.webp\0${WEBP_BYTES.length}\0`), WEBP_BYTES]));
         const out = await readFile(path.join(ctx.outDir, 'webp', `${hash}.webp`));
         assert.deepEqual(out, WEBP_BYTES, 'webp bytes preserved in webp/ subdir');
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         assert.ok(mapping['hero/hero.webp']);
         assert.match(mapping['hero/hero.webp'], /^_i[a-f0-9]{16}$/);
     } finally {
@@ -188,7 +188,7 @@ test('imagesStage: a pre-rendered .webp sibling is copied to site/webp/ with the
         // The sibling is copied under the ORIGINAL's hash name.
         const out = await readFile(path.join(ctx.outDir, 'webp', `${hash}.webp`));
         assert.deepEqual(out, webpSibling, 'webp sibling copied under the png hash');
-        const stats = ctx.store['imageStats'] as Record<string, { webp: boolean; avif: boolean }>;
+        const stats = ctx.store.imageStats!;
         assert.equal(stats[`${hash}.png`]!.webp, true, 'stats flag the webp sibling as present');
     } finally {
         await rm(dir, { recursive: true, force: true });
@@ -208,7 +208,7 @@ test('imagesStage: a pre-rendered .avif sibling is copied to site/avif/', async 
         const hash = generateHash(Buffer.concat([Buffer.from(`.jpg\0${JPEG_BYTES.length}\0`), JPEG_BYTES, Buffer.from(`avif\0${avifSibling.length}\0`), avifSibling]));
         const out = await readFile(path.join(ctx.outDir, 'avif', `${hash}.avif`));
         assert.deepEqual(out, avifSibling, 'avif sibling copied under the jpg hash');
-        const stats = ctx.store['imageStats'] as Record<string, { avif: boolean }>;
+        const stats = ctx.store.imageStats!;
         assert.equal(stats[`${hash}.jpg`]!.avif, true, 'stats flag the avif sibling as present');
     } finally {
         await rm(dir, { recursive: true, force: true });
@@ -227,7 +227,7 @@ test('imagesStage: hashes are stable — identical content produces the same out
         await imagesStage(ctx);
 
         const hash = generateHash(Buffer.concat([Buffer.from(`.png\0${PNG_BYTES.length}\0`), PNG_BYTES]));
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         assert.equal(mapping['a/x.png'], mapping['b/y.png'], 'identical content → identical ref');
         assert.equal(mapping['a/x.png'], `_i${hash}`);
     } finally {
@@ -246,7 +246,7 @@ test('imagesStage: duplicate basenames in different dirs map to distinct keys', 
 
         await imagesStage(ctx);
 
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         assert.notEqual(mapping['one/logo.png'], mapping['two/logo.png'], 'same basename, distinct refs');
     } finally {
         await rm(dir, { recursive: true, force: true });
@@ -262,7 +262,7 @@ test('imagesStage: unsupported extensions (.ico, .bmp) are not collected', async
 
         await imagesStage(ctx);
 
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         assert.ok(!mapping['fav/favicon.ico'], '.ico not collected');
         assert.ok(!mapping['fav/wallpaper.bmp'], '.bmp not collected');
     } finally {
@@ -281,7 +281,7 @@ test('imagesStage: images inside hidden and dependency directories are not colle
 
         await imagesStage(ctx);
 
-        assert.deepEqual(Object.keys(ctx.store['imageMapping'] as Record<string, string>), ['kept.png']);
+        assert.deepEqual(Object.keys(ctx.store.imageMapping!), ['kept.png']);
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
@@ -297,7 +297,7 @@ test('imagesStage: a missing levels directory is skipped without failing', async
 
         await imagesStage(ctx);
 
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         assert.ok(mapping['ok/ok.png'], 'present level still processed');
     } finally {
         await rm(dir, { recursive: true, force: true });
@@ -330,7 +330,7 @@ test('imagesStage: a read failure does not produce a mapping entry pointing at a
         failurePath = await fsPromises.realpath(brokenPath);
 
         await assert.rejects(async () => await imagesStage(ctx), /ENOENT/);
-        assert.equal(ctx.store['imageMapping'], undefined);
+        assert.equal(ctx.store.imageMapping, undefined);
         // And no physical output file exists for it.
         const hash = generateHash(Buffer.concat([Buffer.from(`.png\0${PNG_BYTES.length}\0`), PNG_BYTES]));
         await assert.rejects(() => readFile(path.join(ctx.outDir, 'png', `${hash}.png`)),
@@ -354,9 +354,9 @@ test('imagesStage: scans multiple levels and dedups by hash across them', async 
         await imagesStage(ctx);
 
         const hash = generateHash(Buffer.concat([Buffer.from(`.png\0${PNG_BYTES.length}\0`), PNG_BYTES]));
-        const stats = ctx.store['imageStats'] as Record<string, unknown>;
+        const stats = ctx.store.imageStats!;
         assert.ok(stats[`${hash}.png`], 'one physical file for identical cross-level content');
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         // Both relative paths map to the same ref.
         assert.equal(mapping['img/dup.png'], `_i${hash}`);
     } finally {
@@ -378,7 +378,7 @@ test('images use target config, absolute levels and deterministic last-level ove
         await writeFile(path.join(ctx.configDir, 'site.json'), '{"bundles":[]}');
         await writeFile(path.join(ctx.configDir, 'levels.json'), JSON.stringify([first, last]));
         await imagesStage(ctx);
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         const hash = mapping['x.png']!.slice(2);
         assert.equal(await readFile(path.join(ctx.outDir, 'png', `${hash}.png`), 'utf8'), 'LAST');
         assert.deepEqual(Object.keys(mapping), ['x.png']);
@@ -395,11 +395,11 @@ test('image references change with variants and distinguish different original f
         await writeFile(path.join(dir, 'content', 'x.jpg'), PNG_BYTES);
         await writeFile(path.join(dir, 'content', 'x.avif'), 'FIRST');
         await imagesStage(ctx);
-        const first = ctx.store['imageMapping'] as Record<string, string>;
+        const first = ctx.store.imageMapping!;
         assert.notEqual(first['x.png'], first['x.jpg']);
         await writeFile(path.join(dir, 'content', 'x.avif'), 'OTHER');
         await imagesStage(ctx);
-        const second = ctx.store['imageMapping'] as Record<string, string>;
+        const second = ctx.store.imageMapping!;
         assert.notEqual(first['x.png'], second['x.png']);
         assert.equal(await readFile(path.join(ctx.outDir, 'avif', `${second['x.png']!.slice(2)}.avif`), 'utf8'), 'OTHER');
     } finally {
@@ -437,7 +437,7 @@ for (const format of ['avif', 'webp']) {
 
             await assert.rejects(async () => await imagesStage(ctx), /escapes image source level/);
             assert.equal(reads.mock.calls.some(call => path.basename(String(call.arguments[0])) === 'outside.json'), false);
-            assert.equal(ctx.store['imageMapping'], undefined);
+            assert.equal(ctx.store.imageMapping, undefined);
         } finally {
             await rm(dir, { recursive: true, force: true });
         }
@@ -455,7 +455,7 @@ test('image family preserves inside variant aliases under a symbolic source root
         await writeFile(path.join(dir, 'real-content/inside.dat'), 'INSIDE_SYNTHETIC');
         await symlink('inside.dat', path.join(dir, 'real-content/a.webp'));
         await imagesStage(ctx);
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         const hash = mapping['a.png']!.slice(2);
 
         assert.equal(await readFile(path.join(ctx.outDir, 'webp', `${hash}.webp`), 'utf8'), 'INSIDE_SYNTHETIC');

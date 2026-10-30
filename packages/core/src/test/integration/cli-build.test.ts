@@ -122,8 +122,6 @@ async function makeConsumer(): Promise<string> {
     await writeFile(path.join(dir, 'config', 'site.json'), JSON.stringify({
         baseUrl: 'https://example.com',
         rootTitle: 'Fixture',
-        contentRepo: 'content',
-        assetRepos: [],
         githubRawBase: null,
         bundles: ['page'],
     }));

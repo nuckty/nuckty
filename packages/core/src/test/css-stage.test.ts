@@ -31,8 +31,6 @@ async function makeCtx(
     await writeFile(path.join(dir, 'config', 'site.json'), JSON.stringify({
         baseUrl: 'https://example.com',
         rootTitle: 'X',
-        contentRepo: 'content',
-        assetRepos: [],
         githubRawBase: null,
         bundles: ['page'],
     }));
@@ -62,13 +60,13 @@ test('cssStage bundles block CSS across two levels with later-level priority and
         await writeFile(path.join(dir, 'content', 'card', 'card.css'), '.card{color:red;padding:4px}');
         await writeFile(path.join(dir, 'blocks', 'card', 'card.css'), '.card{color:blue}');
 
-        ctx.store['blockDeps'] = { page: ['card'] };
+        ctx.store.blockDeps = { page: ['card'] };
         ctx.env.levels.add('content');
         ctx.env.levels.add('blocks');
 
         await cssStage(ctx);
 
-        const cssHash = ctx.store['cssHash'] as Record<string, { hash: string; filename: string; url: string; source: string[] }>;
+        const cssHash = ctx.store.cssHash!;
         assert.ok(cssHash.page, 'page bundle produced a hash entry');
         assert.match(cssHash.page!.hash, /^[a-f0-9]{16}$/);
         assert.equal(cssHash.page!.filename, `${cssHash.page!.hash}.css`);
@@ -96,13 +94,13 @@ test('cssStage bundles element CSS (block__elem) via the __ split in blockCssPat
         await writeFile(path.join(dir, 'blocks', 'menu', 'menu.css'), '.menu{display:flex}');
         await writeFile(path.join(dir, 'blocks', 'menu', '__item', 'menu__item.css'), '.menu__item{margin:2px}');
 
-        ctx.store['blockDeps'] = { page: ['menu', 'menu__item'] };
+        ctx.store.blockDeps = { page: ['menu', 'menu__item'] };
         ctx.env.levels.add('content');
         ctx.env.levels.add('blocks');
 
         await cssStage(ctx);
 
-        const cssHash = ctx.store['cssHash'] as Record<string, { hash: string }>;
+        const cssHash = ctx.store.cssHash!;
         const css = await readFile(path.join(ctx.outDir, 'css', `${cssHash.page!.hash}.css`), 'utf8');
         assert.ok(css.includes('display:flex'), 'block CSS inlined');
         assert.ok(css.includes('menu__item'), 'element CSS inlined');
@@ -119,12 +117,12 @@ test('cssStage applies Lightning CSS vendor prefixes for the configured targets'
         // Safari 16 needs the WebKit user-select declaration.
         await writeFile(path.join(dir, 'blocks', 'box', 'box.css'), '.box{width:max-content;user-select:none;-webkit-overflow-scrolling:touch}');
 
-        ctx.store['blockDeps'] = { page: ['box'] };
+        ctx.store.blockDeps = { page: ['box'] };
         ctx.env.levels.add('blocks');
 
         await cssStage(ctx);
 
-        const cssHash = ctx.store['cssHash'] as Record<string, { hash: string }>;
+        const cssHash = ctx.store.cssHash!;
         const css = await readFile(path.join(ctx.outDir, 'css', `${cssHash.page!.hash}.css`), 'utf8');
         assert.ok(css.includes('-webkit-user-select:none'), 'Safari user-select prefix emitted');
         assert.ok(!css.includes('-webkit-max-content'), 'obsolete width prefix omitted for modern Safari');
@@ -148,11 +146,11 @@ test('cssStage rewrites url() image references through the image-mapping and inl
         // `_i<hash>` URLs, SVGs to `<hash>.svg`, which is later inlined as a data URI.
         const pngHash = generateHash('fake-png');
         const svgHash = generateHash(svgContent);
-        ctx.store['imageMapping'] = {
+        ctx.store.imageMapping = {
             'hero/logo.png': `_i${pngHash}`,
             'hero/icon.svg': `${svgHash}.svg`,
         };
-        ctx.store['blockDeps'] = { page: ['hero'] };
+        ctx.store.blockDeps = { page: ['hero'] };
         ctx.env.levels.add('blocks');
 
         // The hashed SVG file must exist under site/svg/ for inlineHashedSVGs to inline it.
@@ -161,7 +159,7 @@ test('cssStage rewrites url() image references through the image-mapping and inl
 
         await cssStage(ctx);
 
-        const cssHash = ctx.store['cssHash'] as Record<string, { hash: string }>;
+        const cssHash = ctx.store.cssHash!;
         const css = await readFile(path.join(ctx.outDir, 'css', `${cssHash.page!.hash}.css`), 'utf8');
         // PNG rewritten to its negotiated image URL.
         assert.ok(css.includes(`url(/_i${pngHash})`), 'png url rewritten to /_i<hash>');
@@ -180,12 +178,12 @@ test('cssStage writes a content-hashed filename and records ctx.store.cssHash', 
     try {
         await mkdir(path.join(dir, 'blocks', 'a'), { recursive: true });
         await writeFile(path.join(dir, 'blocks', 'a', 'a.css'), '.a{color:red}');
-        ctx.store['blockDeps'] = { page: ['a'] };
+        ctx.store.blockDeps = { page: ['a'] };
         ctx.env.levels.add('blocks');
 
         await cssStage(ctx);
 
-        const cssHash = ctx.store['cssHash'] as Record<string, { hash: string; filename: string }>;
+        const cssHash = ctx.store.cssHash!;
         const written = await readFile(path.join(ctx.outDir, 'css', cssHash.page!.filename), 'utf8');
         assert.equal(cssHash.page!.hash, generateHash(written), 'stored hash matches the written content hash');
     } finally {
@@ -196,12 +194,12 @@ test('cssStage writes a content-hashed filename and records ctx.store.cssHash', 
 test('cssStage produces no entry for an empty bundle (bemdecl is empty)', async () => {
     const { ctx, dir } = await makeCtx();
     try {
-        ctx.store['blockDeps'] = { page: [] };
+        ctx.store.blockDeps = { page: [] };
         ctx.env.levels.add('blocks');
 
         await cssStage(ctx);
 
-        const cssHash = ctx.store['cssHash'] as Record<string, unknown>;
+        const cssHash = ctx.store.cssHash!;
         assert.ok(!cssHash.page, 'no hash entry for an empty bundle');
         await assert.rejects(() => access(path.join(ctx.outDir, 'css')));
     } finally {
@@ -217,12 +215,12 @@ test('cssStage skips a block whose CSS file is missing on disk (missing CSS)', a
         await mkdir(path.join(dir, 'blocks', 'real'), { recursive: true });
         await writeFile(path.join(dir, 'blocks', 'real', 'real.css'), '.real{color:green}');
 
-        ctx.store['blockDeps'] = { page: ['ghost', 'real'] };
+        ctx.store.blockDeps = { page: ['ghost', 'real'] };
         ctx.env.levels.add('blocks');
 
         await cssStage(ctx);
 
-        const cssHash = ctx.store['cssHash'] as Record<string, { hash: string; source: string[] }>;
+        const cssHash = ctx.store.cssHash!;
         const css = await readFile(path.join(ctx.outDir, 'css', `${cssHash.page!.hash}.css`), 'utf8');
         assert.ok(css.includes('color:green'), 'present block emitted');
         assert.ok(!cssHash.page!.source.some((s) => s.includes('ghost')), 'missing block not in source list');
@@ -236,12 +234,12 @@ test('cssStage leaves an unmatched url() reference unchanged (absent from the ma
     try {
         await mkdir(path.join(dir, 'blocks', 'p'), { recursive: true });
         await writeFile(path.join(dir, 'blocks', 'p', 'p.css'), '.p{background:url(./missing.png)}');
-        ctx.store['blockDeps'] = { page: ['p'] };
+        ctx.store.blockDeps = { page: ['p'] };
         ctx.env.levels.add('blocks');
 
         await cssStage(ctx);
 
-        const cssHash = ctx.store['cssHash'] as Record<string, { hash: string }>;
+        const cssHash = ctx.store.cssHash!;
         const css = await readFile(path.join(ctx.outDir, 'css', `${cssHash.page!.hash}.css`), 'utf8');
         assert.ok(css.includes('url(./missing.png)'), 'unmapped url() left verbatim');
     } finally {
@@ -255,12 +253,12 @@ test('cssStage tolerates duplicate block dependencies and records both sources',
         await mkdir(path.join(dir, 'blocks', 'dup'), { recursive: true });
         await writeFile(path.join(dir, 'blocks', 'dup', 'dup.css'), '.dup{color:red}');
         // The same block listed twice in the bundle deps.
-        ctx.store['blockDeps'] = { page: ['dup', 'dup'] };
+        ctx.store.blockDeps = { page: ['dup', 'dup'] };
         ctx.env.levels.add('blocks');
 
         await cssStage(ctx);
 
-        const cssHash = ctx.store['cssHash'] as Record<string, { hash: string; source: string[] }>;
+        const cssHash = ctx.store.cssHash!;
         const css = await readFile(path.join(ctx.outDir, 'css', `${cssHash.page!.hash}.css`), 'utf8');
         // The bundle remains usable; source metadata retains both declarations.
         assert.ok(css.includes('color:red'), 'rule present');
@@ -276,13 +274,13 @@ test('cssStage keeps a missing SVG reference as a url() (inlineHashedSVGs skips 
         await mkdir(path.join(dir, 'blocks', 'ic'), { recursive: true });
         await writeFile(path.join(dir, 'blocks', 'ic', 'ic.css'), '.ic{background:url(./gone.svg)}');
         // Mapping points to an SVG that does NOT exist on disk under site/svg/.
-        ctx.store['imageMapping'] = { 'ic/gone.svg': 'deadbeefdeadbeef.svg' };
-        ctx.store['blockDeps'] = { page: ['ic'] };
+        ctx.store.imageMapping = { 'ic/gone.svg': 'deadbeefdeadbeef.svg' };
+        ctx.store.blockDeps = { page: ['ic'] };
         ctx.env.levels.add('blocks');
 
         await cssStage(ctx);
 
-        const cssHash = ctx.store['cssHash'] as Record<string, { hash: string }>;
+        const cssHash = ctx.store.cssHash!;
         const css = await readFile(path.join(ctx.outDir, 'css', `${cssHash.page!.hash}.css`), 'utf8');
         // The SVG is rewritten to the root url() but NOT inlined (file missing).
         assert.ok(css.includes('url(/deadbeefdeadbeef.svg)'), 'missing svg kept as a url() reference');
@@ -296,12 +294,12 @@ test('cssStage publishes nothing for a bundle whose blocks have no CSS files', a
     const { ctx, dir } = await makeCtx();
     try {
         await mkdir(path.join(dir, 'blocks', 'a'), { recursive: true });
-        ctx.store['blockDeps'] = { page: ['a'] };
+        ctx.store.blockDeps = { page: ['a'] };
         ctx.env.levels.add('blocks');
 
         await cssStage(ctx);
 
-        assert.deepEqual({ ...(ctx.store['cssHash'] as Record<string, unknown>) }, {});
+        assert.deepEqual({ ...(ctx.store.cssHash!) }, {});
         await assert.rejects(() => access(path.join(ctx.outDir, 'css')));
     } finally {
         await rm(dir, { recursive: true, force: true });
@@ -315,7 +313,7 @@ test('cssStage fails the build on malformed CSS that lightningcss rejects', asyn
         // An empty selector (`@@@invalid`) is a hard error lightningcss raises
         // with `errorRecovery: false` (the stage's setting).
         await writeFile(path.join(dir, 'blocks', 'bad', 'bad.css'), '@@@invalid;;; .bad{color:red}');
-        ctx.store['blockDeps'] = { page: ['bad'] };
+        ctx.store.blockDeps = { page: ['bad'] };
         ctx.env.levels.add('blocks');
 
         await assert.rejects(async () => await cssStage(ctx), /selector|parse|Invalid/i,
@@ -330,10 +328,10 @@ test('cssStage preserves quotes and backslashes in filesystem import paths', asy
     try {
         await mkdir(path.join(dir, 'blocks', 'card'), { recursive: true });
         await writeFile(path.join(dir, 'blocks', 'card', 'card.css'), '.card{color:red}');
-        ctx.store['blockDeps'] = { page: ['card'] };
+        ctx.store.blockDeps = { page: ['card'] };
         ctx.env.levels.add('blocks');
         await cssStage(ctx);
-        const hashes = ctx.store['cssHash'] as Record<string, { filename: string }>;
+        const hashes = ctx.store.cssHash!;
         assert.match(await readFile(path.join(ctx.outDir, 'css', hashes.page!.filename), 'utf8'), /color:red/);
     } finally {
         await rm(dir, { recursive: true, force: true });

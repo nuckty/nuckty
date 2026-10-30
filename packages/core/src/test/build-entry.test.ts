@@ -47,8 +47,8 @@ async function makeConsumer(opts: { secondTarget?: boolean } = {}): Promise<stri
         `  ext: ['./ext/doc.mjs'],\n` +
         `});\n`);
     await writeFile(path.join(dir, 'config', 'site.json'), JSON.stringify({
-        baseUrl: 'https://example.com', rootTitle: 'Fixture', contentRepo: 'content',
-        assetRepos: [], githubRawBase: null, bundles: ['page'],
+        baseUrl: 'https://example.com', rootTitle: 'Fixture',
+        githubRawBase: null, bundles: ['page'],
     }));
     await writeFile(path.join(dir, 'config', 'levels.json'), JSON.stringify(['content', 'blocks']));
     await writeFile(path.join(dir, 'config', 'sitemap.yml'), 'sitemap:\n  - Home [/, index.md]\n');

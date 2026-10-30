@@ -38,12 +38,12 @@ async function makeProject(): Promise<{ ctx: BuildContext; dir: string }> {
 }
 
 test('parseSitemapLine parses Name [url, file.md, { layout }]', () => {
-    const parsed = parseSitemapLine('Nuckty [/, index.md, { layout: "blocks/page/page.njk" }]');
+    const parsed = parseSitemapLine('Nuckty [/, index.md, { layout: "landing" }]');
     assert.ok(parsed);
     assert.equal(parsed!.title, 'Nuckty');
     assert.equal(parsed!.url, '/');
     assert.equal(parsed!.file, 'index.md');
-    assert.equal(parsed!.meta['layout'], 'blocks/page/page.njk');
+    assert.equal(parsed!.meta['layout'], 'landing');
 });
 
 test('parseSitemapLine parses a line without meta', () => {
@@ -116,12 +116,10 @@ test('sitemap stage parses a real sitemap.yml and renders markdown to a tree', a
         await mkdir(path.join(dir, 'content'), { recursive: true });
         await mkdir(path.join(dir, 'blocks'), { recursive: true });
         await writeFile(path.join(dir, 'config', 'sitemap.yml'),
-            'sitemap:\n  - Nuckty [/, index.md, { layout: "blocks/page/page.njk" }]\n');
+            'sitemap:\n  - Nuckty [/, index.md, { layout: "landing" }]\n');
         await writeFile(path.join(dir, 'config', 'site.json'), JSON.stringify({
             baseUrl: 'https://example.com',
             rootTitle: 'Nuckty',
-            contentRepo: 'content',
-            assetRepos: [],
             githubRawBase: null,
             bundles: ['page'],
         }));
@@ -131,16 +129,14 @@ test('sitemap stage parses a real sitemap.yml and renders markdown to a tree', a
 
         await sitemapStage(ctx);
 
-        const sitemap = ctx.store['sitemap'] as {
-            pages: Record<string, { tree: unknown; headings: unknown[]; layout?: string }>;
-        };
+        const sitemap = ctx.store.sitemap!;
         assert.ok(sitemap, 'sitemap artifact should be stored');
         const root = sitemap.pages['/'];
         assert.ok(root, 'root page present');
         assert.ok(Array.isArray(root.tree), 'page has a rendered BemNode tree');
         assert.ok(Array.isArray(root.headings), 'page has headings');
         assert.equal(root.headings!.length, 1);
-        assert.equal(root.layout, 'blocks/page/page.njk');
+        assert.equal(root.layout, 'landing');
         // .build/sitemap.json written.
         const written = JSON.parse(await readFile(path.join(ctx.buildDir, 'sitemap.json'), 'utf8'));
         assert.ok(written.pages['/']);
@@ -160,8 +156,6 @@ test('sitemap stage fails the build on a link to an unknown .md file', async () 
         await writeFile(path.join(dir, 'config', 'site.json'), JSON.stringify({
             baseUrl: 'https://example.com',
             rootTitle: 'Nuckty',
-            contentRepo: 'content',
-            assetRepos: [],
             githubRawBase: null,
             bundles: ['page'],
         }));
@@ -209,13 +203,13 @@ test('images stage hashes + copies images and writes image-mapping.json', async 
 
         await imagesStage(ctx);
 
-        const mapping = ctx.store['imageMapping'] as Record<string, string>;
+        const mapping = ctx.store.imageMapping!;
         assert.ok(mapping);
         assert.ok(mapping['logo/logo.png']);
         // Raster refs use the _i<hash> form.
         assert.match(mapping['logo/logo.png'], /^_i[a-f0-9]{16}$/);
         // Physical file copied into site/png/<hash>.png.
-        const stats = ctx.store['imageStats'] as Record<string, { ref: string; format: string }>;
+        const stats = ctx.store.imageStats!;
         assert.ok(stats);
         const hashedKey = Object.keys(stats).find((k) => k.endsWith('.png'));
         assert.ok(hashedKey);
@@ -236,8 +230,6 @@ test('assets stage copies static config files from config/', async () => {
         await writeFile(path.join(dir, 'config', 'site.json'), JSON.stringify({
             baseUrl: 'https://example.com',
             rootTitle: 'X',
-            contentRepo: 'content',
-            assetRepos: [],
             githubRawBase: null,
             bundles: ['page'],
         }));
@@ -248,7 +240,7 @@ test('assets stage copies static config files from config/', async () => {
 
         const robots = await readFile(path.join(ctx.outDir, 'robots.txt'), 'utf8');
         assert.match(robots, /User-agent/);
-        const repos = ctx.store['assetRepos'] as { available: string[]; missing: string[] };
+        const repos = ctx.store.assetRepos!;
         assert.ok(repos);
         // content repo dir doesn't exist under external/, so it's skipped.
         assert.ok(!repos.available.includes('content'));
@@ -313,7 +305,7 @@ test('finalizers run after the pipeline: an extension emit file reaches compress
         await writeFile(path.join(dir, 'config', 'sitemap.yml'), 'sitemap: []\n');
         const p = new Pipeline();
         registerDefaultStages(p);
-        ctx.store['blockDeps'] = {};
+        ctx.store.blockDeps = {};
         ctx.env.levels.add('blocks');
         // An extension-style emit stage writing an extra artifact file.
         p.registerStage('search', async (c) => {
@@ -421,8 +413,6 @@ test('js stage bundles declared blocks, hashes, and writes site/js/<hash>.js', a
         await writeFile(path.join(dir, 'config', 'site.json'), JSON.stringify({
             baseUrl: 'https://example.com',
             rootTitle: 'Nuckty',
-            contentRepo: 'content',
-            assetRepos: [],
             githubRawBase: null,
             bundles: ['page'],
         }));
@@ -433,12 +423,12 @@ test('js stage bundles declared blocks, hashes, and writes site/js/<hash>.js', a
 
         // Seed the deps the js stage reads: blockDeps + levels (a real build does
         // this via the deps loader).
-        ctx.store['blockDeps'] = { page: ['page'] };
+        ctx.store.blockDeps = { page: ['page'] };
         ctx.env.levels.add('blocks');
 
         await jsStage(ctx);
 
-        const jsHash = ctx.store['jsHash'] as Record<string, { hash: string; filename: string; url: string; source: string[] }>;
+        const jsHash = ctx.store.jsHash!;
         assert.ok(jsHash.page, 'page bundle hashed');
         assert.match(jsHash.page!.hash, /^[a-f0-9]{16}$/);
         assert.equal(jsHash.page!.filename, `${jsHash.page!.hash}.js`);
@@ -463,11 +453,11 @@ test('js stage publishes nothing for a bundle with no JS files', async () => {
         await writeFile(path.join(dir, 'config', 'levels.json'), JSON.stringify(['blocks']));
         ctx.env.levels.add('blocks');
         // blockDeps declares a block, but no .js file exists on disk.
-        ctx.store['blockDeps'] = { page: ['page'] };
+        ctx.store.blockDeps = { page: ['page'] };
 
         await jsStage(ctx);
 
-        assert.deepEqual({ ...(ctx.store['jsHash'] as Record<string, unknown>) }, {});
+        assert.deepEqual({ ...(ctx.store.jsHash!) }, {});
         assert.equal(existsSync(path.join(ctx.outDir, 'js')), false);
     } finally {
         await rm(dir, { recursive: true, force: true });
@@ -485,7 +475,7 @@ test('js stage FAILS the build on a bundling error instead of silently skipping'
         await writeFile(path.join(dir, 'package.json'), JSON.stringify({ name: 'fixture', type: 'module' }));
         // A block with a syntax error — esbuild must reject, the stage must throw.
         await writeFile(path.join(dir, 'blocks', 'broken', 'broken.js'), 'function {{{\n');
-        ctx.store['blockDeps'] = { page: ['broken'] };
+        ctx.store.blockDeps = { page: ['broken'] };
 
         await assert.rejects(
             async () => await jsStage(ctx),
@@ -548,9 +538,9 @@ test('JS stage includes absolute extension levels', async () => {
         await mkdir(path.join(level, 'widget'), { recursive: true });
         await writeFile(path.join(level, 'widget', 'widget.js'), 'globalThis.widgetLoaded = true;');
         ctx.env.levels.add(level);
-        ctx.store['blockDeps'] = { page: ['widget'] };
+        ctx.store.blockDeps = { page: ['widget'] };
         await jsStage(ctx);
-        const hashes = ctx.store['jsHash'] as Record<string, { filename: string }>;
+        const hashes = ctx.store.jsHash!;
         assert.match(await readFile(path.join(ctx.outDir, 'js', hashes['page']!.filename), 'utf8'), /widgetLoaded/);
     } finally {
         await rm(dir, { recursive: true, force: true });
