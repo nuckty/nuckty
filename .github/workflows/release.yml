@@ -108,7 +108,7 @@ jobs:
           printf '%s\n' "$KNOWN_HOSTS" > "$stage/known_hosts"
           cp -a demo/site "$stage/ru"
           cp -a demo/site-en "$stage/en"
-          tar -C "$stage" -czf - ru en | ssh -i "$stage/key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$stage/known_hosts" "$DEPLOY_USER@$DEPLOY_HOST" "deploy $GITHUB_SHA $GITHUB_RUN_ID"
+          tar -C "$stage" -czf - ru en | ssh -i "$stage/key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$stage/known_hosts" "$DEPLOY_USER@$DEPLOY_HOST" "deploy $RELEASE_SHA $GITHUB_RUN_ID"
   update-site:
     needs: [release, deploy-demo]
     runs-on: ubuntu-24.04
