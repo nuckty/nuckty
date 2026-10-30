@@ -31,56 +31,37 @@ async function main(): Promise<void> {
     register(new URL('./loader.js', import.meta.url).href, import.meta.url);
 
     const argv = process.argv.slice(2);
-    const initial = parseArgs(argv);
-    if (initial.help) { await printHelp(); process.exit(0); }
-    if (initial.version) {
+    const parsed = parseArgs(argv);
+    if (parsed.help) { await printHelp(); process.exit(0); }
+    if (parsed.version) {
         const { readFile } = await import('node:fs/promises');
         const { version } = JSON.parse(await readFile(new URL('../../package.json', import.meta.url), 'utf8'));
 
         process.stdout.write(`nuckty ${version}\n`);
         process.exit(0);
     }
-
-    if (argv[0]?.startsWith('--')) {
+    if (argv.length === 0) { await printHelp(); process.exit(0); }
+    // Every other token that does not start with `--` is the command.
+    if (argv[0]!.startsWith('--')) {
         process.stderr.write('nuckty: command must appear before options\n');
         process.exit(1);
     }
 
-    const cmd = initial.positional[0];
-    if (!cmd) {
-        if (argv.length === 0) { await printHelp(); process.exit(0); }
-        process.stderr.write('nuckty: command must appear before options\n');
-        process.exit(1);
-    }
-
-    const parsed = parseArgs(argv);
-    if (cmd === 'build') {
-        const flagNames = Object.keys(parsed.flags);
-        if (flagNames.length > 0) {
-            process.stderr.write(`nuckty: build does not accept options: ${flagNames.map((name) => `--${name}`).join(', ')}\n`);
-            process.exit(1);
-        }
-        if (parsed.positional.length > 2) {
-            process.stderr.write('nuckty: build accepts at most one target argument\n');
-            process.exit(1);
-        }
-    }
-
-    // Load the engine. The build entry point owns its single config load.
+    const cmd = parsed.positional[0]!;
     const cwd = process.cwd();
-    const { loadConfig, runBuild, NucktyEnv, loadPlugins } = await import('../index.js');
 
+    // `build` takes an optional target and no options; the build entry point owns its single config load.
     if (cmd === 'build') {
-        const opts: { command: 'build'; cwd: string; target?: string } = { command: 'build', cwd };
-        if (parsed.positional[1] !== undefined) {
-            opts.target = parsed.positional[1];
-        }
-        await runBuild(opts);
+        const [target] = checkedArgs(cmd, BUILD_COMMAND, parsed).positional;
+        const { runBuild } = await import('../index.js');
+
+        await runBuild({ command: 'build', cwd, ...(target === undefined ? {} : { target }) });
         return;
     }
 
     // Load extensions so command argument declarations are available before
     // parsing targets adjacent to boolean switches.
+    const { loadConfig, NucktyEnv, loadPlugins } = await import('../index.js');
     const config = await loadConfig(cwd);
     const env = new NucktyEnv();
     await loadPlugins(env, config.ext ?? [], { cwd });
@@ -92,16 +73,25 @@ async function main(): Promise<void> {
         process.exit(1);
     }
     const booleanFlags = Object.keys(entry.flags).filter((name) => entry.flags[name] === 'boolean');
-    const parsedCommand = parseArgs(argv, { booleanFlags });
-    let commandArgs: { positional: string[]; flags: Record<string, string | boolean> };
+    const commandArgs = checkedArgs(cmd, entry, parseArgs(argv, { booleanFlags }));
+    const code = await entry.handler({ ...commandArgs, config, cwd });
+    process.exit(code);
+}
+
+const BUILD_COMMAND = { flags: {}, maxPositionals: 1 };
+
+/** Arguments after the command, validated against its declaration; an invalid set exits 1. */
+function checkedArgs(
+    cmd: string,
+    command: Parameters<typeof validateCommandArgs>[0],
+    parsed: ReturnType<typeof parseArgs>,
+): ReturnType<typeof validateCommandArgs> {
     try {
-        commandArgs = validateCommandArgs(entry, { positional: parsedCommand.positional.slice(1), flags: parsedCommand.flags });
+        return validateCommandArgs(command, { positional: parsed.positional.slice(1), flags: parsed.flags });
     } catch (error) {
         process.stderr.write(`nuckty: ${cmd}: ${(error as Error).message}\n`);
         process.exit(1);
     }
-    const code = await entry.handler({ ...commandArgs, config, cwd });
-    process.exit(code);
 }
 
 function usage(commands: { name: string; description: string }[]): void {

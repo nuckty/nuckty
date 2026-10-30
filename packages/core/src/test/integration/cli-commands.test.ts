@@ -212,7 +212,7 @@ test('CLI build rejects flags and extra targets before cleaning output directori
 
         const invalidFlag = await runNuckty(['build', '--dry-run', 'staging'], dir);
         assert.equal(invalidFlag.code, 1);
-        assert.match(invalidFlag.stderr, /build does not accept options/);
+        assert.match(invalidFlag.stderr, /^nuckty: build: unknown option --dry-run$/m);
         assert.equal(await readFile(path.join(dir, 'site', 'sentinel.txt'), 'utf8'), 'preserve');
         assert.equal(await readFile(path.join(dir, 'site-extra', 'sentinel.txt'), 'utf8'), 'preserve');
 
@@ -224,7 +224,7 @@ test('CLI build rejects flags and extra targets before cleaning output directori
 
         const extraTargets = await runNuckty(['build', 'default', 'extra'], dir);
         assert.equal(extraTargets.code, 1);
-        assert.match(extraTargets.stderr, /at most one target/);
+        assert.match(extraTargets.stderr, /^nuckty: build: expected at most 1 argument$/m);
         assert.equal(await readFile(path.join(dir, 'site', 'sentinel.txt'), 'utf8'), 'preserve');
         assert.equal(await readFile(path.join(dir, 'site-extra', 'sentinel.txt'), 'utf8'), 'preserve');
     } finally {
