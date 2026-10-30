@@ -16,11 +16,11 @@ npx @nuckty/core serve            # http://127.0.0.1:8080
 npx @nuckty/core stop
 ```
 
-`nuckty serve [target] [--port N]` selects the target, checks its HTML directory, writes `.build/nginx-serve.conf` for that artifact, and starts nginx in the foreground. It binds to loopback; the default port is 8080. The runtime configuration uses the core hosting generator for routing, compression and image negotiation.
+`nuckty serve [target] [--port N]` selects the target, checks its HTML directory, writes `.build/serve/<target>/nginx.conf` for that artifact, and starts nginx in the foreground. It binds to loopback; the default port is 8080. The runtime configuration uses the core hosting generator for routing, compression and image negotiation.
 
 Without a target name, the first declared target is selected. The port must be an integer from 1 to 65535. Preview configuration is generated afresh and does not automatically include hooks that changed the build's `nginx.conf`, or Apache settings.
 
-`nuckty stop` reads `.build/nginx.pid`, checks the process command and start time twice, and sends `QUIT` only to a recognized instance. Invalid, foreign or reused PIDs fail without a signal. Build cleanup preserves this PID, runtime configuration and preview logs, allowing the instance to be stopped after a rebuild. Each project owns its preview files; do not run concurrent previews in the same build directory.
+`nuckty stop [target]` reads `.build/serve/<target>/nginx.pid`, checks the process command and start time twice, and sends `QUIT` only to a recognized instance; without a target it stops every declared target's preview. Invalid, foreign or reused PIDs fail without a signal. Each target owns its PID, configuration and logs under `.build/serve/<target>/`, so targets can be served at once on different ports. Build cleanup preserves `.build/serve/`, allowing a preview to be stopped after a rebuild.
 
 Validation daemons belong to the validate extension and are stopped by `nuckty validate` itself. There is no `env.daemons` registry.
 

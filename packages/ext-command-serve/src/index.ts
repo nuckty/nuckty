@@ -4,13 +4,9 @@ import path from 'node:path';
 import process from 'node:process';
 import type { NucktyEnv, CommandArgs } from '@nuckty/core';
 
-/**
- * The pid file for a project: `<buildDir>/nginx.pid` — the same path the
- * build writes into nginx.conf (`pid` directive). Project-scoped (CMD-13):
- * parallel consumers/worktrees each get their own; no machine-global file.
- */
-export function pidFileFor(cwd: string): string {
-    return path.join(cwd, '.build', 'nginx.pid');
+/** Runtime directory of one target's preview: configuration, PID and logs. Build cleanup preserves `.build/serve/`. */
+export function runtimeDirFor(cwd: string, target: string): string {
+    return path.join(cwd, '.build', 'serve', target);
 }
 
 /** `nuckty serve [target] [--port N]` starts the selected built artifact. */
@@ -37,15 +33,15 @@ export async function serve(args: CommandArgs, runtime: {
         const outDir = path.resolve(args.cwd, target.outDir);
         await fs.access(path.join(outDir, 'html'));
         const consumerRoot = await fs.realpath(args.cwd);
-        const buildDir = path.join(args.cwd, '.build');
-        const confPath = path.join(buildDir, 'nginx-serve.conf');
-        const pidFile = pidFileFor(args.cwd);
+        const runtimeDir = runtimeDirFor(args.cwd, target.name);
+        const confPath = path.join(runtimeDir, 'nginx.conf');
+        const pidFile = path.join(runtimeDir, 'nginx.pid');
+        const logDir = path.join(runtimeDir, 'logs');
 
-        for (const destination of [buildDir, confPath, pidFile, path.join(buildDir, 'nginx-logs'),
-            path.join(buildDir, 'nginx-logs/nuckty_access.log'), path.join(buildDir, 'nginx-logs/nuckty_error.log')]) {
+        for (const destination of [runtimeDir, confPath, pidFile, logDir,
+            path.join(logDir, 'nuckty_access.log'), path.join(logDir, 'nuckty_error.log')]) {
             await assertArtifactPath(consumerRoot, path.resolve(consumerRoot, path.relative(args.cwd, destination)));
         }
-        await fs.access(path.join(buildDir, 'nginx.conf'));
         try {
             const existingPid = Number((await fs.readFile(pidFile, 'utf8')).trim());
             if (!Number.isInteger(existingPid) || existingPid <= 0 || await inspectProcess(existingPid)) {
@@ -57,8 +53,6 @@ export async function serve(args: CommandArgs, runtime: {
             }
         }
         const nginxBin = await (runtime.resolveNginx ?? resolveNginxBin)();
-        await fs.mkdir(buildDir, { recursive: true });
-        const logDir = path.join(buildDir, 'nginx-logs');
         await fs.mkdir(logDir, { recursive: true });
         await fs.writeFile(confPath, generateNginxConfig(outDir, 'nuckty', pidFile, port, logDir));
         const child = (runtime.spawn ?? spawn)(nginxBin, ['-c', confPath, '-g', 'daemon off;'], { stdio: 'inherit' });
@@ -72,23 +66,39 @@ export async function serve(args: CommandArgs, runtime: {
     }
 }
 
-/** `nuckty stop` — kill the nuckty-started nginx by exact PID (this project's). */
+/** `nuckty stop [target]` stops the preview of one target, or of every target without an argument. */
 export async function stop(args: CommandArgs, options: StopOptions = {}): Promise<number> {
-    if (args.positional.length > 0 || Object.keys(args.flags).length > 0) {
-        process.stderr.write('nuckty: stop does not accept arguments\n');
+    if (args.positional.length > 1 || Object.keys(args.flags).length > 0) {
+        process.stderr.write('Usage: nuckty stop [target]\n');
         return 1;
     }
+    let targets: string[];
 
-    const result = await killNginxByPid({
-        ...options,
-        pidFile: options.pidFile ?? pidFileFor(args.cwd),
-    });
-    if (result === 'sent') {
-        process.stdout.write('nuckty: sent nginx graceful stop signal\n');
-    } else if (result === 'failed') {
-        process.stderr.write('nuckty: could not stop owned nginx process\n');
+    try {
+        const { resolveTarget, allTargets } = await import('@nuckty/core');
+        targets = args.positional[0] === undefined
+            ? allTargets(args.config).map((target) => target.name)
+            : [resolveTarget(args.config, args.positional[0]).name];
+    } catch (error) {
+        process.stderr.write(`nuckty: stop failed: ${(error as Error).message}\n`);
+        return 1;
     }
-    return result === 'failed' ? 1 : 0;
+    let failed = false;
+
+    for (const target of targets) {
+        const result = await killNginxByPid({
+            ...options,
+            pidFile: path.join(runtimeDirFor(args.cwd, target), 'nginx.pid'),
+        });
+        if (result === 'sent') {
+            process.stdout.write(`nuckty: sent nginx graceful stop signal to "${target}"\n`);
+        } else if (result === 'failed') {
+            process.stderr.write(`nuckty: could not stop owned nginx process of "${target}"\n`);
+            failed = true;
+        }
+    }
+
+    return failed ? 1 : 0;
 }
 
 export interface KillSpawn {
@@ -155,10 +165,8 @@ export async function killNginxByPid(options: StopOptions = {}): Promise<'absent
             return 'absent';
         }
         const configDir = path.dirname(pidFile);
-        const matchesConfig = ['nginx.conf', 'nginx-serve.conf'].some((name) => {
-            const argument = ` -c ${path.join(configDir, name)}`;
-            return identity.endsWith(argument) || identity.endsWith(`${argument} -g daemon off;`);
-        });
+        const argument = ` -c ${path.join(configDir, 'nginx.conf')}`;
+        const matchesConfig = identity.endsWith(argument) || identity.endsWith(`${argument} -g daemon off;`);
         if (!/^[A-Za-z]{3} [A-Za-z]{3}\s+\d{1,2} \d{2}:\d{2}:\d{2} \d{4}\s+nginx: master process (?:\S*\/)?nginx\s/.test(identity) || !matchesConfig) {
             return 'failed';
         }
@@ -213,7 +221,7 @@ function resolveNginxBin(): Promise<string> {
 
 export function register(env: NucktyEnv): void {
     env.commands.add('serve', 'serve the built site locally', serve);
-    env.commands.add('stop', 'stop the local serve daemon', stop);
+    env.commands.add('stop', 'stop the local preview of a target, or of every target', stop);
 }
 
 export default register;

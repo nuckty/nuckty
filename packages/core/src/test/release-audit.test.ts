@@ -14,17 +14,17 @@ test('clean retains preview ownership and logs while removing intermediate artif
     const outDir = path.join(root, 'site');
 
     try {
-        await fs.mkdir(path.join(buildDir, 'nginx-logs'), { recursive: true });
+        await fs.mkdir(path.join(buildDir, 'serve/main/logs'), { recursive: true });
         await fs.mkdir(outDir);
-        await fs.writeFile(path.join(buildDir, 'nginx.pid'), '12345');
-        await fs.writeFile(path.join(buildDir, 'nginx-serve.conf'), 'owned config');
-        await fs.writeFile(path.join(buildDir, 'nginx-logs/error.log'), 'owned log');
+        await fs.writeFile(path.join(buildDir, 'serve/main/nginx.pid'), '12345');
+        await fs.writeFile(path.join(buildDir, 'serve/main/nginx.conf'), 'owned config');
+        await fs.writeFile(path.join(buildDir, 'serve/main/logs/error.log'), 'owned log');
         await fs.writeFile(path.join(buildDir, 'page.css'), 'old intermediate');
         await fs.writeFile(path.join(outDir, 'old.html'), 'old output');
         await cleanStage({ buildDir, outDir } as BuildContext);
-        assert.equal(await fs.readFile(path.join(buildDir, 'nginx.pid'), 'utf8'), '12345');
-        assert.equal(await fs.readFile(path.join(buildDir, 'nginx-serve.conf'), 'utf8'), 'owned config');
-        assert.equal(await fs.readFile(path.join(buildDir, 'nginx-logs/error.log'), 'utf8'), 'owned log');
+        assert.equal(await fs.readFile(path.join(buildDir, 'serve/main/nginx.pid'), 'utf8'), '12345');
+        assert.equal(await fs.readFile(path.join(buildDir, 'serve/main/nginx.conf'), 'utf8'), 'owned config');
+        assert.equal(await fs.readFile(path.join(buildDir, 'serve/main/logs/error.log'), 'utf8'), 'owned log');
         assert.deepEqual(await fs.readdir(outDir), []);
         await assert.rejects(fs.access(path.join(buildDir, 'page.css')), { code: 'ENOENT' });
     } finally {

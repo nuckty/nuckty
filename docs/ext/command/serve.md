@@ -10,12 +10,12 @@ Local serving of the built site through nginx with a [generated configuration](.
 
 `nuckty serve [target] [--port N]`:
 
-1. Selects the target and checks its [HTML](../../out/html.md) directory and the build-generated `.build/nginx.conf`.
+1. Selects the target and checks its [HTML](../../out/html.md) directory.
 2. Finds `nginx` in `PATH`.
-3. Writes `.build/nginx-serve.conf` for that artifact and port (8080 by default).
+3. Writes `.build/serve/<target>/nginx.conf` for that artifact and port (8080 by default).
 4. Starts nginx in the foreground, listening on `127.0.0.1`.
 
-`nuckty stop` reads `.build/nginx.pid`, checks the process command and start time twice, and sends `kill -QUIT` only to the recognized instance. Build cleanup retains the preview PID, runtime configuration and logs. An unrelated, reused or invalid PID is refused without signaling.
+`nuckty stop [target]` reads `.build/serve/<target>/nginx.pid`, checks the process command and start time twice, and sends `kill -QUIT` only to the recognized instance. Without a target it stops the previews of every declared target. Each target keeps its own PID, configuration and logs in `.build/serve/<target>/`, so several targets can be served at once on different ports; build cleanup retains `.build/serve/`. An unrelated, reused or invalid PID is refused without signaling.
 
 The validation extension stops its own vnu daemon after `nuckty validate`.
 

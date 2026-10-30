@@ -69,21 +69,21 @@ test('native preview serves a rebuild and stops its own nginx from a Unicode pat
             }
         }
         assert.equal(ready, true);
-        const pidFile = path.join(cwd, '.build/nginx.pid');
+        const pidFile = path.join(cwd, '.build/serve/default/nginx.pid');
         const pid = await readFile(pidFile, 'utf8');
         assert.equal(Number(pid.trim()), child!.pid);
         await writeFile(path.join(cwd, 'content/index.md'), 'AFTER');
         await runBuild({ command: 'build', cwd });
         assert.equal(await readFile(pidFile, 'utf8'), pid);
-        await access(path.join(cwd, '.build/nginx-serve.conf'));
-        await access(path.join(cwd, '.build/nginx-logs'));
+        await access(path.join(cwd, '.build/serve/default/nginx.conf'));
+        await access(path.join(cwd, '.build/serve/default/logs'));
         assert.ok((await (await fetch(url)).text()).includes('AFTER'));
-        assert.equal(await stop({ ...args, flags: {} }), 0);
+        assert.equal(await stop({ ...args, positional: [], flags: {} }), 0);
         assert.equal(await pending, 0);
         assert.deepEqual(messages, [
             'nuckty: built target "default" → site\n',
             'nuckty: built target "default" → site\n',
-            'nuckty: sent nginx graceful stop signal\n',
+            'nuckty: sent nginx graceful stop signal to "default"\n',
         ]);
     } finally {
         if (child && child.exitCode === null && child.signalCode === null) {

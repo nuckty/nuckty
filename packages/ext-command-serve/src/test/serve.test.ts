@@ -3,13 +3,16 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm, writeFile, mkdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { killNginxByPid, pidFileFor, stop, type KillSpawn } from '../index.js';
+import { killNginxByPid, runtimeDirFor, serve, stop, type KillSpawn } from '../index.js';
+import { EventEmitter } from 'node:events';
+import { symlink } from 'node:fs/promises';
+import type { spawn, ChildProcess } from 'node:child_process';
 import type { CommandArgs } from '@nuckty/core';
 
 for (const outcome of ['success', 'error', 'denied', 'unrelated', 'reused', 'invalid', 'absent'] as const) {
     test(`stop: ${outcome} has truthful result and preserves nginx-owned pid file`, async () => {
         const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-stop-'));
-        const pidFile = pidFileFor(dir);
+        const pidFile = path.join(runtimeDirFor(dir, 'main'), 'nginx.pid');
         await mkdir(path.dirname(pidFile), { recursive: true });
         const content = outcome === 'invalid' ? 'invalid' : '424242';
         if (outcome !== 'absent') {
@@ -17,7 +20,7 @@ for (const outcome of ['success', 'error', 'denied', 'unrelated', 'reused', 'inv
         }
         let signals = 0;
         let inspections = 0;
-        const identity = `Tue Sep 22 10:00:00 2026 nginx: master process nginx -c ${path.join(dir, '.build', 'nginx.conf')}`;
+        const identity = `Tue Sep 22 10:00:00 2026 nginx: master process nginx -c ${path.join(runtimeDirFor(dir, 'main'), 'nginx.conf')}`;
         try {
             const options = {
                 pidFile,
@@ -47,7 +50,7 @@ for (const outcome of ['success', 'error', 'denied', 'unrelated', 'reused', 'inv
             process.stdout.write = ((chunk: string) => { output += chunk; return true; }) as typeof stdout;
             process.stderr.write = (() => true) as typeof stderr;
             try {
-                const args: CommandArgs = { cwd: dir, config: { targets: {} }, positional: [], flags: {} };
+                const args: CommandArgs = { cwd: dir, config: { targets: { main: { configDir: 'config', outDir: 'site' } } }, positional: [], flags: {} };
                 assert.equal(await stop(args, options), expected === 'failed' ? 1 : 0);
                 assert.equal(output.includes('graceful stop signal'), expected === 'sent');
             } finally {
@@ -60,11 +63,8 @@ for (const outcome of ['success', 'error', 'denied', 'unrelated', 'reused', 'inv
     });
 }
 
-import { serve } from '../index.js';
-import { EventEmitter } from 'node:events';
-import type { spawn, ChildProcess } from 'node:child_process';
 
-for (const mode of ['selected', 'missing-config', 'unknown', 'invalid-port', 'default', 'spawn-error', 'unknown-flag', 'empty-flag', 'too-many-targets'] as const) {
+for (const mode of ['selected', 'unknown', 'invalid-port', 'default', 'spawn-error', 'unknown-flag', 'empty-flag', 'too-many-targets'] as const) {
     test(`serve command: ${mode}`, async () => {
         const cwd = await mkdtemp(path.join(tmpdir(), 'nuckty-serve-start-'));
         const stderr = process.stderr.write;
@@ -72,10 +72,6 @@ for (const mode of ['selected', 'missing-config', 'unknown', 'invalid-port', 'de
         try {
             await mkdir(path.join(cwd, 'chosen', 'html'), { recursive: true });
             await mkdir(path.join(cwd, 'first', 'html'), { recursive: true });
-            if (mode !== 'missing-config') {
-                await mkdir(path.join(cwd, '.build'), { recursive: true });
-                await writeFile(path.join(cwd, '.build/nginx.conf'), '# built fixture configuration');
-            }
             const args: CommandArgs = {
                 cwd,
                 config: { targets: {
@@ -85,6 +81,7 @@ for (const mode of ['selected', 'missing-config', 'unknown', 'invalid-port', 'de
                 positional: mode === 'default' ? [] : mode === 'too-many-targets' ? ['chosen', 'first'] : [mode === 'unknown' ? 'typo' : 'chosen'],
                 flags: mode === 'empty-flag' ? { '': true } : mode === 'unknown-flag' ? { prt: true } : { port: mode === 'invalid-port' ? '0' : '8765' },
             };
+            const target = mode === 'default' ? 'first' : 'chosen';
             let cwdRead = false;
             if (mode === 'unknown-flag' || mode === 'empty-flag' || mode === 'too-many-targets') {
                 Object.defineProperty(args, 'cwd', {
@@ -98,7 +95,7 @@ for (const mode of ['selected', 'missing-config', 'unknown', 'invalid-port', 'de
             let resolvedNginx = false;
             const fakeSpawn = ((_bin: string, options: string[]) => {
                 launched = true;
-                assert.deepEqual(options, ['-c', path.join(cwd, '.build', 'nginx-serve.conf'), '-g', 'daemon off;']);
+                assert.deepEqual(options, ['-c', path.join(runtimeDirFor(cwd, target), 'nginx.conf'), '-g', 'daemon off;']);
                 const child = new EventEmitter() as ChildProcess;
                 queueMicrotask(() => mode === 'spawn-error' ? child.emit('error', new Error('ENOENT')) : child.emit('exit', 0));
                 return child;
@@ -107,19 +104,19 @@ for (const mode of ['selected', 'missing-config', 'unknown', 'invalid-port', 'de
                 resolveNginx: async () => { resolvedNginx = true; return '/owned/fixture/nginx'; },
                 spawn: fakeSpawn,
             });
-            const rejected = ['missing-config', 'unknown', 'invalid-port', 'unknown-flag', 'empty-flag', 'too-many-targets'].includes(mode);
+            const rejected = ['unknown', 'invalid-port', 'unknown-flag', 'empty-flag', 'too-many-targets'].includes(mode);
             assert.equal(result, rejected || mode === 'spawn-error' ? 1 : 0);
             assert.equal(launched, !rejected);
             assert.equal(resolvedNginx, !rejected);
             assert.equal(cwdRead, false);
             if (rejected) {
-                await assert.rejects(readFile(path.join(cwd, '.build', 'nginx-serve.conf'), 'utf8'), { code: 'ENOENT' });
+                await assert.rejects(readFile(path.join(runtimeDirFor(cwd, target), 'nginx.conf'), 'utf8'), { code: 'ENOENT' });
             }
             if (launched) {
-                const config = await readFile(path.join(cwd, '.build', 'nginx-serve.conf'), 'utf8');
-                assert.ok(config.includes(path.join(cwd, mode === 'default' ? 'first' : 'chosen')));
+                const config = await readFile(path.join(runtimeDirFor(cwd, target), 'nginx.conf'), 'utf8');
+                assert.ok(config.includes(path.join(cwd, target)));
                 assert.ok(config.includes('listen 127.0.0.1:8765;'));
-                assert.ok(config.includes(path.join(cwd, '.build', 'nginx.pid')));
+                assert.ok(config.includes(path.join(runtimeDirFor(cwd, target), 'nginx.pid')));
             }
         } finally {
             process.stderr.write = stderr;
@@ -130,7 +127,7 @@ for (const mode of ['selected', 'missing-config', 'unknown', 'invalid-port', 'de
 
 test('stop: rejects --dry-run before inspecting the pid or sending a signal', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-stop-args-'));
-    const pidFile = pidFileFor(dir);
+    const pidFile = path.join(runtimeDirFor(dir, 'main'), 'nginx.pid');
     await mkdir(path.dirname(pidFile), { recursive: true });
     await writeFile(pidFile, '424242');
     let inspections = 0;
@@ -139,12 +136,12 @@ test('stop: rejects --dry-run before inspecting the pid or sending a signal', as
     let output = '';
     process.stderr.write = ((chunk: string) => { output += chunk; return true; }) as typeof stderr;
     try {
-        const args: CommandArgs = { cwd: dir, config: { targets: {} }, positional: [], flags: { 'dry-run': true } };
+        const args: CommandArgs = { cwd: dir, config: { targets: { main: { configDir: 'config', outDir: 'site' } } }, positional: [], flags: { 'dry-run': true } };
         const result = await stop(args, {
             pidFile,
             inspectProcess: async () => {
                 inspections++;
-                return `Tue Sep 22 10:00:00 2026 nginx: master process nginx -c ${path.join(dir, '.build', 'nginx.conf')}`;
+                return `Tue Sep 22 10:00:00 2026 nginx: master process nginx -c ${path.join(runtimeDirFor(dir, 'main'), 'nginx.conf')}`;
             },
             spawnKill: (): KillSpawn => {
                 signals++;
@@ -152,12 +149,49 @@ test('stop: rejects --dry-run before inspecting the pid or sending a signal', as
             },
         });
         assert.equal(result, 1);
-        assert.match(output, /stop does not accept arguments/);
+        assert.match(output, /Usage: nuckty stop \[target\]/);
         assert.equal(inspections, 0);
         assert.equal(signals, 0);
         assert.equal(await readFile(pidFile, 'utf8'), '424242');
     } finally {
         process.stderr.write = stderr;
+        await rm(dir, { recursive: true, force: true });
+    }
+});
+
+test('stop: a target argument signals only that target and no argument signals all', async (t) => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-stop-targets-'));
+    const config = { targets: { ru: { configDir: 'config', outDir: 'site/ru' }, en: { configDir: 'config', outDir: 'site/en' } } };
+    const pids: Record<string, string> = { ru: '111', en: '222' };
+    t.mock.method(process.stdout, 'write', () => true);
+    t.mock.method(process.stderr, 'write', () => true);
+    try {
+        for (const [target, pid] of Object.entries(pids)) {
+            await mkdir(runtimeDirFor(dir, target), { recursive: true });
+            await writeFile(path.join(runtimeDirFor(dir, target), 'nginx.pid'), pid);
+        }
+        const signalled: string[] = [];
+        const options = {
+            inspectProcess: async (pid: number) => {
+                const target = Object.keys(pids).find((name) => pids[name] === String(pid))!;
+                return `Tue Sep 22 10:00:00 2026 nginx: master process nginx -c ${path.join(runtimeDirFor(dir, target), 'nginx.conf')}`;
+            },
+            spawnKill: (_command: string, argv: string[]): KillSpawn => {
+                signalled.push(argv[1]!);
+                return { on(event, listener) {
+                    if (event === 'exit') {
+                        queueMicrotask(() => listener(0));
+                    }
+                } };
+            },
+        };
+        assert.equal(await stop({ cwd: dir, config, positional: ['en'], flags: {} }, options), 0);
+        assert.deepEqual(signalled, ['222']);
+        signalled.length = 0;
+        assert.equal(await stop({ cwd: dir, config, positional: [], flags: {} }, options), 0);
+        assert.deepEqual(signalled.sort(), ['111', '222']);
+        assert.equal(await stop({ cwd: dir, config, positional: ['typo'], flags: {} }, options), 1);
+    } finally {
         await rm(dir, { recursive: true, force: true });
     }
 });
@@ -171,7 +205,7 @@ for (const localeCase of [
     test(`stop: ps locale keeps Unicode config paths (${localeCase.name})`, { skip: process.platform === 'win32' }, async () => {
         const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-stop Ω-'));
         const binDir = path.join(dir, 'fake bin');
-        const configPath = path.join(dir, 'consumer Ω', '.build', 'nginx-serve.conf');
+        const configPath = path.join(runtimeDirFor(path.join(dir, 'consumer Ω'), 'main'), 'nginx.conf');
         const pidFile = path.join(path.dirname(configPath), 'nginx.pid');
         const callsFile = path.join(dir, 'calls.jsonl');
         await mkdir(binDir, { recursive: true });
@@ -270,10 +304,9 @@ appendFileSync(process.env.NUCKTY_TEST_CALLS, JSON.stringify({ command: 'kill', 
     });
 }
 
-for (const destination of ['.build', '.build/nginx-serve.conf', '.build/nginx.pid', '.build/nginx-logs', '.build/nginx-logs/nuckty_access.log', '.build/nginx-logs/nuckty_error.log']) {
+for (const destination of ['.build', '.build/serve/main', '.build/serve/main/nginx.conf', '.build/serve/main/nginx.pid', '.build/serve/main/logs', '.build/serve/main/logs/nuckty_access.log', '.build/serve/main/logs/nuckty_error.log']) {
     test(`serve refuses linked output ${destination} before writes or spawn`, async (t) => {
         const root = await mkdtemp(path.join(tmpdir(), 'serve-owned-output-'));
-        const { symlink } = await import('node:fs/promises');
         let launched = false;
         t.mock.method(process.stderr, 'write', () => true);
 
@@ -284,7 +317,7 @@ for (const destination of ['.build', '.build/nginx-serve.conf', '.build/nginx.pi
             const linked = path.join(root, destination);
 
             await mkdir(path.dirname(linked), { recursive: true });
-            const directory = destination === '.build' || destination.endsWith('nginx-logs');
+            const directory = !path.extname(destination);
 
             await symlink(path.join(root, directory ? 'outside' : 'outside/marker'), linked);
             const result = await serve({ cwd: root, config: { targets: { main: { configDir: 'config', outDir: 'site' } } }, positional: [], flags: {} }, {
@@ -302,15 +335,12 @@ for (const destination of ['.build', '.build/nginx-serve.conf', '.build/nginx.pi
 
 test('serve retains a symbolic consumer root while guarding real output paths', async () => {
     const parent = await mkdtemp(path.join(tmpdir(), 'serve-symbolic-consumer-'));
-    const { symlink } = await import('node:fs/promises');
     const actual = path.join(parent, 'actual');
     const alias = path.join(parent, 'alias');
     let configArgument = '';
 
     try {
         await mkdir(path.join(actual, 'site/html'), { recursive: true });
-        await mkdir(path.join(actual, '.build'));
-        await writeFile(path.join(actual, '.build/nginx.conf'), '# built fixture configuration');
         await symlink(actual, alias);
         const result = await serve({ cwd: alias, config: { targets: { main: { configDir: 'config', outDir: 'site' } } }, positional: [], flags: {} }, {
             resolveNginx: async () => '/fixture/nginx',
@@ -325,11 +355,11 @@ test('serve retains a symbolic consumer root while guarding real output paths', 
         });
 
         assert.equal(result, 0);
-        assert.equal(configArgument, path.join(alias, '.build/nginx-serve.conf'));
-        const configuration = await readFile(path.join(actual, '.build/nginx-serve.conf'), 'utf8');
+        assert.equal(configArgument, path.join(alias, '.build/serve/main/nginx.conf'));
+        const configuration = await readFile(path.join(actual, '.build/serve/main/nginx.conf'), 'utf8');
 
         assert.ok(configuration.includes(path.join(alias, 'site')));
-        assert.ok(configuration.includes(path.join(alias, '.build/nginx.pid')));
+        assert.ok(configuration.includes(path.join(alias, '.build/serve/main/nginx.pid')));
     } finally {
         await rm(parent, { recursive: true, force: true });
     }

@@ -20,15 +20,13 @@ import { htaccessStage } from './htaccess.js';
 import { htmlStage } from './html.js';
 
 /**
- * Clear output and build intermediates before a fresh build. Preserve preview
- * PID, runtime configuration and logs so the running preview can still be stopped.
+ * Clear output and build intermediates before a fresh build. Preserve `serve/`,
+ * the previews' runtime directory, so a running preview can still be stopped.
  */
 export const cleanStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<void> => {
-    const runtimeFiles = new Set(['nginx.pid', 'nginx-serve.conf', 'nginx-logs']);
-
     await fs.mkdir(ctx.buildDir, { recursive: true });
     for (const entry of await fs.readdir(ctx.buildDir)) {
-        if (!runtimeFiles.has(entry)) {
+        if (entry !== 'serve') {
             await fs.rm(path.join(ctx.buildDir, entry), { recursive: true, force: true });
         }
     }

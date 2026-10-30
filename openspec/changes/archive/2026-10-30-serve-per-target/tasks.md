@@ -1,0 +1,3 @@
+- [x] Scope preview runtime files by target and preserve them during cleanup.
+- [x] Accept an optional target in `stop`.
+- [x] Update tests, documentation and the demo scripts.
