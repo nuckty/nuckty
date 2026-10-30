@@ -96,7 +96,7 @@ test('serial: an empty task list returns an empty array', async () => {
     assert.deepEqual(await serial([]), []);
 });
 
-// ---- CMD-14: validate reads the CHOSEN target's artifact, not cwd/site ------
+// ---- validate reads the CHOSEN target's artifact, not cwd/site ------
 
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -121,7 +121,7 @@ test('findHtmlFiles: collects nested html files, skips non-html', async () => {
     }
 });
 
-test('CMD-14 pin: resolveTarget honors the explicit target outDir and rejects unknown names', async () => {
+test('resolveTarget honors the explicit target outDir and rejects unknown names', async () => {
     const { resolveTarget } = await import('@nuckty/core');
     const config: NucktyConfig = {
         targets: {

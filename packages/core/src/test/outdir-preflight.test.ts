@@ -1,6 +1,6 @@
 /**
  * Tests for the output-dir preflight (`src/utils/outdir-preflight.ts`) — the
- * RUNTIME-002 guard: `outDir` values that would make the `clean` stage delete
+ * Guard: `outDir` values that would make the `clean` stage delete
  * consumer sources (`.`, `..`, input dirs, colliding outDirs) must be rejected
  * before any filesystem mutation, while normal outDirs pass through.
  */

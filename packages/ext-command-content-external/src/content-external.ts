@@ -306,7 +306,7 @@ export function makeGitRunner(loadGit: () => Promise<Pick<typeof import('simple-
     return {
         async clone(url, dir, options = {}) {
             const { simpleGit } = await loadGit();
-            // Clone into a TEMP SIBLING, then rename on success (CMD-07): an
+            // Clone into a temporary sibling, then rename on success: an
             // interrupted clone must never leave a half-finished directory
             // at the final path where a later run would see "a repo" or a
             // failed attempt would look like a lost copy. The runner only

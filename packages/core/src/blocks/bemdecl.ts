@@ -21,8 +21,7 @@ export function readBemDeclaration(
     }
     try {
         const req = createRequire(import.meta.url);
-        // Dynamic CJS require with cache invalidation so swapped files reload
-        // (1:1 with the original `loadBemDeclaration`).
+        // Drop the require cache entry so a changed declaration reloads in the same process.
         const resolved = req.resolve(bemdeclPath);
         delete req.cache[resolved];
         const loaded = req(resolved) as unknown;

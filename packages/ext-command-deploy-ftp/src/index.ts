@@ -47,9 +47,7 @@ export async function deployFtp(args: CommandArgs, inject?: { ftpDeploy?: FtpDep
 
         return 1;
     }
-    // Resolve outDir BEFORE any plan: an unknown target name must fail before
-    // basic-ftp is even imported — the acceptance is "unknown target does not
-    // open an FTP connection".
+    // An unknown target fails before basic-ftp is imported or a connection opens.
     let outDir: string;
     try {
         outDir = resolveOutDir(args.config, target, args.cwd);

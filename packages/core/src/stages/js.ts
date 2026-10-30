@@ -83,9 +83,7 @@ async function buildBundle(
         });
         jsContent = result.outputFiles[0]!.text;
     } catch (e) {
-        // STAGE-01: a real bundling failure (syntax error in block JS, missing
-        // import, esbuild config error) must FAIL the build — swallowing it
-        // produced a "successful" build with the JS bundle silently missing.
+        // A bundling failure fails the build rather than publishing pages without their script.
         throw new Error(
             `nuckty: js stage — bundling "${bundle}" failed: ` +
                 `${e instanceof Error ? e.message : String(e)}`,
@@ -122,7 +120,7 @@ async function buildBundle(
 /**
  * JS stage. Builds every configured bundle and stores the per-bundle hash map
  * in `ctx.store.jsHash`. Bundles with no JS files get an empty entry written to
- * `.build/hash-js.json` (mirrors `JSBuilder.saveEmptyHashFile`).
+ * `.build/hash-js.json`.
  */
 export const jsStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<void> => {
     const root = ctx.cwd;
@@ -141,7 +139,6 @@ export const jsStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<v
         if (entry) {
             jsHash[bundle] = entry;
         } else {
-            // No JS for this bundle — record an empty entry (1:1 with original).
             await saveEmptyHashFile(bundle, ctx.buildDir);
         }
     }

@@ -121,7 +121,7 @@ test('html stage delegates document construction to a consumer handler', async (
     }
 });
 
-test('html stage rejects /a/b vs /a_b collision before writing either file (STAGE-04)', async () => {
+test('html stage rejects /a/b vs /a_b collision before writing either file', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-html-'));
     const env = new NucktyEnv();
     const ctx: BuildContext = {

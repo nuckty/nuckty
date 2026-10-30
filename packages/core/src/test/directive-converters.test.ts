@@ -1,8 +1,8 @@
-import { markdownCollection } from './helpers/markdown.js';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createMarkdown, render } from '../index.js';
 import type { DirectiveHandler } from '../index.js';
+import { markdownCollection } from './helpers/markdown.js';
 
 function parse(handler: DirectiveHandler, source: string, imageMapping: Record<string, string> = {}) {
     return createMarkdown({ directiveMappings: new Map([['box', handler]]), imageMapping, sourceFile: 'index.md' }).render(source);

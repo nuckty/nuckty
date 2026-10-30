@@ -1,10 +1,10 @@
-import { markdownCollection } from './helpers/markdown.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createMarkdown } from '../markdown/remark.js';
 import { postprocessHtml } from '../markdown/html-postprocess.js';
 import { transformImagePathShared } from '../markdown/image-mapping.js';
 import { render } from '../bem/render.js';
+import { markdownCollection } from './helpers/markdown.js';
 
 function html(source: string, options: Parameters<typeof createMarkdown>[0] = {}): string {
     return render(createMarkdown(options).render(source).tree, { templates: markdownCollection() });

@@ -62,9 +62,8 @@ function selectAssetSources(
 
 /** Resolve the external repos declared in `config/external.json` (mapped to
  *  `external/<name>/`), including repos absent on disk — so an absent repo is
- *  classified as `missing` rather than silently dropped. Falls back to the
- *  repos present under `external/` when `external.json` is absent (legacy
- *  discovery). A site's assets live in whichever repo carries them (docs,
+ *  classified as `missing` rather than silently dropped. Without
+ *  `external.json`, every directory under `external/` is a source repo. A site's assets live in whichever repo carries them (docs,
  *  install, content), not only the content repo. */
 async function resolveSourceRepos(root: string, urls: string[] | undefined): Promise<Array<{ name: string; path: string }>> {
     if (urls === undefined) {

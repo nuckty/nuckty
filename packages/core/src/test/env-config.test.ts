@@ -103,13 +103,11 @@ test('loadConfig: rethrows a genuine module error (not masked as missing)', asyn
     }
 });
 
-test('loadConfig: a missing transitive import is NOT masked as a missing config (RUNTIME-003)', async () => {
+test('loadConfig: a missing transitive import is NOT masked as a missing config', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-cfg-'));
     try {
         await mkdir(path.join(dir, 'config'), { recursive: true });
-        // A config whose own import fails must propagate — previously any
-        // ERR_MODULE_NOT_FOUND (including this one) fell back to the default
-        // target, silently discarding the consumer's real targets.
+        // A config whose own import fails must propagate instead of falling back to the default target.
         await writeFile(path.join(dir, 'config', 'config-nuckty.ts'),
             `import './missing-dep.mjs';\n` +
             `export default { targets: { real: { configDir: 'config/', outDir: 'published/' } } };\n`);

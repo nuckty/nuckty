@@ -9,14 +9,11 @@ let configLoadId = 0;
 export const CONFIG_REL_PATH = path.join('config', 'config-nuckty.ts');
 
 /**
- * Resolve `config/config-nuckty.ts` and import its default export. Falls back
- * to a single default target ONLY when the config file itself is missing (for
- * bare-bones demos). Any error from loading an existing file — a missing
- * transitive import, a missing package, a syntax error, a thrown top-level
- * Error, a missing default export — propagates (with the config path) instead
- * of silently substituting the default config, which would lose the
- * consumer's real targets/ext and could point the clean stage at an
- * unexpected directory (arch review RUNTIME-003).
+ * Resolve `config/config-nuckty.ts` and import its default export. Only a
+ * missing config file falls back to a single default target. Any error from
+ * loading an existing file — a missing import or package, a syntax error, a
+ * thrown error, a missing default export — propagates with the config path,
+ * so the clean stage never runs against substituted targets.
  */
 export async function loadConfig(cwd: string): Promise<NucktyConfig> {
     const configPath = path.join(cwd, CONFIG_REL_PATH);

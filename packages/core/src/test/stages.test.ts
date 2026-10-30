@@ -481,7 +481,7 @@ test('js stage writes an empty entry for a bundle with no JS files', async () =>
         // No real hash entry in the store (only bundles with output go there)…
         const jsHash = ctx.store['jsHash'] as Record<string, unknown> | undefined;
         assert.ok(!jsHash || !jsHash.page);
-        // …but an empty placeholder is written to hash-js.json (1:1 with the original).
+        // …but an empty placeholder is written to hash-js.json.
         const hashFile = JSON.parse(await readFile(path.join(ctx.buildDir, 'hash-js.json'), 'utf8'));
         assert.equal(hashFile.page.hash, 'empty');
         assert.equal(hashFile.page.url, '/empty.js');
@@ -490,7 +490,7 @@ test('js stage writes an empty entry for a bundle with no JS files', async () =>
     }
 });
 
-test('js stage FAILS the build on a bundling error instead of silently skipping (STAGE-01)', async () => {
+test('js stage FAILS the build on a bundling error instead of silently skipping', async () => {
     const { ctx, dir } = await makeProject();
     try {
         await mkdir(path.join(dir, 'config'), { recursive: true });

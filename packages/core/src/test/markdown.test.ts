@@ -1,8 +1,8 @@
-import { markdownCollection } from './helpers/markdown.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createMarkdown } from '../markdown/remark.js';
 import { render } from '../bem/render.js';
+import { markdownCollection } from './helpers/markdown.js';
 
 const TEMPLATES = { templates: markdownCollection() };
 

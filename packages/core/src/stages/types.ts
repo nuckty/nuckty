@@ -11,7 +11,7 @@
 
 import type { BEMTree } from '../bem/types.js';
 
-/** Per-page metadata produced by the sitemap stage. Mirrors `pages[url]` from build-sitemap.js. */
+/** Per-page metadata produced by the sitemap stage. */
 export interface SitemapPage {
     file: string;
     url: string;
@@ -32,7 +32,7 @@ export interface SitemapPage {
     [k: string]: unknown;
 }
 
-/** Sitemap artifact stored under `ctx.store.sitemap`. Mirrors the build-sitemap.js output object. */
+/** Sitemap artifact stored under `ctx.store.sitemap`. */
 export interface SitemapArtifact {
     /** Navigation entries: routes, child arrays, or cross-section labels. */
     sitemap: unknown[];

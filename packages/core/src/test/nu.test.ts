@@ -144,7 +144,7 @@ test('bare-arrow predicate shorthand works', () => {
     assert.equal(html, '<li class="item item_on"></li>');
 });
 
-test('.when() composed with the predicate shorthand does not recurse infinitely (RENDER-02)', () => {
+test('.when() composed with the predicate shorthand does not recurse infinitely', () => {
     const calls: string[] = [];
     const html = withTemplates(() => {
         block('x').when(() => { calls.push('when'); return true; })(
@@ -153,8 +153,7 @@ test('.when() composed with the predicate shorthand does not recurse infinitely 
         );
     }, { block: 'x' });
     assert.equal(html, '<span class=x></span>');
-    // Each predicate runs exactly once per node — the old code made the merged
-    // closure call itself (RangeError: Maximum call stack size exceeded).
+    // Each predicate runs exactly once per node.
     assert.deepEqual(calls, ['when', 'shorthand']);
 });
 
@@ -177,7 +176,7 @@ test('.when(true) composed with shorthand(false) does not fire the template', ()
     assert.equal(html, '<div class=x></div>');
 });
 
-test('def() full takeover supports every BEMTree variant (RENDER-04)', () => {
+test('def() full takeover supports every BEMTree variant', () => {
     const cases: Array<[label: string, fn: () => BEMTree, want: string]> = [
         ['string', () => 'hello', 'hello'],
         ['array', () => [{ tag: 'span', content: 'hello' }], '<span>hello</span>'],
@@ -193,7 +192,7 @@ test('def() full takeover supports every BEMTree variant (RENDER-04)', () => {
     }
 });
 
-test('wrap() original next() carries folded output modes of lower-priority templates (RENDER-03)', () => {
+test('wrap() original next() carries folded output modes of lower-priority templates', () => {
     const html = withTemplates(() => {
         block('x')({ tag: 'span' });
         block('x').wrap((_n, next) => ({ tag: 'section', content: next() }));
@@ -203,7 +202,7 @@ test('wrap() original next() carries folded output modes of lower-priority templ
     assert.equal(html, '<section><span class=x></span></section>');
 });
 
-test('replace() result is matched by the NEW block templates (RENDER-03)', () => {
+test('replace() result is matched by the NEW block templates', () => {
     const html = withTemplates(() => {
         block('x').replace((_n, next) => ({ block: 'y', content: next() }));
         block('y')({ tag: 'span' });
@@ -213,7 +212,7 @@ test('replace() result is matched by the NEW block templates (RENDER-03)', () =>
     assert.equal(html, '<span class=y><div class=x></div></span>');
 });
 
-test('wrap() inside its own result subtree does not recurse ( RENDER-03 loop guard)', () => {
+test('wrap() inside its own result subtree does not recurse', () => {
     const html = withTemplates(() => {
         block('x').wrap(() => {
             throw new Error('must not re-fire');

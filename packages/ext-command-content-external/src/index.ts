@@ -41,8 +41,6 @@ async function contentExternal(args: CommandArgs): Promise<number> {
     let sources: ExternalSource[] = [];
     if (fs.existsSync(configPath)) {
         try {
-            // CMD-09: a wrong shape must fail loudly rather than prepare
-            // nothing and exit 0.
             sources = parseExternalSources(JSON.parse(fs.readFileSync(configPath, 'utf8')));
         } catch (e) {
             process.stderr.write(`nuckty: content-external failed to parse config/external.json: ${(e as Error).message}\n`);

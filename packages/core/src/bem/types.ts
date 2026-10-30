@@ -23,7 +23,7 @@ export type AttrMap = Record<string, AttrVal>;
 
 /**
  * A BEM entity reference used in `mix` — a block/element/mods triple without
- * content. Mirrors `@bem/sdk.naming.entity`'s data model (entity-as-data).
+ * content.
  */
 export interface BemEntity {
     block: string;

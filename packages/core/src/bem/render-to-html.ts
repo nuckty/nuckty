@@ -287,8 +287,7 @@ function serializeAttrs(attrs: BemNode['attrs'], js: BemNode['js'], node: BemNod
     if (js && node.bem !== false && node.block) {
         const params = js === true ? {} : js;
         const dataBem = JSON.stringify({ [node.block]: params });
-        // `data-bem` is always double-quoted, so `"` inside the JSON MUST be
-        // `&quot;`-escaped or the attribute terminates early (RENDER-01).
+        // `data-bem` is double-quoted, so `"` in the JSON must be escaped as `&quot;`.
         parts.push(` data-bem="${escapeAttr(dataBem)}"`);
     }
     return parts.join('');

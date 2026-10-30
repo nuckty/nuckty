@@ -7,17 +7,16 @@
  * `env.commands`, `env.document`, `env.markdown`, `env.levels`, `env.pipeline`.
  * Block templates register through the deps walker (`src/blocks/loader.ts`).
  *
- * Resolution contract (arch review RUNTIME-004):
+ * Resolution contract:
  *   - bare specifier (`pkg` / `@scope/pkg`) → resolved from the CONSUMER root
- *     via Node's ESM resolver and package.json `exports`/`main` rules. Bare
- *     dynamic import runs relative to the ENGINE module, so a package
- *     installed only in the consumer (`file:`-linked layouts) was previously
- *     unresolvable.
- *   - local file (`./dir/file.mjs`) → file URL as before.
+ *     via Node's ESM resolver and package.json `exports`/`main` rules, so a
+ *     package installed only in the consumer resolves although the import
+ *     runs from the engine module.
+ *   - local file (`./dir/file.mjs`) → its file URL.
  *   - local directory (openspec example `./blocks/local`) → the directory's
  *     package.json main/exports entry, resolved explicitly (ESM has no
  *     directory imports).
- *   - absolute path → file URL as before.
+ *   - absolute path → its file URL.
  * Node resolves bare packages; local directory entries are selected explicitly.
  *
  * Each ext entry calls its named register or default function in the current

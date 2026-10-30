@@ -58,7 +58,7 @@ test('bridge: em-dash spacing before a link retains its ordinary trailing space'
     assert.ok(html.includes('слово — <a'));
 });
 
-test('bridge golden common_account: nbsp before em-dash in real prose', () => {
+test('bridge: nbsp before em-dash in real prose', () => {
     const md = 'eSender — это сервис виртуального китайского номера.';
     const html = mdToHtml(md);
     // Non-breaking space before the dash, regular space after.

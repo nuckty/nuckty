@@ -425,11 +425,11 @@ test('ftpDeploy: valid regular manifest is uploaded after its content files', as
     }
 });
 
-test('CMD-02 pin: --force keeps the delete plan (force bypasses the guard, not deletions)', async () => {
+test('--force keeps the delete plan (force bypasses the guard, not deletions)', async () => {
     // Independent expected outcome derived from the contract: local has only
     // a.txt; remote has a.txt + obsolete.txt + manifest.json. Under --force the
     // upload plan is ALL local files, and the delete plan still contains
-    // obsolete.txt (previously force wiped toDelete to []).
+    // obsolete.txt.
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-ftp-force-'));
     try {
         // Post-build state: the local manifest lists only a.txt.
@@ -453,7 +453,7 @@ test('CMD-02 pin: --force keeps the delete plan (force bypasses the guard, not d
     }
 });
 
-test('CMD-06 pin: malformed local manifest is rejected before any network', async () => {
+test('malformed local manifest is rejected before any network', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-ftp-badman-'));
     try {
         await writeFile(path.join(dir, 'manifest.json'), 'NOT JSON{{');
@@ -468,7 +468,7 @@ test('CMD-06 pin: malformed local manifest is rejected before any network', asyn
     }
 });
 
-test('CMD-06 pin: a valid local manifest still loads', async () => {
+test('a valid local manifest still loads', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-ftp-man-'));
     try {
         await writeFile(path.join(dir, 'manifest.json'), JSON.stringify({ 'a.txt': { size: 1, hash: 'h' } }));
@@ -479,11 +479,11 @@ test('CMD-06 pin: a valid local manifest still loads', async () => {
     }
 });
 
-// ---- CMD-04: deploy target resolution ---------------------------------------
+// ---- deploy target resolution ---------------------------------------
 
 import { resolveOutDir } from '../index.js';
 
-test('CMD-04 pin: no argument = first declared target; unknown explicit name fails', () => {
+test('no argument = first declared target; unknown explicit name fails', () => {
     const config = {
         targets: {
             a: { configDir: 'config-a/', outDir: 'dist/a/', lang: 'en', host: 'a.example' },
@@ -498,7 +498,7 @@ test('CMD-04 pin: no argument = first declared target; unknown explicit name fai
     assert.throws(() => resolveOutDir(config, 'bt', cwd), /unknown target "bt".*a, b/);
 });
 
-test('CMD-04 pin: an empty config fails clearly (no implicit site/ fallback)', () => {
+test('an empty config fails clearly (no implicit site/ fallback)', () => {
     assert.throws(() => resolveOutDir({ targets: {}, ext: [] } as never, undefined, '/p'), /at least one target/);
 });
 for (const name of ['constructor', 'toString', '__proto__']) {

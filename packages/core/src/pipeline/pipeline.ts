@@ -63,10 +63,7 @@ export class Pipeline<C extends BuildContext = BuildContext> {
 
     /** Register a named stage into a phase. */
     registerStage(name: string, fn: Stage<C>, opts: { phase: Phase }): void {
-        // RUNTIME-009: the stages/index.ts doc once suggested re-registering a
-        // stage name as "replacement" — but a plain push meant BOTH stages ran
-        // (and duplicate-name hooks fired around both). Make the accidental
-        // duplicate a clear error instead of silent double execution.
+        // A duplicate name would run both stages and their hooks; reject it.
         if (this.stages.some((s) => s.name === name) || this.finalizers.some((s) => s.name === name)) {
             throw new Error(
                 `nuckty: pipeline stage "${name}" is already registered — stage names must be unique`,

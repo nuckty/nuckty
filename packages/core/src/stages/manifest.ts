@@ -13,8 +13,7 @@ interface ManifestEntry {
 
 /**
  * Generate the manifest for a site directory: walk it, hash every file, write
- * `<siteDir>/manifest.json`. Returns the manifest object. 1:1 with
- * `Manifest.generate`.
+ * `<siteDir>/manifest.json` with sorted keys. Returns the manifest object.
  */
 export async function generate(siteDir: string): Promise<Record<string, ManifestEntry>> {
     if (lstatSync(siteDir).isSymbolicLink()) {
@@ -47,7 +46,6 @@ export async function generate(siteDir: string): Promise<Record<string, Manifest
 
     await scanDir(siteDir);
 
-    // Sort keys for deterministic output (1:1 with writeManifest).
     const sorted: Record<string, ManifestEntry> = Object.create(null);
     for (const key of Object.keys(manifest).sort()) {
         sorted[key] = manifest[key]!;

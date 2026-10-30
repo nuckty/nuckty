@@ -161,7 +161,7 @@ export async function inlineHashedSVGs(css: string, siteDir: string): Promise<st
 }
 
 /**
- * Build a single CSS bundle and return its hash entry. Mirrors `CSSBuilder.build()`.
+ * Build a single CSS bundle and return its hash entry.
  */
 async function buildBundle(
     bundle: string,

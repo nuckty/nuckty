@@ -6,7 +6,7 @@
  * fold to concrete values. `next()` descends toward lower specificity (applyNext
  * semantics). Pass 2 (`renderToHtml`) serializes the resolved tree.
  *
- * Control-mode composition semantics (arch review RENDER-03 decision table):
+ * Control-mode composition semantics:
  *   1. Output modes fold FIRST over the matched chain into `result`
  *      (tag/attrs/content/... with `next()` toward lower specificity).
  *   2. `replace(result, next→result)` — full takeover; the returned subtree is
@@ -14,11 +14,10 @@
  *   3. `wrap(result, next→result)` — the wrapper subtree resolves fresh; the
  *      wrapped original (from `next()`) already carries folded output modes.
  *   4. `def(node, next→result)` — full takeover of the node position; any
- *      BEMTree return value is resolved (RENDER-04: string/array/null/false/
- *      node all legal).
+ *      BEMTree return value (string, array, null, false or node) is resolved.
  *
  * Loop protection: inside the subtree a control mode PRODUCED, the same
- * block's control modes are suppressed for that branch. Previously suppressed
+ * block's control modes are suppressed for that branch. Already suppressed
  * blocks remain suppressed when another control mode produces a subtree.
  * `wrap(x)`→`{...x...}` self-recursion dies at depth one, while output modes,
  * other templates, and other blocks still apply to fresh nodes. Originals
@@ -185,7 +184,7 @@ function foldOutputModes(node: BemNode, matched: Template[]): BemNode {
 }
 
 /**
- * Apply the matched templates' modes under the RENDER-03 semantics:
+ * Apply the matched templates' modes:
  * output modes fold first, then the highest-priority control mode
  * (replace > wrap > def) consumes the folded node. Control modes of
  * already suppressed blocks are ignored (loop protection inside that block's own
@@ -216,8 +215,7 @@ function applyTemplates(node: BemNode, matched: Template[], suppressed: Readonly
         if (!m.modes.def || suppressed.has(m.block)) {
             continue;
         }
-        // `def` is a full takeover: its return value is a BEMTree — a node,
-        // a string, an array, `null` or `false` are all legal (RENDER-04).
+        // `def` is a full takeover: any BEMTree it returns replaces the node.
         return { node: m.modes.def(node, () => result), folded: result, controlled: true, controlSource: m.block };
     }
 

@@ -148,11 +148,11 @@ test('raw pass-through verbatim (rule 25)', () => {
     );
 });
 
-test('text content: & < > are entity-escaped (markdown-it parity)', () => {
+test('text content: & < > are entity-escaped', () => {
     assert.equal(r('a < b > c & d'), 'a &lt; b &gt; c &amp; d');
 });
 
-test('attribute value with quotes is entity-escaped (RENDER-01 parser round-trip)', () => {
+test('attribute value with quotes is entity-escaped', () => {
     // Raw `"` inside a double-quoted attribute terminates it early — the
     // serializer emits `&quot;` so the logical value survives HTML parsing.
     assert.equal(

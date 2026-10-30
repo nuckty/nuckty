@@ -122,12 +122,8 @@ async function printHelp(): Promise<void> {
     usage(commands);
 }
 
-// This module is the bin entry point only (nothing else imports it — the pure
-// `parseArgs` seam lives in `./parse-args.ts`). Run unconditionally: comparing
-// `import.meta.url` with `pathToFileURL(process.argv[1])` silently skipped
-// execution when invoked through an `node_modules/.bin` symlink, because Node
-// resolves the module by its real path while argv keeps the symlink path
-// (arch review RUNTIME-001).
+// Run unconditionally: this module is only the bin entry point, and comparing
+// `import.meta.url` with `process.argv[1]` fails behind a `node_modules/.bin` symlink.
 main().catch((err) => {
     process.stderr.write(`nuckty: ${err instanceof Error ? err.message : String(err)}\n`);
     process.exit(1);

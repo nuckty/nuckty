@@ -134,7 +134,7 @@ test('load: a .ts URL with JSX-free code transpiles to a valid ESM export', asyn
     }
 });
 
-test('resolve: a JS parent importing .js gets the REAL js file even when a .ts sibling exists (RUNTIME-007)', async () => {
+test('resolve: a JS parent importing .js gets the REAL js file even when a .ts sibling exists', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-loader-'));
     try {
         await writeFile(path.join(dir, 'mod.js'), 'export const x = 1;\n');

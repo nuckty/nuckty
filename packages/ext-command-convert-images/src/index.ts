@@ -116,10 +116,7 @@ export async function convertImages(
             hash = await md5File(img.path);
             const entry = cache[hash];
             if (entry !== undefined) {
-                // CMD-10: the cache records what was produced, but the variant
-                // may have been deleted (partial checkout, interrupted clean).
-                // Its absence means it must be regenerated — a hash key alone
-                // no longer licenses a skip.
+                // A cached hash skips only while its recorded variants still exist.
                 const missing = {
                     webp: entry.webp !== undefined && !(await fileExists(webpPath)),
                     avif: entry.avif !== undefined && !(await fileExists(avifPath)),

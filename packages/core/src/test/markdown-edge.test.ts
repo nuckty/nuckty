@@ -1,8 +1,7 @@
 /**
  * Non-trivial markdown → BemNode edge cases.
  *
- * Invariant to the parser (markdown-it was replaced by remark/unified): these
- * tests lock behavior, not internals. Covers openspec `markdown` spec
+ * These tests lock behavior, not parser internals. Covers openspec `markdown` spec
  * SHALL/WHEN/THEN beyond the basic `markdown.test.ts` contract: nested
  * tables/lists, inline emphasis/escape/breaks, 3-level anchors, heading/link
  * literals, image-in-link, raw HTML, and generic-directive fallback.
@@ -75,10 +74,10 @@ test('list: ordered with gaps keeps sequence', () => {
     assert.ok(html.includes('three'));
 });
 
-test('list: loose list (blank line between items) does NOT wrap items in <p> (markdown.js parity)', () => {
+test('list: loose list (blank line between items) does NOT wrap items in <p>', () => {
     const html = mdToHtml('- one\n\n- two\n');
     const pCount = (html.match(/<p class=article__paragraph>/g) ?? []).length;
-    assert.equal(pCount, 0, 'loose list does not wrap items in <p> (markdown.js parity)');
+    assert.equal(pCount, 0, 'loose list does not wrap items in <p>');
 });
 
 // ---- Inline: nested emphasis, breaks, escapes, autolink --------------------
@@ -146,7 +145,6 @@ test('inline: escaped asterisks render literally', () => {
 
 test('inline: autolink bare URL becomes a link', () => {
     const html = mdToHtml('see https://example.com here');
-    // markdown-it linkify:true and remark-gfm autolink-literal both linkify.
     assert.ok(html.includes('<a class=article__link href=https://example.com>https://example.com</a>'));
 });
 
@@ -228,7 +226,7 @@ test('link: mailto preserved', () => {
 
 // ---- Images (mapping, title with special chars, cyrillic alt) --------------
 
-test('image: title with quotes survives an HTML parser round-trip (RENDER-01)', () => {
+test('image: title with quotes survives an HTML parser round-trip', () => {
     // In markdown, quotes inside a title must be backslash-escaped: \"q\".
     // The LOGICAL value `A "q" title` must survive HTML parsing — the emitted
     // attribute entity-escapes the inner quotes (`&quot;`), or the attribute
@@ -336,7 +334,7 @@ test('directive: handler receives attributes parsed from the {#id .class key=val
     assert.equal(seenAttrs?.cols, '2');
 });
 
-test('postprocess: meaningful whitespace inside code/pre is preserved (Wave B)', () => {
+test('postprocess: meaningful whitespace inside code/pre is preserved', () => {
     // The whitespace/typography regexes in postprocessHtml historically
     // collapsed double spaces and `-> ` inside <pre>/<code> — silently
     // corrupting diffs, ASCII diagrams and indentation.

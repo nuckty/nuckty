@@ -1,8 +1,7 @@
 /**
  * Pure core-test selection — which `*.test.ts` files belong to the fast
- * `test:core` suite. Extracted from `config/run-core-tests.mjs` (which used to
- * hold both) so importing the selection rule in tests does not ALSO spawn the
- * test runner as a side effect of module evaluation (arch review, Wave A).
+ * `test:core` suite. Kept apart from `config/run-core-tests.mjs` so importing
+ * the rule in tests does not spawn the test runner.
  *
  * Selection rule: every `*.test.ts` under `src/test/` EXCEPT those in the
  * `src/test/integration/` directory. Integration suites (the ones that spawn

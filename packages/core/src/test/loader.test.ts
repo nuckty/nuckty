@@ -97,7 +97,7 @@ for (const name of ['probe-ext', '@author/extension']) {
     });
 }
 
-test('loader resolves a directory path through its package.json main (RUNTIME-004)', async () => {
+test('loader resolves a directory path through its package.json main', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-'));
     try {
         await mkdir(path.join(dir, 'blocks-local'), { recursive: true });

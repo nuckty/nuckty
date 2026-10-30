@@ -152,11 +152,8 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
         const breadcrumbs = urlParts.slice(0, -1).map((_, idx) =>
             `/${urlParts.slice(0, idx + 1).join('/')}`,
         );
-        // Don't clobber the canonical record of a cross-section link (it was
-        // defined in its home section first). A non-cross-section entry (a page
-        // defined under its own section) DOES overwrite — so the last definition
-        // in its home section wins for the menu name. 1:1 with build-sitemap.js
-        // :326-328 (cross-section early-return) vs :348 (non-cross overwrite).
+        // A cross-section link never replaces the page's record from its home
+        // section; within the home section the last definition names the page.
         if (crossSection && pages[fullUrl]) {
             return;
         }
@@ -212,9 +209,8 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
                     throw new Error(`Invalid sitemap line: ${item}`);
                 }
                 const fullUrl = buildFullUrl(parentUrlValue, parsed.url);
-                // Cross-section leaf with navLabel: store as `{ [url]: label }`
-                // so the menu renderer can show the alternative label instead
-                // of the canonical page name. 1:1 with build-sitemap.js:318-322.
+                // A cross-section leaf with navLabel is stored as `{ [url]: label }`
+                // so the menu can show that label instead of the page name.
                 const crossSection = isCrossSection(fullUrl, parentUrlValue);
                 if (crossSection && typeof parsed.meta['navLabel'] === 'string') {
                     const entry: Record<string, string> = {};
@@ -262,7 +258,7 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
 
     processItems(items, '', sitemap);
 
-    // Root title suffix (mirrors build-sitemap.js title generation).
+    // Every title except the home page's ends with the home page name.
     const rootPage = pages['/'];
     const rootTitle = rootPage ? rootPage.name : rootTitleFallback;
 
@@ -319,8 +315,7 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
  */
 export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<void> => {
     try {
-        // sitemap.yml comes from the TARGET's configDir (RUNTIME-005),
-        // not the project root's config/ — two targets may differ.
+        // sitemap.yml comes from the target's configDir: targets may differ.
         const sitemapPath = path.join(ctx.configDir, 'sitemap.yml');
         const sitemapContent = await fs.readFile(sitemapPath, 'utf8');
         const navigation = parseIndentedSitemap(sitemapContent);
@@ -403,11 +398,8 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
             throw failure.reason;
         }
 
-        // Cross-document + same-document anchor resolution. After every page is
-        // parsed (so all headings are known), build a githubSlug → hierarchicalAnchor
-        // map per page and rewrite `#anchor`/`<url>#anchor` link hrefs against the
-        // target page's map (1:1 with markdown.js transformAnchorLink). Forward
-        // references work because the whole file is parsed up front.
+        // With every page parsed, map GitHub slugs to hierarchical anchors per page
+        // and rewrite `#anchor` and `<url>#anchor` links against the target page.
         const anchorMaps = new Map<string, Map<string, string>>();
         for (const [u, p] of Object.entries(result.pages)) {
             anchorMaps.set(u, buildAnchorMap(p.headings));
@@ -427,7 +419,7 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
         ctx.store['sitemap'] = result;
     } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
-        throw new Error(`Sitemap generation failed: ${msg}`);
+        throw new Error(`Sitemap generation failed: ${msg}`, { cause: error });
     }
 };
 

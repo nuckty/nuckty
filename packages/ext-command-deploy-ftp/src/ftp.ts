@@ -106,8 +106,7 @@ export const SAFETY_DELETE_THRESHOLD = 0.3;
 
 /**
  * Compare using actual server file sizes from LIST, not manifest metadata.
- * Hash comparison is only checked when actual sizes match. Ports
- * `Manifest.compareWithServer` 1:1.
+ * Hash comparison is only checked when actual sizes match.
  *
  * Orphans are detected against the ACTUAL server listing (`serverFileSizes`),
  * not the remote manifest: a file that exists on the server but is missing from
@@ -297,10 +296,7 @@ async function preflightFiles(outDir: string, manifest: Manifest): Promise<Map<s
 /**
  * Load FTP auth config. Env vars take precedence: `FTP_HOST`, `FTP_USER`,
  * `FTP_PASSWORD` (or legacy `FTP_PASS`), `FTP_PATH`, optional `FTP_PORT`.
- * Falls back to `config/auth-ftp.json` under `cwd`.
- *
- * Note: the reference uses `FTP_PASS`; the spec names `FTP_PASSWORD`. Both are
- * accepted (PASSWORD preferred) so consumers can use either.
+ * Falls back to `config/auth-ftp.json` under `cwd`. `FTP_PASSWORD` wins over `FTP_PASS`.
  */
 export function loadAuthConfig(cwd: string, configPath = 'config/auth-ftp.json'): FtpAuthConfig {
     const envConfig = loadAuthFromEnv();
@@ -478,7 +474,7 @@ async function fixRemoteTimestamp(
     }
 }
 
-/** Retryable transient-error markers from the reference uploadFile. */
+/** Error message fragments of transient network failures worth a retry. */
 const RETRYABLE = ['425', 'Connection', 'timeout', 'canceled', 'aborted', 'ECONNRESET'];
 
 /**
@@ -534,9 +530,8 @@ async function uploadFile(
 
 /**
  * Recursively list files on the server. Returns a map of `path → size` (the
- * ground truth used for diffing and verification). Any failed LIST
- * is fatal (CMD-06): swallowing it produced a partial snapshot presented as
- * the full server state — every diff decision made from it is wrong.
+ * ground truth used for diffing and verification). A failed LIST is fatal:
+ * a partial snapshot would make every diff decision wrong.
  */
 async function listServerFiles(client: FtpTransport): Promise<Record<string, number>> {
     const files: Record<string, number> = Object.create(null);
@@ -571,10 +566,8 @@ async function listServerFiles(client: FtpTransport): Promise<Record<string, num
 }
 
 /**
- * Ensure the remote parent directories of `remotePath` exist before an upload
- * (CMD-03): `uploadFrom` issues a bare `STOR` and does NOT create nested
- * parents, so the first deploy of `html/a.html` fails on servers that don't
- * auto-create directories. basic-ftp's `ensureDir` CHANGES cwd into the
+ * Ensure the remote parent directories of `remotePath` exist before an upload:
+ * `uploadFrom` issues a bare `STOR` and does not create nested parents. basic-ftp's `ensureDir` CHANGES cwd into the
  * created directory, so afterwards we `cd` back to the remote root — every
  * other operation uses root-relative paths.
  */
@@ -631,8 +624,7 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
     state.stats.startTime = new Date();
 
     try {
-        // CMD-06: validate the local artifact BEFORE opening the network —
-        // a broken build must fail locally, not after connecting.
+        // Validate the local artifact before connecting, so a broken build fails locally.
         let artifactRoot: string;
         try {
             artifactRoot = await fs.realpath(opts.outDir);
@@ -663,12 +655,8 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
             console.log(`Connected to FTP server: ${auth.host}`);
         }
 
-        // Ground-truth server sizes via LIST (always — even dry-run — so orphan
-        // detection reflects the real server state). A denied/failed LIST used
-        // to silently yield an EMPTY diff input — the deploy would then plan
-        // every local file as "new" and, worse, treat every existing remote
-        // file as untouched. Abort instead (CMD-06): a deploy must not plan
-        // against a snapshot it knows is incomplete.
+        // Server sizes come from LIST, also in dry-run, so orphan detection
+        // reflects the real server state; a failed LIST aborts the deploy.
         if (progress) {
             console.log('Scanning server files...');
         }
@@ -711,8 +699,7 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
             await state.client!.remove(MANIFEST_FILE);
         }
 
-        // Upload changed/new files. First upload into each remote directory
-        // creates it (CMD-03): `uploadFrom` does not create parents.
+        // Upload changed and new files, creating each remote directory first.
         const ensuredDirs = new Set<string>();
         for (const item of comparison.toUpload) {
             const localPath = fileMap.get(item.path);
@@ -872,13 +859,10 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
                 console.log(`All ${localFileCount} files verified`);
             }
 
-            // Commit rule (arch review, Wave A): the manifest is the record of
-            // "these uploads are done". Uploading it despite upload/delete
-            // errors would mark failed files as deployed — size-based
-            // verification cannot catch a same-size failure, and the next run
-            // would diff against the committed manifest and skip the retry.
-            // Refuse to upload it when anything failed; the old remote manifest
-            // was removed before the first change, so the next deploy re-uploads.
+            // The manifest records completed uploads. After any upload or delete
+            // error it is not uploaded: a same-size failure would otherwise be
+            // skipped by the next diff. The old remote manifest was removed
+            // before the first change, so the next deploy re-uploads.
             if (state.stats.errors > 0) {
                 throw new Error(
                     `Manifest not uploaded: ${state.stats.errors} error(s) during ` +

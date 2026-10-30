@@ -1,4 +1,3 @@
-import { markdownCollection } from './helpers/markdown.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
@@ -10,6 +9,7 @@ import { postprocessHtml } from '../markdown/html-postprocess.js';
 import { render } from '../bem/render.js';
 import { runBuild } from './helpers/build.js';
 import { parseIndentedSitemap, processSitemap } from '../stages/sitemap.js';
+import { markdownCollection } from './helpers/markdown.js';
 
 function html(source: string, options: Parameters<typeof createMarkdown>[0]): string {
     return render(createMarkdown(options).render(source).tree, { templates: markdownCollection() });
@@ -29,7 +29,7 @@ test('content references: source-relative links do not depend on the content dir
     }
 });
 
-test('content references: legacy inputPath and standalone sourceFile are supported', () => {
+test('content references: inputPath and standalone sourceFile are supported', () => {
     const mapping = { 'docs/other.md': '/other' };
 
     assert.ok(html('[go](../other.md)', { inputPath: './external/repo/docs/sub/page.md', md2url: mapping }).includes('href=/other'));

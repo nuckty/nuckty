@@ -318,10 +318,7 @@ async function validate(args: CommandArgs): Promise<number> {
         return 1;
     }
 
-    // CMD-14: resolve the target the same way build/serve do instead of
-    // always reading `cwd/site/html`. A wrong target name must fail before
-    // any validation, not silently check the default artifact; a custom
-    // outDir is honored; nested HTML files are included per spec.
+    // Resolve the target like build and serve; an unknown name fails before validation.
     let outDir: string;
     let targetName: string;
     try {

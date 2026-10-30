@@ -29,9 +29,7 @@ import { fileURLToPath } from 'node:url';
  * Resolve hook: rewrite a relative `.js` import to its `.ts` sibling ONLY when
  * (a) the importing module is itself a `.ts` file (the NodeNext authoring
  * convention this hook exists for), and (b) the literal `.js` does NOT exist
- * on disk. A parent `.js` module importing `./mod.js` must get the real
- * JavaScript — the old hook substituted a `.ts` neighbor even for compiled
- * parents and even when the `.js` existed (RUNTIME-007).
+ * on disk, so a `.js` parent importing `./mod.js` always gets the real JavaScript.
  */
 export async function resolve(
     specifier: string,
