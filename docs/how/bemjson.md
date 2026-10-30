@@ -55,7 +55,7 @@ block + elem + elemMods     → 'menu__item_active'
 mix                         → another block's classes: 'menu__item button'
 ```
 
-The separators are the standard BEM ones: `__` before an element, `_` before a modifier. There is one naming scheme, with no variants. The exported `classicPreset` is immutable; changing the engine separators through it is unsupported.
+The separators are the standard BEM ones: `__` before an element, `_` before a modifier. There is one naming scheme, with no variants.
 
 ### Two special fields
 

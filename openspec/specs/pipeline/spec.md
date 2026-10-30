@@ -32,7 +32,7 @@ The pipeline SHALL expose `before(stage, fn)`, `after(stage, fn)`, and `register
 - **AND** the consumer did not edit engine source
 
 ### Requirement: Build context
-Stages SHALL receive ctx.cwd, ctx.configDir, ctx.buildDir, ctx.outDir and ctx.store. The shared buildDir SHALL hold intermediates and the last built target’s nginx.conf; preview uses its separate nginx-serve.conf. The outDir SHALL hold the target artifact. The store SHALL carry stage results such as sitemap, images and bundle hashes.
+Stages SHALL receive ctx.cwd, ctx.configDir, ctx.buildDir, ctx.outDir and ctx.store. The shared buildDir SHALL hold intermediates and the last built target’s nginx.conf; previews keep their own configuration under `serve/<target>/`. The outDir SHALL hold the target artifact. The store SHALL carry stage results such as sitemap, images and bundle hashes.
 
 #### Scenario: Context separates build and output dirs
 - **WHEN** the hosting finalizers run

@@ -132,7 +132,7 @@ Before client initialization, the consumer SHALL expose ordinary mobile navigati
 #### Scenario: Scripts do not execute
 - **WHEN** page scripts are unavailable or blocked
 - **THEN** readers can follow the main navigation and section-index links
-- **AND** inactive search, theme and menu buttons are hidden
+- **AND** inactive theme and menu buttons are hidden
 
 #### Scenario: Scripts initialize
 - **WHEN** navigation handlers are installed

@@ -92,7 +92,7 @@ site/ (outDir, deployed)
 └── nginx.conf         ← generated nginx configuration; not needed on shared hosting
 ```
 
-Apache reads `.htaccess` from `outDir`. `nginx.conf` is separate in `buildDir`; the preview extension generates its own `.build/nginx-serve.conf` and does not automatically use hooks that changed the build file.
+Apache reads `.htaccess` from `outDir`. `nginx.conf` is separate in `buildDir`; the preview extension generates its own `.build/serve/<target>/nginx.conf` and does not automatically use hooks that changed the build file.
 
 A public `.txt` file emitted by an extension is served as `text/plain`, using its accepted Brotli or Gzip copy when available. Nested text files use the flat compressed basename; colliding basenames fail during compression. `robots.txt` remains uncompressed. If no text artifact occupies a dotted page address, its HTML page still uses ordinary page routing.
 

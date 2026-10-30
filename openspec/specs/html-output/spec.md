@@ -64,7 +64,7 @@ BEMJSON attribute values SHALL carry their logical, unescaped values. The serial
 - **AND** setting `bem:false` suppresses BEM and mix classes and data-bem, while preserving explicit `cls`
 
 ### Requirement: Closing-tag omission
-The serializer SHALL apply HTML optional-end-tag rules to html, head, body, li, dt, dd, p, rt, rp, optgroup, option, colgroup, caption, thead, tbody, tfoot, tr, td and th in their HTML contexts. All lists SHALL use the same HTML rules regardless of block names or the legacy tightList field. Nested arrays and tag-false fragments SHALL participate in sibling lookahead. Omission SHALL preserve parsed structure, attributes, literal whitespace and comment placement; foreign elements SHALL retain their required tags. Document-formatting newlines SHALL not be absorbed into a final paragraph.
+The serializer SHALL apply HTML optional-end-tag rules to html, head, body, li, dt, dd, p, rt, rp, optgroup, option, colgroup, caption, thead, tbody, tfoot, tr, td and th in their HTML contexts. All lists SHALL use the same HTML rules regardless of block names. Nested arrays and tag-false fragments SHALL participate in sibling lookahead. Omission SHALL preserve parsed structure, attributes, literal whitespace and comment placement; foreign elements SHALL retain their required tags. Document-formatting newlines SHALL not be absorbed into a final paragraph.
 
 #### Scenario: Optional list and definition tags
 - **WHEN** li, dt/dd, rt/rp or option/optgroup are followed by an eligible peer or reach an allowed parent tail
