@@ -180,6 +180,8 @@ export async function killNginxByPid(options: StopOptions = {}): Promise<'absent
     }
 }
 
+const NGINX_MISSING = 'nginx not found on PATH. Install nginx to use `nuckty serve`.';
+
 /** Resolve the nginx binary on PATH, throwing a clear message if missing. */
 function resolveNginxBin(): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -191,19 +193,11 @@ function resolveNginxBin(): Promise<string> {
             if (code === 0 && bin) {
                 resolve(bin);
             } else {
-                reject(
-                    new Error(
-                        'nuckty: nginx not found on PATH. Install nginx to use `nuckty serve`.',
-                    ),
-                );
+                reject(new Error(NGINX_MISSING));
             }
         });
         p.on('error', () => {
-            reject(
-                new Error(
-                    'nuckty: nginx not found on PATH. Install nginx to use `nuckty serve`.',
-                ),
-            );
+            reject(new Error(NGINX_MISSING));
         });
     });
 }

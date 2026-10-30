@@ -321,7 +321,7 @@ test('CLI build <unknown-target> exits 1 with an actionable stderr naming known 
     try {
         const { stderr, code } = await runNuckty(['build', 'ghost'], dir);
         assert.equal(code, 1);
-        assert.match(stderr, /unknown target "ghost"/, 'stderr names the unknown target');
+        assert.match(stderr, /^nuckty: unknown target "ghost"/, 'stderr names the unknown target after one prefix');
         assert.match(stderr, /default, extra/, 'stderr lists the known targets');
     } finally {
         await rm(dir, { recursive: true, force: true });

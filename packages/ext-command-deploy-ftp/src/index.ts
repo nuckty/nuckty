@@ -65,7 +65,7 @@ export function resolveOutDir(
 ): string {
     const t = resolveTarget({ ...config, targets: config.targets ?? {} }, target);
     if (typeof t.outDir !== 'string' || t.outDir.trim() === '') {
-        throw new Error(`nuckty: target "${t.name}" must declare a nonempty outDir`);
+        throw new Error(`target "${t.name}" must declare a nonempty outDir`);
     }
 
     return path.resolve(cwd, t.outDir);

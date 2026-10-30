@@ -131,8 +131,9 @@ async function printHelp(): Promise<void> {
 
 // Run unconditionally: this module is only the bin entry point, and comparing
 // `import.meta.url` with `process.argv[1]` fails behind a `node_modules/.bin` symlink.
+// Engine errors may already name the tool; print the prefix once.
 main().catch((err) => {
-    process.stderr.write(`nuckty: ${err instanceof Error ? err.message : String(err)}\n`);
+    process.stderr.write(`nuckty: ${(err instanceof Error ? err.message : String(err)).replace(/^nuckty: /, '')}\n`);
     process.exit(1);
 });
 
