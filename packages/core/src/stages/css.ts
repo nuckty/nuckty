@@ -75,15 +75,19 @@ function rewriteCssUrls(css: string, tokens: CssUrlToken[], replacement: (value:
     return result;
 }
 
+/** Escape a value for a double-quoted CSS string. */
+function cssString(value: string): string {
+    return value.replace(/["\\\n\r\f]/g, character => character === '"' || character === '\\'
+        ? `\\${character}`
+        : `\\${character.charCodeAt(0).toString(16)} `);
+}
+
 function cssUrl(value: string): string {
     if (!/[\s"'()\\]/.test(value)) {
         return `url(${value})`;
     }
-    const escaped = value.replace(/["\\\n\r\f]/g, character => character === '"' || character === '\\'
-        ? `\\${character}`
-        : `\\${character.charCodeAt(0).toString(16)} `);
 
-    return `url("${escaped}")`;
+    return `url("${cssString(value)}")`;
 }
 
 export async function processImageReferences(css: string, imageMapping: Record<string, string>): Promise<string> {
@@ -125,9 +129,6 @@ export async function inlineHashedSVGs(css: string, siteDir: string): Promise<st
     const uniqueSvgFiles = new Set(tokens.map(token => token.value).filter(value => /^\/[a-f0-9]{16}\.svg$/.test(value)).map(value => value.slice(1)));
     const processed = new Map<string, string>();
     for (const hashedFilename of uniqueSvgFiles) {
-        if (processed.has(hashedFilename)) {
-            continue;
-        }
         try {
             const svgPath = path.join(siteDir, 'svg', hashedFilename);
             const svgContent = await fs.readFile(svgPath, 'utf8');
@@ -164,9 +165,7 @@ async function buildBundle(ctx: BuildContext, bundle: string, files: string[], i
     if (files.length === 0) {
         return null;
     }
-    const imports = files.map((file) => `@import "${file.replace(/["\\\n\r\f]/g, (character) => (character === '"' || character === '\\'
-        ? `\\${character}`
-        : `\\${character.charCodeAt(0).toString(16)} `))}";\n`).join('');
+    const imports = files.map((file) => `@import "${cssString(file)}";\n`).join('');
     const entry = await resolveBuildFile(ctx.buildDir, `${bundle}.css`);
     await fs.writeFile(entry, imports);
 
