@@ -133,13 +133,21 @@ export function createRemarkMarkdown(opts: RemarkOptions = {}): {
             slugifyOpts: opts.slugify ?? {},
             directiveMappings: opts.directiveMappings,
         };
-        if (opts.baseUrl !== undefined) env.baseUrl = opts.baseUrl;
-        if (opts.inputPath !== undefined) env.inputPath = opts.inputPath;
+        if (opts.baseUrl !== undefined) {
+            env.baseUrl = opts.baseUrl;
+        }
+        if (opts.inputPath !== undefined) {
+            env.inputPath = opts.inputPath;
+        }
         if (opts.sourceFile !== undefined) {
             env.sourceFile = opts.sourceFile;
         }
-        if (opts.githubRawBase !== undefined) env.githubRawBase = opts.githubRawBase;
-        if (opts.downloads !== undefined) env.downloads = opts.downloads;
+        if (opts.githubRawBase !== undefined) {
+            env.githubRawBase = opts.githubRawBase;
+        }
+        if (opts.downloads !== undefined) {
+            env.downloads = opts.downloads;
+        }
         const nodes = blocksToBem(tree.children, env, false);
         return { tree: nodes, headings: env.headings };
     };
@@ -219,9 +227,13 @@ function blocksToBem(
             case 'containerDirective': {
                 const d = node as unknown as { children?: Root['children']; name: string; attributes?: Record<string, string> };
                 const rendered = invokeDirective(d, 'containerDirective', env);
-                if (rendered) out.push(rendered);
+                if (rendered) {
+                    out.push(rendered);
+                }
                 else if (d.children && d.children.length > 0) {
-                    for (const c of blocksToBem(d.children, env, false)) out.push(c);
+                    for (const c of blocksToBem(d.children, env, false)) {
+                        out.push(c);
+                    }
                 }
                 break;
             }
@@ -230,7 +242,9 @@ function blocksToBem(
             case 'leafDirective': {
                 const d = node as unknown as { children?: Root['children']; name: string; attributes?: Record<string, string> };
                 const rendered = invokeDirective(d, 'leafDirective', env);
-                if (rendered) out.push(rendered);
+                if (rendered) {
+                    out.push(rendered);
+                }
                 else if (d.children && d.children.length > 0) {
                     // The label is phrasing content: render it as the paragraph it stands in for.
                     out.push(...blocksToBem([{ type: 'paragraph', children: d.children as unknown as PhrasingContent[] }], env, insideListItem));
@@ -285,7 +299,9 @@ function invokeDirective(
     env: BridgeEnv,
 ): BemNode | null {
     const handler = env.directiveMappings?.get(node.name);
-    if (!handler) return null;
+    if (!handler) {
+        return null;
+    }
     const headings = env.headings.length;
     const generatedIds = new Set(env.generatedIds);
     const headingStack = [...env.headingStack];
@@ -405,11 +421,7 @@ function rowToBem(row: TableRow, env: BridgeEnv, isHeader: boolean, align: Table
     const cells: BemNode[] = [];
     for (const [index, cell] of row.children.entries()) {
         const elemMods = isHeader ? { header: true } : {};
-        // markdown-it trims leading/trailing whitespace in table cells, INCLUDING
-        // U+00A0 (nbsp). remark-gfm does NOT (it keeps nbsp in the text value, so
-        // typography's ` — ` → ` — ` survives in the cell). To match golden
-        // (`<td class=article__table-cell>—`), trim whitespace + nbsp off the
-        // first/last string child of the cell.
+        // remark-gfm keeps U+00A0 at cell edges; trim it like other whitespace.
         const content = trimCellEdges(phrasingToBem(cell.children, env));
         cells.push({
             tag: isHeader ? 'th' : 'td',
@@ -564,7 +576,9 @@ function imageToBem(node: Image, env: BridgeEnv): BemNode {
     const title = node.title ?? undefined;
     const resolved = transformImagePathShared(src, env);
     const attrs: Record<string, string> = { src: resolved, alt };
-    if (title) attrs.title = title;
+    if (title) {
+        attrs.title = title;
+    }
     return { tag: 'img', block: 'article', elem: 'image', attrs };
 }
 
@@ -596,7 +610,9 @@ function matchRawBase(href: string, bases: string[]): string | null {
  * more literal URL prefixes); the rewrite is a no-op when `base` is absent.
  */
 function transformAssetLinkPath(href: string, base: string | string[] | null | undefined): string {
-    if (!href) return href;
+    if (!href) {
+        return href;
+    }
     const filename = matchRawBase(href, rawBases(base));
     return filename !== null ? `/${filename}` : href;
 }
@@ -700,7 +716,9 @@ function commonPrefixSegments(a: string, b: string): number {
     const pa = a.split('/');
     const pb = b.split('/');
     let i = 0;
-    while (i < pa.length && i < pb.length && pa[i] === pb[i]) i++;
+    while (i < pa.length && i < pb.length && pa[i] === pb[i]) {
+        i++;
+    }
     return i;
 }
 
@@ -721,7 +739,9 @@ function resolveHeading(
     if (anchor && env.generatedIds.has(anchor)) {
         throw new Error(`Duplicate heading ID: "${working}" generates "${anchor}"`);
     }
-    if (anchor) env.generatedIds.add(anchor);
+    if (anchor) {
+        env.generatedIds.add(anchor);
+    }
     // `rawText` is the heading text without the custom `{#id}` suffix but
     // WITH the numbered prefix (`12. Foo`), as written in the source — the
     // anchor map keys on `createGitHubSlug(rawText)` so source links carrying

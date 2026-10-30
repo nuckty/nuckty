@@ -25,10 +25,14 @@ export function resolveGitBin(
     isWin: boolean = IS_WIN,
 ): string {
     for (const dir of envPath.split(delimiter)) {
-        if (!dir) continue;
+        if (!dir) {
+            continue;
+        }
         for (const name of ['git', 'git.exe']) {
             const candidate = path.join(dir, name);
-            if (isExecutableFile(candidate, isWin)) return candidate;
+            if (isExecutableFile(candidate, isWin)) {
+                return candidate;
+            }
         }
     }
     return 'git';
@@ -42,9 +46,15 @@ export function resolveGitBin(
  */
 function isExecutableFile(p: string, isWin: boolean): boolean {
     try {
-        if (!existsSync(p)) return false;
-        if (!statSync(p).isFile()) return false;
-        if (isWin) return true;
+        if (!existsSync(p)) {
+            return false;
+        }
+        if (!statSync(p).isFile()) {
+            return false;
+        }
+        if (isWin) {
+            return true;
+        }
         accessSync(p, constants.X_OK);
         return true;
     } catch {

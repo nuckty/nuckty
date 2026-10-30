@@ -15,7 +15,9 @@ async function collectMarkdown(directory) {
     const files = [];
     for (const entry of entries) {
         if (entry.isDirectory()) {
-            if (!ignored.has(entry.name)) files.push(...await collectMarkdown(path.join(directory, entry.name)));
+            if (!ignored.has(entry.name)) {
+                files.push(...await collectMarkdown(path.join(directory, entry.name)));
+            }
         } else if (entry.isFile() && entry.name.endsWith('.md') && !excludedFiles.has(entry.name)) {
             files.push(path.join(directory, entry.name));
         }
@@ -33,7 +35,9 @@ function sourceSegments(markdown) {
         if (fenceChar === null) {
             const opening = line.match(/^ {0,3}(`{3,}|~{3,})/);
             if (opening) {
-                if (prose.length > 0) segments.push(prose.join(''));
+                if (prose.length > 0) {
+                    segments.push(prose.join(''));
+                }
                 prose = [];
                 fenceChar = opening[1][0];
                 fenceLength = opening[1].length;
@@ -48,7 +52,9 @@ function sourceSegments(markdown) {
             }
         }
     }
-    if (prose.length > 0) segments.push(prose.join(''));
+    if (prose.length > 0) {
+        segments.push(prose.join(''));
+    }
     return segments;
 }
 
@@ -61,7 +67,9 @@ function maskInlineCode(text) {
             continue;
         }
         let runEnd = cursor + 1;
-        while (text[runEnd] === '`') runEnd += 1;
+        while (text[runEnd] === '`') {
+            runEnd += 1;
+        }
         const run = '`'.repeat(runEnd - cursor);
         const closingRun = new RegExp('(?<!`)' + run + '(?!`)', 'g');
         closingRun.lastIndex = runEnd;
@@ -71,7 +79,9 @@ function maskInlineCode(text) {
             continue;
         }
         for (let i = cursor; i < closingRun.lastIndex; i += 1) {
-            if (masked[i] !== '\n' && masked[i] !== '\r') masked[i] = ' ';
+            if (masked[i] !== '\n' && masked[i] !== '\r') {
+                masked[i] = ' ';
+            }
         }
         cursor = closingRun.lastIndex;
     }
@@ -91,9 +101,13 @@ async function checkFile(file) {
                 issues.push(`${relativeFile}: root-relative documentation link remains: ${destination}`);
                 continue;
             }
-            if (/^[a-z][a-z\d+.-]*:/i.test(destination) || destination.startsWith('#')) continue;
+            if (/^[a-z][a-z\d+.-]*:/i.test(destination) || destination.startsWith('#')) {
+                continue;
+            }
             const sourcePath = destination.split(/[?#]/, 1)[0];
-            if (!/\.md$/i.test(sourcePath)) continue;
+            if (!/\.md$/i.test(sourcePath)) {
+                continue;
+            }
             let decodedPath;
             try {
                 decodedPath = decodeURIComponent(sourcePath);
@@ -108,7 +122,9 @@ async function checkFile(file) {
                 continue;
             }
             try {
-                if (!(await stat(target)).isFile()) throw new Error('not a file');
+                if (!(await stat(target)).isFile()) {
+                    throw new Error('not a file');
+                }
                 linksChecked += 1;
             } catch {
                 issues.push(`${relativeFile}: Markdown source target does not exist: ${destination}`);
@@ -117,7 +133,9 @@ async function checkFile(file) {
     }
 }
 
-for (const file of await collectMarkdown(root)) await checkFile(file);
+for (const file of await collectMarkdown(root)) {
+    await checkFile(file);
+}
 
 if (issues.length > 0) {
     process.stderr.write(`${issues.join('\n')}\n`);

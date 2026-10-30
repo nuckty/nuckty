@@ -38,7 +38,9 @@ export interface GalleryImage {
 export function extractImages(children: MdastNode[]): GalleryImage[] {
     const images: GalleryImage[] = [];
     const push = (node: MdastNode): void => {
-        if (node.url) images.push({ src: node.url, alt: node.alt ?? '' });
+        if (node.url) {
+            images.push({ src: node.url, alt: node.alt ?? '' });
+        }
     };
     const reject = (node: MdastNode): never => {
         throw new Error(`Gallery supports images only; received ${node.type}`);
@@ -76,7 +78,9 @@ export function galleryNode(images: GalleryImage[], env: ImageMappingEnv, opts: 
     const content: BemNode[] = images.map((image, i) => {
         const src = transformImagePathShared(image.src, env);
         const imgAttrs: Record<string, string> = { src, alt: image.alt };
-        if (i > 0) imgAttrs.loading = 'lazy';
+        if (i > 0) {
+            imgAttrs.loading = 'lazy';
+        }
         return {
             block: 'gallery',
             elem: 'item',

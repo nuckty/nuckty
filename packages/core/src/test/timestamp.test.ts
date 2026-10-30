@@ -30,7 +30,9 @@ const execFileAsync = promisify(execFile);
  */
 function resolveGit(): string {
     for (const candidate of ['/usr/bin/git', '/usr/local/bin/git', '/opt/homebrew/bin/git']) {
-        if (existsSync(candidate)) return candidate;
+        if (existsSync(candidate)) {
+            return candidate;
+        }
     }
     return 'git';
 }
@@ -52,7 +54,9 @@ const GIT_BIN = resolveGit();
  */
 async function git(args: string[], cwd: string, commitDate?: string): Promise<void> {
     const env: NodeJS.ProcessEnv = { ...process.env };
-    if (commitDate) env.GIT_COMMITTER_DATE = commitDate;
+    if (commitDate) {
+        env.GIT_COMMITTER_DATE = commitDate;
+    }
     await execFileAsync(GIT_BIN, ['-c', 'user.name=t', '-c', 'user.email=t@t', ...args], {
         cwd,
         env,

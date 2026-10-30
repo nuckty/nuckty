@@ -116,7 +116,9 @@ export function resolveAlternates(
     titleByTarget?: Record<string, string>,
 ): Alternates {
     const out: Alternates = new Map();
-    if (!current.group) return out;
+    if (!current.group) {
+        return out;
+    }
     const currentLanguage = current.lang?.toLowerCase();
     const siblings = all.filter(
         (t) => t.group === current.group && t.name !== current.name && t.lang && t.lang.toLowerCase() !== currentLanguage && t.host,

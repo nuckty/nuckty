@@ -16,11 +16,9 @@
         "../src/markdown/**/*.ts",
         "../src/pipeline/**/*.ts",
         "../src/env/**/*.ts",
-        "../src/validate/**/*.ts",
         "../src/targets/**/*.ts",
         "../src/utils/**/*.ts",
-        "../src/stages/**/*.ts",
-        "../src/types/**/*.d.ts"
+        "../src/stages/**/*.ts"
     ],
     "exclude": ["../src/test/**/*.ts"]
 }

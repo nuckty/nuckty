@@ -18,8 +18,12 @@ export function serialize(tree: BEMTree): string {
 }
 
 function serializeNode(tree: BEMTree, parentBlock: string): string {
-    if (tree === null || tree === undefined || tree === false) return '';
-    if (typeof tree === 'string') return escapeText(tree);
+    if (tree === null || tree === undefined || tree === false) {
+        return '';
+    }
+    if (typeof tree === 'string') {
+        return escapeText(tree);
+    }
     if (Array.isArray(tree)) {
         return tree.map((child) => serializeNode(child, parentBlock)).join('');
     }
@@ -27,7 +31,9 @@ function serializeNode(tree: BEMTree, parentBlock: string): string {
     const node = tree as BemNode;
 
     // Raw trusted string: emit verbatim, no escaping, no minimization.
-    if (node.raw !== undefined) return node.raw;
+    if (node.raw !== undefined) {
+        return node.raw;
+    }
 
     // Default the tag. `false` means render only content (no wrapper).
     const tag = node.tag === false ? null : (node.tag ?? 'div');
@@ -40,7 +46,9 @@ function serializeNode(tree: BEMTree, parentBlock: string): string {
     // Content first (so `tag:false` and void elements still emit children/attrs consistently).
     const inner = serializeNode(node.content ?? null, block);
 
-    if (!tag) return inner;
+    if (!tag) {
+        return inner;
+    }
 
     // Tag with `tag` but no block and no class-yielding fields: still emit the tag.
     const cls = classify(nodeWithBlock);
@@ -60,7 +68,9 @@ function serializeAttrs(attrs: AttrMap | undefined, js: BemNode['js'], node: Bem
 
     if (attrs) {
         for (const [name, val] of Object.entries(attrs)) {
-            if (val === null || val === undefined || val === false) continue;
+            if (val === null || val === undefined || val === false) {
+                continue;
+            }
             if (val === true || BOOLEAN_ATTRS.has(normalizeHtmlName(name))) {
                 parts.push(` ${name}`);
             } else {

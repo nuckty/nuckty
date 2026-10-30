@@ -158,11 +158,15 @@ function fakeRunner(failOn?: string): GitRunner & { calls: Array<{ kind: string;
         calls,
         async clone(url, dir, options) {
             calls.push({ kind: 'clone', url, dir, ...(options ? { options } : {}) });
-            if (failOn !== undefined && dir.endsWith(failOn)) throw new Error('boom');
+            if (failOn !== undefined && dir.endsWith(failOn)) {
+                throw new Error('boom');
+            }
         },
         async update(dir, _url, options) {
             calls.push({ kind: 'update', dir, ...(options ? { options } : {}) });
-            if (failOn !== undefined && dir.endsWith(failOn)) throw new Error('boom');
+            if (failOn !== undefined && dir.endsWith(failOn)) {
+                throw new Error('boom');
+            }
         },
     };
 }

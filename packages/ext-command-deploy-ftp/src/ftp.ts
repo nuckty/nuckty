@@ -172,7 +172,9 @@ export function shouldSafetyAbort(
     serverFileCount: number,
     threshold: number = SAFETY_DELETE_THRESHOLD,
 ): boolean {
-    if (serverFileCount <= 0) return false;
+    if (serverFileCount <= 0) {
+        return false;
+    }
     return totalToDelete > serverFileCount * threshold;
 }
 
@@ -327,7 +329,9 @@ export function getAllFiles(dirPath: string, basePath = ''): Array<{ local: stri
  */
 export function loadAuthConfig(cwd: string, configPath = 'config/auth-ftp.json'): FtpAuthConfig {
     const envConfig = loadAuthFromEnv();
-    if (envConfig) return envConfig;
+    if (envConfig) {
+        return envConfig;
+    }
 
     const absConfigPath = path.join(cwd, configPath);
     if (!existsSync(absConfigPath)) {
@@ -501,7 +505,9 @@ async function uploadFile(
     retryCount = 0,
 ): Promise<boolean> {
     const client = state.client;
-    if (!client) return false;
+    if (!client) {
+        return false;
+    }
     if (!existsSync(localPath)) {
         state.stats.errors++;
         return false;
@@ -515,7 +521,9 @@ async function uploadFile(
         await fixRemoteTimestamp(client, remotePath, localPath);
         state.stats.uploaded++;
         state.stats.totalSize += size;
-        if (remotePath.endsWith('.zip')) state.stats.zipUploaded++;
+        if (remotePath.endsWith('.zip')) {
+            state.stats.zipUploaded++;
+        }
         return true;
     } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -558,7 +566,9 @@ async function listServerFiles(client: FtpTransport): Promise<Record<string, num
             throw new Error(`Cannot list remote directory ${dirPath} (${msg}) — incomplete server snapshot`);
         }
         for (const item of list) {
-            if (item.name === '.' || item.name === '..') continue;
+            if (item.name === '.' || item.name === '..') {
+                continue;
+            }
             if (!item.name || /[\\/\x00-\x1f\x7f]/.test(item.name) || !Number.isFinite(item.size) || item.size < 0) {
                 throw new Error(`Invalid remote listing entry in ${dirPath}`);
             }
@@ -589,7 +599,9 @@ async function ensureRemoteDir(
     ensuredDirs: Set<string>,
     remoteRoot: string,
 ): Promise<void> {
-    if (!remoteDir || ensuredDirs.has(remoteDir)) return;
+    if (!remoteDir || ensuredDirs.has(remoteDir)) {
+        return;
+    }
     await client.cd(remoteRoot);
     await client.ensureDir(remoteDir);
     await client.cd(remoteRoot);
@@ -652,12 +664,16 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
         }
         const fileMap = await preflightFiles(artifactRoot, localManifest);
 
-        if (progress) console.log(`Local: ${localFileCount} files`);
+        if (progress) {
+            console.log(`Local: ${localFileCount} files`);
+        }
 
         await initClient(state);
         const remoteRoot = await state.client!.pwd();
 
-        if (progress) console.log(`Connected to FTP server: ${auth.host}`);
+        if (progress) {
+            console.log(`Connected to FTP server: ${auth.host}`);
+        }
 
         // Ground-truth server sizes via LIST (always — even dry-run — so orphan
         // detection reflects the real server state). A denied/failed LIST used
@@ -665,7 +681,9 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
         // every local file as "new" and, worse, treat every existing remote
         // file as untouched. Abort instead (CMD-06): a deploy must not plan
         // against a snapshot it knows is incomplete.
-        if (progress) console.log('Scanning server files...');
+        if (progress) {
+            console.log('Scanning server files...');
+        }
         const serverFiles = await listServerFiles(state.client!);
 
         const noServerManifest = !Object.hasOwn(serverFiles, MANIFEST_FILE);
@@ -711,7 +729,9 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
         for (const item of comparison.toUpload) {
             const localPath = fileMap.get(item.path);
             if (!localPath) {
-                if (progress) console.error(`Error: File not found: ${item.path}`);
+                if (progress) {
+                    console.error(`Error: File not found: ${item.path}`);
+                }
                 state.stats.errors++;
                 continue;
             }
@@ -746,7 +766,9 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
             if (progress) {
                 const action = dryRun ? 'Would delete' : 'Deleting';
                 console.log(`\n${action} ${comparison.totalToDelete} orphaned files...`);
-                for (const f of comparison.toDelete) console.log(`  ${f}`);
+                for (const f of comparison.toDelete) {
+                    console.log(`  ${f}`);
+                }
             }
             if (!dryRun) {
                 const client = state.client!;
@@ -754,7 +776,9 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
                     try {
                         await client.remove(filePath);
                         state.stats.deleted++;
-                        if (progress) process.stdout.write(`Deleted: ${filePath}\r`);
+                        if (progress) {
+                            process.stdout.write(`Deleted: ${filePath}\r`);
+                        }
                     } catch (err) {
                         state.stats.errors++;
                         if (progress) {
@@ -768,7 +792,9 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
 
         // Verify via LIST, retry failed uploads, then upload the manifest LAST.
         if (!dryRun) {
-            if (progress) console.log('Verifying files on server...');
+            if (progress) {
+                console.log('Verifying files on server...');
+            }
             const verifyFiles = await listServerFiles(state.client!);
             for (const deleted of comparison.toDelete) {
                 if (Object.hasOwn(verifyFiles, deleted)) {
@@ -780,7 +806,9 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
                 const remoteSize = verifyFiles[filePath];
                 if (remoteSize === undefined) {
                     failedFiles.push({ path: filePath, reason: 'missing' });
-                    if (progress) console.error(`  VERIFY FAILED: ${filePath} not found on server`);
+                    if (progress) {
+                        console.error(`  VERIFY FAILED: ${filePath} not found on server`);
+                    }
                 } else if (remoteSize !== info.size) {
                     failedFiles.push({ path: filePath, reason: 'size mismatch' });
                     if (progress) {
@@ -794,10 +822,14 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
                 }
             }
             const ok = localFileCount - failedFiles.length;
-            if (progress) console.log(`  Verified: ${ok}, Failed: ${failedFiles.length}`);
+            if (progress) {
+                console.log(`  Verified: ${ok}, Failed: ${failedFiles.length}`);
+            }
 
             if (failedFiles.length > 0) {
-                if (progress) console.log(`Retrying ${failedFiles.length} failed files...`);
+                if (progress) {
+                    console.log(`Retrying ${failedFiles.length} failed files...`);
+                }
                 for (const fail of failedFiles) {
                     const localPath = fileMap.get(fail.path);
                     if (!localPath) {
@@ -812,7 +844,9 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
                     await uploadFile(state, localPath, fail.path, progress);
                 }
 
-                if (progress) console.log('Re-verifying...');
+                if (progress) {
+                    console.log('Re-verifying...');
+                }
                 const reverifyFiles = await listServerFiles(state.client!);
                 let stillMissing = 0;
                 let stillMismatch = 0;
@@ -821,7 +855,9 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
                     const remoteSize = reverifyFiles[fail.path];
                     if (remoteSize === undefined) {
                         stillMissing++;
-                        if (progress) console.error(`  STILL FAILED: ${fail.path} not found on server`);
+                        if (progress) {
+                            console.error(`  STILL FAILED: ${fail.path} not found on server`);
+                        }
                     } else if (info && remoteSize !== info.size) {
                         stillMismatch++;
                         if (progress) {
@@ -841,7 +877,9 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
                             `${stillMismatch} size mismatch`,
                     );
                 }
-                if (progress) console.log(`All ${failedFiles.length} retried files verified`);
+                if (progress) {
+                    console.log(`All ${failedFiles.length} retried files verified`);
+                }
             } else if (progress) {
                 console.log(`All ${localFileCount} files verified`);
             }
@@ -869,11 +907,15 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
             if (!(await uploadFile(state, finalManifestPath, MANIFEST_FILE, false))) {
                 throw new Error('Manifest upload failed — deploy not committed');
             }
-            if (progress) console.log('Manifest uploaded');
+            if (progress) {
+                console.log('Manifest uploaded');
+            }
         }
 
         state.stats.endTime = new Date();
-        if (progress) printSummary(state.stats, dryRun);
+        if (progress) {
+            printSummary(state.stats, dryRun);
+        }
 
         return { stats: state.stats, comparison };
     } catch (err) {
@@ -902,12 +944,22 @@ export function printSummary(stats: DeployStats, dryRun = false): void {
     console.log('\nDeployment Summary');
     console.log('==================');
     console.log(`Uploaded: ${stats.uploaded} files`);
-    if (stats.deleted > 0) console.log(`Deleted: ${stats.deleted} files`);
-    if (stats.zipUploaded > 0) console.log(`  (ZIP files: ${stats.zipUploaded})`);
-    if (stats.errors > 0) console.log(`Errors: ${stats.errors} files`);
+    if (stats.deleted > 0) {
+        console.log(`Deleted: ${stats.deleted} files`);
+    }
+    if (stats.zipUploaded > 0) {
+        console.log(`  (ZIP files: ${stats.zipUploaded})`);
+    }
+    if (stats.errors > 0) {
+        console.log(`Errors: ${stats.errors} files`);
+    }
     console.log(`Total size: ${sizeMB} MB`);
     console.log(`Duration: ${(duration / 1000).toFixed(2)} seconds`);
-    if (stats.uploaded > 0) console.log(`Speed: ${speed} KB/s`);
-    if (dryRun) console.log('\nDRY RUN - No files were actually uploaded');
+    if (stats.uploaded > 0) {
+        console.log(`Speed: ${speed} KB/s`);
+    }
+    if (dryRun) {
+        console.log('\nDRY RUN - No files were actually uploaded');
+    }
 }
 

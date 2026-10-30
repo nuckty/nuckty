@@ -215,7 +215,9 @@ test('replace() result is matched by the NEW block templates (RENDER-03)', () =>
 
 test('wrap() inside its own result subtree does not recurse ( RENDER-03 loop guard)', () => {
     const html = withTemplates(() => {
-        block('x').wrap((_n, _next) => { throw new Error('must not re-fire'); return {}; });
+        block('x').wrap(() => {
+            throw new Error('must not re-fire');
+        });
         block('x').wrap((_n, next) => ({ tag: 'section', content: [next(), { block: 'x', tag: 'b' }] }));
         block('x')({ tag: 'div' });
     }, { block: 'x' });

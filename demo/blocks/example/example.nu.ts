@@ -1,6 +1,6 @@
 import { messages } from './example.i18n/index.js';
 import { highlightCode } from '../../ext/highlight.js';
-import { block, type BEMTree, type BemNode, b, attributes } from '@nuckty/core';
+import { block, type BemNode, b, attributes } from '@nuckty/core';
 
 function exampleTree(
     node: Omit<BemNode, 'props'> & {

@@ -85,7 +85,9 @@ export async function encodeIterative(
 ): Promise<{ quality: number; size: number } | null> {
     for (let q = startQuality; q >= 1; q--) {
         const size = await encode(q);
-        if (isSmallerThan(size, targetSize)) return { quality: q, size };
+        if (isSmallerThan(size, targetSize)) {
+            return { quality: q, size };
+        }
     }
     return null;
 }
@@ -99,8 +101,12 @@ export async function md5File(filePath: string): Promise<string> {
 /** Map a file extension to a source kind, or `null` if not an image. */
 export function imageKindOf(ext: string): ImageKind | null {
     const e = ext.toLowerCase();
-    if (e === '.png') return 'png';
-    if (e === '.jpg' || e === '.jpeg') return 'jpeg';
+    if (e === '.png') {
+        return 'png';
+    }
+    if (e === '.jpg' || e === '.jpeg') {
+        return 'jpeg';
+    }
     return null;
 }
 
@@ -117,13 +123,17 @@ export async function scanImageFiles(dir: string): Promise<SourceImage[]> {
     async function walk(d: string, acc: SourceImage[]): Promise<void> {
         const entries: fs.Dirent[] = await fsp.readdir(d, { withFileTypes: true });
         for (const entry of entries) {
-            if (entry.name === '.git') continue;
+            if (entry.name === '.git') {
+                continue;
+            }
             const full = path.join(d, entry.name);
             if (entry.isDirectory()) {
                 await walk(full, acc);
             } else if (entry.isFile()) {
                 const kind = imageKindOf(path.extname(entry.name));
-                if (kind) acc.push({ path: full, kind });
+                if (kind) {
+                    acc.push({ path: full, kind });
+                }
             }
         }
     }
@@ -168,7 +178,9 @@ export async function loadCache(cachePath: string): Promise<Cache> {
 
 /** Save the cache (pretty-printed) unless `dryRun`. Returns whether it was saved. */
 export async function saveCache(cachePath: string, cache: Cache, dryRun: boolean): Promise<boolean> {
-    if (dryRun) return false;
+    if (dryRun) {
+        return false;
+    }
     const temporary = `${cachePath}.${crypto.randomUUID()}.tmp`;
     try {
         await fsp.writeFile(temporary, JSON.stringify(cache, null, 2) + '\n', { encoding: 'utf8', flag: 'wx' });
@@ -190,9 +202,15 @@ export function needsProcessing(
     force: boolean,
     missingOutputs?: { webp?: boolean; avif?: boolean },
 ): boolean {
-    if (force) return true;
-    if (cache[hash]?.complete !== true) return true;
-    if (missingOutputs?.webp || missingOutputs?.avif) return true;
+    if (force) {
+        return true;
+    }
+    if (cache[hash]?.complete !== true) {
+        return true;
+    }
+    if (missingOutputs?.webp || missingOutputs?.avif) {
+        return true;
+    }
     return false;
 }
 

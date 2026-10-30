@@ -55,8 +55,12 @@ function resolveLevel(
     suppressed: ReadonlySet<string>,
     folded: ReadonlyMap<BemNode, BemNode>,
 ): BEMTree {
-    if (tree === null || tree === undefined || tree === false) return tree;
-    if (typeof tree === 'string') return tree;
+    if (tree === null || tree === undefined || tree === false) {
+        return tree;
+    }
+    if (typeof tree === 'string') {
+        return tree;
+    }
     if (Array.isArray(tree)) {
         return tree.flatMap((child) => {
             const resolved = resolveLevel(child, parentBlock, opts, suppressed, folded);
@@ -86,12 +90,20 @@ function resolveNode(
     suppressed: ReadonlySet<string>,
     folded: ReadonlyMap<BemNode, BemNode>,
 ): BEMTree {
-    if (child === null || child === undefined || child === false) return null;
-    if (typeof child === 'string') return child;
-    if (Array.isArray(child)) return resolveLevel(child, parentBlock, opts, suppressed, folded);
+    if (child === null || child === undefined || child === false) {
+        return null;
+    }
+    if (typeof child === 'string') {
+        return child;
+    }
+    if (Array.isArray(child)) {
+        return resolveLevel(child, parentBlock, opts, suppressed, folded);
+    }
 
     const node = child;
-    if (node.raw !== undefined) return node;
+    if (node.raw !== undefined) {
+        return node;
+    }
 
     const block = node.block ?? parentBlock;
     const resolved: BemNode = folded.get(node) ?? (node.block ? node : { ...node, block });
@@ -132,7 +144,9 @@ function resolveNode(
 
 /** Fold output modes over the matched chain (applyNext semantics). */
 function foldOutputModes(node: BemNode, matched: Template[]): BemNode {
-    if (matched.length === 0) return node;
+    if (matched.length === 0) {
+        return node;
+    }
     const fields: Array<keyof Modes> = ['tag', 'content', 'attrs', 'mods', 'elemMods', 'mix', 'cls', 'js', 'bem'];
 
     let changed = false;
@@ -143,15 +157,21 @@ function foldOutputModes(node: BemNode, matched: Template[]): BemNode {
         }
 
         const setters = matched.filter((t) => t.modes[field] !== undefined);
-        if (setters.length === 0) continue;
+        if (setters.length === 0) {
+            continue;
+        }
 
         if (!changed) { result = { ...(node as Record<string, unknown>) }; changed = true; }
         const own = (node as Record<string, unknown>)[field];
         const composeNext = (idx: number): unknown => {
-            if (idx < 0) return own;
+            if (idx < 0) {
+                return own;
+            }
             const t = setters[idx]!;
             const fn = t.modes[field];
-            if (typeof fn !== 'function') return fn;
+            if (typeof fn !== 'function') {
+                return fn;
+            }
             return (fn as (n: BemNode, next: () => unknown) => unknown)(node, () => composeNext(idx - 1));
         };
         const value = composeNext(setters.length - 1);
@@ -179,17 +199,23 @@ function applyTemplates(node: BemNode, matched: Template[], suppressed: Readonly
 
     for (let i = matched.length - 1; i >= 0; i--) {
         const m = matched[i]!;
-        if (!m.modes.replace || suppressed.has(m.block)) continue;
+        if (!m.modes.replace || suppressed.has(m.block)) {
+            continue;
+        }
         return { node: m.modes.replace(result, () => result), folded: result, controlled: true, controlSource: m.block };
     }
     for (let i = matched.length - 1; i >= 0; i--) {
         const m = matched[i]!;
-        if (!m.modes.wrap || suppressed.has(m.block)) continue;
+        if (!m.modes.wrap || suppressed.has(m.block)) {
+            continue;
+        }
         return { node: m.modes.wrap(result, () => result), folded: result, controlled: true, controlSource: m.block };
     }
     for (let i = matched.length - 1; i >= 0; i--) {
         const m = matched[i]!;
-        if (!m.modes.def || suppressed.has(m.block)) continue;
+        if (!m.modes.def || suppressed.has(m.block)) {
+            continue;
+        }
         // `def` is a full takeover: its return value is a BEMTree — a node,
         // a string, an array, `null` or `false` are all legal (RENDER-04).
         return { node: m.modes.def(node, () => result), folded: result, controlled: true, controlSource: m.block };

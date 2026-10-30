@@ -37,7 +37,9 @@ const QUOTE_TRIGGERS_RE = /[\s"'`<>=]/;
 
 /** Empty string and strings containing a trigger char must be quoted. */
 export function needsQuotes(value: string): boolean {
-    if (value === '') return true;
+    if (value === '') {
+        return true;
+    }
     return QUOTE_TRIGGERS_RE.test(value);
 }
 

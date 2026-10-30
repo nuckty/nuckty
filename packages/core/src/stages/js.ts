@@ -44,7 +44,9 @@ async function buildBundle(
     levels: string[],
 ): Promise<BundleHashEntry | null> {
     const sourcePaths = levels.map((level) => path.resolve(root, level));
-    if (bemdecl.length === 0) return null;
+    if (bemdecl.length === 0) {
+        return null;
+    }
 
     // Collect JS entry points from declared blocks.
     const entryPoints: string[] = [];
@@ -59,7 +61,9 @@ async function buildBundle(
             }
         }
     }
-    if (entryPoints.length === 0) return null;
+    if (entryPoints.length === 0) {
+        return null;
+    }
 
     // Generate temp entry that imports all block JS files.
     const entryContent = entryPoints.map((p) => `import ${JSON.stringify(p)};`).join('\n');

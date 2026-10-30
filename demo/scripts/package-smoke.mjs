@@ -23,10 +23,12 @@ const npm = (args, cwd, timeout) => execFileSync('npm', args, { cwd, timeout, en
 
 try {
     mkdirSync(consumer);
-    for (const name of ['config', 'content', 'blocks', 'ext']) cpSync(path.join(demo, name), path.join(consumer, name), {
+    for (const name of ['config', 'content', 'blocks', 'ext']) {
+        cpSync(path.join(demo, name), path.join(consumer, name), {
         recursive: true,
         filter: sourceCopyFilter(demo),
     });
+    }
     const manifest = JSON.parse(readFileSync(path.join(demo, 'package.json'), 'utf8'));
     const rootManifest = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
     writeFileSync(path.join(consumer, 'package.json'), JSON.stringify({ type: 'module', scripts: { build: 'nuckty build', types: 'tsc --noEmit --strict --skipLibCheck false --module nodenext --target es2022 --types node smoke.ts' }, dependencies, devDependencies: { typescript: rootManifest.devDependencies.typescript, '@types/node': rootManifest.devDependencies['@types/node'], '@tanstack/highlight': manifest.devDependencies['@tanstack/highlight'] } }));
@@ -47,7 +49,9 @@ try {
             npm(['install', '--ignore-scripts', '--no-audit', '--no-fund'], consumer, Math.max(1, deadline - Date.now()));
             break;
         } catch (error) {
-            if (Date.now() >= deadline) throw error;
+            if (Date.now() >= deadline) {
+                throw error;
+            }
             await new Promise((resolve) => setTimeout(resolve, Math.min(10000, deadline - Date.now())));
         }
     }

@@ -42,6 +42,8 @@ export function render(tree: BEMTree, opts: RenderOptions & { output?: 'html' })
 export function render(tree: BEMTree, opts: RenderOptions & { output: 'bemjson' }): BEMTree;
 export function render(tree: BEMTree, opts: RenderOptions): string | BEMTree {
     const resolved = renderToBemJson(tree, { templates: opts.templates });
-    if (opts.output === 'bemjson') return resolved;
+    if (opts.output === 'bemjson') {
+        return resolved;
+    }
     return renderToHtml(resolved, { document: opts.document });
 }

@@ -33,7 +33,9 @@ import {
 
 function manifest(entries: Record<string, [number, string]>): Manifest {
     const out: Manifest = {};
-    for (const [p, [size, hash]] of Object.entries(entries)) out[p] = { size, hash };
+    for (const [p, [size, hash]] of Object.entries(entries)) {
+        out[p] = { size, hash };
+    }
     return out;
 }
 

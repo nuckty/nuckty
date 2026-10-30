@@ -20,16 +20,22 @@ export interface ParsedEntity {
  */
 export function stringifyEntity(entity: BemEntity, preset: NamingPreset = classicPreset): string {
     const { block, elem } = entity;
-    if (!block) return '';
+    if (!block) {
+        return '';
+    }
 
     const parts: string[] = [block];
-    if (elem) parts.push(preset.elem, elem);
+    if (elem) {
+        parts.push(preset.elem, elem);
+    }
 
     const modifiers = elem ? entity.elemMods : entity.mods;
     const mod = modifiers ? pickMod(modifiers) : undefined;
     if (mod) {
         parts.push(preset.mod, mod.name);
-        if (mod.val !== true) parts.push(preset.modVal, mod.val);
+        if (mod.val !== true) {
+            parts.push(preset.modVal, mod.val);
+        }
     }
     return parts.join('');
 }
@@ -37,7 +43,9 @@ export function stringifyEntity(entity: BemEntity, preset: NamingPreset = classi
 /** Build the full class string for a node: base + mods/elemMods + mix + cls. */
 export function classify(node: BemNode, preset: NamingPreset = classicPreset): string | null {
     const { block, elem, mix, cls } = node;
-    if (!block && !cls && !mix) return null;
+    if (!block && !cls && !mix) {
+        return null;
+    }
 
     const classes: string[] = [];
 
@@ -50,7 +58,9 @@ export function classify(node: BemNode, preset: NamingPreset = classicPreset): s
         const ownMods: ModMap | undefined = elem ? node.elemMods : node.mods;
         if (ownMods) {
             for (const [name, val] of Object.entries(ownMods)) {
-                if (val === null || val === undefined || val === false) continue;
+                if (val === null || val === undefined || val === false) {
+                    continue;
+                }
                 // mod class is one token: base_mod  OR  base_mod_val
                 const modClass = val === true
                     ? `${base}${preset.mod}${name}`
@@ -66,7 +76,9 @@ export function classify(node: BemNode, preset: NamingPreset = classicPreset): s
     }
 
     // cls: raw extra class, appended last as-is.
-    if (cls) classes.push(cls);
+    if (cls) {
+        classes.push(cls);
+    }
 
     return classes.length > 0 ? classes.join(' ') : null;
 }
@@ -77,21 +89,29 @@ export function parseClass(input: string, preset: NamingPreset = classicPreset):
     if (e === -1) {
         // block or block_mod[_val]
         const m = input.indexOf(preset.mod);
-        if (m === -1) return { block: input };
+        if (m === -1) {
+            return { block: input };
+        }
         const block = input.slice(0, m);
         const rest = input.slice(m + preset.mod.length);
         const v = rest.indexOf(preset.modVal);
-        if (v === -1) return { block, modName: rest };
+        if (v === -1) {
+            return { block, modName: rest };
+        }
         return { block, modName: rest.slice(0, v), modVal: rest.slice(v + preset.modVal.length) };
     }
     const block = input.slice(0, e);
     const afterElem = input.slice(e + preset.elem.length);
     const m = afterElem.indexOf(preset.mod);
-    if (m === -1) return { block, elem: afterElem };
+    if (m === -1) {
+        return { block, elem: afterElem };
+    }
     const elem = afterElem.slice(0, m);
     const rest = afterElem.slice(m + preset.mod.length);
     const v = rest.indexOf(preset.modVal);
-    if (v === -1) return { block, elem, modName: rest };
+    if (v === -1) {
+        return { block, elem, modName: rest };
+    }
     return { block, elem, modName: rest.slice(0, v), modVal: rest.slice(v + preset.modVal.length) };
 }
 
@@ -99,27 +119,37 @@ export function parseClass(input: string, preset: NamingPreset = classicPreset):
 
 function pickMod(mods: ModMap): { name: string; val: string | true } | undefined {
     for (const [name, val] of Object.entries(mods)) {
-        if (val === null || val === undefined || val === false) continue;
+        if (val === null || val === undefined || val === false) {
+            continue;
+        }
         return { name, val: val === true ? true : String(val) };
     }
     return undefined;
 }
 
 function appendMix(out: string[], mix: BemNode['mix'], preset: NamingPreset): void {
-    if (!mix) return;
+    if (!mix) {
+        return;
+    }
     const list = Array.isArray(mix) ? mix : [mix];
     for (const item of list) {
         if (typeof item === 'string') {
-            if (item) out.push(item);
+            if (item) {
+                out.push(item);
+            }
             continue;
         }
         // A mixed entity: build its base + its own mods, push each class piece.
         const base = item.elem ? `${item.block}${preset.elem}${item.elem}` : item.block;
-        if (base) out.push(base);
+        if (base) {
+            out.push(base);
+        }
         const mods = item.elem ? item.elemMods : item.mods;
         if (mods) {
             for (const [name, val] of Object.entries(mods)) {
-                if (val === null || val === undefined || val === false) continue;
+                if (val === null || val === undefined || val === false) {
+                    continue;
+                }
                 const modClass = val === true
                     ? `${base}${preset.mod}${name}`
                     : `${base}${preset.mod}${name}${preset.modVal}${String(val)}`;

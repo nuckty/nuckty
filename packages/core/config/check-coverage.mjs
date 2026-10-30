@@ -53,7 +53,9 @@ for (const [metric, minimum] of Object.entries(thresholds.global)) {
 
 let sourceFiles = 0;
 for (const [file, coverage] of Object.entries(report)) {
-    if (file === 'total') continue;
+    if (file === 'total') {
+        continue;
+    }
     const relative = path.relative(sourceRoot, file);
     if (relative === '' || relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative) || !file.endsWith('.ts')) {
         throw new Error(`Unexpected coverage entry outside production TypeScript: ${file}`);

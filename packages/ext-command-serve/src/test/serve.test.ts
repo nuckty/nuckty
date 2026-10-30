@@ -198,8 +198,12 @@ appendFileSync(process.env.NUCKTY_TEST_CALLS, JSON.stringify({ command: 'kill', 
             testCtype: process.env.NUCKTY_TEST_CTYPE,
         };
         process.env.PATH = `${binDir}${path.delimiter}${original.path ?? ''}`;
-        if (localeCase.all === undefined) delete process.env.LC_ALL;
-        else process.env.LC_ALL = localeCase.all;
+        if (localeCase.all === undefined) {
+            delete process.env.LC_ALL;
+        }
+        else {
+            process.env.LC_ALL = localeCase.all;
+        }
         process.env.LC_CTYPE = localeCase.ctype;
         process.env.LC_TIME = 'ru_RU.UTF-8';
         process.env.NUCKTY_TEST_CONFIG = configPath;
@@ -227,20 +231,48 @@ appendFileSync(process.env.NUCKTY_TEST_CALLS, JSON.stringify({ command: 'kill', 
             }
             assert.deepEqual(calls.find((call) => call.command === 'kill')?.args, ['-QUIT', '424242']);
         } finally {
-            if (original.path === undefined) delete process.env.PATH;
-            else process.env.PATH = original.path;
-            if (original.all === undefined) delete process.env.LC_ALL;
-            else process.env.LC_ALL = original.all;
-            if (original.ctype === undefined) delete process.env.LC_CTYPE;
-            else process.env.LC_CTYPE = original.ctype;
-            if (original.time === undefined) delete process.env.LC_TIME;
-            else process.env.LC_TIME = original.time;
-            if (original.config === undefined) delete process.env.NUCKTY_TEST_CONFIG;
-            else process.env.NUCKTY_TEST_CONFIG = original.config;
-            if (original.calls === undefined) delete process.env.NUCKTY_TEST_CALLS;
-            else process.env.NUCKTY_TEST_CALLS = original.calls;
-            if (original.testCtype === undefined) delete process.env.NUCKTY_TEST_CTYPE;
-            else process.env.NUCKTY_TEST_CTYPE = original.testCtype;
+            if (original.path === undefined) {
+                delete process.env.PATH;
+            }
+            else {
+                process.env.PATH = original.path;
+            }
+            if (original.all === undefined) {
+                delete process.env.LC_ALL;
+            }
+            else {
+                process.env.LC_ALL = original.all;
+            }
+            if (original.ctype === undefined) {
+                delete process.env.LC_CTYPE;
+            }
+            else {
+                process.env.LC_CTYPE = original.ctype;
+            }
+            if (original.time === undefined) {
+                delete process.env.LC_TIME;
+            }
+            else {
+                process.env.LC_TIME = original.time;
+            }
+            if (original.config === undefined) {
+                delete process.env.NUCKTY_TEST_CONFIG;
+            }
+            else {
+                process.env.NUCKTY_TEST_CONFIG = original.config;
+            }
+            if (original.calls === undefined) {
+                delete process.env.NUCKTY_TEST_CALLS;
+            }
+            else {
+                process.env.NUCKTY_TEST_CALLS = original.calls;
+            }
+            if (original.testCtype === undefined) {
+                delete process.env.NUCKTY_TEST_CTYPE;
+            }
+            else {
+                process.env.NUCKTY_TEST_CTYPE = original.testCtype;
+            }
             await rm(dir, { recursive: true, force: true });
         }
     });

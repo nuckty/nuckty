@@ -40,7 +40,9 @@ export class Templates {
 
         for (const t of this.entries) {
             const spec = specificity(t, node);
-            if (spec < 0) continue; // no match
+            if (spec < 0) {
+                continue;
+            } // no match
             matches.push({ t, spec });
         }
 
@@ -93,16 +95,22 @@ function specificity(t: Template, node: BemNode): number {
 
     // mod on block (only meaningful when template targets block without elem)
     if (t.modName !== undefined) {
-        if (node.elem) return -1; // a block-mod template doesn't match an elem node
+        if (node.elem) {
+            return -1;
+        } // a block-mod template doesn't match an elem node
         const mods = node.mods ?? {};
         if (!Object.hasOwn(mods, t.modName)) {
             return -1;
         }
         const val = mods[t.modName];
-        if (val === null || val === undefined || val === false) return -1;
+        if (val === null || val === undefined || val === false) {
+            return -1;
+        }
         if (t.modVal !== undefined) {
             if (val === true) {
-                if (t.modVal !== true) return -1;
+                if (t.modVal !== true) {
+                    return -1;
+                }
             } else if (String(val) !== t.modVal) {
                 return -1;
             }
@@ -120,10 +128,14 @@ function specificity(t: Template, node: BemNode): number {
             return -1;
         }
         const val = mods[t.elemModName];
-        if (val === null || val === undefined || val === false) return -1;
+        if (val === null || val === undefined || val === false) {
+            return -1;
+        }
         if (t.elemModVal !== undefined) {
             if (val === true) {
-                if (t.elemModVal !== true) return -1;
+                if (t.elemModVal !== true) {
+                    return -1;
+                }
             } else if (String(val) !== t.elemModVal) {
                 return -1;
             }
@@ -133,7 +145,9 @@ function specificity(t: Template, node: BemNode): number {
 
     // custom predicate
     if (t.predicate) {
-        if (!t.predicate(node)) return -1;
+        if (!t.predicate(node)) {
+            return -1;
+        }
         rank += 16;
     }
 

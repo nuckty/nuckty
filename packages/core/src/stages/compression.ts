@@ -41,7 +41,9 @@ async function findCompressibleFiles(siteDir: string): Promise<string[]> {
 
             // Skip the compression output directories entirely.
             const top = relativePath.split(path.sep)[0];
-            if (top && SKIP_DIRS.has(top)) return;
+            if (top && SKIP_DIRS.has(top)) {
+                return;
+            }
 
             if (entry.isDirectory()) {
                 await walk(fullPath);
@@ -51,8 +53,12 @@ async function findCompressibleFiles(siteDir: string): Promise<string[]> {
                 throw new Error(`Compression requires regular artifact files: ${relativePath}`);
             }
             // robots.txt is too small to benefit — skip (1:1 with the original).
-            if (entry.name === 'robots.txt') return;
-            if (isCompressible(entry.name)) files.push(relativePath);
+            if (entry.name === 'robots.txt') {
+                return;
+            }
+            if (isCompressible(entry.name)) {
+                files.push(relativePath);
+            }
         }));
     }
 
@@ -64,7 +70,9 @@ async function findCompressibleFiles(siteDir: string): Promise<string[]> {
 async function compressFile(file: string, siteDir: string): Promise<void> {
     const sourcePath = path.join(siteDir, file);
     const content = await fs.readFile(sourcePath);
-    if (content.length === 0) return;
+    if (content.length === 0) {
+        return;
+    }
 
     const flatFilename = getFlatFilename(file);
 

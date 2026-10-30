@@ -100,11 +100,15 @@ async function collectImagePaths(dirPath: string, state: ImageBuilderState): Pro
     await Promise.all(entries.map(async (entry) => {
         const fullPath = path.join(dirPath, entry.name);
         if (entry.isDirectory()) {
-            if (entry.name === '.git') return;
+            if (entry.name === '.git') {
+                return;
+            }
             await collectImagePaths(fullPath, state);
             return;
         }
-        if (!entry.isFile()) return;
+        if (!entry.isFile()) {
+            return;
+        }
         const ext = path.extname(entry.name).toLowerCase();
         if (SUPPORTED_FORMATS.includes(ext) || ext === SVG_FORMAT) {
             state.imageList.push(fullPath);
@@ -114,10 +118,18 @@ async function collectImagePaths(dirPath: string, state: ImageBuilderState): Pro
 
 /** Determine the output subdirectory for an image extension. */
 function outputSubdirFor(ext: string, outDir: string): string {
-    if (ext === SVG_FORMAT) return path.join(outDir, 'svg');
-    if (ext === '.png') return path.join(outDir, 'png');
-    if (ext === '.jpg' || ext === '.jpeg') return path.join(outDir, 'jpg');
-    if (ext === '.webp') return path.join(outDir, 'webp');
+    if (ext === SVG_FORMAT) {
+        return path.join(outDir, 'svg');
+    }
+    if (ext === '.png') {
+        return path.join(outDir, 'png');
+    }
+    if (ext === '.jpg' || ext === '.jpeg') {
+        return path.join(outDir, 'jpg');
+    }
+    if (ext === '.webp') {
+        return path.join(outDir, 'webp');
+    }
     return outDir;
 }
 

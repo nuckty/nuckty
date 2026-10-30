@@ -6,7 +6,7 @@ description: "Writes and edits source code in nuckty repositories. Covers TypeSc
 # Code
 
 - TypeScript strict, ESM, 4-space indent.
-- Always use braces for control-flow statements, including single-line bodies.
+- Always use braces for control-flow statements, including single-line bodies; oxlint `curly` enforces it.
 - Put one empty line after a declaration group and before `if` and `return`.
 - Prefer narrowing over casts; never suppress type errors with `never`.
 - Configs under `config/config-*`.

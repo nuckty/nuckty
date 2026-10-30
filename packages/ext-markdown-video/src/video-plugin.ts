@@ -83,7 +83,9 @@ export function createVideoPlugin(providers: VideoProvider[] = DEFAULT_VIDEO_PRO
 /** Rewrite a paragraph: replace `text('@')+link(provider)` pairs with an embed. */
 function rewriteParagraph(para: Paragraph, providers: VideoProvider[]): void {
     const kids = para.children;
-    if (kids.length < 2) return;
+    if (kids.length < 2) {
+        return;
+    }
     const out: PhrasingContent[] = [];
     for (let i = 0; i < kids.length; i++) {
         const cur = kids[i]!;
@@ -92,7 +94,9 @@ function rewriteParagraph(para: Paragraph, providers: VideoProvider[]): void {
             const embed = matchEmbed(cur as Text, next as Link, providers);
             if (embed) {
                 // If the text node had content before `@`, keep it as a text node.
-                if (embed.beforeText !== '') out.push({ type: 'text', value: embed.beforeText });
+                if (embed.beforeText !== '') {
+                    out.push({ type: 'text', value: embed.beforeText });
+                }
                 out.push(embed.html);
                 i++; // consume the link
                 continue;
@@ -111,16 +115,26 @@ function matchEmbed(
 ): { html: Html; beforeText: string } | null {
     // The text node must end in `@` (the `@` may follow other text).
     const match = atText.value.match(/^(.*)@$/s);
-    if (!match) return null;
+    if (!match) {
+        return null;
+    }
     const beforeText = match[1] ?? '';
     // The link's only child must be a text node naming a known provider.
-    if (link.children.length !== 1) return null;
+    if (link.children.length !== 1) {
+        return null;
+    }
     const only = link.children[0]!;
-    if (only.type !== 'text') return null;
+    if (only.type !== 'text') {
+        return null;
+    }
     const provider = findProvider((only as Text).value, providers);
-    if (!provider) return null;
+    if (!provider) {
+        return null;
+    }
     const id = link.url;
-    if (!id) return null;
+    if (!id) {
+        return null;
+    }
     return {
         html: { type: 'html', value: embedHtml(provider, id) },
         beforeText,

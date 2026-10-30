@@ -75,7 +75,7 @@ export async function promoteLatest({ version, packages, request = fetch, run, s
     const pending = new Set(packages);
 
     for (;;) {
-        for (const name of [...pending]) {
+        for (const name of pending) {
             const tags = await readJson(`${registry}/-/package/${encodeURIComponent(name)}/dist-tags`, options);
             const expected = { ...before.get(name), latest: version };
             const changed = Object.keys({ ...expected, ...tags }).filter((tag) => tags[tag] !== expected[tag]);

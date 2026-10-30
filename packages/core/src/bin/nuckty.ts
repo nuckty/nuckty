@@ -72,7 +72,9 @@ async function main(): Promise<void> {
 
     if (cmd === 'build') {
         const opts: { command: 'build'; cwd: string; target?: string } = { command: 'build', cwd };
-        if (parsed.positional[1] !== undefined) opts.target = parsed.positional[1];
+        if (parsed.positional[1] !== undefined) {
+            opts.target = parsed.positional[1];
+        }
         await runBuild(opts);
         return;
     }

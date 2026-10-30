@@ -1,0 +1,10 @@
+{
+    "categories": {
+        "correctness": "error"
+    },
+    "rules": {
+        "curly": ["error", "all"],
+        "no-control-regex": "off"
+    },
+    "ignorePatterns": ["**/dist/**", "**/node_modules/**", "**/.build/**", "demo/site/**", "demo/site-en/**", "coverage/**"]
+}

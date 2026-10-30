@@ -262,7 +262,9 @@ function openTag(tag: string, node: BemNode): string {
     const cls = classify(node);
     const attrs = serializeAttrs(node.attrs, node.js, node);
     let out = `<${tag}`;
-    if (cls) out += ` class=${quoteOrNot(escapeAttr(cls))}`;
+    if (cls) {
+        out += ` class=${quoteOrNot(escapeAttr(cls))}`;
+    }
     out += attrs;
     return out;
 }
@@ -271,7 +273,9 @@ function serializeAttrs(attrs: BemNode['attrs'], js: BemNode['js'], node: BemNod
     const parts: string[] = [];
     if (attrs) {
         for (const [name, val] of Object.entries(attrs)) {
-            if (val === null || val === undefined || val === false) continue;
+            if (val === null || val === undefined || val === false) {
+                continue;
+            }
             if (val === true || BOOLEAN_ATTRS.has(normalizeHtmlName(name))) {
                 parts.push(` ${name}`);
             } else {

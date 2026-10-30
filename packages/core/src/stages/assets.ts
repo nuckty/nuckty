@@ -109,9 +109,13 @@ async function findAssetFiles(dirPath: string, basePath = dirPath): Promise<Asse
     for (const entry of entries) {
         const fullPath = path.join(dirPath, entry.name);
         if (entry.isDirectory()) {
-            if (isToolingDirectory(entry.name)) continue;
+            if (isToolingDirectory(entry.name)) {
+                continue;
+            }
             const sub = await findAssetFiles(fullPath, basePath);
-            for (const f of sub) results.push(f);
+            for (const f of sub) {
+                results.push(f);
+            }
         } else if (
             entry.isFile() &&
             ASSET_EXTENSIONS.some((ext) => entry.name.endsWith(ext))
@@ -141,9 +145,13 @@ async function findVideoFiles(basePath: string): Promise<Array<{ filename: strin
     for (const entry of entries) {
         const fullPath = path.join(basePath, entry.name);
         if (entry.isDirectory()) {
-            if (isToolingDirectory(entry.name)) continue;
+            if (isToolingDirectory(entry.name)) {
+                continue;
+            }
             const sub = await findVideoFiles(fullPath);
-            for (const f of sub) results.push(f);
+            for (const f of sub) {
+                results.push(f);
+            }
         } else if (entry.isFile() && entry.name.endsWith('.mp4')) {
             results.push({ filename: entry.name, fullPath });
         }

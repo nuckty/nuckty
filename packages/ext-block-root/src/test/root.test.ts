@@ -43,7 +43,9 @@ function data(title: string, lang?: string): DocumentData {
         alternates: new Map(),
     };
 
-    if (lang) result.lang = lang;
+    if (lang) {
+        result.lang = lang;
+    }
 
     return result;
 }

@@ -25,9 +25,13 @@ export type { MdastNode } from './grid.js';
  * engine then falls back to the directive's plain content.
  */
 export const gridHandler: DirectiveHandler = (node, _env, convert) => {
-    if (node.type !== undefined && node.type !== 'containerDirective') return null;
+    if (node.type !== undefined && node.type !== 'containerDirective') {
+        return null;
+    }
     const items = extractItems((node.children ?? []) as import('./grid.js').MdastNode[]);
-    if (items.length === 0) return null;
+    if (items.length === 0) {
+        return null;
+    }
     // The engine's handler contract is structural ({ raw?, ...unknown }); the
     // built BemNode satisfies it shape-wise, the cast bridges the interface.
     return gridNode(items.map((cell) => convert.inline(cell))) as unknown as { raw?: string; [k: string]: unknown };

@@ -58,21 +58,31 @@ function githubIdentity(repoUrl: string): string | undefined {
 
         host = parsed.hostname.toLowerCase();
 
-        if (host !== 'github.com' || parsed.search || parsed.hash) return undefined;
+        if (host !== 'github.com' || parsed.search || parsed.hash) {
+            return undefined;
+        }
         if (parsed.protocol === 'https:') {
-            if (parsed.port) return undefined;
+            if (parsed.port) {
+                return undefined;
+            }
         } else if (parsed.protocol === 'ssh:') {
-            if (parsed.username !== 'git' || parsed.password || parsed.port) return undefined;
+            if (parsed.username !== 'git' || parsed.password || parsed.port) {
+                return undefined;
+            }
         } else {
             return undefined;
         }
         repositoryPath = parsed.pathname.replace(/^\//, '');
     }
 
-    if (host !== 'github.com' || repositoryPath.includes('%')) return undefined;
+    if (host !== 'github.com' || repositoryPath.includes('%')) {
+        return undefined;
+    }
 
     const segments = repositoryPath.split('/');
-    if (segments.length !== 2) return undefined;
+    if (segments.length !== 2) {
+        return undefined;
+    }
     const [owner, rawName] = segments;
     const name = rawName!.endsWith('.git') ? rawName!.slice(0, -4) : rawName!;
     if (
@@ -90,7 +100,9 @@ function githubIdentity(repoUrl: string): string | undefined {
 }
 
 function sameRepositoryIdentity(configuredUrl: string, originUrl: string): boolean {
-    if (configuredUrl === originUrl) return true;
+    if (configuredUrl === originUrl) {
+        return true;
+    }
 
     const configuredGithub = githubIdentity(configuredUrl);
 
@@ -118,7 +130,9 @@ export function getRepoName(repoUrl: string): string {
     const noGit = repoUrl.replace(/\.git$/, '');
     const afterColon = noGit.lastIndexOf(':') >= 0 ? noGit.slice(noGit.lastIndexOf(':') + 1) : noGit;
     const name = afterColon.split('/').pop()!;
-    if (!name) throw new Error('Could not parse repository name from URL');
+    if (!name) {
+        throw new Error('Could not parse repository name from URL');
+    }
     // CMD-08: a parsed `.` or `..` (e.g. from `https://h/o/..`) makes `external/`
     // resolve to itself or its PARENT — the runner must never touch it. The
     // same applies to names with path separators or empty/whitespace.
@@ -214,8 +228,12 @@ export async function planRepos(
 /** Verify the repository root and clean working tree, plus origin identity
  *  when url is supplied. Git inspection failures return unknown. */
 export async function fsStatus(dir: string, url?: string): Promise<RepoStatus> {
-    if (!fs.lstatSync(dir, { throwIfNoEntry: false })) return 'none';
-    if (fs.lstatSync(dir).isSymbolicLink()) return 'unknown';
+    if (!fs.lstatSync(dir, { throwIfNoEntry: false })) {
+        return 'none';
+    }
+    if (fs.lstatSync(dir).isSymbolicLink()) {
+        return 'unknown';
+    }
     try {
         const { simpleGit } = await import('simple-git');
         const git = simpleGit(dir);
@@ -225,8 +243,12 @@ export async function fsStatus(dir: string, url?: string): Promise<RepoStatus> {
         }
         if (url) {
             const origin = await git.remote(['get-url', 'origin']);
-            if (typeof origin !== 'string') return 'unknown';
-            if (!sameRepositoryIdentity(url, origin.trim())) return 'identity-mismatch';
+            if (typeof origin !== 'string') {
+                return 'unknown';
+            }
+            if (!sameRepositoryIdentity(url, origin.trim())) {
+                return 'identity-mismatch';
+            }
         }
         const status = await git.status();
         return status.isClean() ? 'clean' : 'dirty';

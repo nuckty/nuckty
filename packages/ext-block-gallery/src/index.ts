@@ -27,7 +27,9 @@ export type { GalleryImage, GalleryOptions, MdastNode } from './gallery.js';
  */
 export const galleryHandler: DirectiveHandler = (node, env) => {
     const images = extractImages((node.children ?? []) as import('./gallery.js').MdastNode[]);
-    if (images.length === 0) return null;
+    if (images.length === 0) {
+        return null;
+    }
     // The engine's handler contract is structural ({ raw?, ...unknown }); the
     // built BemNode satisfies it shape-wise, the cast bridges the interface.
     return galleryNode(images, env as ImageMappingEnv) as unknown as { raw?: string; [k: string]: unknown };

@@ -94,7 +94,9 @@ async function symlinkOrCopy(target: string, link: string): Promise<void> {
     // A symlink lets the consumer resolve nuckty AND nuckty's own deps.
     try {
         symlinkSync(target, link, 'dir');
-        if (existsSync(path.join(link, 'package.json'))) return;
+        if (existsSync(path.join(link, 'package.json'))) {
+            return;
+        }
     } catch {
         // fall through to copy
     }

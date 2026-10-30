@@ -66,8 +66,12 @@ function transform(src: string): { texts: string[]; htmls: string[] } {
     const texts: string[] = [];
     const htmls: string[] = [];
     visit(tree, (node) => {
-        if (node.type === 'text') texts.push((node as Text).value);
-        if (node.type === 'html') htmls.push((node as { value: string }).value);
+        if (node.type === 'text') {
+            texts.push((node as Text).value);
+        }
+        if (node.type === 'html') {
+            htmls.push((node as { value: string }).value);
+        }
     });
     return { texts, htmls };
 }

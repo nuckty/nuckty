@@ -316,9 +316,15 @@ test('resolvePageAnchors leaves generated heading self-links on their final ids'
     const hrefs: string[] = [];
     const collect = (node: BEMTree): void => {
         if (Array.isArray(node)) { node.forEach(collect); return; }
-        if (!node || typeof node !== 'object') return;
-        if (node.tag === 'a') hrefs.push(String(node.attrs?.['href']));
-        if (node.content) collect(node.content);
+        if (!node || typeof node !== 'object') {
+            return;
+        }
+        if (node.tag === 'a') {
+            hrefs.push(String(node.attrs?.['href']));
+        }
+        if (node.content) {
+            collect(node.content);
+        }
     };
     collect(tree);
     const setup = headings.find((h) => h.rawText === 'Setup')!.anchor;

@@ -63,7 +63,9 @@ export class Selector<P = Record<string, unknown>> {
         const base = stripUndefined(this.s);
         base.modName = name;
         delete base.modVal;
-        if (val !== undefined) base.modVal = val;
+        if (val !== undefined) {
+            base.modVal = val;
+        }
         return new Selector<P>(base);
     }
 
@@ -71,7 +73,9 @@ export class Selector<P = Record<string, unknown>> {
         const base = stripUndefined(this.s);
         base.elemModName = name;
         delete base.elemModVal;
-        if (val !== undefined) base.elemModVal = val;
+        if (val !== undefined) {
+            base.elemModVal = val;
+        }
         return new Selector<P>(base);
     }
 
@@ -104,12 +108,24 @@ export class Selector<P = Record<string, unknown>> {
         }
 
         const entry: Record<string, unknown> = { block: this.s.block, modes: modes as Modes };
-        if (this.s.elem) entry.elem = this.s.elem;
-        if (this.s.modName) entry.modName = this.s.modName;
-        if (this.s.modVal !== undefined) entry.modVal = this.s.modVal;
-        if (this.s.elemModName) entry.elemModName = this.s.elemModName;
-        if (this.s.elemModVal !== undefined) entry.elemModVal = this.s.elemModVal;
-        if (predicate) entry.predicate = predicate;
+        if (this.s.elem) {
+            entry.elem = this.s.elem;
+        }
+        if (this.s.modName) {
+            entry.modName = this.s.modName;
+        }
+        if (this.s.modVal !== undefined) {
+            entry.modVal = this.s.modVal;
+        }
+        if (this.s.elemModName) {
+            entry.elemModName = this.s.elemModName;
+        }
+        if (this.s.elemModVal !== undefined) {
+            entry.elemModVal = this.s.elemModVal;
+        }
+        if (predicate) {
+            entry.predicate = predicate;
+        }
         this.s.templates.add(entry as Parameters<Templates['add']>[0]);
     }
 
@@ -130,7 +146,9 @@ export class Selector<P = Record<string, unknown>> {
 function stripUndefined<T>(obj: T): T {
     const out = {} as Record<string, unknown>;
     for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
-        if (v !== undefined) out[k] = v;
+        if (v !== undefined) {
+            out[k] = v;
+        }
     }
     return out as T;
 }

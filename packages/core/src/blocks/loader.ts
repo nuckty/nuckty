@@ -43,7 +43,9 @@ export async function loadBlocks(
         blockDeps[bundle] = decl;
         for (const block of decl) {
             const entryPath = findBlockEntry(block, cwd, levels);
-            if (!entryPath || loaded.has(entryPath)) continue;
+            if (!entryPath || loaded.has(entryPath)) {
+                continue;
+            }
             loaded.add(entryPath);
             const mod = (await import(pathToFileURL(entryPath).href)) as BlockModule;
 
@@ -65,7 +67,9 @@ function findBlockEntry(block: string, cwd: string, levels: string[]): string | 
         const levelDir = path.resolve(cwd, levels[i]!);
         const candidate = path.join(levelDir, block, `${block}.nu.ts`);
 
-        if (existsSync(candidate)) return candidate;
+        if (existsSync(candidate)) {
+            return candidate;
+        }
     }
     return null;
 }

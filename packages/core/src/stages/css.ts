@@ -138,7 +138,9 @@ export async function inlineHashedSVGs(css: string, siteDir: string): Promise<st
     const uniqueSvgFiles = new Set(tokens.map(token => token.value).filter(value => /^\/[a-f0-9]{16}\.svg$/.test(value)).map(value => value.slice(1)));
     const processed = new Map<string, string>();
     for (const hashedFilename of uniqueSvgFiles) {
-        if (processed.has(hashedFilename)) continue;
+        if (processed.has(hashedFilename)) {
+            continue;
+        }
         try {
             const svgPath = path.join(siteDir, 'svg', hashedFilename);
             const svgContent = await fs.readFile(svgPath, 'utf8');
@@ -171,7 +173,9 @@ async function buildBundle(
     levels: string[],
 ): Promise<BundleHashEntry | null> {
     const sourcePaths = levels.map((level) => path.resolve(root, level));
-    if (bemdecl.length === 0) return null;
+    if (bemdecl.length === 0) {
+        return null;
+    }
 
     // 1. Generate @import list.
     let cssImports = '';
@@ -194,7 +198,9 @@ async function buildBundle(
                 // skip missing
             }
         }
-        if (hasImports) cssImports += '\n';
+        if (hasImports) {
+            cssImports += '\n';
+        }
     }
     const mainCssPath = await resolveBuildFile(buildDir, `${bundle}.css`);
     await fs.writeFile(mainCssPath, cssImports);
@@ -231,7 +237,9 @@ async function buildBundle(
     let allHashes: Record<string, BundleHashEntry> = Object.create(null);
     try {
         const existing = await fs.readFile(buildHashPath, 'utf8');
-        if (existing.trim()) allHashes = JSON.parse(existing) as Record<string, BundleHashEntry>;
+        if (existing.trim()) {
+            allHashes = JSON.parse(existing) as Record<string, BundleHashEntry>;
+        }
     } catch {
         // start fresh
     }
@@ -279,7 +287,9 @@ export const cssStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<
             (Object.hasOwn(blockDeps, bundle) ? blockDeps[bundle] : undefined) ?? [],
             levels,
         );
-        if (entry) cssHash[bundle] = entry;
+        if (entry) {
+            cssHash[bundle] = entry;
+        }
     }
 
     ctx.store['cssHash'] = cssHash;

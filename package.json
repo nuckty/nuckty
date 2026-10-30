@@ -12,7 +12,7 @@
     },
     "scripts": {
         "build": "npm run build -w @nuckty/core && npm rebuild @nuckty/core && npm run build --workspaces --if-present",
-        "lint": "npm run lint --workspaces --if-present && openspec validate --all --strict",
+        "lint": "oxlint -c config/config-oxlint.json && npm run lint --workspaces --if-present && openspec validate --all --strict",
         "test": "npm run test --workspaces --if-present",
         "logo:optimize": "svgo --config config/config-svgo.js --folder logo --exclude \"_(source|grid)[.]svg$\" --eol lf --final-newline",
         "changeset": "changeset",
@@ -24,6 +24,7 @@
         "@fission-ai/openspec": "1.12.0",
         "@types/node": "24.13.3",
         "esbuild": "0.28.2",
+        "oxlint": "1.88.0",
         "svgo": "4.1.0",
         "tsx": "4.23.12",
         "typescript": "7.0.2"

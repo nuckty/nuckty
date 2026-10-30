@@ -88,7 +88,9 @@ async function buildOne(config: NucktyConfig, target: Target, cwd: string, env: 
         store: { allTargets: allTargets(config), currentTarget: target, blockDeps, configSnapshot: snapshot },
         cache: new Map(),
     };
-    if (target.lang) ctx.lang = target.lang;
+    if (target.lang) {
+        ctx.lang = target.lang;
+    }
 
     const pipeline = new Pipeline();
     registerDefaultStages(pipeline);

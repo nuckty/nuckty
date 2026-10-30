@@ -140,9 +140,13 @@ export class Pipeline<C extends BuildContext = BuildContext> {
     private async runStage(entry: { name: string; fn: Stage<C> }, ctx: C): Promise<void> {
         const before = this.beforeHooks.get(entry.name) ?? [];
         const after = this.afterHooks.get(entry.name) ?? [];
-        for (const hook of before) await hook(ctx);
+        for (const hook of before) {
+            await hook(ctx);
+        }
         await entry.fn(ctx);
-        for (const hook of after) await hook(ctx);
+        for (const hook of after) {
+            await hook(ctx);
+        }
     }
 }
 

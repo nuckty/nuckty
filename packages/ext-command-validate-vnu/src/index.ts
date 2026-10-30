@@ -25,7 +25,9 @@ async function resolveVnuJar(): Promise<string> {
     try {
         const vnuJarPkg = await import('vnu-jar');
         const pkg = vnuJarPkg as { default?: string };
-        if (pkg.default) return pkg.default;
+        if (pkg.default) {
+            return pkg.default;
+        }
     } catch {
         // fall through
     }
@@ -74,11 +76,17 @@ export class VnuHttpValidator {
         let cached = 0;
         for (const [i, r] of settled.entries()) {
             const file = files[i]!;
-            if (r.fromCache) cached++;
-            if (r.errors.length === 0) passed.push(file);
+            if (r.fromCache) {
+                cached++;
+            }
+            if (r.errors.length === 0) {
+                passed.push(file);
+            }
             else {
                 failed.push(file);
-                for (const e of r.errors) errors.push({ ...e, file: e.file ?? file });
+                for (const e of r.errors) {
+                    errors.push({ ...e, file: e.file ?? file });
+                }
             }
         }
         return { errors, passed, failed, cached };
@@ -120,11 +128,15 @@ export class VnuHttpValidator {
         const key = createHash('sha256').update(html).digest('hex');
         if (useCache) {
             const hit = this.cache.get(key);
-            if (hit) return { errors: hit, fromCache: true };
+            if (hit) {
+                return { errors: hit, fromCache: true };
+            }
         }
         await this.ensureStarted();
         const errors = await this.postToVnu(html);
-        if (useCache) this.cache.set(key, errors);
+        if (useCache) {
+            this.cache.set(key, errors);
+        }
         return { errors, fromCache: false };
     }
 
@@ -133,8 +145,12 @@ export class VnuHttpValidator {
         // alone: spawn sets `this.proc` synchronously while `start()` is still
         // health-looping, so a concurrent caller would race past the readiness
         // gate and POST before the servlet is up).
-        if (this.starting) return this.starting;
-        if (this.proc && !this.proc.killed) return;
+        if (this.starting) {
+            return this.starting;
+        }
+        if (this.proc && !this.proc.killed) {
+            return;
+        }
         this.starting = this.start();
         try {
             await this.starting;
@@ -331,19 +347,20 @@ async function validate(args: CommandArgs): Promise<number> {
         return 1;
     }
     const validator = getDefaultValidator(port);
-    let results: ValidationResults;
+    let results: ValidationResults | undefined;
     try {
         results = await validator.validate(files);
     } catch (e) {
         process.stderr.write(`nuckty: validation failed: ${(e as Error).message}\n`);
+    }
+    try {
+        await validator.stop();
+    } catch (error) {
+        process.stderr.write(`nuckty: validator cleanup failed: ${(error as Error).message}\n`);
         return 1;
-    } finally {
-        try {
-            await validator.stop();
-        } catch (error) {
-            process.stderr.write(`nuckty: validator cleanup failed: ${(error as Error).message}\n`);
-            return 1;
-        }
+    }
+    if (!results) {
+        return 1;
     }
     for (const err of results.errors) {
         const where = err.file ? `${err.file}:${err.line ?? ''}:${err.column ?? ''}` : '';
@@ -363,21 +380,25 @@ export default register;
 
 export async function serial<T>(tasks: Array<() => Promise<T>>): Promise<T[]> {
     const out: T[] = [];
-    for (const t of tasks) out.push(await t());
+    for (const t of tasks) {
+        out.push(await t());
+    }
     return out;
 }
 
 /** Run task factories with bounded concurrency; retain result order and
  *  settle active tasks before reporting the first failure. */
 export async function runAll<T>(tasks: Array<() => Promise<T>>, limit: number): Promise<T[]> {
-    const out: T[] = new Array(tasks.length);
+    const out: T[] = [];
     let next = 0;
     let failed = false;
     let failure: unknown;
     const workers = Array.from({ length: Math.min(Math.max(1, limit), tasks.length) }, async () => {
         while (!failed) {
             const i = next++;
-            if (i >= tasks.length) break;
+            if (i >= tasks.length) {
+                break;
+            }
             try {
                 out[i] = await tasks[i]!();
             } catch (error) {

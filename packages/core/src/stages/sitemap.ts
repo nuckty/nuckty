@@ -24,7 +24,9 @@ export interface ParsedLine {
 export function parseSitemapLine(line: string): ParsedLine | null {
     // The title runs up to the last bracketed definition, so titles may contain brackets.
     const match = line.match(/^(.+)\s*\[([^,[\]]+),\s*([^,[\]]+)(?:,\s*(\{.*\s*))?\]$/);
-    if (!match) return null;
+    if (!match) {
+        return null;
+    }
     const result: ParsedLine = {
         title: match[1]!.trim(),
         url: match[2]!.trim(),
@@ -71,7 +73,9 @@ export function parseSitemapLine(line: string): ParsedLine | null {
 }
 
 export function buildFullUrl(parentUrl: string, currentUrl: string): string {
-    if (currentUrl.startsWith('/')) return currentUrl;
+    if (currentUrl.startsWith('/')) {
+        return currentUrl;
+    }
     const cleanParent = parentUrl.replace(/\/$/, '');
     return `${cleanParent}/${currentUrl}`;
 }
@@ -85,8 +89,12 @@ export function parseIndentedSitemap(content: string): unknown[] {
 
     lines.forEach((line, i) => {
         const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith('#')) return;
-        if (/^sitemap:\s*(?:\[\s*\]\s*)?(?:#.*)?$/.test(trimmed)) return;
+        if (!trimmed || trimmed.startsWith('#')) {
+            return;
+        }
+        if (/^sitemap:\s*(?:\[\s*\]\s*)?(?:#.*)?$/.test(trimmed)) {
+            return;
+        }
 
         const match = line.match(/^(\s*)-\s*(.*)$/);
         if (!match || !match[2]!.trim()) {
@@ -107,8 +115,12 @@ export function parseIndentedSitemap(content: string): unknown[] {
         for (let j = i + 1; j < lines.length; j += 1) {
             const nextLine = lines[j]!;
             const nextTrimmed = nextLine.trim();
-            if (!nextTrimmed || nextTrimmed.startsWith('#')) continue;
-            if (/^sitemap:\s*(?:\[\s*\]\s*)?(?:#.*)?$/.test(nextTrimmed)) continue;
+            if (!nextTrimmed || nextTrimmed.startsWith('#')) {
+                continue;
+            }
+            if (/^sitemap:\s*(?:\[\s*\]\s*)?(?:#.*)?$/.test(nextTrimmed)) {
+                continue;
+            }
             const nextMatch = nextLine.match(/^(\s*)-\s*(.+)$/);
             if (nextMatch) {
                 const nextIndent = nextMatch[1]!.length;
@@ -146,14 +158,20 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
         // defined under its own section) DOES overwrite — so the last definition
         // in its home section wins for the menu name. 1:1 with build-sitemap.js
         // :326-328 (cross-section early-return) vs :348 (non-cross overwrite).
-        if (crossSection && pages[fullUrl]) return;
+        if (crossSection && pages[fullUrl]) {
+            return;
+        }
         const existing = pages[fullUrl];
         // Two home-section entries for one URL with different files would drop a page silently.
         if (!crossSection && existing && !crossOnly.has(fullUrl) && existing.file !== parsed.file) {
             throw new Error(`nuckty: sitemap — URL "${fullUrl}" is defined for both "${existing.file}" and "${parsed.file}"`);
         }
-        if (crossSection) crossOnly.add(fullUrl);
-        else crossOnly.delete(fullUrl);
+        if (crossSection) {
+            crossOnly.add(fullUrl);
+        }
+        else {
+            crossOnly.delete(fullUrl);
+        }
         const pageData: SitemapPage = {
             file: parsed.file,
             url: fullUrl,
@@ -171,7 +189,9 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
 
     /** Cross-section link: absolute URL pointing outside its parent section. */
     function isCrossSection(fullUrl: string, parentUrl: string): boolean {
-        if (!parentUrl) return false;
+        if (!parentUrl) {
+            return false;
+        }
         const cleanParent = parentUrl.replace(/\/$/, '');
         return !fullUrl.startsWith(`${cleanParent}/`);
     }
@@ -209,7 +229,9 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
             } else if (item !== null && typeof item === 'object') {
                 const keys = Object.keys(item as Record<string, unknown>);
                 const title = keys[0];
-                if (!title) continue;
+                if (!title) {
+                    continue;
+                }
                 const value = (item as Record<string, unknown>)[title];
                 const parsed = parseSitemapLine(title);
                 if (!parsed) {
@@ -252,17 +274,23 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
     // `core`: the engine ships no site-specific logic).
     for (const pageUrl of Object.keys(pages)) {
         const pageData = pages[pageUrl];
-        if (!pageData) continue;
+        if (!pageData) {
+            continue;
+        }
         const titleParts: string[] = [pageData.name];
 
         if (pageData.breadcrumbs.length > 0) {
             for (const breadcrumbUrl of pageData.breadcrumbs.slice().reverse()) {
                 const breadcrumbPage = pages[breadcrumbUrl];
-                if (breadcrumbPage) titleParts.push(breadcrumbPage.name);
+                if (breadcrumbPage) {
+                    titleParts.push(breadcrumbPage.name);
+                }
             }
         }
 
-        if (pageUrl !== '/') titleParts.push(rootTitle);
+        if (pageUrl !== '/') {
+            titleParts.push(rootTitle);
+        }
 
         pages[pageUrl] = { ...pageData, title: titleParts.join(' | ') };
     }
@@ -275,7 +303,9 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
         const filePath = pageData.file;
         if (filePath && url) {
             md2url[filePath] = url;
-            if (!md2urls[filePath]) md2urls[filePath] = [];
+            if (!md2urls[filePath]) {
+                md2urls[filePath] = [];
+            }
             md2urls[filePath]!.push(url);
             url2md[url] = filePath;
         }
@@ -310,7 +340,9 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
         const timestampCache = new Map<string, Promise<number | null>>();
         const renderPage = async ([url, pageData]: [string, SitemapPage]): Promise<void> => {
             const filePath = pageData.file;
-            if (!filePath) return;
+            if (!filePath) {
+                return;
+            }
             const fullPath = path.resolve(contentDir, filePath);
             const relativeFile = path.relative(contentDir, fullPath);
             if (relativeFile === '..' || relativeFile.startsWith(`..${path.sep}`) || path.isAbsolute(relativeFile)) {
@@ -335,15 +367,23 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
                 githubRawBase: config.site.githubRawBase,
             };
             const imageMapping = ctx.store['imageMapping'] as Record<string, string> | undefined;
-            if (imageMapping) mdOpts.imageMapping = imageMapping;
+            if (imageMapping) {
+                mdOpts.imageMapping = imageMapping;
+            }
             const downloads = ctx.store['downloads'] as Record<string, string> | undefined;
-            if (downloads) mdOpts.downloads = downloads;
+            if (downloads) {
+                mdOpts.downloads = downloads;
+            }
             // Pass extension-registered remark plugins (env.markdown.use) and
             // generic-directive mappings (env.markdown.directive) into the bridge.
             const remarkPlugins = ctx.env.markdown.list();
-            if (remarkPlugins.length > 0) mdOpts.remarkPlugins = remarkPlugins as MarkdownOptions['remarkPlugins'];
+            if (remarkPlugins.length > 0) {
+                mdOpts.remarkPlugins = remarkPlugins as MarkdownOptions['remarkPlugins'];
+            }
             const directives = ctx.env.markdown.directiveMappings();
-            if (directives.size > 0) mdOpts.directiveMappings = directives;
+            if (directives.size > 0) {
+                mdOpts.directiveMappings = directives;
+            }
             const renderer = createMarkdown(mdOpts);
             const { tree, headings } = renderer.render(content);
             // lastUpdated: git commit timestamp of the source .md, formatted
@@ -351,7 +391,9 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
             let lastUpdated: string | null = null;
             try {
                 const ts = await getFileTimestamp(realPath, undefined, timestampCache);
-                if (ts !== null) lastUpdated = formatLastUpdated(ts);
+                if (ts !== null) {
+                    lastUpdated = formatLastUpdated(ts);
+                }
             } catch {
                 // leave null if git is unavailable
             }

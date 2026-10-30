@@ -4,7 +4,7 @@
  * Registers a remark mdast plugin via `env.markdown.use(remarkTypographyRu)`
  * (openspec `ext-markdown-typography-ru`): it walks mdast text nodes and
  * rewrites spacing around an existing em-dash (`—`) with a non-breaking space
- * before it and a regular space after (`<word> — <text>`), the Russian
+ * before it and a regular space after (`<word>&nbsp;— <text>`), the Russian
  * typographic convention. Code (`code`/`inlineCode`) is a separate node type
  * and is never visited, so code is skipped structurally.
  *

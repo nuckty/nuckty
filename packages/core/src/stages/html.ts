@@ -24,7 +24,9 @@ import type { DocumentData } from '../document/document.js';
 
 export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<void> => {
     const sitemap = ctx.store['sitemap'] as SitemapArtifact | undefined;
-    if (!sitemap || !sitemap.pages) return;
+    if (!sitemap || !sitemap.pages) {
+        return;
+    }
 
     const assets = {
         css: (ctx.store['cssHash'] as Record<string, BundleHashEntry> | undefined) ?? {},
@@ -67,7 +69,9 @@ export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise
                 sourceFile: page.file,
             };
             const ip = (page as { inputPath?: string }).inputPath;
-            if (ip !== undefined) imageEnv.inputPath = ip;
+            if (ip !== undefined) {
+                imageEnv.inputPath = ip;
+            }
             contentForLayout = [{ raw: postprocessHtml(contentHtml, imageEnv) }];
         }
 
@@ -87,8 +91,12 @@ export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise
             alternates,
         };
 
-        if (currentTarget) data.target = currentTarget;
-        if (ctx.lang) data.lang = ctx.lang;
+        if (currentTarget) {
+            data.target = currentTarget;
+        }
+        if (ctx.lang) {
+            data.lang = ctx.lang;
+        }
 
         const document = await ctx.env.document.render(data);
         const html = render(document, { templates, document: true }) as string;
@@ -105,7 +113,9 @@ export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise
  * 5 path segments — the documented hosting limit.
  */
 export function urlToFlat(url: string): string {
-    if (url === '/' || url === '') return 'index.html';
+    if (url === '/' || url === '') {
+        return 'index.html';
+    }
     if (url.endsWith('/')) {
         throw new Error(`nuckty: html — page URL "${url}" must not end with a trailing slash (use "${url.replace(/\/+$/, '')}")`);
     }

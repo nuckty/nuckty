@@ -33,8 +33,8 @@ function documentTree(
             b('brand', 'name', demo ? 'nuckty demo' : 'nuckty'),
         ],
         {
-            ...{ ...(url === '/' ? {} : { href: '/', 'aria-label': demo ? t['nuckty demo home'] : t['nuckty home'] }) },
-            linked: url === '/' ? false : true,
+            ...(url === '/' ? {} : { href: '/', 'aria-label': demo ? t['nuckty demo home'] : t['nuckty home'] }),
+            linked: url !== '/',
         },
     );
     const siteUrl = String(data.target?.data?.['siteUrl'] ?? 'http://localhost:8091');
@@ -247,10 +247,8 @@ function documentTree(
                     b('root', 'name', 'nuckty'),
                 ],
                 {
-                    ...{
-                        ...(url === '/' ? {} : { href: demo ? siteUrl : '/', 'aria-label': t['nuckty home'] }),
-                    },
-                    linked: url === '/' ? false : true,
+                    ...(url === '/' ? {} : { href: demo ? siteUrl : '/', 'aria-label': t['nuckty home'] }),
+                    linked: url !== '/',
                 },
             ),
             b('footer', 'caption', [b('footer', 'made', t['Made with nuckty.']), b('root', 'break'), t['Of course']]),

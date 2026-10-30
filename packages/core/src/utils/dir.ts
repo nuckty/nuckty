@@ -114,7 +114,9 @@ export function getExternalRepoDirs(root: string = process.cwd()): string[] {
     const dirs: string[] = [];
     for (const name of names) {
         const p = path.join(externalDir, name);
-        if (existsSync(p)) dirs.push(p);
+        if (existsSync(p)) {
+            dirs.push(p);
+        }
     }
     if (dirs.length === 0) {
         // No external.json (or none present): scan external/ subdirs directly.
@@ -122,7 +124,9 @@ export function getExternalRepoDirs(root: string = process.cwd()): string[] {
             for (const e of readdirSync(externalDir, { withFileTypes: true })) {
                 if (e.isDirectory() || e.isSymbolicLink()) {
                     const p = path.join(externalDir, e.name);
-                    if (existsSync(p)) dirs.push(p);
+                    if (existsSync(p)) {
+                        dirs.push(p);
+                    }
                 }
             }
         } catch {
@@ -175,14 +179,22 @@ export async function scan(
     await Promise.all(entries.map(async (entry) => {
         const fullPath = path.join(dirPath, entry.name);
         if (entry.isDirectory()) {
-            if (excludeDirs.includes(entry.name) || entry.name.startsWith('.')) return;
+            if (excludeDirs.includes(entry.name) || entry.name.startsWith('.')) {
+                return;
+            }
             const sub = await scan(fullPath, extensions, excludeDirs);
-            for (const f of sub) files.push(f);
+            for (const f of sub) {
+                files.push(f);
+            }
             return;
         }
-        if (!entry.isFile()) return;
+        if (!entry.isFile()) {
+            return;
+        }
         const ext = path.extname(entry.name).toLowerCase();
-        if (extensions.length === 0 || extensions.includes(ext)) files.push(fullPath);
+        if (extensions.length === 0 || extensions.includes(ext)) {
+            files.push(fullPath);
+        }
     }));
     return files;
 }

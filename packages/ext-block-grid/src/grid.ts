@@ -50,13 +50,17 @@ export function extractItems(children: MdastNode[]): MdastNode[][] {
     const items: MdastNode[][] = [];
     for (const child of children) {
         if (child.type === 'html') {
-            if ((child.value ?? '').trim()) items.push([child]);
+            if ((child.value ?? '').trim()) {
+                items.push([child]);
+            }
             continue;
         }
         if (child.type !== 'paragraph') {
             throw new Error(`Grid supports paragraph cells only; received ${child.type}`);
         }
-        if (paragraphText(child).trim() || hasImage(child)) items.push(child.children ?? []);
+        if (paragraphText(child).trim() || hasImage(child)) {
+            items.push(child.children ?? []);
+        }
     }
     return items;
 }

@@ -250,8 +250,12 @@ function normalizeArgs(args: CommandArgs): { positionalPath: string | undefined;
 function readBooleanFlag(flags: CommandArgs['flags'], name: 'dry-run' | 'force'): boolean {
     const value = flags[name];
 
-    if (value === undefined || value === 'false') return false;
-    if (value === true || value === 'true') return true;
+    if (value === undefined || value === 'false') {
+        return false;
+    }
+    if (value === true || value === 'true') {
+        return true;
+    }
     throw new Error(`--${name} accepts only true or false`);
 }
 

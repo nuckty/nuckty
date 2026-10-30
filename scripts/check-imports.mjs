@@ -21,11 +21,15 @@ function check() {
         const declared = new Set([...Object.keys(manifest.dependencies ?? {}), ...Object.keys(manifest.peerDependencies ?? {}), manifest.name]);
         const dist = path.join(root, 'dist');
         for (const file of readdirSync(dist, { recursive: true, withFileTypes: true })) {
-            if (!file.isFile() || !/\.(?:js|d\.ts)$/.test(file.name)) continue;
+            if (!file.isFile() || !/\.(?:js|d\.ts)$/.test(file.name)) {
+                continue;
+            }
             const filename = path.join(file.parentPath, file.name);
             const source = readFileSync(filename, 'utf8');
             for (const specifier of importSpecifiers(source)) {
-                if (specifier.startsWith('.') || specifier.startsWith('/') || specifier.startsWith('node:') || builtins.has(specifier)) continue;
+                if (specifier.startsWith('.') || specifier.startsWith('/') || specifier.startsWith('node:') || builtins.has(specifier)) {
+                    continue;
+                }
                 const parts = specifier.split('/');
                 const dependency = specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0];
                 const typePackage = dependency.startsWith('@') ? `@types/${dependency.slice(1).replace('/', '__')}` : `@types/${dependency}`;
@@ -36,7 +40,9 @@ function check() {
             }
         }
     }
-    if (failed) process.exitCode = 1;
+    if (failed) {
+        process.exitCode = 1;
+    }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

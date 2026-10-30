@@ -28,11 +28,19 @@ function applyPlugin(tree: Root, plugin = remarkVideoEmbed): Root {
 function paraChildren(src: string): Array<{ type: string; value?: string; url?: string; children?: unknown[] }> {
     const tree = applyPlugin(unified().use(remarkParse).parse(src) as Root);
     const para = tree.children[0];
-    if (!para || para.type !== 'paragraph') return [];
+    if (!para || para.type !== 'paragraph') {
+        return [];
+    }
     return para.children.map((c) => {
-        if (c.type === 'html') return { type: 'html', value: (c as Html).value };
-        if (c.type === 'text') return { type: 'text', value: (c as Text).value };
-        if (c.type === 'link') return { type: 'link', url: (c as Link).url, children: (c as Link).children };
+        if (c.type === 'html') {
+            return { type: 'html', value: (c as Html).value };
+        }
+        if (c.type === 'text') {
+            return { type: 'text', value: (c as Text).value };
+        }
+        if (c.type === 'link') {
+            return { type: 'link', url: (c as Link).url, children: (c as Link).children };
+        }
         return { type: c.type };
     });
 }
