@@ -205,10 +205,6 @@ function blocksToBem(
                 }
                 break;
             }
-            case 'textDirective': {
-                out.push(...phrasingToBem([node], env));
-                break;
-            }
             case 'footnoteDefinition': {
                 out.push(md('footnote', blocksToBem(node.children, env, false), { id: `fn-${node.identifier}` }));
                 break;
@@ -354,7 +350,7 @@ function tableToBem(node: Table, env: BridgeEnv): BemNode {
 
 function rowToBem(row: TableRow, env: BridgeEnv, isHeader: boolean, align: Table['align']): BemNode {
     const cells = row.children.map((cell, index) => {
-        // remark-gfm keeps U+00A0 at cell edges; trim it like other whitespace.
+        // remark-gfm keeps U+00A0 at cell edges; `\s` trims it like other whitespace.
         const content = trimCellEdges(phrasingToBem(cell.children, env));
         const alignment = align?.[index];
 
@@ -364,14 +360,14 @@ function rowToBem(row: TableRow, env: BridgeEnv, isHeader: boolean, align: Table
     return md('table-row', cells);
 }
 
-/** Trim whitespace, including U+00A0, from the boundary strings of a table cell. */
+/** Trim whitespace from the boundary strings of a table cell. */
 function trimCellEdges(children: BEMTree[]): BEMTree[] {
     const out = children.slice();
     // leading edge
     for (let i = 0; i < out.length; i++) {
         const v = out[i];
         if (typeof v === 'string') {
-            const trimmed = v.replace(/^[\s ]+/, '');
+            const trimmed = v.replace(/^\s+/, '');
             if (trimmed === '' && v !== '') { out.splice(i, 1); i--; continue; }
             out[i] = trimmed;
             break;
@@ -382,7 +378,7 @@ function trimCellEdges(children: BEMTree[]): BEMTree[] {
     for (let i = out.length - 1; i >= 0; i--) {
         const v = out[i];
         if (typeof v === 'string') {
-            const trimmed = v.replace(/[\s ]+$/, '');
+            const trimmed = v.replace(/\s+$/, '');
             if (trimmed === '' && v !== '') { out.splice(i, 1); continue; }
             out[i] = trimmed;
             break;

@@ -38,6 +38,12 @@ test('table: empty body cell renders empty <td>', () => {
     assert.ok(/<td class=article__table-cell>1<td class=article__table-cell></.test(html), 'empty <td> expected');
 });
 
+test('table: no-break spaces at cell edges are trimmed, inner ones kept', () => {
+    const html = mdToHtml('| H |\n| --- |\n| \u00a0a\u00a0b\u00a0 |\n| \u00a0**c** |\n');
+    assert.ok(html.includes('<td class=article__table-cell>a\u00a0b<'), html);
+    assert.ok(html.includes('<td class=article__table-cell><strong>c</strong>'), html);
+});
+
 test('table: cell with inline code + link keeps both', () => {
     const html = mdToHtml('| H |\n| --- |\n| [`x`](/y) `code` |\n');
     // The link wraps the inline code: <a href=/y><code>x</code></a>.
