@@ -1,4 +1,4 @@
-import { promises as fs, constants, readFileSync, existsSync, statSync, readdirSync } from 'node:fs';
+import { promises as fs, constants, readFileSync, existsSync, statSync } from 'node:fs';
 import * as path from 'node:path';
 import { Writable } from 'node:stream';
 import { createHash } from 'node:crypto';
@@ -61,8 +61,6 @@ export interface FtpAuthConfig {
     remotePath: string;
     /** Require explicit FTPS with certificate verification when true. */
     secure: boolean;
-    /** Passive mode (always true — mirrors reference). */
-    passive: boolean;
     /** Print progress to stdout. */
     progress: boolean;
 }
@@ -94,7 +92,6 @@ export interface DeployStats {
     uploaded: number;
     deleted: number;
     errors: number;
-    zipUploaded: number;
     totalSize: number;
     startTime: Date | null;
     endTime: Date | null;
@@ -302,23 +299,6 @@ async function preflightFiles(outDir: string, manifest: Manifest): Promise<Map<s
     return files;
 }
 
-/** Walk a directory and return `{ local, remote }` pairs for every file. */
-export function getAllFiles(dirPath: string, basePath = ''): Array<{ local: string; remote: string }> {
-    const files: Array<{ local: string; remote: string }> = [];
-    const items = readdirSync(dirPath);
-    for (const item of items) {
-        const fullPath = path.join(dirPath, item);
-        const relativePath = path.join(basePath, item);
-        const stats = statSync(fullPath);
-        if (stats.isDirectory()) {
-            files.push(...getAllFiles(fullPath, relativePath));
-        } else {
-            files.push({ local: fullPath, remote: relativePath.replace(/\\/g, '/') });
-        }
-    }
-    return files;
-}
-
 /**
  * Load FTP auth config. Env vars take precedence: `FTP_HOST`, `FTP_USER`,
  * `FTP_PASSWORD` (or legacy `FTP_PASS`), `FTP_PATH`, optional `FTP_PORT`.
@@ -372,7 +352,6 @@ export function loadAuthConfig(cwd: string, configPath = 'config/auth-ftp.json')
         password: String(cfg['password']),
         remotePath: String(cfg['remote_path']),
         secure,
-        passive: true,
         progress,
     };
 }
@@ -403,8 +382,7 @@ function loadAuthFromEnv(): FtpAuthConfig | null {
             remotePath,
             port: port ? parseInt(port, 10) : 21,
             secure: parseSecure(process.env.FTP_SECURE),
-            passive: true,
-            progress: true,
+                progress: true,
         };
     }
     return null;
@@ -416,7 +394,6 @@ function emptyStats(): DeployStats {
         uploaded: 0,
         deleted: 0,
         errors: 0,
-        zipUploaded: 0,
         totalSize: 0,
         startTime: null,
         endTime: null,
@@ -521,9 +498,6 @@ async function uploadFile(
         await fixRemoteTimestamp(client, remotePath, localPath);
         state.stats.uploaded++;
         state.stats.totalSize += size;
-        if (remotePath.endsWith('.zip')) {
-            state.stats.zipUploaded++;
-        }
         return true;
     } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -946,9 +920,6 @@ export function printSummary(stats: DeployStats, dryRun = false): void {
     console.log(`Uploaded: ${stats.uploaded} files`);
     if (stats.deleted > 0) {
         console.log(`Deleted: ${stats.deleted} files`);
-    }
-    if (stats.zipUploaded > 0) {
-        console.log(`  (ZIP files: ${stats.zipUploaded})`);
     }
     if (stats.errors > 0) {
         console.log(`Errors: ${stats.errors} files`);

@@ -7,7 +7,7 @@ import { buildAnchorMap, resolvePageAnchors } from '../markdown/resolve-anchors.
 import { resolveBuildFile } from './artifact-path.js';
 import { getBuildConfig } from '../utils/build-config.js';
 
-import { getFileTimestamp, formatLastUpdated } from '../utils/timestamp.js';
+import { getFileTimestamp } from '../utils/timestamp.js';
 import type {
     SitemapArtifact,
     SitemapPage,
@@ -386,26 +386,13 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
             }
             const renderer = createMarkdown(mdOpts);
             const { tree, headings } = renderer.render(content);
-            // lastUpdated: git commit timestamp of the source .md, formatted
-            // the way the footer template renders it (1:1 with build-html.js).
-            let lastUpdated: string | null = null;
-            try {
-                const ts = await getFileTimestamp(realPath, undefined, timestampCache);
-                if (ts !== null) {
-                    lastUpdated = formatLastUpdated(ts);
-                }
-            } catch {
-                // leave null if git is unavailable
-            }
-            // Tag the page's inputPath (consumed by templates, mirrors the JS env.page).
             const updated: SitemapPage = {
                 ...pageData,
                 tree,
                 headings,
-                lastUpdated,
+                inputPath: `${relativePrefix}${relativePath}`,
+                lastUpdated: await getFileTimestamp(realPath, timestampCache),
             };
-            (updated as Record<string, unknown>)['inputPath'] =
-                `${relativePrefix}${relativePath}`;
             result.pages[url] = updated;
         };
 

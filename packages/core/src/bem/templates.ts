@@ -26,11 +26,6 @@ export class Templates {
         this.entries.push({ ...t, order: this.counter++ });
     }
 
-    /** All declared templates (debugging/introspection). */
-    all(): readonly Template[] {
-        return this.entries;
-    }
-
     /**
      * Match templates against a node, ordered from LEAST to MOST specific so the
      * renderer selects the strongest declaration and `next()` reaches weaker ones.

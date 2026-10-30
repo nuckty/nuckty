@@ -84,9 +84,9 @@ test('MarkdownFacade.directive maps a name to a handler and lookups resolve', ()
     const md = new MarkdownFacade();
     const handler: DirectiveHandler = () => ({ block: 'gallery' });
     md.directive('gallery', handler);
-    assert.equal(md.directiveHandler('gallery'), handler);
-    assert.equal(md.directiveHandler('unknown'), undefined);
-    assert.deepEqual(md.directiveNames(), ['gallery']);
+    assert.equal(md.directiveMappings().get('gallery'), handler);
+    assert.equal(md.directiveMappings().get('unknown'), undefined);
+    assert.deepEqual([...md.directiveMappings().keys()], ['gallery']);
 });
 
 test('MarkdownFacade.directiveMappings returns a snapshot map the bridge copies', () => {
@@ -116,7 +116,7 @@ test('directive handler returning null signals "fall back to plain content"', ()
     const fallthrough: DirectiveHandler = () => null;
     md.directive('callout', fallthrough);
     const node: DirectiveNode = { name: 'callout', children: [] };
-    assert.equal(md.directiveHandler('callout')!(node, {}, convert), null);
+    assert.equal(md.directiveMappings().get('callout')!(node, {}, convert), null);
 });
 
 test('directive handler receives the structural node and an opaque env', () => {
@@ -132,7 +132,7 @@ test('directive handler receives the structural node and an opaque env', () => {
     });
     const node: DirectiveNode = { name: 'grid', children: [{ type: 'paragraph' }], attributes: { id: 'a' } };
     const bridgeEnv = { imageMapping: {} };
-    md.directiveHandler('grid')!(node, bridgeEnv, convert);
+    md.directiveMappings().get('grid')!(node, bridgeEnv, convert);
     assert.equal(received, node);
     assert.equal(receivedEnv, bridgeEnv);
     assert.equal(received?.attributes?.id, 'a');
@@ -193,7 +193,7 @@ test('independent environments keep extension registrations and behavior isolate
     assert.equal(second.commands.get('custom'), undefined);
     assert.deepEqual(second.levels.list(), []);
     assert.deepEqual(second.markdown.list(), []);
-    assert.equal(second.markdown.directiveHandler('custom'), undefined);
+    assert.equal(second.markdown.directiveMappings().get('custom'), undefined);
     await assert.rejects(() => second.document.render(documentData), /no document handler registered/);
 
     second.commands.add('custom', 'second', async () => 9);
@@ -206,7 +206,7 @@ test('independent environments keep extension registrations and behavior isolate
     assert.equal(await first.commands.get('custom')!.handler(args), 7);
     assert.equal(await second.commands.get('custom')!.handler(args), 9);
     assert.deepEqual(first.levels.list(), ['/first']);
-    assert.deepEqual(first.markdown.directiveHandler('custom')!({ name: 'custom' }, {}, convert), { raw: 'first' });
+    assert.deepEqual(first.markdown.directiveMappings().get('custom')!({ name: 'custom' }, {}, convert), { raw: 'first' });
     assert.equal(await first.document.render(documentData), 'first document');
     assert.equal(await second.document.render(documentData), 'second document');
 

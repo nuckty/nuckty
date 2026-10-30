@@ -33,7 +33,6 @@ interface BemNode {
     bem?: boolean;           // whether to generate BEM classes (true by default)
     props?: Record<string, unknown>;  // template data; not serialized automatically
     raw?: string;            // trusted string: not escaped, not minimized
-    tightList?: boolean;     // compatibility only; HTML controls optional li tags
 }
 ```
 

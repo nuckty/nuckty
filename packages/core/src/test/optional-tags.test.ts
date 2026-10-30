@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { parse, parseFragment, type DefaultTreeAdapterMap } from 'parse5';
 import { renderToHtml } from '../bem/render-to-html.js';
-import { serialize } from '../bem/html/serialize.js';
+import { serialize } from './helpers/serialize.js';
 import type { BemNode, BEMTree } from '../bem/types.js';
 
 type ParsedNode = DefaultTreeAdapterMap['node'];

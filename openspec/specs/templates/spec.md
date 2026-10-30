@@ -139,12 +139,12 @@ An elem wildcard selector SHALL match only nodes carrying a nonempty element nam
 
 ### Requirement: Empty string modifier naming parity
 
-stringifyEntity SHALL retain the modifier value delimiter for empty string values, consistent with classify and mixed entities. Only boolean true SHALL use valueless modifier naming.
+Class generation SHALL retain the modifier value delimiter for empty string values, for the node's own modifiers and for mixed entities alike. Only boolean true SHALL use valueless modifier naming.
 
 #### Scenario: Empty string value
 
 - **WHEN** a block or element modifier has an empty string value
-- **THEN** both naming helpers produce the same modifier token including the value delimiter for the configured preset
+- **THEN** its class ends with the modifier name followed by the value delimiter
 
 ### Requirement: Block and element selector domains
 A declaration without an element selector SHALL match only block nodes without a nonempty element name. Named and wildcard element selectors SHALL match only their corresponding element nodes. The rule SHALL apply to literal and wildcard block names and to all template modes, including structural modes and predicates.

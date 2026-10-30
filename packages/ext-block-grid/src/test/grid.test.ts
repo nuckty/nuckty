@@ -63,7 +63,7 @@ test('register adds the blocks level and maps the grid directive', () => {
     const levels = env.levels.list();
     assert.equal(levels.length, 1);
     assert.ok(levels[0]!.endsWith('/blocks/'), `level points at blocks/, got ${levels[0]}`);
-    assert.equal(env.markdown.directiveHandler('grid'), gridHandler);
+    assert.equal(env.markdown.directiveMappings().get('grid'), gridHandler);
 });
 
 test('grid block templates render the tree with escaped item text', () => {

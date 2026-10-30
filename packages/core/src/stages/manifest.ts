@@ -4,8 +4,6 @@ import { assertArtifactPath } from './artifact-path.js';
 import type { Stage, BuildContext } from '../pipeline/pipeline.js';
 import { generateFileHash } from '../utils/hash.js';
 
-export { generateFileHash } from '../utils/hash.js';
-
 const MANIFEST_FILE = 'manifest.json';
 
 interface ManifestEntry {

@@ -68,9 +68,8 @@ export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise
                 imageMapping: assets.images,
                 sourceFile: page.file,
             };
-            const ip = (page as { inputPath?: string }).inputPath;
-            if (ip !== undefined) {
-                imageEnv.inputPath = ip;
+            if (page.inputPath !== undefined) {
+                imageEnv.inputPath = page.inputPath;
             }
             contentForLayout = [{ raw: postprocessHtml(contentHtml, imageEnv) }];
         }

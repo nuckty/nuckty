@@ -4,7 +4,7 @@ import { NucktyEnv } from './env/env.js';
 import { loadPlugins } from './env/loader.js';
 import { loadConfig } from './env/config.js';
 import { allTargets, resolveTarget, type NucktyConfig, type Target } from './targets/config.js';
-import { registerDefaultStages, finalizeArtifact } from './stages/index.js';
+import { registerDefaultStages } from './stages/index.js';
 import { loadBlocks } from './blocks/loader.js';
 import { loadBuildConfig, type BuildConfigSnapshot } from './utils/build-config.js';
 import { preflightOutDirs } from './utils/outdir-preflight.js';
@@ -98,9 +98,7 @@ async function buildOne(config: NucktyConfig, target: Target, cwd: string, env: 
     // onto the live pipeline.
     env.pipeline.flush(pipeline);
     await pipeline.run(ctx);
-    // Finalize (compression/htaccess/manifest/nginx) AFTER the full pipeline —
-    // extension emit stages have written all their files by now (RUNTIME-009).
-    await finalizeArtifact(ctx, pipeline);
+    await pipeline.finalize(ctx);
 
     process.stdout.write(`nuckty: built target "${target.name}" → ${target.outDir}\n`);
 }

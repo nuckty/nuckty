@@ -66,27 +66,7 @@ export interface BemNode {
      * Prefer producing real BemNode children; use `raw` sparingly.
      */
     raw?: string;
-    /** Legacy compatibility field; optional li tags now always follow HTML rules. */
-    tightList?: boolean;
 }
 
 /** A BEMJSON tree: nodes, text, nested arrays, or empty null/undefined/false positions. */
 export type BEMTree = BemNode | BEMTree[] | string | null | undefined | false;
-
-/** Naming convention: the delimiters used to build class strings from entities. */
-export interface NamingPreset {
-    /** Element delimiter — `__` in the classic convention. */
-    elem: string;
-    /** Modifier name delimiter — `_` in the classic convention. */
-    mod: string;
-    /** Modifier value delimiter — `_` in the classic convention. */
-    modVal: string;
-}
-
-/** Immutable engine naming; diagnostic helpers may receive their own preset. */
-export const classicPreset: Readonly<NamingPreset> = Object.freeze({
-    elem: '__',
-    mod: '_',
-    modVal: '_',
-});
-

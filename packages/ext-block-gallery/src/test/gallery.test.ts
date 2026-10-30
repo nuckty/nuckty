@@ -86,7 +86,7 @@ test('register adds the blocks level and maps the gallery directive', () => {
     const levels = env.levels.list();
     assert.equal(levels.length, 1);
     assert.ok(levels[0]!.endsWith('/blocks/'), `level points at blocks/, got ${levels[0]}`);
-    assert.equal(env.markdown.directiveHandler('gallery'), galleryHandler);
+    assert.equal(env.markdown.directiveMappings().get('gallery'), galleryHandler);
 });
 
 test('gallery blocks render the construct tree into gallery HTML', () => {

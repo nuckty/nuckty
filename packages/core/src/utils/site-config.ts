@@ -1,14 +1,10 @@
 import { readFileSync } from 'node:fs';
 import * as path from 'node:path';
-import process from 'node:process';
-import { getRoot } from './dir.js';
 
 /** Shape of `config/site.json` after merging with defaults. */
 export interface SiteConfig {
     baseUrl: string;
     rootTitle: string;
-    contentRepo: string;
-    assetRepos: string[];
     /** Explicit source paths for assets whose flat output filenames collide. */
     assetSources: Record<string, string>;
     githubRawBase: string | string[] | null;
@@ -21,36 +17,22 @@ export interface SiteConfig {
 const DEFAULTS: SiteConfig = {
     baseUrl: 'https://example.com',
     rootTitle: 'Site',
-    contentRepo: 'content',
-    assetRepos: [],
     assetSources: {},
     githubRawBase: null,
     bundles: [],
     logPrefix: 'nuckty',
 };
 
-/**
- * Load the merged site config for a given root. `from` may be any
- * path inside the project; the project root is discovered upward from it.
- *
- * `configDir` (RUNTIME-005): an explicit target config directory — when given,
- * `site.json` is read from THERE (absolute or root-relative), not from the
- * project root's `config/`. Each call reads the resolved directory, so
- * two targets with different configDirs load their own bundles/identity.
- */
-export function loadConfig(from: string = process.cwd(), configDir?: string): SiteConfig {
-    const root = getRoot(from);
-    const dir = configDir !== undefined ? path.resolve(root, configDir) : path.join(root, 'config');
-    const configPath = path.join(dir, 'site.json');
+/** Load `site.json` from a target configuration directory and merge it with the defaults. */
+export function loadSiteConfig(configDir: string): SiteConfig {
+    const configPath = path.join(configDir, 'site.json');
     let raw: string;
     try {
         raw = readFileSync(configPath, 'utf8');
     } catch (error) {
         if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
-            if (process.env.NODE_ENV !== 'test') {
-                console.warn(`Warning: could not load site config from ${configPath}: ${error.message}`);
-            }
-            return { ...DEFAULTS, assetRepos: [], assetSources: {}, bundles: [] };
+            console.warn(`Warning: could not load site config from ${configPath}: ${error.message}`);
+            return { ...DEFAULTS, assetSources: {}, bundles: [] };
         }
 
         throw error;
@@ -72,14 +54,14 @@ export function loadConfig(from: string = process.cwd(), configDir?: string): Si
     }
 
     const values = parsed as Record<string, unknown>;
-    const stringFields = ['baseUrl', 'rootTitle', 'contentRepo', 'logPrefix'];
+    const stringFields = ['baseUrl', 'rootTitle', 'logPrefix'];
     for (const field of stringFields) {
         if (field in values && typeof values[field] !== 'string') {
             throw new Error(`Invalid site config at ${configPath}: "${field}" must be a string`);
         }
     }
 
-    for (const field of ['assetRepos', 'bundles']) {
+    for (const field of ['bundles']) {
         const value = values[field];
         if (field in values && (!Array.isArray(value) || !value.every((entry) => typeof entry === 'string'))) {
             throw new Error(`Invalid site config at ${configPath}: "${field}" must be an array of strings`);
@@ -103,22 +85,5 @@ export function loadConfig(from: string = process.cwd(), configDir?: string): Si
         throw new Error(`Invalid site config at ${configPath}: "assetSources" must be an object of string values`);
     }
 
-    return { ...DEFAULTS, assetRepos: [], assetSources: {}, bundles: [], ...values } as SiteConfig;
-}
-
-/** Backward-compatible reset; standalone accessors no longer cache. */
-export function resetConfig(): void {
-    // Compatibility API: configuration is now cached only in BuildContext.store.
-}
-
-export function getBaseUrl(from: string = process.cwd(), configDir?: string): string {
-    return loadConfig(from, configDir).baseUrl;
-}
-
-export function getRootTitle(from: string = process.cwd(), configDir?: string): string {
-    return loadConfig(from, configDir).rootTitle;
-}
-
-export function getBundles(from: string = process.cwd(), configDir?: string): string[] {
-    return loadConfig(from, configDir).bundles;
+    return { ...DEFAULTS, assetSources: {}, bundles: [], ...values } as SiteConfig;
 }

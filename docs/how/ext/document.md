@@ -4,7 +4,7 @@ A document handler turns engine-prepared data into a [BEMTree](../bemjson.md). I
 
 ## API
 
-`env.document.register(handler)` accepts `(data: DocumentData) => BEMTree | Promise<BEMTree>`. The data includes `page`, `content`, `sitemap`, `assets`, `alternates`, and optional `target` and `lang`. Site settings are available through `target?.data`.
+`env.document.register(handler)` accepts `(data: DocumentData) => BEMTree | Promise<BEMTree>`. The data includes `page`, `content`, `sitemap`, `assets`, `alternates`, and optional `target` and `lang`. Site settings are available through `target?.data`. `page.lastUpdated` is the Unix time in seconds of the last Git commit of the page source, or `null`; the template formats it.
 
 The current HTML stage applies [templates](../templates.md) to content and serializes it first. Therefore `data.content` contains a `raw` node with ready markup; the original tree is available through `data.page.tree`.
 

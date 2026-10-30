@@ -103,7 +103,7 @@ for (const server of ['nginx', 'apache']) {
             }
         }
         await fs.rm(path.join(out, 'brotli/dddddddddddddddd.css.br'));
-        await write('.htaccess', generateHtaccess(out));
+        await write('.htaccess', generateHtaccess());
         const config = path.join(root, `${server}.conf`);
         let binary: string;
         let args: string[];

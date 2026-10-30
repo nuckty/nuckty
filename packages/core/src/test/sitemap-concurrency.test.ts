@@ -43,12 +43,12 @@ test('sitemap bounds Git queries while preserving every page and timestamp', asy
         }
         await writeFile(path.join(root, 'config/sitemap.yml'), sitemap);
         await runBuild({ cwd: root, command: 'build' });
-        const output = JSON.parse(await readFile(path.join(root, '.build/sitemap.json'), 'utf8')) as { pages: Record<string, { lastUpdated: string }> };
+        const output = JSON.parse(await readFile(path.join(root, '.build/sitemap.json'), 'utf8')) as { pages: Record<string, { lastUpdated: number }> };
         assert.equal(calls, 24);
         assert.ok(peak > 1 && peak <= 8, `expected bounded concurrency; observed ${peak}`);
         assert.equal(active, 0);
         assert.equal(Object.keys(output.pages).length, 24);
-        assert.ok(Object.values(output.pages).every((page) => page.lastUpdated === '02.01.2023 03:00 GMT+03'));
+        assert.ok(Object.values(output.pages).every((page) => page.lastUpdated === 1672617600));
         await rm(path.join(root, 'content/p0.md'));
         calls = 0;
         await assert.rejects(runBuild({ cwd: root, command: 'build' }), /ENOENT/);

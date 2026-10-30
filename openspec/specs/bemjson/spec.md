@@ -7,7 +7,7 @@ Specify the shared BEMJSON data model for content and document layout. `BemNode`
 ## Requirements
 
 ### Requirement: BEMTree node fields
-The node type SHALL be `BemNode`, with optional typed fields `block`, `elem`, `mods`, `elemMods`, `mix`, `content`, `tag`, `attrs`, `cls`, `js`, `bem`, `props`, `raw` and `tightList`. `BEMTree` SHALL include a node, text, recursively nested arrays and empty `null`/`undefined`/`false` positions.
+The node type SHALL be `BemNode`, with optional typed fields `block`, `elem`, `mods`, `elemMods`, `mix`, `content`, `tag`, `attrs`, `cls`, `js`, `bem`, `props` and `raw`. `BEMTree` SHALL include a node, text, recursively nested arrays and empty `null`/`undefined`/`false` positions.
 
 #### Scenario: A node carries typed fields
 - **WHEN** TypeScript type-checks a node explicitly typed as BemNode
@@ -20,19 +20,6 @@ The fields SHALL carry these semantics: `block`/`elem` name the BEM entity; `mod
 #### Scenario: tag false emits content only
 - **WHEN** a node carries `tag: false`
 - **THEN** its content is emitted without a tag
-
-### Requirement: Class generation from the entity
-The engine SHALL build the class string from `block`, `elem`, `mods`, `elemMods`, and `mix` using the classic BEM scheme: `__` before an element, `_` before a modifier. There is exactly one naming scheme, without variants. The exported engine default SHALL be immutable; an explicit preset passed to a standalone diagnostic helper SHALL NOT alter rendering defaults. Boolean mods emit the key only; `false`/`null` mods are dropped. `mix` contributes another block's classes.
-
-#### Scenario: Classes are generated from the entity
-- **WHEN** a node `{ block: 'menu', elem: 'item', elemMods: { active: true } }` is rendered
-- **THEN** the class string is `menu__item menu__item_active`
-- **AND** a `{ block: 'menu', mods: { size: 'm' } }` node yields `menu menu_size_m`
-
-#### Scenario: Exported defaults cannot change engine output
-- **WHEN** a caller attempts to mutate the exported classicPreset
-- **THEN** renderer class names retain the classic separators
-- **AND** a diagnostic helper can use a separately supplied preset without changing later renders
 
 ### Requirement: props data and explicit template output
 `props` SHALL carry data for templates and SHALL NOT be serialized automatically. A template MAY read `n.props` and expose its values through content or attributes. The field SHALL NOT be described as a secrecy boundary. Its values MAY include non-JSON objects such as `Map`; callers own any serialization of those values.
@@ -80,3 +67,11 @@ The core SHALL export `b(block, elem?, content?, props?, entity?)`, which return
 - **WHEN** a node composed with `b('link', undefined, null, { href: '/x', count: 3, extra: 'y' })` is passed to `attributes(node, ['href', 'count'])`
 - **THEN** the result is `{ href: '/x' }`
 - **AND** the composed node has no `elem` field
+
+### Requirement: Classic BEM class generation
+The engine SHALL build the class string from `block`, `elem`, `mods`, `elemMods`, and `mix` using the classic BEM scheme: `__` before an element, `_` before a modifier. There is exactly one naming scheme, without variants or configurable delimiters. Boolean mods emit the key only; `false`/`null` mods are dropped. `mix` contributes another block's classes.
+
+#### Scenario: Classes are generated from the entity
+- **WHEN** a node `{ block: 'menu', elem: 'item', elemMods: { active: true } }` is rendered
+- **THEN** the class string is `menu__item menu__item_active`
+- **AND** a `{ block: 'menu', mods: { size: 'm' } }` node yields `menu menu_size_m`

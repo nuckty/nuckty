@@ -4,7 +4,6 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { parseIndentedSitemap, processSitemap } from '../stages/sitemap.js';
-import { stringifyEntity, classify } from '../bem/naming.js';
 import { htmlStage } from '../stages/html.js';
 import { NucktyEnv } from '../env/env.js';
 import { Templates } from '../bem/templates.js';
@@ -20,15 +19,6 @@ test('empty and unmarked sitemap declarations fail rather than omit pages', () =
     const ordinary = 'sitemap:\n# Comment\n\n  - Home [/, index.md]\n';
 
     assert.deepEqual(Object.keys(processSitemap(parseIndentedSitemap(ordinary)).pages), ['/']);
-});
-
-test('single entity stringification uses the same modifier owner as class generation', () => {
-    const element = { block: 'menu', elem: 'item', mods: { size: 'l' }, elemMods: { active: true } };
-
-    assert.equal(stringifyEntity(element), 'menu__item_active');
-    assert(classify(element)?.split(' ').includes(stringifyEntity(element)));
-    assert.equal(stringifyEntity({ block: 'menu', mods: { size: 'l' } }), 'menu_size_l');
-    assert.equal(stringifyEntity({ block: 'menu', elem: 'item', elemMods: { skipped: false, theme: 'dark' } }), 'menu__item_theme_dark');
 });
 
 test('HTML prepares single and array content equivalently and keeps empty trees empty', async () => {

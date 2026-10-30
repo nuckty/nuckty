@@ -1,16 +1,8 @@
-/**
- * BEMJSON → HTML serializer (base, no minimization).
- *
- * Internal reference serializer for resolved trees. The public render path uses
- * render-to-html.ts, which also implements optional-tag and attribute reduction.
- * Escaping does not validate the semantic HTML structure authored by templates.
- *
- * @module bem/html/serialize
- */
+/** Test oracle: serialize a resolved tree with every start and end tag, without optional-tag omission. */
 
-import type { AttrMap, BemNode, BEMTree } from '../types.js';
-import { classify } from '../naming.js';
-import { escapeAttr, escapeText, VOID_TAGS, BOOLEAN_ATTRS, normalizeHtmlName } from './escape.js';
+import type { AttrMap, BemNode, BEMTree } from '../../bem/types.js';
+import { classify } from '../../bem/naming.js';
+import { escapeAttr, escapeText, VOID_TAGS, BOOLEAN_ATTRS, normalizeHtmlName } from '../../bem/html/escape.js';
 
 /** Serialize a BEMTree to an HTML string (no minimization). */
 export function serialize(tree: BEMTree): string {
@@ -74,8 +66,6 @@ function serializeAttrs(attrs: AttrMap | undefined, js: BemNode['js'], node: Bem
             if (val === true || BOOLEAN_ATTRS.has(normalizeHtmlName(name))) {
                 parts.push(` ${name}`);
             } else {
-                // `"` MUST be `&quot;` inside a double-quoted attribute or the
-                // attribute terminates early (RENDER-01).
                 parts.push(` ${name}="${escapeAttr(String(val))}"`);
             }
         }

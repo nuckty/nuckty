@@ -153,16 +153,6 @@ export class MarkdownFacade {
         this.directiveMap.set(name, handler);
     }
 
-    /** Look up a registered directive handler by name (or `undefined`). */
-    directiveHandler(name: string): DirectiveHandler | undefined {
-        return this.directiveMap.get(name);
-    }
-
-    /** All registered directive names (for diagnostics). */
-    directiveNames(): string[] {
-        return [...this.directiveMap.keys()];
-    }
-
     /**
      * Snapshot of the directive map (name → handler) for the sitemap stage to
      * pass into the markdown bridge. Handlers are opaque to the core; the bridge

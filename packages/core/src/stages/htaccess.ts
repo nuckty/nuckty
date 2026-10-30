@@ -3,7 +3,7 @@ import path from 'node:path';
 import { assertArtifactPath } from './artifact-path.js';
 import type { Stage, BuildContext } from '../pipeline/pipeline.js';
 
-export function generateHtaccess(_root: string): string {
+export function generateHtaccess(): string {
     return `DirectoryIndex index.html
 
 # The site's own /404 page answers missing routes, as in the nginx configuration
@@ -374,7 +374,7 @@ ExpiresActive On
  * content-negotiation, cache, and security-headers configuration (br+gz only).
  */
 export const htaccessStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<void> => {
-    const content = generateHtaccess(ctx.outDir);
+    const content = generateHtaccess();
     const destination = path.join(ctx.outDir, '.htaccess');
 
     await assertArtifactPath(ctx.outDir, destination);

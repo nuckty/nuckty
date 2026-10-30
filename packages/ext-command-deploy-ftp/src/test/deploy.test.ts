@@ -12,7 +12,7 @@ import { deployFtp } from '../index.js';
 import { ftpDeploy, loadAuthConfig, type FtpTransport, type Manifest } from '../ftp.js';
 
 const auth = { host: 'fixture.invalid', user: 'fixture', password: 'fixture', port: 21,
-    remotePath: '/site', secure: true, passive: true, progress: false };
+    remotePath: '/site', secure: true, progress: false };
 
 class Server {
     files = new Map<string, Buffer>();
@@ -400,7 +400,7 @@ test('CLI parser and deploy handler preserve target order and reject unsafe bool
     const fakeFtpDeploy = async (options: { outDir: string; dryRun?: boolean; force?: boolean; allowMassDelete?: boolean }) => {
         calls.push(options);
         return {
-            stats: { uploaded: 0, deleted: 0, errors: 0, zipUploaded: 0, totalSize: 0, startTime: null, endTime: null },
+            stats: { uploaded: 0, deleted: 0, errors: 0, totalSize: 0, startTime: null, endTime: null },
             comparison: { toUpload: [], toDelete: [], unchanged: [], totalToUpload: 0, totalToDelete: 0, totalUnchanged: 0 },
         };
     };

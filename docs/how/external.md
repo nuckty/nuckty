@@ -45,18 +45,16 @@ external/
 
 Keep `external/` out of the site's Git repository: add it to `.gitignore`. The preparation command does not create that rule or edit `levels.json` for you.
 
-## Repository roles in site.json
+## Raw file links in site.json
 
-`config/site.json` can describe repository roles:
+Two `config/site.json` fields control links to raw GitHub files:
 
 | Field | Purpose |
 |---|---|
-| `contentRepo` | The main content repository — usually the one listed as the first level in `levels.json`. |
-| `assetRepos` | Additional repositories with assets (images, downloadable files). |
 | `githubRawBase` | The base for rewriting links to raw GitHub files. `null` — do not rewrite. |
 | `baseUrl` | The site's absolute URL. With `githubRawBase` set, raw-file URLs under that base in code text become `<baseUrl>/<file>`. |
 
-`contentRepo` and `assetRepos` are descriptive fields: they do not select the Markdown root or filter asset scanning. The first `levels.json` entry selects the root; `external.json` in the current target’s `configDir` selects external stage inputs. With separate configuration directories, keep these lists consistent with the global `config/external.json` read by the preparation command.
+The first `levels.json` entry selects the Markdown root; `external.json` in the current target’s `configDir` selects external stage inputs. With separate configuration directories, keep these lists consistent with the global `config/external.json` read by the preparation command.
 
 ## Why this is useful
 

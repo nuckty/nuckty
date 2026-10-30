@@ -2,7 +2,7 @@
 import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import type { BuildContext } from '../pipeline/pipeline.js';
-import { loadConfig, type SiteConfig } from './site-config.js';
+import { loadSiteConfig, type SiteConfig } from './site-config.js';
 import { externalRepoName, parseExternalSources } from './external.js';
 
 export interface BuildConfigSnapshot {
@@ -57,7 +57,7 @@ export function loadBuildConfig(cwd: string, configDir: string): BuildConfigSnap
         }
     }
     return {
-        site: loadConfig(cwd, directory),
+        site: loadSiteConfig(directory),
         levels,
         contentDir,
         contentRelative: `./${path.relative(cwd, contentDir).split(path.sep).join('/')}/`,

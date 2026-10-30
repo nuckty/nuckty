@@ -4,8 +4,7 @@
  * Stages write typed artifacts into `ctx.store` for later stages to consume.
  * These interfaces document the contract between stages (e.g. the css stage
  * reads `imageMapping` produced by the images stage). The pipeline store is
- * Record<string, unknown>; readStore/writeStore provide typed accessors, while
- * current stages also narrow or cast their artifacts directly.
+ * Record<string, unknown>; stages narrow their artifacts when reading them.
  *
  * @module stages/types
  */
@@ -26,6 +25,10 @@ export interface SitemapPage {
     headings?: Array<{ level: number; text: string; rawText: string; anchor: string }>;
     /** Optional layout path from sitemap.yml meta. */
     layout?: string;
+    /** Source path relative to the consumer root, e.g. `./content/how/index.md`. */
+    inputPath?: string;
+    /** Unix time in seconds of the last commit that touched the source, or null. */
+    lastUpdated?: number | null;
     [k: string]: unknown;
 }
 
@@ -80,14 +83,3 @@ export interface BuildStore {
     blockDeps?: Record<string, string[]>;
     [k: string]: unknown;
 }
-
-/** Read a typed artifact from a generic store object. */
-export function readStore<T>(store: Record<string, unknown>, key: string): T | undefined {
-    return Object.hasOwn(store, key) ? store[key] as T : undefined;
-}
-
-/** Write a typed artifact into a generic store object. */
-export function writeStore<T>(store: Record<string, unknown>, key: string, value: T): void {
-    Object.defineProperty(store, key, { value, writable: true, enumerable: true, configurable: true });
-}
-

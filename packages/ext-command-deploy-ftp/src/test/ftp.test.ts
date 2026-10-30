@@ -23,7 +23,6 @@ import {
     SAFETY_DELETE_THRESHOLD,
     loadAuthConfig,
     loadLocalManifest,
-    getAllFiles,
     ftpDeploy,
     type Manifest,
     type FtpTransport,
@@ -42,7 +41,7 @@ function manifest(entries: Record<string, [number, string]>): Manifest {
 function testAuth() {
     return {
         host: 'ftp.example.test', port: 21, user: 'user', password: 'password',
-        remotePath: '/', secure: false, passive: true, progress: false,
+        remotePath: '/', secure: false, progress: false,
     };
 }
 
@@ -303,7 +302,7 @@ test('loadAuthConfig: auth-ftp.json missing a required field throws', async () =
     }
 });
 
-// ---- loadLocalManifest + getAllFiles (filesystem helpers) -------------------
+// ---- loadLocalManifest -------------------------------------------------------
 
 test('loadLocalManifest: returns {} when manifest.json is absent', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-deploy-'));
@@ -393,24 +392,6 @@ test('ftpDeploy: valid regular manifest is uploaded after its content files', as
         await rm(dir, { recursive: true, force: true });
     }
 });
-
-test('getAllFiles: walks nested dirs and returns remote paths with forward slashes', async () => {
-    const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-deploy-'));
-    try {
-        await mkdir(path.join(dir, 'css'), { recursive: true });
-        await mkdir(path.join(dir, 'html', 'sub'), { recursive: true });
-        await writeFile(path.join(dir, 'root.txt'), 'x');
-        await writeFile(path.join(dir, 'css', 'a.css'), 'x');
-        await writeFile(path.join(dir, 'html', 'sub', 'b.html'), 'x');
-        const files = getAllFiles(dir);
-        const remotes = files.map((f) => f.remote).sort();
-        assert.deepEqual(remotes, ['css/a.css', 'html/sub/b.html', 'root.txt']);
-    } finally {
-        await rm(dir, { recursive: true, force: true });
-    }
-});
-
-// ---- CMD-02/03/06 regression pins --------------------------------------------
 
 test('CMD-02 pin: --force keeps the delete plan (force bypasses the guard, not deletions)', async () => {
     // Independent expected outcome derived from the contract: local has only

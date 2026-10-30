@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { generateHtaccess } from '../stages/htaccess.js';
 
-const config = generateHtaccess('/artifact');
+const config = generateHtaccess();
 
 test('Apache rejects direct HTML, codec and manifest requests only outside internal error handling', () => {
     // Each block matches the decoded per-directory path behind the internal-redirect guard.

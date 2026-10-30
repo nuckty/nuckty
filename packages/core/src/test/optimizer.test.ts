@@ -74,19 +74,6 @@ test('rule 14: ordinary lists omit eligible item end tags', () => {
     assert.equal(r(list), '<ul><li>a<li>b<li>c</ul>');
 });
 
-test('rule 14: tightList drops inter-sibling and trailing </li>', () => {
-    const list = {
-        tag: 'ul',
-        tightList: true,
-        content: [
-            { tag: 'li', content: 'a' },
-            { tag: 'li', content: 'b' },
-            { tag: 'li', content: 'c' },
-        ],
-    };
-    assert.equal(r(list), '<ul><li>a<li>b<li>c</ul>');
-});
-
 test('rule 14: article lists use the same HTML omission rules', () => {
     const list = {
         tag: 'ul',
@@ -219,15 +206,15 @@ test('all attribute escape characters retain their logical representation', () =
     assert.equal(r({ block: 'x', js: { value: '>' } }), '<div class=x data-bem="{&quot;x&quot;:{&quot;value&quot;:&quot;&gt;&quot;}}"></div>');
 });
 
-test('tight list closes li before script, text and raw siblings', () => {
+test('list items close before script, text and raw siblings', () => {
     for (const middle of [{ tag: 'script', attrs: { type: 'application/json' }, content: '{}' }, 'text', { raw: '<script type=application/json>{}</script>' }]) {
-        const html = r({ tag: 'ul', tightList: true, content: [{ tag: 'li', content: 'a' }, middle, { tag: 'li', content: 'b' }] });
+        const html = r({ tag: 'ul', content: [{ tag: 'li', content: 'a' }, middle, { tag: 'li', content: 'b' }] });
         assert.ok(html.startsWith('<ul><li>a</li>'), html);
     }
 });
 
 test('nested fragments retain list parent and lookahead across fragment boundaries', () => {
-    assert.equal(r({ tag: 'ul', tightList: true, content: [[{ tag: false, content: [{ tag: 'li', content: 'a' }] }], { tag: 'script', content: '{}' }, [{ tag: 'li', content: 'b' }]] }), '<ul><li>a</li><script>{}</script><li>b</ul>');
+    assert.equal(r({ tag: 'ul', content: [[{ tag: false, content: [{ tag: 'li', content: 'a' }] }], { tag: 'script', content: '{}' }, [{ tag: 'li', content: 'b' }]] }), '<ul><li>a</li><script>{}</script><li>b</ul>');
 });
 
 test('SVG foreignObject switches descendants back to HTML serialization', () => {
@@ -299,7 +286,7 @@ test('head closes before literal whitespace outside its content', () => {
 test('HTML tag and boolean-attribute matching is ASCII case insensitive', () => {
     assert.equal(r({ tag: 'IMG', attrs: { src: '/image.png' } }), '<IMG src=/image.png>');
     assert.equal(r({ tag: 'INPUT', attrs: { DISABLED: 'disabled' } }), '<INPUT DISABLED>');
-    assert.equal(r({ tag: 'UL', tightList: true, content: [{ tag: 'LI', content: 'A' }, { tag: 'LI', content: 'B' }] }), '<UL><LI>A<LI>B</UL>');
+    assert.equal(r({ tag: 'UL', content: [{ tag: 'LI', content: 'A' }, { tag: 'LI', content: 'B' }] }), '<UL><LI>A<LI>B</UL>');
 });
 
 test('mixed-case SVG syntax retains foreignObject HTML boundaries', () => {

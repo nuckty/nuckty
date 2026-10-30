@@ -1,0 +1,4 @@
+- [x] Remove unused modules, exports and fields together with their tests.
+- [x] Load `site.json` from the target configuration directory without root discovery.
+- [x] Store `page.lastUpdated` as Unix seconds.
+- [x] Update documentation and run build, lint and tests.

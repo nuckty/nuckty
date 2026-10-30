@@ -7,7 +7,7 @@ import { transform } from 'lightningcss';
 import { Templates } from '../bem/templates.js';
 import { createBlockFor } from '../bem/api.js';
 import { render } from '../bem/render.js';
-import { serialize } from '../bem/html/serialize.js';
+import { serialize } from './helpers/serialize.js';
 import { resolveTarget, allTargets, defineNucktyConfig } from '../targets/config.js';
 import { inlineHashedSVGs, processImageReferences } from '../stages/css.js';
 

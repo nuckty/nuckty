@@ -1,9 +1,9 @@
-import { test } from 'node:test';
+import { mock, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
-import { loadConfig } from '../utils/site-config.js';
+import { loadSiteConfig } from '../utils/site-config.js';
 import { runBuild } from './helpers/build.js';
 
 async function makeProject(): Promise<string> {
@@ -19,7 +19,7 @@ test('site config rejects malformed JSON and non-object roots', async () => {
         const configPath = path.join(dir, 'config', 'site.json');
         for (const input of ['{ invalid json', 'null', '[]']) {
             await writeFile(configPath, input);
-            assert.throws(() => loadConfig(dir));
+            assert.throws(() => loadSiteConfig(path.join(dir, 'config')));
         }
     } finally {
         await rm(dir, { recursive: true, force: true });
@@ -33,7 +33,7 @@ test('site config malformed JSON errors omit the raw payload', async () => {
         const configPath = path.join(dir, 'config', 'site.json');
         await writeFile(configPath, `{"password":"${sentinel}", invalid}`);
 
-        assert.throws(() => loadConfig(dir), (error: SyntaxError) => {
+        assert.throws(() => loadSiteConfig(path.join(dir, 'config')), (error: SyntaxError) => {
             assert.ok(error.message.includes(configPath));
             assert.match(error.message, /malformed JSON at position \d+/);
             assert.doesNotMatch(error.message, new RegExp(sentinel));
@@ -48,7 +48,7 @@ test('site config propagates read errors other than a missing file', async () =>
     const dir = await makeProject();
     try {
         await mkdir(path.join(dir, 'config', 'site.json'));
-        assert.throws(() => loadConfig(dir), (error: NodeJS.ErrnoException) => error.code !== 'ENOENT');
+        assert.throws(() => loadSiteConfig(path.join(dir, 'config')), (error: NodeJS.ErrnoException) => error.code !== 'ENOENT');
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
@@ -61,9 +61,7 @@ test('site config validates known field types while allowing unknown metadata', 
         const invalidConfigs: unknown[] = [
             { baseUrl: 1 },
             { rootTitle: null },
-            { contentRepo: false },
             { logPrefix: [] },
-            { assetRepos: ['repo', 1] },
             { bundles: 'page' },
             { githubRawBase: 1 },
             { githubRawBase: ['base', null] },
@@ -73,11 +71,11 @@ test('site config validates known field types while allowing unknown metadata', 
 
         for (const value of invalidConfigs) {
             await writeFile(configPath, JSON.stringify(value));
-            assert.throws(() => loadConfig(dir), /Invalid site config/);
+            assert.throws(() => loadSiteConfig(path.join(dir, 'config')), /Invalid site config/);
         }
 
         await writeFile(configPath, JSON.stringify({ consumerMetadata: { release: 3 } }));
-        assert.deepEqual(loadConfig(dir).consumerMetadata, { release: 3 });
+        assert.deepEqual(loadSiteConfig(path.join(dir, 'config')).consumerMetadata, { release: 3 });
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
@@ -102,3 +100,37 @@ test('runBuild rejects malformed site config before cleaning the output', async 
     }
 });
 
+test('site-config loads site.json with defaults merged', async () => {
+    const dir = await makeProject();
+    try {
+        await mkdir(path.join(dir, 'config'), { recursive: true });
+        await writeFile(path.join(dir, 'config', 'site.json'), JSON.stringify({
+            baseUrl: 'https://fixture.test',
+            rootTitle: 'Fixture',
+            githubRawBase: null,
+            bundles: ['page'],
+        }));
+        const cfg = loadSiteConfig(path.join(dir, 'config'));
+        assert.equal(cfg.baseUrl, 'https://fixture.test');
+        assert.equal(cfg.rootTitle, 'Fixture');
+        assert.deepEqual(cfg.bundles, ['page']);
+        assert.equal(cfg.logPrefix, 'nuckty');
+    } finally {
+        await rm(dir, { recursive: true, force: true });
+    }
+});
+
+test('site-config falls back to defaults when site.json is missing', async () => {
+    const dir = await makeProject();
+    const warning = mock.method(console, 'warn', () => {});
+
+    try {
+        const cfg = loadSiteConfig(path.join(dir, 'config'));
+        assert.equal(cfg.baseUrl, 'https://example.com');
+        assert.deepEqual(cfg.bundles, []);
+        assert.equal(warning.mock.callCount(), 1);
+    } finally {
+        warning.mock.restore();
+        await rm(dir, { recursive: true, force: true });
+    }
+});

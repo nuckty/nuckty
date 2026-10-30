@@ -7,27 +7,16 @@ import * as path from 'node:path';
 import { Pipeline, type BuildContext } from '../pipeline/pipeline.js';
 import { Templates } from '../bem/templates.js';
 import { NucktyEnv } from '../env/env.js';
-import { finalizeArtifact,
-    sitemapStage,
-    jsStage,
-    imagesStage,
-    assetsStage,
-    compressionStage,
-    manifestStage,
-    cleanStage,
-    htmlPlaceholderStage,
-    htaccessStage,
-    nginxStage,
-    generateHtaccess,
-    registerDefaultStages,
-    DEFAULT_STAGE_ORDER,
-    parseSitemapLine,
-    parseIndentedSitemap,
-    buildFullUrl,
-    processSitemap,
-} from '../stages/index.js';
+import { registerDefaultStages, cleanStage } from '../stages/index.js';
+import { sitemapStage, parseSitemapLine, parseIndentedSitemap, buildFullUrl, processSitemap } from '../stages/sitemap.js';
+import { jsStage } from '../stages/js.js';
+import { imagesStage } from '../stages/images.js';
+import { assetsStage } from '../stages/assets.js';
+import { compressionStage } from '../stages/compression.js';
+import { manifestStage } from '../stages/manifest.js';
+import { htaccessStage, generateHtaccess } from '../stages/htaccess.js';
+import { nginxStage } from '../stages/nginx.js';
 import { generateHash } from '../utils/hash.js';
-import { getRoot } from '../utils/dir.js';
 
 /** Build a fake project tree in a temp dir and return a BuildContext for it. */
 async function makeProject(): Promise<{ ctx: BuildContext; dir: string }> {
@@ -203,17 +192,6 @@ test('generateHash handles buffers', () => {
     assert.equal(a, b);
 });
 
-test('getRoot walks up to a directory containing package.json', async () => {
-    const { dir } = await makeProject();
-    try {
-        await writeFile(path.join(dir, 'package.json'), JSON.stringify({ name: 'fixture' }));
-        await mkdir(path.join(dir, 'a', 'b'), { recursive: true });
-        assert.equal(getRoot(path.join(dir, 'a', 'b')), dir);
-    } finally {
-        await rm(dir, { recursive: true, force: true });
-    }
-});
-
 test('images stage hashes + copies images and writes image-mapping.json', async () => {
     const { ctx, dir } = await makeProject();
     try {
@@ -320,28 +298,13 @@ test('manifest stage writes sorted manifest.json excluding itself', async () => 
     }
 });
 
-test('registerDefaultStages registers stages in the canonical phase order', () => {
+test('registerDefaultStages registers content stages by phase and finalizers separately', () => {
     const p = new Pipeline();
     registerDefaultStages(p);
-    assert.deepEqual(p.stageNames(), DEFAULT_STAGE_ORDER.map((s) => s.name));
+    assert.deepEqual(p.stageNames(), ['clean', 'images', 'assets', 'sitemap', 'css', 'js', 'resolve', 'html']);
 });
 
-test('registerDefaultStages registers the content stages; finalizers moved out (RUNTIME-009)', () => {
-    const p = new Pipeline();
-    registerDefaultStages(p);
-    const names = p.stageNames();
-    assert.ok(names.includes('clean'));
-    assert.ok(names.includes('html'));
-    // The finalizers are NOT pipeline stages anymore — they run via
-    // `finalizeArtifact()` AFTER `pipeline.run()` so extension emit stages
-    // write their files before compression/manifest see them.
-    assert.ok(!names.includes('compression'), 'compression must finalize after extensions');
-    assert.ok(!names.includes('manifest'), 'manifest must finalize after extensions');
-    assert.ok(!names.includes('nginx'));
-    assert.ok(!names.includes('htaccess'));
-});
-
-test('finalizeArtifact runs after the pipeline: an extension emit file reaches compression and manifest', async () => {
+test('finalizers run after the pipeline: an extension emit file reaches compression and manifest', async () => {
     const { ctx, dir } = await makeProject();
     try {
         await mkdir(path.join(dir, 'config'), { recursive: true });
@@ -357,7 +320,7 @@ test('finalizeArtifact runs after the pipeline: an extension emit file reaches c
             await writeFile(path.join(c.outDir, 'search.txt'), 'findable content');
         }, { phase: 'emit' });
         await p.run(ctx);
-        await finalizeArtifact(ctx);
+        await p.finalize(ctx);
         const manifest = JSON.parse(await readFile(path.join(ctx.outDir, 'manifest.json'), 'utf8')) as Record<string, unknown>;
         assert.ok('search.txt' in manifest, 'extension emit file must be listed in the manifest');
         assert.ok(existsSync(path.join(ctx.outDir, 'gzip', 'search.txt.gz')), 'extension emit file must be compressed');
@@ -382,17 +345,8 @@ test('clean stage removes and recreates build + out dirs', async () => {
     }
 });
 
-test('html placeholder stage resolves without writing', async () => {
-    const { ctx, dir } = await makeProject();
-    try {
-        await htmlPlaceholderStage(ctx); // should not throw
-    } finally {
-        await rm(dir, { recursive: true, force: true });
-    }
-});
-
 test('generateHtaccess produces br+gz config without zstd and without user redirects', () => {
-    const content = generateHtaccess('/site');
+    const content = generateHtaccess();
     // Core directives present.
     assert.match(content, /DirectoryIndex index\.html/);
     assert.match(content, /RewriteEngine On/);
