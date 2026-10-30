@@ -17,7 +17,7 @@ A [nuckty](https://github.com/nuckty/nuckty) package combining two extension typ
 :::
 ```
 
-The directive handler collects the container's images, rewrites their URLs through `image-mapping.json` (the engine's shared resolver), and builds the `gallery` block tree. A container without images falls back to its plain content.
+The directive handler collects the container's images, rewrites their URLs through `image-mapping.json` (the engine's shared resolver), and builds the `gallery` block tree. Text, links and other blocks inside the container stop the build with an error; a container without images falls back to its plain content.
 
 ## Behavior
 

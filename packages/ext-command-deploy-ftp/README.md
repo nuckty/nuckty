@@ -26,6 +26,8 @@ nuckty deploy-ftp [target] [--force] [--allow-mass-delete] [--dry-run]
 5. Deletes orphans, verifies the complete listing and retries missing or mismatched uploads. Upload, deletion or verification failures prevent publication of the manifest.
 6. Removes the server `manifest.json` before the first change, so an interrupted run leaves none and the next run uploads every file, and uploads the new `manifest.json` last; a failed manifest transfer fails the command. This is not an atomic publication of the entire site: files already transferred remain on the server if a later operation fails.
 
+Before connecting, the command verifies every local file size and MD5 against the manifest. It repeats verification before the final manifest transfer and rejects a changed artifact. Remote verification uses LIST and size; it does not independently verify remote content hashes. Do not modify an artifact during publication.
+
 ### Mass-deletion guard
 
 If the share of files to delete exceeds a threshold (default 30%), the command stops and points to `--allow-mass-delete` — to protect against an accidental wipe.
@@ -58,9 +60,6 @@ export default defineNucktyConfig({
 ## Spec
 
 Behavior is fixed by the openspec `ext-command-deploy-ftp` spec (`openspec/specs/ext-command-deploy-ftp/spec.md`): deploy command, manifest-driven diff and minimal operations, mass-deletion guard, passive FTP and explicit FTPS.
-
-
-Before connecting, the command verifies every local file size and MD5 against the manifest. It repeats verification before the final manifest transfer and rejects a changed artifact. Remote verification uses LIST and size; it does not independently verify remote content hashes. Do not modify an artifact during deployment.
 
 ## License
 

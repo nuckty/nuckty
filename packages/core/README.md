@@ -2,7 +2,7 @@
 
 > **All static site generators suck. This one just sucks less.**
 >
-> *(after mutt: «All mail clients suck. This one just sucks less.»)*
+> *(after mutt: “All mail clients suck. This one just sucks less.”)*
 
 nuckty is a static site generator for documentation and content projects. It combines a BEMJSON → HTML template engine, a programmatic build pipeline, and targets for several sites in one repository. The output includes pre-compressed files and generated nginx and Apache configurations. It can be published over FTP to compatible shared hosting.
 

@@ -11,7 +11,7 @@ It requires a JVM and is installed only when needed. Unit tests verify individua
 One CLI command, registered through `env.commands`:
 
 ```
-nuckty validate [target]
+nuckty validate [target] [--port N]
 ```
 
 It validates every HTML file of the artifact and reports zero errors when the minimal output is correct.
@@ -20,7 +20,7 @@ It validates every HTML file of the artifact and reports zero errors when the mi
 
 The extension starts one JVM for the command and sends HTTP requests to vnu.jar, with at most eight concurrent requests. Its content cache exists only in that process; a new CLI run validates the files again. The daemon starts on the first validation and stops during command cleanup, including on failure.
 
-Port `127.0.0.1:8888` must be free: an already occupied port fails before Java starts. The availability check does not eliminate a race with another process binding between the check and Java startup. Unit tests do not certify arbitrary consumer templates.
+The selected port on `127.0.0.1`, 8888 by default, must be free: an already occupied port fails before Java starts. The availability check does not eliminate a race with another process binding between the check and Java startup. Use `--port N`, an integer from 1 through 65535, when the default port is occupied; validation and cleanup use the selected port.
 
 ## Requirements
 
@@ -58,13 +58,8 @@ npx @nuckty/core validate
 
 ## Spec
 
-The specification in `openspec/specs/ext-command-validate-vnu/spec.md` describes the validation command, a per-run HTTP daemon, parallel processing and an in-memory cache. The extension is installed separately and requires a JVM.
+The specification in `openspec/specs/ext-command-validate-vnu/spec.md` describes the validation command, a per-run HTTP daemon, parallel processing and an in-memory cache. The extension is installed separately and requires a JVM. Native command integration tests require Java on PATH and run with `NUCKTY_VNU_NATIVE=1 npm test`. CI requires this mode; the native scenario is explicitly skipped otherwise.
 
 ## License
 
 MIT.
-
-Native command integration tests require the runtime on PATH and run with `NUCKTY_VNU_NATIVE=1 npm test`. CI requires this mode; the native scenario is explicitly skipped otherwise.
-
-
-Use `nuckty validate [target] --port 18888` when the default port is occupied. The port must be an integer from 1 through 65535; validation and cleanup use the selected port.

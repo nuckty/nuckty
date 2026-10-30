@@ -26,10 +26,8 @@ Validation daemons belong to the validate extension and are stopped by `nuckty v
 
 ## Specification
 
-See the core `ext-command-serve` specification in `openspec/specs/ext-command-serve/spec.md`. Unit tests exercise lifecycle and process identity; the presence of nginx is a separate native integration prerequisite.
+See the core `ext-command-serve` specification in `openspec/specs/ext-command-serve/spec.md`. Unit tests exercise lifecycle and process identity; the presence of nginx is a separate native integration prerequisite. Native command integration tests require nginx on PATH and run with `NUCKTY_SERVE_NATIVE=1 npm test`. CI requires this mode; the native scenario is explicitly skipped otherwise.
 
 ## License
 
 MIT.
-
-Native command integration tests require the runtime on PATH and run with `NUCKTY_SERVE_NATIVE=1 npm test`. CI requires this mode; the native scenario is explicitly skipped otherwise.

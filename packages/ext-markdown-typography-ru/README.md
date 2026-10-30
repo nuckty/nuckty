@@ -33,7 +33,7 @@ export default defineNucktyConfig({
 });
 ```
 
-The core knows nothing about typography. The extension does the transform only for consumers that load it.
+The core knows nothing about typography. The extension does the transform only for consumers that load it. When loaded through the global `ext`, the extension processes Markdown for every target being built. The value of `target.lang` does not automatically limit its scope.
 
 ## Contract
 
@@ -46,5 +46,3 @@ Behavior is fixed by the openspec `ext-markdown-typography-ru` spec (`openspec/s
 ## License
 
 MIT.
-
-When loaded through the global `ext`, the extension processes Markdown for every target being built. The value of `target.lang` does not automatically limit its scope.
