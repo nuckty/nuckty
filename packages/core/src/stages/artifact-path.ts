@@ -1,7 +1,7 @@
-/** Reject existing links in an artifact destination before reading or writing it. */
 import { lstat, realpath } from 'node:fs/promises';
 import path from 'node:path';
 
+/** Reject existing links in an artifact destination before reading or writing it. */
 export async function assertArtifactPath(root: string, destination = root): Promise<void> {
     const relative = path.relative(root, destination);
     if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
@@ -28,6 +28,7 @@ export async function assertArtifactPath(root: string, destination = root): Prom
         }
     }
 }
+
 /** Resolve owned metadata before both reads and writes, retaining symbolic build roots. */
 export async function resolveBuildFile(buildDir: string, filename: string): Promise<string> {
     const workspace = await realpath(buildDir);

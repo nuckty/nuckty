@@ -8,8 +8,8 @@
  *
  * Cross-target hreflang (openspec requirement "Cross-target i18n alternates for
  * SEO"): when targets form a language family (same group, different lang),
- * resolveAlternates() constructs the same route on sibling hosts
- * and returns `Map<lang, { url, title, host }>` so the consumer's head block
+ * resolveAlternates() links the same route on sibling hosts when the sibling
+ * target's sitemap has that page, and returns `Map<lang, { url, title, host }>` so the consumer's head block
  * can emit `<link rel=alternate hreflang=...>`.
  *
  * @module targets/config

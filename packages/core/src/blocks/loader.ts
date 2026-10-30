@@ -10,7 +10,7 @@ interface BlockModule {
     default?: () => void | Promise<void>;
 }
 
-/** Per-bundle BEM declaration (block names), produced by {@link loadBlocks}. */
+/** Per-bundle BEM declaration (block and element entities), produced by {@link loadBlocks}. */
 export type BlockDeps = Record<string, string[]>;
 
 /**
@@ -20,14 +20,14 @@ export type BlockDeps = Record<string, string[]>;
  * `<level>/<block>/<block>.nu.ts`, imports it, and calls
  * `templates()`. Blocks with no `.nu.ts` entry (CSS-only blocks) are skipped.
  *
- * Returns the per-bundle declaration (block names) so the CSS/JS stages can
+ * Returns the per-bundle declaration (block and element entities) so the CSS/JS stages can
  * bundle by deps without re-reading the bemdecl files.
  *
  * @param templates collection populated by block declarations
  * @param cwd consumer root
  * @param levels block-search levels (from `env.levels` / `config/levels.json`)
  * @param bundles bundle names to load (`page`, `page-index`, …)
- * @returns per-bundle block-name lists
+ * @returns per-bundle entity lists
  */
 export async function loadBlocks(
     templates: Templates,

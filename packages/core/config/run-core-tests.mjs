@@ -6,9 +6,8 @@
  * to import from tests); this script is the executable side: collect every
  * `*.test.ts` under `src/test/`, apply the rule, spawn `node --test`, exit
  * with its code. A newly added ordinary unit test is picked up automatically;
- * a newly
- * added integration suite must be placed under `src/test/integration/` to be
- * excluded from `test:core` (it stays mandatory in `npm test` and
+ * a newly added integration suite must be placed under `src/test/integration/`
+ * to be excluded from `test:core` (it stays mandatory in `npm test` and
  * `test:coverage`, which run every test under `src/test/`).
  *
  * @module config/run-core-tests

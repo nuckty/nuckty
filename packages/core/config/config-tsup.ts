@@ -7,12 +7,12 @@ export default defineConfig({
         'bin/nuckty': 'src/bin/nuckty.ts',
         // ESM loader (resolve + load hooks) registered by the CLI so `nuckty`
         // imports `.ts` extensions/config under plain Node without tsx. See
-        // `src/bin/loader.ts` for why. esbuild must stay external — the loader
-        // resolves it from the consumer's `node_modules/esbuild` at runtime.
+        // `src/bin/loader.ts` for why. esbuild must stay external: it ships a
+        // native binary and resolves as a core dependency at runtime.
         'bin/loader': 'src/bin/loader.ts',
     },
     format: ['esm'],
-    target: 'node20',
+    target: 'node24',
     platform: 'node',
     outDir: 'dist',
     dts: false,

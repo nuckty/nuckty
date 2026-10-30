@@ -57,7 +57,7 @@ export const imagesStage: Stage<BuildContext> = async (ctx: BuildContext): Promi
         await processImage(file, sourceDir, state);
     }
 
-    // 3. Write mapping file + store artifacts.
+    // Write the mapping file and store the artifacts.
     await fs.writeFile(
         await resolveBuildFile(state.buildDir, 'image-mapping.json'),
         JSON.stringify(Object.fromEntries(state.imageMapping), null, 2),

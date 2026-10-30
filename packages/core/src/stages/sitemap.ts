@@ -5,7 +5,6 @@ import { createMarkdown } from '../markdown/remark.js';
 import { buildAnchorMap, resolvePageAnchors } from '../markdown/resolve-anchors.js';
 import { resolveBuildFile } from './artifact-path.js';
 import { getBuildConfig } from '../utils/build-config.js';
-
 import { getFileTimestamp } from '../utils/timestamp.js';
 import type {
     SitemapArtifact,
@@ -35,8 +34,8 @@ export function parseSitemapLine(line: string): ParsedLine | null {
     const metaStr = match[4];
     if (metaStr) {
         try {
-            // Tokenize quoted values before normalizing legacy keys and quotes.
-            // Replacing every word before ':' also corrupted URLs inside strings.
+            // Tokenize quoted values first so only unquoted keys are quoted and
+            // a `word:` inside a string (such as a URL) stays intact.
             const jsonString = metaStr.replace(
                 /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|(\w+)\s*:|,\s*(?=})/g,
                 (token: string, key: string | undefined) => {
@@ -266,9 +265,9 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
     const rootTitle = rootPage ? rootPage.name : rootTitleFallback;
 
     // Per-page title: `name | breadcrumb | rootTitle`. A site-specific segment
-    // (e.g. a live password on `/common/password`) is a consumer concern and is
-    // prepended by a pipeline-extension's `after('sitemap')` hook (openspec
-    // `core`: the engine ships no site-specific logic).
+    // is a consumer concern, prepended by a pipeline extension's
+    // `after('sitemap')` hook (openspec `core`: the engine ships no
+    // site-specific logic).
     for (const pageUrl of Object.keys(pages)) {
         const pageData = pages[pageUrl];
         if (!pageData) {
@@ -351,7 +350,6 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
                 throw new Error(`Sitemap source escapes content directory: ${filePath}`);
             }
             const content = await fs.readFile(realPath, 'utf8');
-            const relativePath = path.relative(contentDir, fullPath);
             const imageMapping = ctx.store.imageMapping;
             const downloads = ctx.store.downloads;
             const { tree, headings } = createMarkdown({
@@ -360,8 +358,7 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
                 currentUrl: url,
                 sourceFile: filePath,
                 baseUrl: config.site.baseUrl,
-                slugify: { case: 'lower' },
-                inputPath: `${relativePrefix}${relativePath}`,
+                inputPath: `${relativePrefix}${relativeFile}`,
                 githubRawBase: config.site.githubRawBase,
                 remarkPlugins: ctx.env.markdown.list(),
                 directiveMappings: ctx.env.markdown.directiveMappings(),
@@ -374,14 +371,14 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
                 ...pageData,
                 tree,
                 headings,
-                inputPath: `${relativePrefix}${relativePath}`,
+                inputPath: `${relativePrefix}${relativeFile}`,
                 lastUpdated: await getFileTimestamp(realPath, timestampCache),
             };
             result.pages[url] = updated;
         };
 
         // Bound Markdown trees, reads and Git children in flight. Settle workers
-        // before reporting failure so callers can safely clean up their fixture.
+        // before reporting failure so no page work outlives the stage.
         let nextEntry = 0;
         let failed = false;
         const workers = Array.from({ length: Math.min(8, entries.length) }, async () => {

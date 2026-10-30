@@ -46,7 +46,7 @@ export interface MarkdownOptions {
     slugify?: Parameters<typeof buildHierarchicalAnchor>[1];
     /** Current Markdown file relative to the content root, for links and images. */
     sourceFile?: string;
-    /** Page inputPath (relative to consumer root) — drives section-prefix image lookup. */
+    /** Source path relative to the consumer root: resolves links, images and downloads when `sourceFile` is absent, and names the page in errors. */
     inputPath?: string;
     /** Published download filename → source path relative to the consumer root (built by the assets stage). */
     downloads?: Record<string, string>;
@@ -388,7 +388,6 @@ function trimCellEdges(children: BEMTree[]): BEMTree[] {
     return out;
 }
 
-
 // ---- phrasing (inline) nodes → BemNode/text --------------------------------
 
 function phrasingToBem(children: PhrasingContent[], env: BridgeEnv): BEMTree[] {
@@ -653,7 +652,6 @@ function resolveHeading(
     // `rawText` keeps a numbered prefix (`12. Foo`) so source links written as `#12-foo` resolve.
     return { anchor, cleanText, rawText: working };
 }
-
 
 /**
  * Link a heading to itself. A heading that already contains a link gets a

@@ -1,7 +1,7 @@
 // BEMJSON data model — the foundation.
 export * from './bem/types.js';
 
-// xjst authoring API: `block('x')({ tag: 'ul' })` etc.
+// nu.ts authoring API: `block('x')({ tag: 'ul' })` etc.
 export { block } from './bem/api.js';
 export type { BlockEntry } from './bem/api.js';
 export type { Modes, Predicate } from './bem/template-types.js';
@@ -41,7 +41,7 @@ export { Pipeline } from './pipeline/pipeline.js';
 export type { Phase, Stage, BuildContext } from './pipeline/pipeline.js';
 export { generateNginxConfig } from './stages/nginx.js';
 
-// Plugin environment.
+// Extension environment.
 export { NucktyEnv } from './env/env.js';
 export type { CommandArgs, CommandHandler, CommandEntry, CommandOptions, FlagKind, DirectiveNode, DirectiveHandler, DirectiveConverters, MarkdownNode, MarkdownNodeHandler } from './env/env.js';
 export { loadPlugins } from './env/loader.js';
@@ -66,7 +66,6 @@ export type { BuildCommand } from './build.js';
 
 // Consumer artifact destination validation before filesystem access.
 export { assertArtifactPath } from './stages/artifact-path.js';
-
 
 export type { Plugin } from 'unified';
 export type { Root } from 'mdast';
