@@ -1,37 +1,35 @@
 /**
- * Video embed remark plugin — maps @[provider](id) to mdast html nodes carrying
- * the embed markup. The Markdown bridge then creates BEMJSON raw nodes.
+ * Video embed remark plugin — turns `@[provider](id)` into `video` mdast nodes.
  *
- * remark parses `@[youtube](bsgLJcQz43s)` as a paragraph whose children are a
- * text node ending in `@` followed by a link whose only child is the provider
- * name and whose `url` is the video id. This plugin walks the mdast tree before
- * the mdast→BEMJSON bridge, replaces that two-node pattern with a single `html`
- * node carrying the embed markup, and drops the `@`. The bridge then turns the
- * `html` node into a `raw` BemNode; the paragraph-special-case in the bridge
- * emits it block-level (no `<p>` wrapper), matching the golden output.
+ * remark parses `@[youtube](bsgLJcQz43s)` as a text node ending in `@` followed
+ * by a link whose only child is the provider name and whose `url` is the video
+ * id. The plugin drops the `@`, replaces the link with a block-level `video`
+ * node and splits the surrounding paragraph so prose stays in paragraphs. The
+ * extension's node handler maps `video` nodes to the `video` block.
  *
- * Providers: `youtube` (default), plus `rutube` and `vk`. An unknown provider is
- * left untouched (the `@` + link render as ordinary text + link).
+ * Providers: `youtube`, `rutube` and `vk`. An unknown provider is left
+ * untouched (the `@` and the link render as ordinary text and link).
  *
  * @module video-plugin
  */
 
-import { render, Templates } from '@nuckty/core';
 import type { Plugin, Root } from '@nuckty/core';
-import type { Paragraph, Html, Link, Text, PhrasingContent } from 'mdast';
+import type { Paragraph, Link, PhrasingContent, RootContent } from 'mdast';
 
 export interface VideoProvider {
     /** Matches the link's only-text-child (lowercased) and the provider name. */
     name: string;
+    /** Display name used in the frame title, e.g. `YouTube`. */
+    label: string;
     /** Builds the iframe `src` from the video id (the link's `url`). */
     src: (id: string) => string;
 }
 
 /** The default providers: YouTube, RuTube, VK. */
 export const DEFAULT_VIDEO_PROVIDERS: VideoProvider[] = [
-    { name: 'youtube', src: (id) => `https://www.youtube.com/embed/${id}` },
-    { name: 'rutube', src: (id) => `https://rutube.ru/play/embed/${id}` },
-    { name: 'vk', src: (id) => {
+    { name: 'youtube', label: 'YouTube', src: (id) => `https://www.youtube.com/embed/${id}` },
+    { name: 'rutube', label: 'RUTUBE', src: (id) => `https://rutube.ru/play/embed/${id}` },
+    { name: 'vk', label: 'VK Video', src: (id) => {
         if (/^https:\/\/(?:vk\.com|vk\.ru|vkvideo\.ru)\/video_ext\.php\?/.test(id)) {
             return id;
         }
@@ -45,10 +43,13 @@ export const DEFAULT_VIDEO_PROVIDERS: VideoProvider[] = [
     } },
 ];
 
-/** Build an iframe embed HTML string for a provider + id. */
-function embedHtml(provider: VideoProvider, id: string): string {
-    const src = provider.src(id);
-    return render({ block: 'video', content: { tag: 'iframe', block: 'video', elem: 'iframe', attrs: { src, title: `${provider.name} video`, loading: 'lazy', allowfullscreen: true } } }, { templates: new Templates() });
+/** The mdast node the plugin inserts for one embed. */
+export interface VideoNode {
+    type: 'video';
+    /** Provider display name, e.g. `YouTube`. */
+    provider: string;
+    /** Embed URL built by the provider. */
+    src: string;
 }
 
 /** Find a provider by its lowercase name (link's only-text-child), or null. */
@@ -58,91 +59,73 @@ function findProvider(name: string, providers: VideoProvider[]): VideoProvider |
 }
 
 /**
- * Create the remark plugin with a provider list. A paragraph whose children
- * contain a `text ending in '@'` immediately followed by `link(provider)` is
- * rewritten: the `@` is dropped from the text, the link is replaced by an
- * `html` node carrying the embed.
+ * Create the remark plugin with a provider list. Each paragraph holding
+ * `text ending in '@'` + `link(provider)` pairs is split into paragraphs and
+ * `video` nodes at the same level.
  */
 export function createVideoPlugin(providers: VideoProvider[] = DEFAULT_VIDEO_PROVIDERS): Plugin<[], Root> {
-    return () => {
-        return (tree: Root) => {
-            const walk = (node: { type: string; children?: unknown[] }): void => {
-                if (node.type === 'paragraph') {
-                    rewriteParagraph(node as Paragraph, providers);
-                } else {
-                    for (const child of node.children ?? []) {
-                        walk(child as { type: string; children?: unknown[] });
-                    }
+    return () => (tree: Root) => {
+        const walk = (parent: { children: RootContent[] }): void => {
+            parent.children = parent.children.flatMap((child): RootContent[] => {
+                if (child.type === 'paragraph') {
+                    return splitParagraph(child, providers);
                 }
-            };
-            walk(tree);
+                if ('children' in child && Array.isArray(child.children)) {
+                    walk(child as { children: RootContent[] });
+                }
+
+                return [child];
+            });
         };
+        walk(tree);
     };
 }
 
-/** Rewrite a paragraph: replace `text('@')+link(provider)` pairs with an embed. */
-function rewriteParagraph(para: Paragraph, providers: VideoProvider[]): void {
-    const kids = para.children;
-    if (kids.length < 2) {
-        return;
-    }
-    const out: PhrasingContent[] = [];
-    for (let i = 0; i < kids.length; i++) {
-        const cur = kids[i]!;
-        const next = kids[i + 1];
-        if (cur.type === 'text' && next && next.type === 'link') {
-            const embed = matchEmbed(cur as Text, next as Link, providers);
-            if (embed) {
-                // If the text node had content before `@`, keep it as a text node.
-                if (embed.beforeText !== '') {
-                    out.push({ type: 'text', value: embed.beforeText });
-                }
-                out.push(embed.html);
-                i++; // consume the link
-                continue;
-            }
+/** Split a paragraph at its embeds; whitespace-only prose between embeds is dropped. */
+function splitParagraph(paragraph: Paragraph, providers: VideoProvider[]): RootContent[] {
+    const out: RootContent[] = [];
+    let prose: PhrasingContent[] = [];
+    const flush = (): void => {
+        if (prose.some((node) => node.type !== 'text' || node.value.trim() !== '')) {
+            out.push({ ...paragraph, children: prose });
         }
-        out.push(cur);
-    }
-    para.children = out;
-}
-
-/** Match a `text('@...')` + `link(provider)` pair → `{ html, beforeText }`, or null. */
-function matchEmbed(
-    atText: Text,
-    link: Link,
-    providers: VideoProvider[],
-): { html: Html; beforeText: string } | null {
-    // The text node must end in `@` (the `@` may follow other text).
-    const match = atText.value.match(/^(.*)@$/s);
-    if (!match) {
-        return null;
-    }
-    const beforeText = match[1] ?? '';
-    // The link's only child must be a text node naming a known provider.
-    if (link.children.length !== 1) {
-        return null;
-    }
-    const only = link.children[0]!;
-    if (only.type !== 'text') {
-        return null;
-    }
-    const provider = findProvider((only as Text).value, providers);
-    if (!provider) {
-        return null;
-    }
-    const id = link.url;
-    if (!id) {
-        return null;
-    }
-    return {
-        html: { type: 'html', value: embedHtml(provider, id) },
-        beforeText,
+        prose = [];
     };
+    const kids = paragraph.children;
+
+    for (let i = 0; i < kids.length; i++) {
+        const current = kids[i]!;
+        const next = kids[i + 1];
+        const embed = current.type === 'text' && next?.type === 'link' ? matchEmbed(current.value, next, providers) : null;
+
+        if (!embed) {
+            prose.push(current);
+            continue;
+        }
+        if (embed.beforeText !== '') {
+            prose.push({ type: 'text', value: embed.beforeText });
+        }
+        flush();
+        out.push(embed.video as unknown as RootContent);
+        i++;
+    }
+    flush();
+
+    return out.length > 0 ? out : [paragraph];
 }
 
-/**
- * Default plugin (default providers). Registered by the extension's `register`
- * via `env.markdown.use(remarkVideoEmbed)`.
- */
+/** Match a `text('…@')` + `link(provider)` pair, or return null. */
+function matchEmbed(text: string, link: Link, providers: VideoProvider[]): { video: VideoNode; beforeText: string } | null {
+    const match = text.match(/^(.*)@$/s);
+    const only = link.children.length === 1 ? link.children[0] : undefined;
+
+    if (!match || only?.type !== 'text' || !link.url) {
+        return null;
+    }
+    const provider = findProvider(only.value, providers);
+
+    return provider ? { video: { type: 'video', provider: provider.label, src: provider.src(link.url) }, beforeText: match[1] ?? '' } : null;
+}
+
+/** Default plugin with the default providers. */
 export const remarkVideoEmbed: Plugin<[], Root> = createVideoPlugin();

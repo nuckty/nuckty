@@ -1,0 +1,13 @@
+/* video — a responsive 16:9 player. */
+.video {
+    margin-block: 1.5rem;
+}
+
+.video__frame {
+    display: block;
+
+    width: 100%;
+    aspect-ratio: 16 / 9;
+
+    border: 0;
+}

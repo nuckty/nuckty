@@ -15,7 +15,7 @@
 Markdown-расширения:
 
 - [`@nuckty/ext-markdown-typography-ru`](markdown/typography-ru.ru.md) — русская типографика: неразрывный пробел перед тире. Блока не добавляет — только правит текст.
-- [`@nuckty/ext-markdown-video`](markdown/video.ru.md) — встраивание видео `@[provider](id)` (YouTube/RuTube/VK). Блок не поставляет — разметку плеера строит плагин.
+- [`@nuckty/ext-markdown-video`](markdown/video.ru.md) — встраивание видео `@[provider](id)` (YouTube/RuTube/VK). Поставляет блок `video` с шаблоном и CSS.
 
 Конструкции markdown-разметки, идущие в паре с блоком, входят в block-расширения:
 

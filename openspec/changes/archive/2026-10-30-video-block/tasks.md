@@ -1,0 +1,3 @@
+- [x] Insert `video` nodes and split paragraphs in the remark plugin.
+- [x] Add the `video` block, node handler and `createVideoExtension`.
+- [x] Update tests, documentation and package files.

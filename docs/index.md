@@ -16,7 +16,7 @@ The [build pipeline](how/pipeline.md) has fixed phases, named stages, and `befor
 
 ### Extensions are the only mechanism
 
-The core ships with no blocks and no pages: even the HTML page wrapper comes from an [extension](how/ext/index.md). Extensions wire everything through a single entry point — blocks, commands, build stages, markdown constructs. You install exactly what you need.
+The core ships no page blocks — only default templates for its Markdown output; even the HTML page wrapper comes from an [extension](how/ext/index.md). Extensions wire everything through a single entry point — blocks, commands, build stages, markdown constructs. You install exactly what you need.
 
 ### One engine for content and layout
 

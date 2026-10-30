@@ -2,7 +2,7 @@
 
 > **Встраивание видео — конструкция `@[provider](id)`.**
 
-Markdown-расширение для [nuckty](https://github.com/nuckty/nuckty). Встраивает видео с YouTube, RuTube или VK одной строкой разметки. Расширение не добавляет зависимости JavaScript в артефакт: разметка iframe статична. Готового блока в пакете нет.
+Markdown-расширение для [nuckty](https://github.com/nuckty/nuckty). Встраивает видео с YouTube, RuTube или VK одной строкой разметки. Расширение не добавляет зависимости JavaScript в артефакт. Конструкция становится блоком `video` из пакета: его шаблон и CSS выводят адаптивный iframe.
 
 ## Конструкция markdown-разметки
 
@@ -11,29 +11,25 @@ Markdown-расширение для [nuckty](https://github.com/nuckty/nuckty).
 @[rutube](abc123)
 ```
 
-Обработчик находит конструкцию и заменяет её готовой разметкой плеера:
+Шаблон блока выводит плеер с заголовком по-русски на таргетах `ru` и по-английски на остальных:
 
 ```html
-<div class=video><iframe class=video__iframe src=https://www.youtube.com/embed/dQw4w9WgXcQ title="youtube video" loading=lazy allowfullscreen></iframe></div>
+<div class=video><iframe class=video__frame src=https://www.youtube.com/embed/dQw4w9WgXcQ title="YouTube video" loading=lazy allowfullscreen></iframe></div>
 ```
 
 Провайдеры: `youtube`, `rutube`, `vk` — регистр не важен. Незнакомый провайдер остаётся обычным текстом со ссылкой.
 
 ## Свои провайдеры
 
-Пакет экспортирует `createVideoPlugin` и `DEFAULT_VIDEO_PROVIDERS`. Свой провайдер задаётся именем и функцией, которая строит URL:
+Пакет экспортирует `createVideoExtension` и `DEFAULT_VIDEO_PROVIDERS`. Свой провайдер задаётся именем, подписью и функцией, которая строит URL:
 
 ```ts
-import { createVideoPlugin, DEFAULT_VIDEO_PROVIDERS } from '@nuckty/ext-markdown-video';
+import { createVideoExtension, DEFAULT_VIDEO_PROVIDERS } from '@nuckty/ext-markdown-video';
 
-import type { NucktyEnv } from '@nuckty/core';
-
-export function register(env: NucktyEnv): void {
-    env.markdown.use(createVideoPlugin([
-        ...DEFAULT_VIDEO_PROVIDERS,
-        { name: 'vimeo', src: (id) => `https://player.vimeo.com/video/${id}` },
-    ]) as Parameters<typeof env.markdown.use>[0]);
-}
+export const register = createVideoExtension([
+    ...DEFAULT_VIDEO_PROVIDERS,
+    { name: 'vimeo', label: 'Vimeo', src: (id) => `https://player.vimeo.com/video/${id}` },
+]);
 ```
 
 Сохраните модуль как `ext/video.ts` и укажите `./ext/video.ts` в `ext` вместо `@nuckty/ext-markdown-video`. Использование обоих одновременно повторно зарегистрирует преобразование. Для VK доступны идентификатор `-123_456` и полный адрес HTTPS `video_ext.php` на vk.com, vk.ru или vkvideo.ru; некорректный аргумент VK вызывает ошибку. Встроенный iframe может загружать код стороннего плеера; само расширение не добавляет бандл JS.
@@ -55,11 +51,11 @@ export default defineNucktyConfig({
 });
 ```
 
-После этого конструкция `@[provider](id)` работает в любом `.md`. Добавьте стили для классов `video` и `video__iframe` в свой CSS.
+После этого конструкция `@[provider](id)` работает в любом `.md`. Добавьте `video` в bemdecl бандла; при необходимости переопределите блок на более позднем уровне.
 
 ## Контракт
 
-`register(env: NucktyEnv)` подключает `remarkVideoEmbed` через `env.markdown.use`.
+`register(env: NucktyEnv)` подключает remark-плагин через `env.markdown.use`, отображает узлы `video` через `env.markdown.node` и добавляет `blocks/` через `env.levels`.
 
 ## Спецификация
 

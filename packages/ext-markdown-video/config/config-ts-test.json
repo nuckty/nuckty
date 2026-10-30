@@ -3,13 +3,15 @@
   "compilerOptions": {
     "rootDir": "..",
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "types": [
       "node"
     ]
   },
   "include": [
     "../src/**/*.ts",
-    "../src/test/**/*.test.ts"
+    "../src/test/**/*.test.ts",
+    "../blocks/**/*.nu.ts"
   ],
   "exclude": [
     "../node_modules",

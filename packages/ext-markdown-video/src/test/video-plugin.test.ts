@@ -1,11 +1,8 @@
 /**
- * Tests for the video embed remark plugin (openspec `ext-markdown-video`):
- * `@[provider](id)` is rewritten to an `html` node carrying
- * `<div class=video><iframe ...></iframe></div>` before the mdast→BEMJSON
- * bridge. Non-trivial: remark parses `@[youtube](id)` as a text node ending in
- * `@` followed by a link whose only child is the provider name; the plugin must
- * drop the `@`, keep any text before it, and ignore unknown providers (which
- * render as ordinary text + link).
+ * Tests for the video extension (openspec `ext-markdown-video`): the remark
+ * plugin turns `@[provider](id)` into block-level `video` nodes, splitting the
+ * surrounding paragraph; unknown providers and other link shapes stay ordinary
+ * text and links; the node handler and the `video` template render the player.
  *
  * @module test/video-plugin
  */
@@ -14,68 +11,53 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import type { Root, Html, Text, Link } from 'mdast';
-import { remarkVideoEmbed, createVideoPlugin, DEFAULT_VIDEO_PROVIDERS } from '../index.js';
+import type { Root } from 'mdast';
+import { NucktyEnv, Templates, createMarkdown, markdownTemplates, render, runWithTemplates } from '@nuckty/core';
+import { remarkVideoEmbed, createVideoPlugin, DEFAULT_VIDEO_PROVIDERS, register, type VideoProvider } from '../index.js';
+import videoTemplates from '../../blocks/video/video.nu.ts';
 
-/** Run the plugin's mdast transform on a parsed tree (the same way the unified
- *  pipeline does — via `runSync`, not a bare `.parse()`: `parse` only parses, it
- *  does not apply remark transformers). */
-function applyPlugin(tree: Root, plugin = remarkVideoEmbed): Root {
-    return unified().use(plugin).runSync(tree) as Root;
+/** Parse and transform, returning the top-level nodes as plain data. */
+function transform(src: string, plugin = remarkVideoEmbed): Array<Record<string, unknown>> {
+    const tree = unified().use(plugin).runSync(unified().use(remarkParse).parse(src)) as Root;
+
+    return JSON.parse(JSON.stringify(tree.children, (key, value: unknown) => key === 'position' ? undefined : value)) as Array<Record<string, unknown>>;
 }
 
-/** Parse + apply the plugin, return the paragraph's children (typed). */
-function paraChildren(src: string): Array<{ type: string; value?: string; url?: string; children?: unknown[] }> {
-    const tree = applyPlugin(unified().use(remarkParse).parse(src) as Root);
-    const para = tree.children[0];
-    if (!para || para.type !== 'paragraph') {
-        return [];
-    }
-    return para.children.map((c) => {
-        if (c.type === 'html') {
-            return { type: 'html', value: (c as Html).value };
-        }
-        if (c.type === 'text') {
-            return { type: 'text', value: (c as Text).value };
-        }
-        if (c.type === 'link') {
-            return { type: 'link', url: (c as Link).url, children: (c as Link).children };
-        }
-        return { type: c.type };
+function videos(src: string, plugin = remarkVideoEmbed): Array<Record<string, unknown>> {
+    return transform(src, plugin).filter((node) => node['type'] === 'video');
+}
+
+/** Render Markdown through a build-like environment with the extension loaded. */
+function html(src: string, lang = 'en'): string {
+    const env = new NucktyEnv();
+    const templates = new Templates();
+
+    register(env);
+    runWithTemplates(templates, () => {
+        markdownTemplates();
+        videoTemplates();
     });
+    const { tree } = createMarkdown({ lang, remarkPlugins: env.markdown.list(), nodeMappings: env.markdown.nodeMappings() }).render(src);
+
+    return render(tree, { templates });
 }
 
-// ---- @[youtube](id) ---------------------------------------------------------
-
-test('youtube: `@[youtube](id)` becomes a single html embed node', () => {
-    const kids = paraChildren('@[youtube](bsgLJcQz43s)');
-    assert.equal(kids.length, 1);
-    assert.equal(kids[0]!.type, 'html');
-    assert.equal(
-        kids[0]!.value,
-        '<div class=video><iframe class=video__iframe src=https://www.youtube.com/embed/bsgLJcQz43s title="youtube video" loading=lazy allowfullscreen></iframe></div>',
-    );
+test('an embed alone replaces its paragraph with one video node', () => {
+    assert.deepEqual(transform('@[youtube](bsgLJcQz43s)'), [{ type: 'video', provider: 'YouTube', src: 'https://www.youtube.com/embed/bsgLJcQz43s' }]);
 });
 
-test('youtube: the `@` text node is dropped (no leftover `@` text node)', () => {
-    const kids = paraChildren('@[youtube](bsgLJcQz43s)');
-    assert.ok(!kids.some((k) => k.type === 'text' && k.value === '@'), 'leftover @ text');
-    assert.ok(!kids.some((k) => k.type === 'link'), 'leftover link node');
+test('prose around an embed stays in paragraphs before and after the video', () => {
+    const nodes = transform('Watch this: @[youtube](abc) and that.');
+
+    assert.deepEqual(nodes.map((node) => node['type']), ['paragraph', 'video', 'paragraph']);
+    assert.deepEqual((nodes[0]!['children'] as Array<{ value: string }>).map((child) => child.value), ['Watch this: ']);
+    assert.deepEqual((nodes[2]!['children'] as Array<{ value: string }>).map((child) => child.value), [' and that.']);
 });
 
-// ---- providers: rutube, vk --------------------------------------------------
-
-test('rutube: maps to the rutube embed URL', () => {
-    const kids = paraChildren('@[rutube](abc123)');
-    assert.equal(kids.length, 1);
-    assert.equal(kids[0]!.type, 'html');
-    assert.ok(kids[0]!.value!.includes('https://rutube.ru/play/embed/abc123'), kids[0]!.value);
-});
-
-test('vk: maps to the vk video_ext URL', () => {
-    const kids = paraChildren('@[vk](12345_67890)');
-    assert.equal(kids.length, 1);
-    assert.ok(kids[0]!.value!.includes('https://vk.com/video_ext.php?oid=12345&amp;id=67890'), kids[0]!.value);
+test('providers build their embed URLs and match names independent of case', () => {
+    assert.equal(videos('@[rutube](abc123)')[0]!['src'], 'https://rutube.ru/play/embed/abc123');
+    assert.equal(videos('@[vk](12345_67890)')[0]!['src'], 'https://vk.com/video_ext.php?oid=12345&id=67890');
+    assert.equal(videos('@[YouTube](id)')[0]!['provider'], 'YouTube');
 });
 
 test('VK accepts a signed owner and preserves a full embed URL including its hash', () => {
@@ -87,90 +69,46 @@ test('VK accepts a signed owner and preserves a full embed URL including its has
     const full = 'https://vkvideo.ru/video_ext.php?oid=-12345&id=67890&hash=fixture';
 
     assert.equal(provider.src(full), full);
-    assert.ok(paraChildren(`@[vk](${full})`)[0]?.value?.includes('hash=fixture'));
-    assert.throws(() => paraChildren('@[vk](invalid)'), /VK video requires/);
+    assert.equal(videos(`@[vk](${full})`)[0]!['src'], full);
+    assert.throws(() => transform('@[vk](invalid)'), /VK video requires/);
 });
 
-test('provider match is case-insensitive', () => {
-    const kids = paraChildren('@[YouTube](bsgLJcQz43s)');
-    assert.equal(kids.length, 1);
-    assert.equal(kids[0]!.type, 'html');
-});
-
-// ---- unknown provider / non-matching shapes --------------------------------
-
-test('unknown provider: left as ordinary text + link (no embed)', () => {
-    const kids = paraChildren('@[unknown](id)');
-    assert.ok(kids.some((k) => k.type === 'text' && k.value!.endsWith('@')), 'kept the @ text');
-    assert.ok(kids.some((k) => k.type === 'link'), 'kept the link');
-    assert.ok(!kids.some((k) => k.type === 'html'), 'no html embed');
-});
-
-test('a link not preceded by `@` is not treated as a video', () => {
-    const kids = paraChildren('see [youtube](https://youtube.com)');
-    assert.ok(!kids.some((k) => k.type === 'html'), 'plain link became a video');
-    assert.ok(kids.some((k) => k.type === 'link'));
-});
-
-test('a link whose only child is not a text node is not a video', () => {
-    // `[![alt](img.png)](id)` — link's only child is an image, not a provider name.
-    const kids = paraChildren('@[![alt](img.png)](id)');
-    assert.ok(!kids.some((k) => k.type === 'html'), 'image-link became a video');
-});
-
-test('an empty id is not an embed (the link is kept)', () => {
-    const kids = paraChildren('@[youtube]()');
-    // No id → no embed; the @ + link render as ordinary content.
-    assert.ok(!kids.some((k) => k.type === 'html'), 'empty id produced an embed');
-});
-
-// ---- text before `@` -------------------------------------------------------
-
-test('text before `@` is kept as a separate text node', () => {
-    const kids = paraChildren('Watch this: @[youtube](bsgLJcQz43s)');
-    const text = kids.filter((k) => k.type === 'text').map((k) => k.value).join('');
-    assert.ok(text.includes('Watch this:'), `kept pre-@ text: ${text}`);
-    assert.equal(kids[kids.length - 1]!.type, 'html');
-});
-
-// ---- custom providers -------------------------------------------------------
-
-test('custom providers: a site can add its own', () => {
-    const custom = createVideoPlugin([...DEFAULT_VIDEO_PROVIDERS, { name: 'peertube', src: (id) => `https://peer.tv/w/${id}` }]);
-    const tree = applyPlugin(unified().use(remarkParse).parse('@[peertube](xyz)') as Root, custom);
-    const para = tree.children[0]!;
-    const only = (para as { children: Array<{ type: string; value?: string }> }).children[0];
-    assert.equal(only!.type, 'html');
-    assert.ok(only!.value!.includes('https://peer.tv/w/xyz'), only!.value);
-});
-
-test('video provider output is serialized as a single logical src value', () => {
-    const kids = paraChildren('@[youtube](<abc" data-probe="yes>)');
-    assert.ok(kids[0]!.value!.includes('src="https://www.youtube.com/embed/abc&quot; data-probe=&quot;yes"'));
-});
-
-test('video embeds inside blockquotes and list paragraphs are transformed', () => {
-    for (const source of ['> @[youtube](abc)', '- @[youtube](abc)']) {
-        const tree = applyPlugin(unified().use(remarkParse).parse(source) as Root);
-        assert.ok(JSON.stringify(tree).includes('video__iframe'));
+test('unknown providers, plain links, image links and empty ids are not embeds', () => {
+    for (const source of ['@[unknown](id)', 'see [youtube](https://youtube.com)', '@[![alt](img.png)](id)', '@[youtube]()']) {
+        assert.deepEqual(videos(source), [], source);
+        assert.equal(transform(source)[0]!['type'], 'paragraph', source);
     }
 });
 
-test('custom provider configuration and authored names match independent of case', () => {
+test('embeds inside blockquotes and list items are transformed', () => {
+    for (const source of ['> @[youtube](abc)', '- @[youtube](abc)']) {
+        assert.match(JSON.stringify(transform(source)), /"type":"video"/, source);
+    }
+});
+
+test('custom providers are data matched independent of case', () => {
     const ids: string[] = [];
-    const plugin = createVideoPlugin([{ name: 'PeerTube', src: (id) => {
+    const provider: VideoProvider = { name: 'PeerTube', label: 'PeerTube', src: (id) => {
         ids.push(id);
 
         return `https://peer.example/video/${id}`;
-    } }]);
+    } };
+    const plugin = createVideoPlugin([provider]);
 
     for (const name of ['peertube', 'PEERTUBE']) {
-        const tree = applyPlugin(unified().use(remarkParse).parse(`@[${name}](fixture)`) as Root, plugin);
-        const output = JSON.stringify(tree);
-
-        assert(output.includes('video__iframe'));
-        assert(output.includes('https://peer.example/video/fixture'));
+        assert.equal(videos(`@[${name}](fixture)`, plugin)[0]!['src'], 'https://peer.example/video/fixture');
     }
     assert.deepEqual(ids, ['fixture', 'fixture']);
 });
 
+test('the video block renders the player with a localized title outside paragraphs', () => {
+    assert.equal(
+        html('Before @[youtube](abc) after'),
+        '<p class=article__paragraph>Before <div class=video><iframe class=video__frame src=https://www.youtube.com/embed/abc title="YouTube video" loading=lazy allowfullscreen></iframe></div><p class=article__paragraph> after</p>',
+    );
+    assert.match(html('@[rutube](x)', 'ru'), /title="Видео RUTUBE"/);
+});
+
+test('the embed URL is one attribute value', () => {
+    assert.match(html('@[youtube](<abc" data-probe="yes>)'), /src="https:\/\/www\.youtube\.com\/embed\/abc&quot; data-probe=&quot;yes"/);
+});

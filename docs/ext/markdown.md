@@ -15,7 +15,7 @@ A markdown construct almost always comes paired with a [block extension](block.m
 Markdown extensions:
 
 - [`@nuckty/ext-markdown-typography-ru`](markdown/typography-ru.md) — Russian typography: a non-breaking space before a dash. Adds no block — it only adjusts text.
-- [`@nuckty/ext-markdown-video`](markdown/video.md) — video embedding `@[provider](id)` (YouTube/RuTube/VK). Ships no block — the plugin builds the player markup.
+- [`@nuckty/ext-markdown-video`](markdown/video.md) — video embedding `@[provider](id)` (YouTube/RuTube/VK). Ships the `video` block with its template and CSS.
 
 Markdown constructs that come paired with a block live in block extensions:
 
