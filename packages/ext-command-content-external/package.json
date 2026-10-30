@@ -1,6 +1,6 @@
 {
     "name": "@nuckty/ext-command-content-external",
-    "version": "1.0.0-rc.1",
+    "version": "1.0.0-rc.2",
     "license": "MIT",
     "repository": {
         "type": "git",
@@ -46,7 +46,7 @@
         "dist"
     ],
     "peerDependencies": {
-        "@nuckty/core": "1.0.0-rc.1"
+        "@nuckty/core": "1.0.0-rc.2"
     },
     "author": {
         "name": "Vitaly Harisov",

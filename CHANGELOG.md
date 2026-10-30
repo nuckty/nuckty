@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.0.0-rc.2
+
+### Breaking changes
+
+- The Markdown bridge emits `article` entities with their data in `props` and no tags, attributes or HTML strings. The core registers default templates for them, exported as `markdownTemplates`, before the site's templates, so a site can change any Markdown markup. The copy-code button is no longer part of the core output; inline HTML stays raw. The document handler receives the content tree and the page renders in one pass.
+- Directive handlers return a `BEMTree` and receive the directive form as `type`, the page's Markdown options including `lang`, and `convert.inline` and `convert.blocks` as the third argument. `env.markdown.node(type, handler)` maps mdast node types to BEMJSON.
+- `.mod()` in a template selector refines the selected entity: a block modifier on a block selector, an element modifier after `.elem()`. `.elemMod()` is removed, and `.elem()` after `.mod()` is rejected.
+- Commands declare their arguments with `env.commands.add(name, description, handler, { flags, maxPositionals })` instead of `{ booleanFlags }`. The CLI rejects undeclared options, invalid switch values, string options without a value and extra positional arguments; `validateCommandArgs` checks a declaration in tests.
+- Unused core exports are removed: `getRoot`, `getExternalContent`, `getFileTimestamp`, `formatLastUpdated`, `classify`, `stringifyEntity`, `parseClass`, `createBlockFor`, `classicPreset` and `NamingPreset`, with the `tightList` node field and the `contentRepo`/`assetRepos` settings. `page.lastUpdated` is the Unix time in seconds of the source's last commit.
+- `resolveAlternates` takes the sibling pages by target name as its fourth argument; alternates link only to pages that exist in the sibling target and carry their title.
+- `@[provider](id)` becomes a block-level `video` node rendered by the new `video` block of `@nuckty/ext-markdown-video`, with a frame title in the page language and responsive CSS. Add `video` to the bundle's bemdecl; providers need a display `label`, and `createVideoExtension(providers)` builds a custom list.
+- `deploy-ftp` uses FTPS with certificate verification by default; `secure: false` or `FTP_SECURE=false` selects plain FTP with a warning. `--force` only re-uploads every file, and `--allow-mass-delete` lifts the guard against deleting more than 30% of remote files.
+- `convert-images` requires the content directory argument.
+- The gallery emits data only and fails the build on content other than images; its lightbox is labelled in the page language and opens on the dialog's `open` state. `data-group` is gone.
+
+### Build and content
+
+- BEM declarations expand `{ block, elem }` and `{ block, elems }` into element entities, so element CSS and JS are bundled.
+- `BuildContext.store` is typed as `BuildStore`. `.build/hash-css.json` and `.build/hash-js.json` are no longer written, and a bundle without CSS publishes no empty stylesheet. An unreadable SVG referenced by CSS fails the build.
+- Sitemap entries indented with tabs or an odd number of spaces, and two home-section entries that give one URL different files, fail the build; titles may contain brackets.
+- Heading anchors keep letters and digits of every script, and a heading's own link no longer jumps to another heading with the same GitHub-style slug.
+- Relative `.pdf`, `.zip` and `.ini` links point to the file copied to the artifact root, and the build fails when that file was not published. The assets stage accepts upper-case extensions.
+- The assets and images stages skip hidden directories and `node_modules`, exported as `isToolingDirectory`; `external/` is always a protected input.
+- An unknown leaf directive renders its label as a paragraph; leaf and text `grid` directives fall back to plain content, and grid cells keep links, emphasis, inline code and images.
+- `@nuckty/ext-markdown-typography-ru` puts a non-breaking space before a dash that follows a link, emphasis or inline code.
+- `generateFileHash` is exported; `externalRepoName` rejects URLs whose last segment is not a plain directory name.
+
+### Hosting and commands
+
+- Apache answers missing routes and artifact directories with the site's 404 page, returns 404 for `/manifest.json` and blocks encoded or dot-segment requests to compressed and `.html` files. nginx no longer marks pages or query URLs as immutable assets. Neither configuration routes the `_c…`, `_j…` and `_s…` files the build never produces.
+- Each target's preview keeps its configuration, PID and logs in `.build/serve/<target>/`, so several targets can be served at once; `nuckty stop [target]` stops one or all of them.
+- `deploy-ftp` removes the server manifest before the first change and validates ports.
+- `validate` allows 60 seconds per page and terminates a validator that never became ready.
+
 ## 1.0.0-rc.1
 
 - `config/external.json` entries may be objects `{ "url", "ref", "path" }`. `content-external` checks out the pinned tag or commit, accepts tags moved upstream, keeps only the configured subdirectory without top-level files, fetches only its blobs and LFS files, and refuses an unknown ref, a missing path or a detached copy without `ref` before changing the working copy. The core reads both entry forms and exports `parseExternalSources`, `externalRepoName` and `ExternalSource`.

@@ -50,7 +50,7 @@ export const register = createVideoExtension([
 Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
 ```
-npm install --save-exact @nuckty/ext-markdown-video@1.0.0-rc.1
+npm install --save-exact @nuckty/ext-markdown-video@1.0.0-rc.2
 ```
 
 ```ts
