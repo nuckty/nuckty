@@ -113,8 +113,8 @@ test('loadConfig: a syntax error in the config is NOT masked as a missing config
     try {
         await mkdir(path.join(dir, 'config'), { recursive: true });
         await writeFile(path.join(dir, 'config', 'config-nuckty.ts'), `export {{{\n`);
+        // No silent fallback to the default target.
         await assert.rejects(() => loadConfig(dir));
-        // And crucially: no silent fallback — the error mentions the config.
     } finally {
         await rm(dir, { recursive: true, force: true });
     }

@@ -3,9 +3,10 @@
  * orchestration: bemdecl-driven `@import` generation across multiple levels,
  * Lightning CSS `bundle` (inline `@import`, vendor prefixes, minification),
  * `url()` image-reference rewriting against the images-stage mapping, hashed
- * SVG inlining, content-hash output filename and `ctx.store.cssHash`. Runs `cssStage` against a real temp project
- * tree, not only the pure `processImageReferences` post-processor (which the
- * css.test.ts suite already covers).
+ * SVG inlining, content-hash output filename and `ctx.store.cssHash`. Runs
+ * `cssStage` against a real temp project tree, not only the pure
+ * `processImageReferences` post-processor (which the css.test.ts suite
+ * already covers).
  *
  * @module test/css-stage
  */
