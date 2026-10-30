@@ -446,3 +446,29 @@ test('runner refuses unsafe pins and paths before changing the copy', async () =
         await rm(root, { recursive: true, force: true });
     }
 });
+
+test('content-external plans from config/external.json and reports a malformed file', async (t) => {
+    const cwd = await mkdtemp(path.join(tmpdir(), 'nuckty-content-command-'));
+    const env = new NucktyEnv();
+    register(env);
+    const handler = env.commands.get('content-external')!.handler;
+    let stdout = '';
+    let stderr = '';
+    t.mock.method(process.stdout, 'write', (chunk: string) => { stdout += chunk; return true; });
+    t.mock.method(process.stderr, 'write', (chunk: string) => { stderr += chunk; return true; });
+    const args = { positional: [], flags: { 'dry-run': true }, config: { targets: {} }, cwd };
+
+    try {
+        assert.equal(await handler(args), 0);
+        assert.equal(stdout, '');
+        await mkdir(path.join(cwd, 'config'));
+        await writeFile(path.join(cwd, 'config/external.json'), JSON.stringify([{ url: 'https://example.test/acme/docs.git', ref: 'v1', path: 'docs' }]));
+        assert.equal(await handler(args), 0);
+        assert.match(stdout, /would clone docs \(at v1, path docs\)/);
+        await writeFile(path.join(cwd, 'config/external.json'), '{"url":');
+        assert.equal(await handler(args), 1);
+        assert.match(stderr, /failed to parse config\/external\.json/);
+    } finally {
+        await rm(cwd, { recursive: true, force: true });
+    }
+});
