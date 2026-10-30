@@ -40,7 +40,7 @@
 Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
 ```bash
-npm install --save-exact --save-dev @nuckty/ext-command-serve@1.0.0-rc.2
+npm install --save-exact --save-dev @nuckty/ext-command-serve@1.0.0-rc.3
 ```
 
 ```ts

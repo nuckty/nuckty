@@ -1,6 +1,6 @@
 {
     "name": "@nuckty/ext-command-deploy-ftp",
-    "version": "1.0.0-rc.2",
+    "version": "1.0.0-rc.3",
     "license": "MIT",
     "repository": {
         "type": "git",
@@ -46,7 +46,7 @@
         "dist"
     ],
     "peerDependencies": {
-        "@nuckty/core": "1.0.0-rc.2"
+        "@nuckty/core": "1.0.0-rc.3"
     },
     "author": {
         "name": "Vitaly Harisov",

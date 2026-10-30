@@ -1,5 +1,11 @@
 # История изменений
 
+## 1.0.0-rc.3
+
+- `nuckty build` проверяет аргументы так же, как объявленные команды: параметр или второй таргет останавливают команду с `nuckty: build: unknown option --name` или `nuckty: build: expected at most 1 argument`.
+- Ошибки CLI несут префикс `nuckty:` один раз, в том числе неизвестный таргет, отсутствующий nginx в `serve` и таргет без `outDir` в `deploy-ftp`.
+- `deploy-ftp` учитывает `progress: false` в `config/auth-ftp.json`.
+
 ## 1.0.0-rc.2
 
 ### Несовместимые изменения

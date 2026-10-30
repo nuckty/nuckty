@@ -1,6 +1,6 @@
 {
     "name": "@nuckty/core",
-    "version": "1.0.0-rc.2",
+    "version": "1.0.0-rc.3",
     "description": "All static site generators suck. This one just sucks less. BEMJSON template engine, programmatic pipeline, multi-target builds.",
     "keywords": [
         "nuckty",

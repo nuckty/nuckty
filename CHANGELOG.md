@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-rc.3
+
+- `nuckty build` checks its arguments like any declared command: an option or a second target fails with `nuckty: build: unknown option --name` or `nuckty: build: expected at most 1 argument`.
+- CLI errors carry the `nuckty:` prefix once, including an unknown target, a missing nginx in `serve` and a target without `outDir` in `deploy-ftp`.
+- `deploy-ftp` honours `progress: false` in `config/auth-ftp.json`.
+
 ## 1.0.0-rc.2
 
 ### Breaking changes
