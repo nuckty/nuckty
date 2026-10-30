@@ -111,9 +111,6 @@ export async function convertImages(
                     skipped++;
                     continue;
                 }
-            } else if (!needsProcessing(hash, cache, force)) {
-                skipped++;
-                continue;
             }
 
             const origSize = (await fsp.stat(img.path)).size;
@@ -232,9 +229,9 @@ async function safeUnlink(p: string): Promise<void> {
 }
 
 /**
- * Build the real sharp `Encoder`. Lazy-imported so `register(env)` does not pull
- * sharp — only an actual invocation pays that cost (and needs sharp installed in
- * the consumer). PNG→WebP uses `nearLossless`; everything else is plain quality.
+ * Build the real sharp `Encoder`. Lazy-imported so `register(env)` does not load
+ * sharp — only an actual invocation pays that cost. PNG→WebP uses
+ * `nearLossless`; everything else is plain quality.
  */
 async function makeSharpEncoder(): Promise<Encoder> {
     const sharp = (await import('sharp')).default;

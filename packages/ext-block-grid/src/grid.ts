@@ -67,6 +67,6 @@ export function extractItems(children: MdastNode[]): MdastNode[][] {
 export function gridNode(items: BEMTree[]): BemNode {
     return {
         block: 'grid',
-        content: items.map((text) => ({ block: 'grid', elem: 'item', content: text })),
+        content: items.map((cell) => ({ block: 'grid', elem: 'item', content: cell })),
     };
 }

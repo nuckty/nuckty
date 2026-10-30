@@ -70,8 +70,8 @@ export interface DeployOpts {
     outDir: string;
     /**
      * FTP auth config. If omitted, loaded from `config/auth-ftp.json` (relative
-     * to `cwd`) or `FTP_HOST`/`FTP_USER`/`FTP_PASSWORD`/`FTP_PATH`[/`FTP_PORT`]
-     * env vars.
+     * to `cwd`) or `FTP_HOST`/`FTP_USER`/`FTP_PASSWORD`/`FTP_PATH`
+     * [/`FTP_PORT`/`FTP_SECURE`] env vars.
      */
     auth?: FtpAuthConfig;
     /** Consumer root — where `config/auth-ftp.json` is resolved from. */
@@ -295,7 +295,8 @@ async function preflightFiles(outDir: string, manifest: Manifest): Promise<Map<s
 
 /**
  * Load FTP auth config. Env vars take precedence: `FTP_HOST`, `FTP_USER`,
- * `FTP_PASSWORD` (or legacy `FTP_PASS`), `FTP_PATH`, optional `FTP_PORT`.
+ * `FTP_PASSWORD` (or legacy `FTP_PASS`), `FTP_PATH`, optional `FTP_PORT` and
+ * `FTP_SECURE`.
  * Falls back to `config/auth-ftp.json` under `cwd`. `FTP_PASSWORD` wins over `FTP_PASS`.
  */
 export function loadAuthConfig(cwd: string, configPath = 'config/auth-ftp.json'): FtpAuthConfig {
@@ -418,8 +419,8 @@ interface DeployState {
 
 /**
  * Connect to the FTP server and `CD` into the remote root. Retries once on
- * connection failure (mirrors `initClient`). Passive mode always on; TLS when
- * `auth.secure` (NO SSH — FTPS only).
+ * connection failure. Passive mode always on; TLS unless `auth.secure` is
+ * false; no SSH.
  */
 async function initClient(state: DeployState): Promise<void> {
     const { auth } = state;
@@ -567,9 +568,10 @@ async function listServerFiles(client: FtpTransport): Promise<Record<string, num
 
 /**
  * Ensure the remote parent directories of `remotePath` exist before an upload:
- * `uploadFrom` issues a bare `STOR` and does not create nested parents. basic-ftp's `ensureDir` CHANGES cwd into the
- * created directory, so afterwards we `cd` back to the remote root — every
- * other operation uses root-relative paths.
+ * `uploadFrom` issues a bare `STOR` and does not create nested parents.
+ * basic-ftp's `ensureDir` CHANGES cwd into the created directory, so afterwards
+ * we `cd` back to the remote root — every other operation uses root-relative
+ * paths.
  */
 async function ensureRemoteDir(
     client: FtpTransport,
@@ -905,7 +907,7 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
     }
 }
 
-/** Print the deployment summary (mirrors `printSummary`). */
+/** Print the deployment summary. */
 export function printSummary(stats: DeployStats, dryRun = false): void {
     const duration =
         stats.startTime && stats.endTime ? stats.endTime.getTime() - stats.startTime.getTime() : 0;

@@ -20,7 +20,7 @@ export interface ValidationResults {
     cached: number;
 }
 
-/** vnu.jar location: prefer the `vnu-jar` npm dependency if installed. */
+/** vnu.jar location from the `vnu-jar` dependency. */
 async function resolveVnuJar(): Promise<string> {
     try {
         const vnuJarPkg = await import('vnu-jar');
@@ -258,7 +258,6 @@ export class VnuHttpValidator {
         }
         return errors;
     }
-
 }
 
 /** Refuse a foreign service before any health or validation requests. */
@@ -283,14 +282,14 @@ function getDefaultValidator(port: number): VnuHttpValidator {
     return defaultValidator;
 }
 
-/** Recursively collect every `.html` file under `dir` (spec: every HTML file). */
-export async function findHtmlFiles(dir: string, base: string[]): Promise<string[]> {
+/** Recursively collect every `.html` file under `dir`, skipping directories named in `skipDirs`. */
+export async function findHtmlFiles(dir: string, skipDirs: string[]): Promise<string[]> {
     const files: string[] = [];
     const entries = await readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
         const full = path.join(dir, entry.name);
-        if (entry.isDirectory() && !base.includes(entry.name)) {
-            files.push(...(await findHtmlFiles(full, base)));
+        if (entry.isDirectory() && !skipDirs.includes(entry.name)) {
+            files.push(...(await findHtmlFiles(full, skipDirs)));
         } else if (entry.isFile() && entry.name.endsWith('.html')) {
             files.push(full);
         }
@@ -298,7 +297,7 @@ export async function findHtmlFiles(dir: string, base: string[]): Promise<string
     return files;
 }
 
-/** `nuckty validate [target]` — validate the chosen target's artifact with vnu. */
+/** `nuckty validate [target] [--port <port>]` — validate the chosen target's artifact with vnu. */
 async function validate(args: CommandArgs): Promise<number> {
     const value = args.flags['port'];
     const port = value === undefined ? 8888 : (typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : NaN);

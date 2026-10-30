@@ -112,9 +112,9 @@ export function imageKindOf(ext: string): ImageKind | null {
 }
 
 /**
- * Recursively scan `dir` for PNG/JPEG sources, skipping hidden and `node_modules` directories. Pure
- * I/O: walks the filesystem without mutation. Paths retain the form of dir
- * (absolute or relative).
+ * Recursively scan `dir` for PNG/JPEG sources, skipping hidden files and
+ * directories and `node_modules`. Pure I/O: walks the filesystem without
+ * mutation. Paths retain the form of dir (absolute or relative).
  */
 export async function scanImageFiles(dir: string): Promise<SourceImage[]> {
     const out: SourceImage[] = [];
