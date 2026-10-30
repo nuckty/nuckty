@@ -14,13 +14,6 @@ node_modules/
 # External fetched repos (managed by setup)
 external/
 
-# Reference legacy engine (kept on disk during migration, NOT shipped)
-/lib/
-
-# Site-specific leftovers from the extraction (NOT shipped)
-/blocks/
-/content/
-
 # Logs
 *.log
 /tmp/
@@ -37,7 +30,6 @@ external/
 temp/
 .tmp/
 logs/
-
 
 # Local-only files
 *.tmp

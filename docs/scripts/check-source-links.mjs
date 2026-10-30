@@ -94,7 +94,6 @@ async function checkFile(file) {
     const relativeFile = path.relative(root, file);
     for (const prose of sourceSegments(markdown)) {
         const plain = maskInlineCode(prose);
-        markdownLink.lastIndex = 0;
         for (const match of plain.matchAll(markdownLink)) {
             const destination = match[1] ?? match[2];
             if (destination.startsWith('/') && !destination.startsWith('//')) {
@@ -118,7 +117,7 @@ async function checkFile(file) {
             const target = path.resolve(path.dirname(file), decodedPath);
             const relativeTarget = path.relative(root, target);
             if (relativeTarget.startsWith(`..${path.sep}`) || relativeTarget === '..' || path.isAbsolute(relativeTarget)) {
-                issues.push(`${relativeFile}: source link escapes the docs repository: ${destination}`);
+                issues.push(`${relativeFile}: source link escapes the docs directory: ${destination}`);
                 continue;
             }
             try {
