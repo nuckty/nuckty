@@ -92,15 +92,7 @@ export class Levels {
     }
 }
 
-/**
- * `env.markdown` facade — the markdown-extension entry point (openspec
- * `extensions` spec). Extensions register remark plugins (mdast transforms)
- * via `env.markdown.use(plugin)` and map generic directives (`:::name`,
- * `::name`, `:name`) to BEMJSON via `env.markdown.directive(name, handler)`. The
- * sitemap stage passes both to the remark processor; the core knows no specific
- * construct (gallery, callout, grid, …) — only the fallback for an unmapped
- * directive (plain content, openspec `markdown` spec).
- */
+/** A remark plugin (mdast transform) registered through `env.markdown.use`. */
 export type RemarkPlugin = Plugin<[], Root>;
 
 /** A directive node handed to a directive handler. */
@@ -144,6 +136,15 @@ export type DirectiveHandler = (node: DirectiveNode, env: Readonly<MarkdownOptio
  */
 export type MarkdownNodeHandler = (node: MarkdownNode, env: Readonly<MarkdownOptions>, convert: DirectiveConverters) => BEMTree | null;
 
+/**
+ * `env.markdown` facade — the markdown-extension entry point (openspec
+ * `extensions` spec). Extensions register remark plugins via `use(plugin)`,
+ * map generic directives (`:::name`, `::name`, `:name`) via
+ * `directive(name, handler)` and other mdast node types via `node(type, handler)`.
+ * The sitemap stage passes all three to the Markdown bridge; the core knows no
+ * specific construct (gallery, callout, grid, …) — only the fallback for an
+ * unmapped directive (plain content, openspec `markdown` spec).
+ */
 export class MarkdownFacade {
     private readonly plugins: RemarkPlugin[] = [];
     private readonly directiveMap = new Map<string, DirectiveHandler>();
@@ -234,7 +235,7 @@ export class NucktyEnv {
     readonly pipeline: PipelineFacade = new PipelineFacade();
     /** `env.levels` registry — block-search levels (config/levels.json + extensions). */
     readonly levels: Levels = new Levels();
-    /** `env.markdown` facade — remark plugins registered by extensions. */
+    /** `env.markdown` facade — remark plugins, directive and node handlers registered by extensions. */
     readonly markdown: MarkdownFacade = new MarkdownFacade();
     /** CLI command registry — `build` is core; every other command is an extension. */
     readonly commands: Commands = new Commands();
