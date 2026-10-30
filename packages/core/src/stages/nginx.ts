@@ -89,6 +89,41 @@ function htmlLocationBody(): string {
             add_header Referrer-Policy "strict-origin-when-cross-origin" always;`;
 }
 
+/** Serve hashed `extension` assets from their artifact directory with pre-compression negotiation. */
+function assetLocation(extension: string, mimeType: string): string {
+    return `        # ${extension.toUpperCase()} files with pre-compression
+        location ~* \\.${extension}$ {
+            set $target_file "${extension}$uri";
+            set $file_path "";
+            set $encoding_header "";
+
+            set $check_file "";
+            if ($gzip_accepted = 1) {
+                set $check_file "gzip/$uri.gz";
+            }
+            if (-f "$document_root/$check_file") {
+                set $file_path "/$check_file";
+                set $encoding_header "gzip";
+            }
+            set $check_file "$compression_dir$uri$compression_suffix";
+            if (-f "$document_root/$check_file") {
+                set $file_path "/$check_file";
+                set $encoding_header $content_encoding;
+            }
+            if ($file_path = "") {
+                set $file_path "/$target_file";
+            }
+            rewrite ^ $file_path break;
+
+            expires $expires_time;
+            add_header Cache-Control $cache_control;
+            add_header Vary "Accept-Encoding" always;
+            add_header Content-Encoding $encoding_header always;
+            default_type ${mimeType};
+        }
+`;
+}
+
 /**
  * Generate the nginx.conf body for a site rooted at `root` as a plain string.
  * `logPrefix` names the access/error log files in `logDir`; `pidFile` is where
@@ -135,7 +170,6 @@ http {
         "brotli/"       "br";
         "gzip/"         "gzip";
     }
-
 
     # An accepted Gzip copy remains a fallback when the preferred Brotli file is absent.
     map $http_accept_encoding $gzip_accepted {
@@ -217,130 +251,10 @@ http {
             return 301 $1;
         }
 
-        # CSS files with pre-compression
-        location ~* \\.css$ {
-            set $target_file "css$uri";
-            set $file_path "";
-            set $encoding_header "";
-
-            set $check_file "";
-            if ($gzip_accepted = 1) {
-                set $check_file "gzip/$uri.gz";
-            }
-            if (-f "$document_root/$check_file") {
-                set $file_path "/$check_file";
-                set $encoding_header "gzip";
-            }
-            set $check_file "$compression_dir$uri$compression_suffix";
-            if (-f "$document_root/$check_file") {
-                set $file_path "/$check_file";
-                set $encoding_header $content_encoding;
-            }
-            if ($file_path = "") {
-                set $file_path "/$target_file";
-            }
-            rewrite ^ $file_path break;
-
-            expires $expires_time;
-            add_header Cache-Control $cache_control;
-            add_header Vary "Accept-Encoding" always;
-            add_header Content-Encoding $encoding_header always;
-            default_type text/css;
-        }
-
-        # JS files with pre-compression
-        location ~* \\.js$ {
-            set $target_file "js$uri";
-            set $file_path "";
-            set $encoding_header "";
-
-            set $check_file "";
-            if ($gzip_accepted = 1) {
-                set $check_file "gzip/$uri.gz";
-            }
-            if (-f "$document_root/$check_file") {
-                set $file_path "/$check_file";
-                set $encoding_header "gzip";
-            }
-            set $check_file "$compression_dir$uri$compression_suffix";
-            if (-f "$document_root/$check_file") {
-                set $file_path "/$check_file";
-                set $encoding_header $content_encoding;
-            }
-            if ($file_path = "") {
-                set $file_path "/$target_file";
-            }
-            rewrite ^ $file_path break;
-
-            expires $expires_time;
-            add_header Cache-Control $cache_control;
-            add_header Vary "Accept-Encoding" always;
-            add_header Content-Encoding $encoding_header always;
-            default_type application/javascript;
-        }
-
-        # SVG files with pre-compression
-        location ~* \\.svg$ {
-            set $target_file "svg$uri";
-            set $file_path "";
-            set $encoding_header "";
-
-            set $check_file "";
-            if ($gzip_accepted = 1) {
-                set $check_file "gzip/$uri.gz";
-            }
-            if (-f "$document_root/$check_file") {
-                set $file_path "/$check_file";
-                set $encoding_header "gzip";
-            }
-            set $check_file "$compression_dir$uri$compression_suffix";
-            if (-f "$document_root/$check_file") {
-                set $file_path "/$check_file";
-                set $encoding_header $content_encoding;
-            }
-            if ($file_path = "") {
-                set $file_path "/$target_file";
-            }
-            rewrite ^ $file_path break;
-
-            expires $expires_time;
-            add_header Cache-Control $cache_control;
-            add_header Vary "Accept-Encoding" always;
-            add_header Content-Encoding $encoding_header always;
-            default_type image/svg+xml;
-        }
-
-        # XML files with pre-compression
-        location ~* \\.xml$ {
-            set $target_file "xml$uri";
-            set $file_path "";
-            set $encoding_header "";
-
-            set $check_file "";
-            if ($gzip_accepted = 1) {
-                set $check_file "gzip/$uri.gz";
-            }
-            if (-f "$document_root/$check_file") {
-                set $file_path "/$check_file";
-                set $encoding_header "gzip";
-            }
-            set $check_file "$compression_dir$uri$compression_suffix";
-            if (-f "$document_root/$check_file") {
-                set $file_path "/$check_file";
-                set $encoding_header $content_encoding;
-            }
-            if ($file_path = "") {
-                set $file_path "/$target_file";
-            }
-            rewrite ^ $file_path break;
-
-            expires $expires_time;
-            add_header Cache-Control $cache_control;
-            add_header Vary "Accept-Encoding" always;
-            add_header Content-Encoding $encoding_header always;
-            default_type application/xml;
-        }
-
+${assetLocation('css', 'text/css')}
+${assetLocation('js', 'application/javascript')}
+${assetLocation('svg', 'image/svg+xml')}
+${assetLocation('xml', 'application/xml')}
         # Sitemap.xml with compression support
         location = /sitemap.xml {
             set $target_file "xml/sitemap.xml";

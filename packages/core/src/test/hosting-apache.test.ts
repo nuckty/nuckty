@@ -35,8 +35,8 @@ test('Apache routes identity text assets and preserves JPEG/GIF original extensi
     for (const ext of ['css', 'js', 'svg', 'xml']) {
         assert.ok(config.includes(`RewriteRule ^([^/]+\\.${ext})$ ${ext}/$1 [L]`));
     }
-    assert.ok(config.includes('jpg/$1.jpeg [L,E=IS_IMAGE:1]'));
-    assert.ok(config.includes('$1.gif [L,E=IS_IMAGE:1]'));
+    assert.ok(config.includes('jpg/$1.jpeg [L]'));
+    assert.ok(config.includes('$1.gif [L]'));
     assert.ok(config.includes('Header always merge Vary "Accept-Encoding"'));
     assert.ok(!config.includes('Header always set Content-Encoding'));
 });
@@ -44,6 +44,9 @@ test('Apache routes identity text assets and preserves JPEG/GIF original extensi
 test('Apache has no rules for asset names the build never produces', () => {
     assert.ok(!/\^_\[?[cjs]/.test(config), 'extensionless _c/_j/_s rules');
     assert.ok(!config.includes('$1.ico'), '.ico image probe');
+    // FilesMatch sees the rewritten file name, never the logical `_i…` URL.
+    assert.ok(!config.includes('<FilesMatch "^_i'), 'logical image URL FilesMatch');
+    assert.doesNotMatch(config, /E=[A-Z_]+:/, 'unread environment flags');
 });
 
 test('Apache gives every immutable asset type the 10-year expiry', () => {

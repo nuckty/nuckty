@@ -239,7 +239,7 @@ Options FollowSymLinks Indexes
             const queryRoute = await request(port, '/?download=guide.html', {});
             assert.equal(queryRoute.status, 200, 'query must not trigger direct HTML denial');
             assert.equal(queryRoute.body, files['html/index.html']);
-            for (const url of ['/missing', '/missing/nested', '/missing.txt', '/404.html', '/manifest.json', '/manifest%2Ejson', '/./manifest.json', '/index%2Ehtml', '/%62rotli/aaaaaaaaaaaaaaaa.css.br', '/MANIFEST.json', '/manifest%2ejson', '/%6danifest.json', '/./manifest.json', '/x/../manifest.json', '/a/b/c/d/e/f', '/brotli/aaaaaaaaaaaaaaaa.css.br', '/gzip/aaaaaaaaaaaaaaaa.css.gz', '/png', '/html', '/css', '/nested']) {
+            for (const url of ['/missing', '/missing/nested', '/missing.txt', '/404.html', '/manifest.json', '/manifest%2Ejson', '/index%2Ehtml', '/%62rotli/aaaaaaaaaaaaaaaa.css.br', '/MANIFEST.json', '/manifest%2ejson', '/%6danifest.json', '/./manifest.json', '/x/../manifest.json', '/a/b/c/d/e/f', '/brotli/aaaaaaaaaaaaaaaa.css.br', '/gzip/aaaaaaaaaaaaaaaa.css.gz', '/png', '/html', '/css', '/nested']) {
                 for (const encoding of ['identity', 'gzip', 'br']) {
                     const response = await request(port, url, { 'Accept-Encoding': encoding });
                     assert.equal(response.status, 404, url);
