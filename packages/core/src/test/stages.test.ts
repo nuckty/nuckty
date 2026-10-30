@@ -650,3 +650,8 @@ test('sitemap rejects unsupported known metadata values instead of discarding th
     assert.deepEqual(parseSitemapLine('Page [/page, page.md, {layout:"landing",navLabel:"Menu"}]')?.meta, { layout: 'landing', navLabel: 'Menu' });
 });
 
+
+test('sitemap indentation must be two spaces per level', () => {
+    assert.throws(() => parseIndentedSitemap('sitemap:\n  - Home [/, index.md]\n   - Odd [odd, odd.md]\n'), /indentation at line 3/);
+    assert.throws(() => parseIndentedSitemap('sitemap:\n\t- Home [/, index.md]\n'), /indentation at line 2/);
+});

@@ -1,0 +1,2 @@
+- [x] Reject tabs and odd indentation.
+- [x] Test and document the rule.

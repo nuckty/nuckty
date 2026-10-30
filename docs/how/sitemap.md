@@ -6,7 +6,7 @@ The [sitemap decision](../why/sitemap.md) explains why this way instead of the f
 
 ## Line format
 
-The `.yml` file is read by a custom indentation parser; full YAML syntax is not supported. Use two spaces per level and unquoted list entries. The `sitemap:` header occupies its own line, optionally uses the empty form `sitemap: []`, and may have a trailing comment; it cannot contain a page declaration. Known `layout` and `navLabel` values must be strings. Quotes inside metadata values are allowed. An invalid page entry or unparsable metadata fails the build instead of silently dropping the entry.
+The `.yml` file is read by a custom indentation parser; full YAML syntax is not supported. Use two spaces per level and unquoted list entries; tabs and odd indentation fail the build. The `sitemap:` header occupies its own line, optionally uses the empty form `sitemap: []`, and may have a trailing comment; it cannot contain a page declaration. Known `layout` and `navLabel` values must be strings. Quotes inside metadata values are allowed. An invalid page entry or unparsable metadata fails the build instead of silently dropping the entry.
 
 ```
 Title [address, file.md, { layout: "name" }]

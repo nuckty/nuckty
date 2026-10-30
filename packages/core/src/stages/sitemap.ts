@@ -101,7 +101,10 @@ export function parseIndentedSitemap(content: string): unknown[] {
         }
 
         const indent = match[1]!.length;
-        const level = Math.floor(indent / 2);
+        if (indent % 2 !== 0 || /\t/.test(match[1]!)) {
+            throw new Error(`Invalid sitemap indentation at line ${i + 1}: use two spaces per level`);
+        }
+        const level = indent / 2;
         const itemContent = match[2]!.trim();
 
         while (stack.length > 1 && stack[stack.length - 1]!.level >= level) {

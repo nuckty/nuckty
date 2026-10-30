@@ -88,3 +88,10 @@ Each page with a source file SHALL carry `lastUpdated`: the Unix time in seconds
 #### Scenario: Commit time reaches the document
 - **WHEN** a page source was last committed at 2023-01-02T00:00:00Z
 - **THEN** the document handler receives `page.lastUpdated` equal to `1672617600`
+
+### Requirement: Two-space indentation
+Sitemap entries SHALL be indented by two spaces per nesting level. An entry indented with a tab or an odd number of spaces SHALL fail sitemap generation with its line number.
+
+#### Scenario: Odd indentation
+- **WHEN** an entry is indented by three spaces
+- **THEN** the build fails naming that line
