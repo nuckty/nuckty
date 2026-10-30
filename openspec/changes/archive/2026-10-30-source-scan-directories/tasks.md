@@ -1,0 +1,3 @@
+- [x] Share the tooling directory filter through the core.
+- [x] Require the content directory in `convert-images`.
+- [x] Update tests and documentation.

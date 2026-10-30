@@ -5,6 +5,7 @@ import { assertArtifactPath, resolveBuildFile } from './artifact-path.js';
 import type { Stage, BuildContext } from '../pipeline/pipeline.js';
 import { getBuildConfig } from '../utils/build-config.js';
 import { generateHash } from '../utils/hash.js';
+import { isToolingDirectory } from '../utils/walk.js';
 import type { ImageStatEntry } from './types.js';
 
 const SUPPORTED_FORMATS = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
@@ -86,7 +87,7 @@ async function ensureOutputDirs(state: ImageBuilderState): Promise<void> {
     }
 }
 
-/** Recursively collect supported image paths (skips `.git`). */
+/** Recursively collect supported image paths outside hidden and dependency directories. */
 async function collectImagePaths(dirPath: string, state: ImageBuilderState): Promise<void> {
     let entries: Dirent[];
     try {
@@ -100,7 +101,7 @@ async function collectImagePaths(dirPath: string, state: ImageBuilderState): Pro
     await Promise.all(entries.map(async (entry) => {
         const fullPath = path.join(dirPath, entry.name);
         if (entry.isDirectory()) {
-            if (entry.name === '.git') {
+            if (isToolingDirectory(entry.name)) {
                 return;
             }
             await collectImagePaths(fullPath, state);

@@ -21,7 +21,7 @@ test('real Sharp encodes PNG and JPEG variants and reuses a completed cache', as
             .jpeg({ quality: 100 }).toFile(path.join(dir, 'jpeg.jpg'));
         const stdout = t.mock.method(process.stdout, 'write', () => true);
         const stderr = t.mock.method(process.stderr, 'write', () => true);
-        const args = { positional: [], flags: {}, cwd: dir, config: { targets: {} } };
+        const args = { positional: ['.'], flags: {}, cwd: dir, config: { targets: {} } };
         try {
             assert.equal(await convertImages(args), 0);
             const before: Record<string, { bytes: string; mtime: number }> = {};

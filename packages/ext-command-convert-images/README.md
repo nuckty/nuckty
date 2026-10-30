@@ -9,10 +9,10 @@ A command extension for [nuckty](https://github.com/nuckty/nuckty). It prepares 
 One CLI command, registered through `env.commands`:
 
 ```
-nuckty convert-images [contentDir] [--dry-run] [--force]
+nuckty convert-images <contentDir> [--dry-run] [--force]
 ```
 
-- `contentDir` — root to scan (default: the current directory).
+- `contentDir` — root to scan; required. Hidden directories and `node_modules` are skipped.
 - `--dry-run` — reports what would be written without touching disk.
 - `--force` — re-encodes even files the cache already knows.
 

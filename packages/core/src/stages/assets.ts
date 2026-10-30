@@ -5,6 +5,7 @@ import type { Stage, BuildContext } from '../pipeline/pipeline.js';
 import { getBuildConfig } from '../utils/build-config.js';
 import { externalRepoName } from '../utils/external.js';
 import { generateFileHash } from '../utils/hash.js';
+import { isToolingDirectory } from '../utils/walk.js';
 
 /** Static config files copied verbatim into the site root. */
 const CONFIG_FILES = ['robots.txt'];
@@ -84,14 +85,6 @@ async function resolveSourceRepos(root: string, urls: string[] | undefined): Pro
         const name = externalRepoName(url);
         return { name, path: path.join(root, 'external', name) };
     });
-}
-
-/**
- * Hidden directories (`.git`, `.venv`, `.idea`, …) and `node_modules` hold
- * tooling and dependencies, not site content; their files must never ship.
- */
-function isToolingDirectory(name: string): boolean {
-    return name.startsWith('.') || name === 'node_modules';
 }
 
 /** Recursively find asset files (by extension) under a directory. */

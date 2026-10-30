@@ -270,6 +270,23 @@ test('imagesStage: unsupported extensions (.ico, .bmp) are not collected', async
     }
 });
 
+test('imagesStage: images inside hidden and dependency directories are not collected', async () => {
+    const { ctx, dir } = await makeCtx();
+    try {
+        for (const hidden of ['.git', '.venv', 'node_modules/pkg']) {
+            await mkdir(path.join(dir, 'content', hidden), { recursive: true });
+            await writeFile(path.join(dir, 'content', hidden, 'x.png'), PNG_BYTES);
+        }
+        await writeFile(path.join(dir, 'content', 'kept.png'), PNG_BYTES);
+
+        await imagesStage(ctx);
+
+        assert.deepEqual(Object.keys(ctx.store['imageMapping'] as Record<string, string>), ['kept.png']);
+    } finally {
+        await rm(dir, { recursive: true, force: true });
+    }
+});
+
 test('imagesStage: a missing levels directory is skipped without failing', async () => {
     const { ctx, dir } = await makeCtx();
     try {

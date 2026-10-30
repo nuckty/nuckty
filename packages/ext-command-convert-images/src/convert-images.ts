@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { isToolingDirectory } from '@nuckty/core';
 
 /** Source image kind: `png` or `jpeg` (`.jpg`/`.jpeg` both map to `jpeg`). */
 export type ImageKind = 'png' | 'jpeg';
@@ -111,7 +112,7 @@ export function imageKindOf(ext: string): ImageKind | null {
 }
 
 /**
- * Recursively scan `dir` for PNG/JPEG sources, skipping `.git` directories. Pure
+ * Recursively scan `dir` for PNG/JPEG sources, skipping hidden and `node_modules` directories. Pure
  * I/O: walks the filesystem without mutation. Paths retain the form of dir
  * (absolute or relative).
  */
@@ -123,7 +124,7 @@ export async function scanImageFiles(dir: string): Promise<SourceImage[]> {
     async function walk(d: string, acc: SourceImage[]): Promise<void> {
         const entries: fs.Dirent[] = await fsp.readdir(d, { withFileTypes: true });
         for (const entry of entries) {
-            if (entry.name === '.git') {
+            if (isToolingDirectory(entry.name)) {
                 continue;
             }
             const full = path.join(d, entry.name);

@@ -107,11 +107,13 @@ test('startQuality: picks the default per (kind, format)', () => {
 
 // ---- scanImageFiles ---------------------------------------------------------
 
-test('scanImageFiles: collects png/jpeg recursively and skips .git', async () => {
+test('scanImageFiles: collects png/jpeg recursively and skips hidden and dependency directories', async () => {
     const root = await mkdtemp(path.join(tmpdir(), 'ci-'));
     try {
         await mkdir(path.join(root, 'free'));
         await mkdir(path.join(root, '.git', 'objects'), { recursive: true });
+        await mkdir(path.join(root, 'node_modules', 'pkg'), { recursive: true });
+        await writeFile(path.join(root, 'node_modules', 'pkg', 'd.png'), Buffer.from('dep'));
         await writeFile(path.join(root, 'free', 'a.png'), Buffer.from('png'));
         await writeFile(path.join(root, 'free', 'b.jpg'), Buffer.from('jpg'));
         await writeFile(path.join(root, 'free', 'ignore.txt'), 'x');

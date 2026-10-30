@@ -9,10 +9,10 @@
 Одну команду CLI, регистрируемую через `env.commands`:
 
 ```
-nuckty convert-images [contentDir] [--dry-run] [--force]
+nuckty convert-images <contentDir> [--dry-run] [--force]
 ```
 
-- `contentDir` — корень для сканирования (по умолчанию текущий каталог).
+- `contentDir` — корень для сканирования, обязателен. Скрытые каталоги и `node_modules` пропускаются.
 - `--dry-run` — сообщает, что будет записано, ничего не меняя на диске.
 - `--force` — перекодирует даже файлы, уже известные кэшу.
 

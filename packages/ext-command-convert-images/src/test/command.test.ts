@@ -39,7 +39,7 @@ test('handler image safety and cache contracts', async (t) => {
         const stdout = t.mock.method(process.stdout, 'write', () => true);
         const stderr = t.mock.method(process.stderr, 'write', () => true);
         try {
-            return await convertImages({ positional: [], flags, cwd: dir, config: { targets: {} } }, { encoder });
+            return await convertImages({ positional: ['.'], flags, cwd: dir, config: { targets: {} } }, { encoder });
         } finally {
             stdout.mock.restore();
             stderr.mock.restore();
@@ -104,7 +104,8 @@ test('handler image safety and cache contracts', async (t) => {
             assert.equal(await runCli(dir, ['--dry-run', '.'], async () => { assert.fail('encoder called'); }), 0);
             assert.equal(await runCli(dir, ['.', '--dry-run'], async () => { assert.fail('encoder called'); }), 0);
             assert.equal(await runCli(dir, ['--dryrun', 'content'], async () => { assert.fail('encoder called'); }), 1);
-            assert.equal(await runCli(dir, ['--force=maybe'], async () => { assert.fail('encoder called'); }), 1);
+            assert.equal(await runCli(dir, ['--force=maybe', '.'], async () => { assert.fail('encoder called'); }), 1);
+            assert.equal(await runCli(dir, ['--dry-run'], async () => { assert.fail('encoder called'); }), 1);
             assert.equal(await runCli(dir, ['content', 'extra'], async () => { assert.fail('encoder called'); }), 1);
             assert.equal(await runCli(dir, ['--dry-run', '--', 'content', 'extra'], async () => { assert.fail('encoder called'); }), 1);
             assert.deepEqual(await snapshot(dir), before);

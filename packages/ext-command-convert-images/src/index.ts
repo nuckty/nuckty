@@ -36,7 +36,7 @@ import {
 } from './convert-images.js';
 
 /**
- * `nuckty convert-images [contentDir] [--dry-run] [--force]` — encode content
+ * `nuckty convert-images <contentDir> [--dry-run] [--force]` — encode content
  * images. `inject.encoder` is a test seam (the CLI path lazy-imports sharp);
  * tests inject a fake to exercise the write/keep-on-error behavior without
  * sharp.
@@ -52,8 +52,8 @@ export async function convertImages(
 
         return 1;
     }
-    if (args.positional.length > 1) {
-        process.stderr.write('nuckty: convert-images — expected at most one content directory\n');
+    if (args.positional.length !== 1) {
+        process.stderr.write('nuckty: convert-images — expected one content directory, e.g. nuckty convert-images content\n');
 
         return 1;
     }
@@ -68,8 +68,7 @@ export async function convertImages(
         return 1;
     }
     const { positionalPath, dryRun, force } = normalized;
-    // The content root defaults to the cwd; a positional selects a sub-scan root.
-    const contentDir = positionalPath ? path.resolve(args.cwd, positionalPath) : path.resolve(args.cwd);
+    const contentDir = path.resolve(args.cwd, positionalPath);
     const cachePath = path.join(contentDir, CACHE_FILE);
 
     let images;
@@ -239,9 +238,9 @@ async function fileExists(p: string): Promise<boolean> {
     }
 }
 
-function normalizeArgs(args: CommandArgs): { positionalPath: string | undefined; dryRun: boolean; force: boolean } {
+function normalizeArgs(args: CommandArgs): { positionalPath: string; dryRun: boolean; force: boolean } {
     return {
-        positionalPath: args.positional[0],
+        positionalPath: args.positional[0] ?? '',
         dryRun: readBooleanFlag(args.flags, 'dry-run'),
         force: readBooleanFlag(args.flags, 'force'),
     };

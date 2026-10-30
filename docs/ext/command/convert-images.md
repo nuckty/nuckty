@@ -25,12 +25,12 @@ Invalid cache data and output-name collisions fail before writing. Variants are 
 ## Options
 
 ```
-nuckty convert-images [contentDir] [--dry-run] [--force]
+nuckty convert-images <contentDir> [--dry-run] [--force]
 ```
 
 | Option | Action |
 |---|---|
-| `contentDir` | Scan root. Defaults to the current directory. |
+| `contentDir` | Scan root; required. Hidden directories and `node_modules` are skipped. |
 | `--dry-run` | Show what would be encoded, without writing files. |
 | `--force` | Re-encode even the files that are in the cache. |
 
@@ -59,4 +59,4 @@ The `sharp` package lives only in this extension's dependencies — the engine d
 
 ## Where to run it
 
-Run from the site root where the extension is installed and configured, passing the content path: `npx @nuckty/core convert-images external/content`. The scan defaults to the current directory. The build uses prepared variants; whether conversion runs in CI is a project decision.
+Run from the site root where the extension is installed and configured, passing the content path: `npx @nuckty/core convert-images external/content`. The build uses prepared variants; whether conversion runs in CI is a project decision.

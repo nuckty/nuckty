@@ -28,6 +28,8 @@ export { default as markdownTemplates } from './markdown/templates.js';
 // that rewrite image URLs (e.g. a gallery directive handler).
 export { transformImagePathShared } from './markdown/image-mapping.js';
 export type { ImageMappingEnv } from './markdown/image-mapping.js';
+// Source-scan directory filter, shared with extensions that read site sources.
+export { isToolingDirectory } from './utils/walk.js';
 // Manifest content hash, shared with deployment extensions.
 export { generateFileHash } from './utils/hash.js';
 // Entries of config/external.json, shared with the content-external command.
