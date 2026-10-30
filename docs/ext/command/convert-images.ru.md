@@ -43,7 +43,7 @@ nuckty convert-images <contentDir> [--dry-run] [--force]
 Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
 ```bash
-npm install --save-exact --save-dev @nuckty/ext-command-convert-images@1.0.0-rc.3
+npm install --save-exact --save-dev @nuckty/ext-command-convert-images@1.0.0-rc.4
 ```
 
 ```ts

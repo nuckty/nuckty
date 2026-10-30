@@ -37,7 +37,7 @@ This example extends the quickstart with the standard `@nuckty/ext-block-root` d
 Install the extension from npm in the extracted [starter project](../../how/start.md):
 
 ```bash
-npm install --save-exact @nuckty/ext-block-grid@1.0.0-rc.3
+npm install --save-exact @nuckty/ext-block-grid@1.0.0-rc.4
 ```
 
 ```ts

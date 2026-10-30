@@ -72,7 +72,7 @@ nuckty deploy-ftp [target] [--force] [--allow-mass-delete] [--dry-run]
 Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
 ```bash
-npm install --save-exact @nuckty/ext-command-deploy-ftp@1.0.0-rc.3
+npm install --save-exact @nuckty/ext-command-deploy-ftp@1.0.0-rc.4
 ```
 
 ```ts

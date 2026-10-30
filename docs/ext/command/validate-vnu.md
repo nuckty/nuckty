@@ -47,7 +47,7 @@ Install a maintained system JVM before running `npm install`. The extension incl
 Install the extension from npm in the extracted [starter project](../../how/start.md):
 
 ```bash
-npm install --save-exact @nuckty/ext-command-validate-vnu@1.0.0-rc.3
+npm install --save-exact @nuckty/ext-command-validate-vnu@1.0.0-rc.4
 ```
 
 ```ts

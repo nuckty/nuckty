@@ -1,6 +1,6 @@
 {
     "name": "@nuckty/ext-markdown-typography-ru",
-    "version": "1.0.0-rc.3",
+    "version": "1.0.0-rc.4",
     "license": "MIT",
     "repository": {
         "type": "git",
@@ -48,7 +48,7 @@
         "dist"
     ],
     "peerDependencies": {
-        "@nuckty/core": "1.0.0-rc.3"
+        "@nuckty/core": "1.0.0-rc.4"
     },
     "author": {
         "name": "Vitaly Harisov",

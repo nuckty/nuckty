@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.0-rc.4
+
+- The generated nginx configuration no longer routes extensionless `_s…`, `_c…` and `_j…` files, and `.htaccess` no longer probes a `.ico` variant for `/_i…` image URLs: the build never produces them.
+- `nuckty --help` describes `deploy-ftp` as publishing the built site over FTP/FTPS.
+
 ## 1.0.0-rc.3
 
 - `nuckty build` checks its arguments like any declared command: an option or a second target fails with `nuckty: build: unknown option --name` or `nuckty: build: expected at most 1 argument`.
