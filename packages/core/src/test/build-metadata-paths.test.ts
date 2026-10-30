@@ -13,15 +13,15 @@ import { Templates } from '../bem/templates.js';
 import type { BuildContext } from '../pipeline/pipeline.js';
 
 const cases = [
-    { file: 'page.css', stage: cssStage, empty: false },
-    { file: 'page-entry.js', stage: jsStage, empty: false },
-    { file: 'image-mapping.json', stage: imagesStage, empty: false },
-    { file: 'sitemap.json', stage: sitemapStage, empty: false },
+    { file: 'page.css', stage: cssStage },
+    { file: 'page-entry.js', stage: jsStage },
+    { file: 'image-mapping.json', stage: imagesStage },
+    { file: 'sitemap.json', stage: sitemapStage },
 ];
 
 for (const symbolicRoot of [false, true]) {
-    for (const { file, stage, empty } of cases) {
-        test(`build metadata ${file} empty=${empty} symbolicRoot=${symbolicRoot} preserves outside files`, async (t) => {
+    for (const { file, stage } of cases) {
+        test(`build metadata ${file} symbolicRoot=${symbolicRoot} preserves outside files`, async (t) => {
             const cwd = await mkdtemp(path.join(tmpdir(), 'nuckty-build-metadata-'));
             const buildDir = path.join(cwd, '.build');
             const workspace = symbolicRoot ? path.join(cwd, 'owned-workspace') : buildDir;
@@ -49,7 +49,7 @@ for (const symbolicRoot of [false, true]) {
                 const context: BuildContext = {
                     cwd, configDir: path.join(cwd, 'config'), buildDir, outDir,
                     target: 'main', env: new NucktyEnv(), templates: new Templates(),
-                    store: { blockDeps: { page: empty ? [] : ['widget'] } }, cache: new Map(),
+                    store: { blockDeps: { page: ['widget'] } }, cache: new Map(),
                 };
                 const reads = t.mock.method(fs, 'readFile');
 

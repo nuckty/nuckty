@@ -92,6 +92,7 @@ test('resolveAlternates: dev-ru finds dev-en', () => {
     assert.equal(alts.size, 1);
     assert.equal(alts.get('en')!.host, 'dev-en.example.com');
 });
+
 test('alternate titles use only explicitly supplied own dictionary keys', () => {
     for (const name of ['constructor', 'toString', '__proto__']) {
         const current = { name: 'main', configDir: 'config', outDir: 'site', lang: 'ru', host: 'example.ru', group: 'site' };

@@ -17,6 +17,7 @@ import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { cssStage } from '../stages/css.js';
 import { NucktyEnv } from '../env/env.js';
+import { Templates } from '../bem/templates.js';
 import type { BuildContext } from '../pipeline/pipeline.js';
 import { generateHash } from '../utils/hash.js';
 
@@ -42,7 +43,7 @@ async function makeCtx(
         outDir: path.join(dir, 'site'),
         target: 'default',
         env: new NucktyEnv(),
-        templates: {} as BuildContext['templates'],
+        templates: new Templates(),
         store: {},
         cache: new Map(),
         ...overrides,
@@ -87,7 +88,7 @@ test('cssStage bundles block CSS across two levels with later-level priority and
     }
 });
 
-test('cssStage bundles element CSS (block__elem) via the __ split in blockCssPath', async () => {
+test('cssStage bundles element CSS (block__elem) from the element file path', async () => {
     const { ctx, dir } = await makeCtx();
     try {
         await mkdir(path.join(dir, 'blocks', 'menu', '__item'), { recursive: true });

@@ -1,7 +1,7 @@
 /**
  * Tests for the `env.markdown` and `env.pipeline` facades (openspec `extensions`
- * spec): the markdown-extension entry point (`use`/`directive`/`directiveHandler`
- * /`directiveMappings`/`directiveNames`) and the pipeline-extension buffer
+ * spec): the markdown-extension entry point (`use`/`list`/`directive`/
+ * `directiveMappings`/`node`/`nodeMappings`) and the pipeline-extension buffer
  * (`before`/`after`/`registerStage` buffered, then `flush`ed onto a real
  * Pipeline). These are non-trivial: the markdown facade maps generic directives
  * to handlers (the core knows no construct), and the pipeline facade decouples
@@ -162,19 +162,18 @@ test('PipelineFacade buffers before/after/registerStage and flush replays them i
     assert.deepEqual(calls, ['before-render', 'render', 'htaccess', 'after-htaccess']);
 });
 
-test('PipelineFacade flush replays the buffered registrations (called once per build)', async () => {
+test('PipelineFacade flush registers a buffered stage that runs once', async () => {
     // The facade does not clear its buffer — `buildOne` flushes exactly once per
-    // build, so the buffer is never replayed in practice. Re-flushing would
-    // double-register; this test pins that contract (one flush per pipeline).
+    // build, so a stage registered before the pipeline exists runs once.
     const calls: string[] = [];
     const facade = new PipelineFacade();
     facade.registerStage('s', () => { calls.push('s'); }, { phase: 'render' });
     const pipeline = new Pipeline();
     facade.flush(pipeline);
     await pipeline.run({
-        cwd: '/fake', buildDir: '/fake/.build', outDir: '/fake/site',
-        target: 't', env: new NucktyEnv(), store: {}, cache: new Map(),
-    } as BuildContext);
+        cwd: '/fake', configDir: '/fake/config', buildDir: '/fake/.build', outDir: '/fake/site',
+        target: 't', env: new NucktyEnv(), templates: new Templates(), store: {}, cache: new Map(),
+    });
     assert.deepEqual(calls, ['s']);
 });
 

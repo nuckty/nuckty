@@ -5,9 +5,8 @@
  * join with underscores — a wrong mapping means the built page and the URL the
  * nginx config points at disagree, so the route 404s.
  *
- * The full html stage (two-pass render through a layout block) is covered by
- * `render.test.ts` (the two-pass engine + scoped block templates); this
- * file pins the URL→filename contract the stage writes under.
+ * The stage tests cover document construction through the consumer handler,
+ * flat-name collisions, raw code without typography and sibling alternates.
  *
  * @module test/html
  */
@@ -51,7 +50,7 @@ test('urlToFlat: the leading slash is dropped before joining', () => {
 });
 
 test('urlToFlat: a trailing slash is rejected (it would flatten to a trailing "_")', () => {
-    // /about/ currently flattens to "about_.html" while hosting 301-redirects
+    // /about/ would flatten to "about_.html" while hosting 301-redirects
     // to /about — the URL form must match hosting's canonical no-slash form.
     assert.throws(() => urlToFlat('/about/'), /trailing slash/);
     assert.equal(urlToFlat('/about'), 'about.html');

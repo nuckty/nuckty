@@ -2,7 +2,7 @@
  * Tests for the two-pass render (openspec `templates` spec): `renderToBemJson`
  * (templates → resolved tree) and `renderToHtml` (resolved tree → minimal HTML),
  * the `render` overload with `output: 'bemjson'`, and scoped `block()` declarations.
- * exercise control-mode BEM-inheritance (a wrap result must NOT inherit the
+ * The tests exercise control-mode BEM-inheritance (a wrap result must NOT inherit the
  * source block's class), pass independence (pass 1 ≠ pass 2 output), and the
  * block selectors that match layout roots without leaking into named elements.
  *
@@ -171,7 +171,7 @@ test('createBlockFor produces a block bound to specific templates', () => {
 
 test('document render prepends doctype and appends the trailing blank lines', () => {
     const html = withTemplates(() => {}, { tag: 'html', content: [{ tag: 'body', content: 'x' }] }, { document: true }) as string;
-    // `</body>`/`</html>` are never emitted (omission rule 13); doctype leads,
+    // Attribute-free `<html>`/`<body>` tags and their end tags are omitted; doctype leads,
     // the document terminates with the canonical `\n\n`.
     assert.equal(html, '<!doctype html>x\n\n');
 });

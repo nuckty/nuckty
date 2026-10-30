@@ -16,18 +16,8 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { symlinkSync } from 'node:fs';
 import { loadConfig } from '../env/config.js';
-
-const PROJECT_ROOT = fileURLToPath(new URL('../..', import.meta.url));
-
-/** Link the local nuckty build into a temp consumer so `import '@nuckty/core'` resolves. */
-async function linkNuckty(consumerDir: string): Promise<void> {
-    const nm = path.join(consumerDir, 'node_modules', '@nuckty', 'core');
-    await mkdir(path.dirname(nm), { recursive: true });
-    try { symlinkSync(PROJECT_ROOT, nm, 'dir'); return; } catch { /* fall through */ }
-}
+import { linkNuckty } from './helpers/link.js';
 
 test('loadConfig: imports the default export of config/config-nuckty.ts', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-cfg-'));

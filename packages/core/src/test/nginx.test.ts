@@ -3,7 +3,7 @@
  * `generateNginxConfig(root, logPrefix)` builds a flat-URL, pre-compressed,
  * content-negotiated nginx.conf from data (no template engine). Non-trivial:
  * the config serves flat HTML pages with brotli>gzip negotiation, AVIF→WebP
- * →PNG→JPG→SVG→GIF→ICO image negotiation, immutable cache for hashed assets,
+ * →PNG→JPG→SVG→GIF image negotiation, immutable cache for hashed assets,
  * and security headers. A wrong map or missing header breaks serving.
  *
  * @module test/nginx

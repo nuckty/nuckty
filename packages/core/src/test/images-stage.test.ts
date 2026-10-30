@@ -28,7 +28,7 @@ const PNG_BYTES = Buffer.from(
     'hex',
 );
 const JPEG_BYTES = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01, 0xff, 0xd9]);
-const GIF_BYTES = Buffer.from('GIF89a01 0001 800000������,'.split(' ').join(''), 'latin1');
+const GIF_BYTES = Buffer.from('47494638396101000100800000ffffff00000021f90401000000002c00000000010001000002024401003b', 'hex');
 const WEBP_BYTES = Buffer.from('RIFF\x10\x00\x00\x00WEBPVP8 ', 'latin1');
 const SVG_BYTES = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><rect/></svg>', 'utf8');
 
@@ -309,7 +309,7 @@ test('imagesStage: a read failure does not produce a mapping entry pointing at a
     // Deterministic failure: monkey-patch `fs.readFile` (on `node:fs.promises`,
     // the same object the stage imports — `node:fs/promises` namespace exports
     // are read-only, but `node:fs.promises` properties are writable) to reject
-    // ENOENT for the one fixture file, so `processImage`'s catch runs on every
+    // ENOENT for the one fixture file, so its source read fails on every
     // platform (no chmod, which stays readable for root/CI/permissive fs).
     const fs = await import('node:fs');
     const fsPromises = fs.promises;
@@ -422,6 +422,7 @@ test('images reject a linked output format directory', async () => {
         await rm(dir, { recursive: true, force: true });
     }
 });
+
 for (const format of ['avif', 'webp']) {
     test(`image family refuses outside ${format} aliases before reading bytes`, async (t) => {
         const { ctx, dir } = await makeCtx();

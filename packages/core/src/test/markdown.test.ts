@@ -23,7 +23,7 @@ test('heading: h1 with cyrillic anchor', () => {
 
 test('heading: hierarchical h2 anchor', () => {
     const html = mdToHtml('# Free\n\n## Топливо\n');
-    // h1 id=top (Free→free), h2 id=free-топливо
+    // h1 id=free, h2 id=free-топливо
     assert.ok(html.includes('<h1 class="article__heading article__heading_level_1" id=free>'));
     assert.ok(html.includes('<h2 class="article__heading article__heading_level_2" id=free-топливо>'));
 });
@@ -140,6 +140,7 @@ test('headings collected in result', () => {
     assert.equal(headings[1]!.level, 2);
     assert.equal(headings[1]!.anchor, 'one-two');
 });
+
 test('Markdown tables keep ordinary output compact and close a header-only section', () => {
     const ordinary = mdToHtml('| A | B |\n| --- | --- |\n| 1 | 2 |\n');
     const headerOnly = mdToHtml('| A | B |\n| --- | --- |\n');

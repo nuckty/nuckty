@@ -4,9 +4,7 @@
  * external repositories declared through `config/external.json`, content
  * preservation, hashed video filenames, the `videoHash` store map, the
  * available/missing repo metadata, and the contractual behavior for absent
- * repos and unreadable source files. The existing robots.txt assertion in
- * stages.test.ts is NOT counted as proof of external asset processing — these
- * tests do that.
+ * repos and unreadable source files.
  *
  * @module test/assets-stage
  */
@@ -382,6 +380,7 @@ test('assets use target config and reject linked destinations', async () => {
         await rm(dir, { recursive: true, force: true });
     }
 });
+
 test('unsafe external names fail before cleaning or copying project-root files', async () => {
     const { ctx, dir } = await makeCtx();
     const { runBuild } = await import('./helpers/build.js');

@@ -2,12 +2,13 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { getFileTimestamp } from '../utils/timestamp.js';
+import { runBuild } from './helpers/build.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -90,10 +91,15 @@ test('getFileTimestamp preserves committed time when the worktree changes withou
 
 test('getFileTimestamp finds the file repository independently of process cwd', async () => {
     const { dir, file } = await makeRepo('2023-01-02T00:00:00Z');
+    const outside = await mkdtemp(path.join(tmpdir(), 'nuckty-outside-repo-'));
+    const previousCwd = process.cwd();
     try {
+        process.chdir(outside);
         assert.equal(await getFileTimestamp(file, new Map()), 1672617600);
     } finally {
+        process.chdir(previousCwd);
         await rm(dir, { recursive: true, force: true });
+        await rm(outside, { recursive: true, force: true });
     }
 });
 
@@ -109,9 +115,6 @@ test('getFileTimestamp refreshes between calls after another commit without a gl
         await rm(dir, { recursive: true, force: true });
     }
 });
-
-import { mkdir, readFile, rename, chmod } from 'node:fs/promises';
-import { runBuild } from './helpers/build.js';
 
 test('getFileTimestamp distinguishes repositories whose names share a prefix', async () => {
     const root = await mkdtemp(path.join(tmpdir(), 'nuckty-repo-prefix-'));

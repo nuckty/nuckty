@@ -34,7 +34,7 @@ test('paragraph + ordered list of anchor links + heading anchor', () => {
     assert.ok(html.includes('href=#esender-китайский-номер'), 'cyrillic anchor preserved (esender-китайский-номер)');
     assert.ok(html.includes('href=#установка-приложения'), 'cyrillic anchor (установка-приложения)');
     assert.ok(html.includes('<a class=article__link href=/common/app>Что можно делать в приложении</a>'), 'page link');
-    // Heading anchor: href precedes class (raw node), Cyrillic verbatim.
+    // Heading anchor: a self-link inside the heading, Cyrillic verbatim.
     assert.ok(html.includes('<h1 class="article__heading article__heading_level_1" id=wechat><a class=article__heading-anchor href=#wechat>WeChat</a></h1>'), 'heading anchor');
 });
 

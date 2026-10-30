@@ -50,7 +50,7 @@ test('rule 6: void element no closing tag, no />', () => {
     assert.equal(r({ tag: 'img', attrs: { src: '/x.png', alt: 'pic' } }), '<img src=/x.png alt=pic>');
 });
 
-test('rule 13: html/head/body close never emitted', () => {
+test('rule 13: html/head/body end tags are omitted in a plain document', () => {
     const doc = {
         tag: 'html',
         attrs: { lang: 'ru' },
@@ -225,6 +225,7 @@ test('mix-only nodes produce classes and bem false suppresses BEM mix but preser
     assert.equal(r({ mix: { block: 'mixed', mods: { active: true } } }), '<div class="mixed mixed_active"></div>');
     assert.equal(r({ block: 'x', bem: false, mix: { block: 'mixed' }, cls: 'custom', js: true }), '<div class=custom></div>');
 });
+
 test('table head closes before direct body rows', () => {
     assert.equal(r({ tag: 'table', content: [
         { tag: 'thead', content: { tag: 'tr', content: { tag: 'th', content: 'HEAD' } } },

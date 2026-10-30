@@ -21,13 +21,14 @@ import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import {
-    mkdtemp, mkdir, writeFile, rm, readFile, access, readdir, copyFile,
+    mkdtemp, mkdir, writeFile, rm, readFile, access, readdir,
 } from 'node:fs/promises';
 import { createUnzip, createBrotliDecompress } from 'node:zlib';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { existsSync, symlinkSync } from 'node:fs';
+import { existsSync } from 'node:fs';
+import { linkNuckty } from '../helpers/link.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -35,7 +36,6 @@ const execFileAsync = promisify(execFile);
 const NUCKTY_BIN = fileURLToPath(new URL('../../../dist/bin/nuckty.js', import.meta.url));
 
 /** Absolute path to the project root (for the nuckty package to link). */
-const PROJECT_ROOT = fileURLToPath(new URL('../../..', import.meta.url));
 
 /**
  * These tests exercise the built CLI (`dist/bin/nuckty.js`), so they require
@@ -65,42 +65,6 @@ async function runNuckty(args: string[], cwd: string): Promise<{ stdout: string;
         const err = e as { stdout?: string; stderr?: string; code?: number };
         return { stdout: err.stdout ?? '', stderr: err.stderr ?? '', code: err.code ?? 1 };
     }
-}
-
-/** Link the local nuckty build into a consumer's node_modules so `import '@nuckty/core'` resolves. */
-async function linkNuckty(consumerDir: string): Promise<void> {
-    const nmDir = path.join(consumerDir, 'node_modules', '@nuckty', 'core');
-    await mkdir(path.dirname(nmDir), { recursive: true });
-    try {
-        // A real install would copy; a symlink is enough for the CLI's bare
-        // `nuckty` specifier to resolve to the built dist.
-        await symlinkOrCopy(PROJECT_ROOT, nmDir);
-    } catch {
-        // If symlinking fails (e.g. permissions), copy the dist directory.
-        await mkdir(nmDir, { recursive: true });
-        await copyFile(path.join(PROJECT_ROOT, 'package.json'), path.join(nmDir, 'package.json'));
-        await mkdir(path.join(nmDir, 'dist'), { recursive: true });
-        for (const f of ['index.js', 'index.js.map', 'index.d.ts']) {
-            if (existsSync(path.join(PROJECT_ROOT, 'dist', f))) {
-                await copyFile(path.join(PROJECT_ROOT, 'dist', f), path.join(nmDir, 'dist', f));
-            }
-        }
-    }
-}
-
-async function symlinkOrCopy(target: string, link: string): Promise<void> {
-    // Use the synchronous `symlinkSync` (with `type`): the promisified
-    // `fs.promises.symlink` is mangled by the tsx loader under the test runner.
-    // A symlink lets the consumer resolve nuckty AND nuckty's own deps.
-    try {
-        symlinkSync(target, link, 'dir');
-        if (existsSync(path.join(link, 'package.json'))) {
-            return;
-        }
-    } catch {
-        // fall through to copy
-    }
-    await mkdir(link, { recursive: true });
 }
 
 /** Build the standard temp consumer used by the CLI build tests. */

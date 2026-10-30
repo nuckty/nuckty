@@ -14,6 +14,10 @@ test('generateHash: deterministic, 16 hex chars', () => {
     assert.match(generateHash('abc'), /^[a-f0-9]{16}$/);
 });
 
+test('generateHash: a string and its UTF-8 buffer hash alike', () => {
+    assert.equal(generateHash('hello'), generateHash(Buffer.from('hello')));
+});
+
 test('file hashing includes every stream chunk and reports absent input', async () => {
     const dir = await makeProject();
     const file = path.join(dir, 'large.mp4');

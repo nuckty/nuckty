@@ -73,9 +73,10 @@ test('list: ol inside ul', () => {
     assert.ok(html.includes('first'));
 });
 
-test('list: ordered with gaps keeps sequence', () => {
+test('list: a numbering gap does not split an ordered list', () => {
     const html = mdToHtml('1. one\n3. three\n');
-    assert.ok(html.includes('<ol class="article__list article__list_ordered">'));
+    assert.equal(html.match(/<ol\b/g)?.length, 1);
+    assert.equal(html.match(/<li\b/g)?.length, 2);
     assert.ok(html.includes('one'));
     assert.ok(html.includes('three'));
 });
@@ -206,7 +207,6 @@ test('link: unknown .md in non-empty md2url throws (broken-link abort)', () => {
 
 test('link: unknown .md with empty md2url passes through (no sitemap loaded)', () => {
     // With an empty md2url (no sitemap loaded), the bridge leaves the href as-is.
-    // This matches the legacy `transformLinkPath` early-return guard.
     const html = mdToHtml('[x](missing.md)');
     assert.ok(html.includes('href=missing.md'));
 });

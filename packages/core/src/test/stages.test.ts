@@ -16,7 +16,6 @@ import { compressionStage } from '../stages/compression.js';
 import { manifestStage } from '../stages/manifest.js';
 import { htaccessStage, generateHtaccess } from '../stages/htaccess.js';
 import { nginxStage } from '../stages/nginx.js';
-import { generateHash } from '../utils/hash.js';
 
 /** Build a fake project tree in a temp dir and return a BuildContext for it. */
 async function makeProject(): Promise<{ ctx: BuildContext; dir: string }> {
@@ -172,20 +171,6 @@ test('sitemap stage fails the build on a link to an unknown .md file', async () 
     }
 });
 
-test('generateHash is deterministic 16-hex', () => {
-    const a = generateHash('hello');
-    const b = generateHash('hello');
-    assert.equal(a, b);
-    assert.equal(a.length, 16);
-    assert.match(a, /^[a-f0-9]{16}$/);
-});
-
-test('generateHash handles buffers', () => {
-    const a = generateHash('hello');
-    const b = generateHash(Buffer.from('hello'));
-    assert.equal(a, b);
-});
-
 test('images stage hashes + copies images and writes image-mapping.json', async () => {
     const { ctx, dir } = await makeProject();
     try {
@@ -240,10 +225,8 @@ test('assets stage copies static config files from config/', async () => {
 
         const robots = await readFile(path.join(ctx.outDir, 'robots.txt'), 'utf8');
         assert.match(robots, /User-agent/);
-        const repos = ctx.store.assetRepos!;
-        assert.ok(repos);
-        // content repo dir doesn't exist under external/, so it's skipped.
-        assert.ok(!repos.available.includes('content'));
+        // Without external.json or external/, no repository is available or missing.
+        assert.deepEqual(ctx.store.assetRepos, { available: [], missing: [] });
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
@@ -417,7 +400,6 @@ test('js stage bundles declared blocks, hashes, and writes site/js/<hash>.js', a
             bundles: ['page'],
         }));
         await writeFile(path.join(dir, 'config', 'levels.json'), JSON.stringify(['blocks']));
-        ctx.env.levels.add('blocks');
         // A block JS entry the deps loader would have declared.
         await writeFile(path.join(dir, 'blocks', 'page', 'page.js'), 'export const page = () => 1;\n');
 
@@ -639,7 +621,6 @@ test('sitemap rejects unsupported known metadata values instead of discarding th
     }
     assert.deepEqual(parseSitemapLine('Page [/page, page.md, {layout:"landing",navLabel:"Menu"}]')?.meta, { layout: 'landing', navLabel: 'Menu' });
 });
-
 
 test('sitemap indentation must be two spaces per level', () => {
     assert.throws(() => parseIndentedSitemap('sitemap:\n  - Home [/, index.md]\n   - Odd [odd, odd.md]\n'), /indentation at line 3/);

@@ -22,7 +22,8 @@ import { mkdtemp, mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { existsSync, symlinkSync } from 'node:fs';
+import { existsSync } from 'node:fs';
+import { linkNuckty } from '../helpers/link.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -57,33 +58,6 @@ async function runNuckty(args: string[], cwd: string): Promise<{ stdout: string;
     } catch (e) {
         const err = e as { stdout?: string; stderr?: string; code?: number };
         return { stdout: err.stdout ?? '', stderr: err.stderr ?? '', code: err.code ?? 1 };
-    }
-}
-
-/** Link the local nuckty build into a consumer's node_modules so `import '@nuckty/core'` resolves. */
-async function linkNuckty(consumerDir: string): Promise<void> {
-    const nmDir = path.join(consumerDir, 'node_modules', '@nuckty', 'core');
-    await mkdir(path.dirname(nmDir), { recursive: true });
-    // Use the synchronous `symlinkSync` (with the `type` argument): the
-    // promisified `fs.promises.symlink` is mangled by the tsx loader under the
-    // test runner. A symlink lets the consumer's `import '@nuckty/core'` resolve to
-    // the real `node_modules` (so nuckty's own deps like `unified` resolve too).
-    try {
-        symlinkSync(PROJECT_ROOT, nmDir, 'dir');
-        return;
-    } catch {
-        // already linked or unsupported — fall through to a copy
-    }
-    await mkdir(nmDir, { recursive: true });
-    await writeFile(path.join(nmDir, 'package.json'), JSON.stringify({
-        name: '@nuckty/core', version: '1.0.0', type: 'module', main: 'dist/index.js',
-    }));
-    await mkdir(path.join(nmDir, 'dist'), { recursive: true });
-    const { copyFile } = await import('node:fs/promises');
-    for (const f of ['index.js', 'index.d.ts']) {
-        if (existsSync(path.join(PROJECT_ROOT, 'dist', f))) {
-            await copyFile(path.join(PROJECT_ROOT, 'dist', f), path.join(nmDir, 'dist', f));
-        }
     }
 }
 

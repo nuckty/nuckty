@@ -1,12 +1,15 @@
 /**
- * Tests for the output-dir preflight (`src/utils/outdir-preflight.ts`) — the
- * Guard: `outDir` values that would make the `clean` stage delete
- * consumer sources (`.`, `..`, input dirs, colliding outDirs) must be rejected
- * before any filesystem mutation, while normal outDirs pass through.
+ * Tests for the output-dir preflight (`src/utils/outdir-preflight.ts`):
+ * `outDir` values that would make the `clean` stage delete consumer sources
+ * (`.`, `..`, input dirs, colliding outDirs) must be rejected before any
+ * filesystem mutation, while normal outDirs pass through.
  */
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtemp, mkdir, writeFile, symlink, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { preflightOutDirs, UnsafeOutDirError } from '../utils/outdir-preflight.js';
 
 const cases: Array<{ name: string; targets: Array<{ name: string; outDir: string }>; ok: boolean }> = [
@@ -47,10 +50,6 @@ test('rejection names the offending target and happens before mutation', () => {
         assert.match(e.message, /default/);
     }
 });
-
-import { mkdtemp, mkdir, writeFile, symlink, readFile, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import path from 'node:path';
 
 test('preflight protects custom inputs and intermediate symlink destinations', async () => {
     const root = await mkdtemp(path.join(tmpdir(), 'nuckty-preflight-'));

@@ -11,21 +11,12 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, rm, readFile, access } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { mkdtemp, mkdir, writeFile, rm, readFile, access, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { symlinkSync } from 'node:fs';
 import { runBuild } from './helpers/build.js';
-
-const PROJECT_ROOT = fileURLToPath(new URL('../..', import.meta.url));
-
-/** Link the local nuckty build into a temp consumer so `import '@nuckty/core'` resolves. */
-async function linkNuckty(consumerDir: string): Promise<void> {
-    const nm = path.join(consumerDir, 'node_modules', '@nuckty', 'core');
-    await mkdir(path.dirname(nm), { recursive: true });
-    try { symlinkSync(PROJECT_ROOT, nm, 'dir'); return; } catch { /* fall through */ }
-}
+import { linkNuckty } from './helpers/link.js';
 
 /** Build a temp consumer with one target, content, a block, and a document handler. */
 async function makeConsumer(opts: { secondTarget?: boolean } = {}): Promise<string> {
@@ -125,9 +116,6 @@ test('runBuild: a missing document handler rejects with an actionable message', 
 async function exists(p: string): Promise<boolean> {
     try { await access(p); return true; } catch { return false; }
 }
-
-import { createHash } from 'node:crypto';
-import { symlink } from 'node:fs/promises';
 
 /** Source-only consumer: no compiled package or external content is needed. */
 async function makeSourceConsumer(): Promise<string> {

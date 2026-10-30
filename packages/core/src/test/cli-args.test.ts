@@ -120,12 +120,6 @@ test('parseArgs: flags without a value before end of argv are boolean', () => {
     assert.equal(r.flags['loud'], true);
 });
 
-test('parseArgs: build command with a target positional drives dispatch', () => {
-    const r = parseArgs(['build', 'extra']);
-    assert.equal(r.positional[0], 'build');
-    assert.equal(r.positional[1], 'extra');
-});
-
 test('parseArgs: unknown command positional is preserved for dispatch to reject', () => {
     const r = parseArgs(['frobnicate', '--x']);
     assert.equal(r.positional[0], 'frobnicate');
