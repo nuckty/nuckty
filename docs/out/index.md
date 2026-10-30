@@ -20,7 +20,7 @@ site/                        ← outDir, deployed in full
 ├── avif/ , webp/            ← image variants: <hash>.avif, <hash>.webp
 ├── png/ , jpg/ , svg/       ← original images: <hash>.<ext>
 ├── brotli/ , gzip/          ← pre-compressed copies (flat filenames + codec suffix)
-├── manifest.json            ← sizes and hashes for manifest-based deployment
+├── manifest.json            ← sizes and hashes for manifest-based publication
 └── .htaccess                ← for shared hosting with Apache
 ```
 

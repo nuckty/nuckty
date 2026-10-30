@@ -14,12 +14,12 @@ The command reads [manifest.json](../../out/assets.md) from the built artifact, 
 2. **Server manifest** — without `--force`, an existing `manifest.json` is downloaded for hash comparison. If absent, all local files are uploaded; `--force` skips its download.
 3. **Change calculation** — the command finds new, changed, and deleted files. Hashes are compared only when sizes match.
 4. **Accidental-wipe protection** — if the share of deleted files exceeds a threshold (30% by default), the command stops and suggests `--allow-mass-delete`.
-5. **Upload** — only the changed files. Passive mode; explicit FTPS by default, plain FTP only when `secure` is `false`. After each upload, the command attempts `MFMT` to preserve modification time; unsupported timestamp restoration does not stop deployment.
+5. **Upload** — only the changed files. Passive mode; explicit FTPS by default, plain FTP only when `secure` is `false`. After each upload, the command attempts `MFMT` to preserve modification time; unsupported timestamp restoration does not stop publication.
 6. **Deleting extra files on the server** — files no longer present in the artifact are deleted (`manifest.json` is left alone).
 7. **Verify and retry** — after the transfer, the command runs `LIST` again and retries the upload on failure.
 8. **Manifest last** — before the first change on the server the old `manifest.json` is removed, and the new one is uploaded after all files have been transferred successfully. An interrupted run leaves no manifest, so the next run uploads every file instead of trusting stale hashes.
 
-Before connecting, the command verifies every local file size and MD5 against the manifest. It repeats verification before the final manifest transfer and rejects a changed artifact. Remote verification uses LIST and size; it does not independently verify remote content hashes. Do not modify an artifact during deployment.
+Before connecting, the command verifies every local file size and MD5 against the manifest. It repeats verification before the final manifest transfer and rejects a changed artifact. Remote verification uses LIST and size; it does not independently verify remote content hashes. Do not modify an artifact during publication.
 
 ## Options
 
@@ -84,4 +84,4 @@ export default defineNucktyConfig({
 });
 ```
 
-The core does not depend on basic-ftp — the dependency lives only in this extension.
+The core does not depend on basic-ftp — only this extension does.

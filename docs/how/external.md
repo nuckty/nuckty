@@ -58,7 +58,7 @@ The first `levels.json` entry selects the Markdown root; `external.json` in the 
 
 ## Why this is useful
 
-- **Separation of roles.** One team works on the texts, another on the engine and the page layout. Content lives its own life, and so does the build.
+- **Separation of roles.** One team works on the texts, another on the engine and the page layout. Content and build change independently.
 - **One content set — several sites.** A single content repository can serve several [targets](targets.md) or different sites.
 - **Clean sources.** The site repository holds no copy of someone else's content — only a reference in `external.json` and a path in `levels.json`.
 

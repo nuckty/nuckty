@@ -12,7 +12,7 @@ The [hosting configuration](../out/hosting.md) selects a prepared representation
 
 **Brotli only.** A client that does not accept Brotli would receive the original file. Gzip provides an additional compressed representation.
 
-**A third codec such as zstd.** Supporting another representation would require changes to compression, negotiation, and deployment. It should be justified by measurements on a representative corpus and by the intended clients.
+**A third codec such as zstd.** Supporting another representation would require changes to compression, negotiation, and publication. It should be justified by measurements on a representative corpus and by the intended clients.
 
 **Shared dictionaries.** A dictionary-dependent representation would require an agreed dictionary and a different delivery contract. The current artifact contains independently decodable files.
 
