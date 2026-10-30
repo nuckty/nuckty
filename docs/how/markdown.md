@@ -50,7 +50,7 @@ The author writes one link; the server serves the right format.
 
 ## Typography
 
-Russian text typography is a [markdown extension](ext/markdown.md): before the HTML build, it walks the Markdown tree and keeps the dash from breaking away from the word — it puts a non-breaking space before an em dash and a regular space after. Code nodes are left untouched.
+Russian text typography is the [`@nuckty/ext-markdown-typography-ru`](../ext/markdown/typography-ru.md) markdown extension: before the HTML build, it walks the Markdown tree and keeps the dash from breaking away from the word — it puts a non-breaking space before an em dash and a regular space after. Code nodes are left untouched.
 
 Since it is an extension and not part of the core, an English-language site does not need it — it is simply not connected.
 

@@ -40,7 +40,7 @@ The [`nuckty deploy-ftp`](ext/command/deploy-ftp.md) command compares a local ma
 
 ### Multiple sites from one repository
 
-One repository can build [several sites](how/targets.md) at once — for example, language versions on separate domains. The engine constructs matching routes on related hosts, without checking page existence, and passes `hreflang` data to the block. How exactly to render `<link rel=alternate>` is the author's call.
+One repository can build [several sites](how/targets.md) at once — for example, language versions on separate domains. The engine links a page to the same route on related hosts when that target's sitemap has it, and passes `hreflang` data to the block. How exactly to render `<link rel=alternate>` is the author's call.
 
 ### Link resolution
 
@@ -48,7 +48,7 @@ Authors link to `.md` files; the engine maps them to sitemap URLs. A missing rel
 
 ### Russian typography
 
-For Russian-language sites there is a [typography extension](how/markdown.md) — it keeps a dash from breaking the line: it inserts a non-breaking space before an em dash and a regular one after. All without manual markup; an English-language site does not need the extension.
+For Russian-language sites there is a [typography extension](ext/markdown/typography-ru.md) — it keeps a dash from breaking the line: it inserts a non-breaking space before an em dash and a regular one after. All without manual markup; an English-language site does not need the extension.
 
 ## Where to go next
 
