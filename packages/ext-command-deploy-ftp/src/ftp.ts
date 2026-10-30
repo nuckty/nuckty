@@ -336,30 +336,46 @@ export function loadAuthConfig(cwd: string, configPath = 'config/auth-ftp.json')
         }
     }
 
-    const port = (cfg['port'] as number | undefined) ?? 21;
-    const secure = parseSecure(cfg['secure']);
-    const progress = (cfg['progress'] as boolean | undefined) ?? true;
+    const progress = cfg['progress'] ?? true;
+
+    if (typeof progress !== 'boolean') {
+        throw new Error(`FTP progress in ${absConfigPath} must be true or false`);
+    }
 
     return {
         host: String(cfg['host']),
-        port,
+        port: parsePort(cfg['port']),
         user: String(cfg['user']),
         password: String(cfg['password']),
         remotePath: String(cfg['remote_path']),
-        secure,
+        secure: parseSecure(cfg['secure']),
         progress,
     };
 }
 
-/** Plain FTP remains the default; enabling TLS never disables certificate checks. */
+/** Explicit FTPS with certificate checks is the default; only an explicit false selects plain FTP. */
 function parseSecure(value: unknown): boolean {
-    if (value === undefined || value === false || value === 'false') {
-        return false;
-    }
-    if (value === true || value === 'true') {
+    if (value === undefined || value === true || value === 'true') {
         return true;
     }
+    if (value === false || value === 'false') {
+        return false;
+    }
     throw new Error('FTP secure must be true or false');
+}
+
+/** Port 21 by default; otherwise an integer from 1 to 65535, as a number or a decimal string. */
+function parsePort(value: unknown): number {
+    if (value === undefined || value === '') {
+        return 21;
+    }
+    const port = typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : value;
+
+    if (typeof port !== 'number' || !Number.isInteger(port) || port < 1 || port > 65535) {
+        throw new Error('FTP port must be an integer from 1 to 65535');
+    }
+
+    return port;
 }
 
 function loadAuthFromEnv(): FtpAuthConfig | null {
@@ -375,9 +391,9 @@ function loadAuthFromEnv(): FtpAuthConfig | null {
             user,
             password,
             remotePath,
-            port: port ? parseInt(port, 10) : 21,
+            port: parsePort(port),
             secure: parseSecure(process.env.FTP_SECURE),
-                progress: true,
+            progress: true,
         };
     }
     return null;
@@ -637,6 +653,9 @@ export async function ftpDeploy(opts: DeployOpts, dependencies: DeployDependenci
             console.log(`Local: ${localFileCount} files`);
         }
 
+        if (!auth.secure) {
+            process.stderr.write('Warning: plain FTP sends the password and files unencrypted; remove secure: false to use FTPS\n');
+        }
         await initClient(state);
         const remoteRoot = await state.client!.pwd();
 

@@ -34,7 +34,7 @@ If the share of files to delete exceeds a threshold (default 30%), the command s
 
 Credentials come from `config/auth-ftp.json` (keep it out of version control) or `FTP_HOST`, `FTP_USER`, `FTP_PASSWORD`, `FTP_PATH`, optional `FTP_PORT` and `FTP_SECURE`. A complete environment configuration takes precedence over the file.
 
-Plain passive FTP remains the default. Set JSON `secure: true` or `FTP_SECURE=true` for explicit FTPS with normal certificate and hostname verification. `false` selects plain FTP; other values are rejected. A TLS failure fails the connection and never falls back to plain FTP. For a private CA, configure Node's trusted CA certificates rather than disabling certificate verification.
+Explicit passive FTPS with normal certificate and hostname verification is the default. JSON `secure: false` or `FTP_SECURE=false` selects plain FTP, which sends the password unencrypted, and the command prints a warning; other values are rejected. A TLS failure fails the connection and never falls back to plain FTP. For a private CA, configure Node's trusted CA certificates rather than disabling certificate verification.
 
 The core does not depend on `basic-ftp`; the extension does, and the import is lazy — `register(env)` does not load it.
 

@@ -38,10 +38,10 @@ function manifest(entries: Record<string, [number, string]>): Manifest {
     return out;
 }
 
-function testAuth() {
+function testAuth(secure = true) {
     return {
         host: 'ftp.example.test', port: 21, user: 'user', password: 'password',
-        remotePath: '/', secure: false, progress: false,
+        remotePath: '/', secure, progress: false,
     };
 }
 
@@ -186,7 +186,7 @@ test('loadAuthConfig: env vars win over auth-ftp.json', async () => {
         assert.equal(cfg.password, 'ep');
         assert.equal(cfg.remotePath, '/e');
         assert.equal(cfg.port, 21);
-        assert.equal(cfg.secure, false);
+        assert.equal(cfg.secure, true);
     } finally {
         clearFtpEnv();
         await rm(dir, { recursive: true, force: true });
@@ -227,6 +227,29 @@ test('loadAuthConfig: FTP_PORT overrides the default 21', async () => {
     }
 });
 
+test('loadAuthConfig: rejects invalid ports and non-boolean progress', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-deploy-'));
+    try {
+        clearFtpEnv();
+        await mkdir(path.join(dir, 'config'), { recursive: true });
+        for (const [field, value, message] of [['port', 0, /port must be/], ['port', '21a', /port must be/], ['port', 70000, /port must be/], ['progress', 'yes', /progress .* must be true or false/]] as const) {
+            await writeFile(path.join(dir, 'config', 'auth-ftp.json'), JSON.stringify({ host: 'h', user: 'u', password: 'p', remote_path: '/r', [field]: value }));
+            assert.throws(() => loadAuthConfig(dir), message);
+        }
+        await writeFile(path.join(dir, 'config', 'auth-ftp.json'), JSON.stringify({ host: 'h', user: 'u', password: 'p', remote_path: '/r', port: '2121' }));
+        assert.equal(loadAuthConfig(dir).port, 2121);
+        process.env.FTP_HOST = 'h';
+        process.env.FTP_USER = 'u';
+        process.env.FTP_PASSWORD = 'p';
+        process.env.FTP_PATH = '/p';
+        process.env.FTP_PORT = 'ftp';
+        assert.throws(() => loadAuthConfig(dir), /port must be/);
+    } finally {
+        clearFtpEnv();
+        await rm(dir, { recursive: true, force: true });
+    }
+});
+
 test('loadAuthConfig: falls back to auth-ftp.json with defaults for port/secure/progress', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-deploy-'));
     try {
@@ -240,7 +263,7 @@ test('loadAuthConfig: falls back to auth-ftp.json with defaults for port/secure/
         assert.equal(cfg.host, 'h');
         assert.equal(cfg.remotePath, '/r');
         assert.equal(cfg.port, 21);
-        assert.equal(cfg.secure, false);
+        assert.equal(cfg.secure, true);
         assert.equal(cfg.progress, true);
     } finally {
         clearFtpEnv();
@@ -382,12 +405,21 @@ test('ftpDeploy: valid regular manifest is uploaded after its content files', as
             remove: async () => undefined,
         };
 
-        const result = await ftpDeploy({ outDir: dir, auth: testAuth(), progress: false }, {
-            createClient: () => transport,
-        });
+        const warnings: string[] = [];
+        const write = process.stderr.write;
+        process.stderr.write = ((chunk: string) => { warnings.push(chunk); return true; }) as typeof write;
+        let result: Awaited<ReturnType<typeof ftpDeploy>>;
+        try {
+            result = await ftpDeploy({ outDir: dir, auth: testAuth(false), progress: false }, {
+                createClient: () => transport,
+            });
+        } finally {
+            process.stderr.write = write;
+        }
 
         assert.deepEqual(uploaded, ['index.html', 'manifest.json']);
         assert.equal(result.stats.uploaded, 2);
+        assert.match(warnings.join(''), /plain FTP sends the password and files unencrypted/);
     } finally {
         await rm(dir, { recursive: true, force: true });
     }

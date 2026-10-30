@@ -1,0 +1,3 @@
+- [x] Default `secure` to true and warn before a plain FTP connection.
+- [x] Validate the port and progress settings.
+- [x] Update tests and documentation.
