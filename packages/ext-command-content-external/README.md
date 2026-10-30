@@ -30,3 +30,28 @@ The build reads Markdown from configured content levels. It does not clone or fe
 Run `npx @nuckty/core content-external` from the site root where the package is installed and listed in `ext`. `--dry-run` uses local Git checks but does not fetch, clone, or write.
 
 The command accepts no target name and reads only the global `config/external.json`. A missing file or an empty array succeeds without preparing repositories. With separate target `configDir` values, keep their lists consistent with the global file.
+
+## How to load
+
+This example extends the quickstart with the standard `@nuckty/ext-block-root` document handler. Add the new extension to `ext` in the global `config/config-nuckty.ts`, retaining the other entries. If you use a custom document handler, keep its registration instead of `@nuckty/ext-block-root`.
+
+```ts
+import { defineNucktyConfig } from '@nuckty/core';
+
+export default defineNucktyConfig({
+    targets: { main: { configDir: 'config/', outDir: 'site/' } },
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-content-external'],
+});
+```
+
+## Contract
+
+`register(env: NucktyEnv)` registers the command through `env.commands.add`, declares `dry-run` as a boolean flag and accepts no positional arguments.
+
+## Spec
+
+Behavior is fixed by the openspec `ext-command-content-external` spec (`openspec/specs/ext-command-content-external/spec.md`).
+
+## License
+
+MIT.

@@ -15,18 +15,18 @@ nuckty — генератор статических сайтов для док�
 | Пакет или каталог | Роль |
 |---|---|
 | [`@nuckty/core`](https://github.com/nuckty/nuckty/tree/main/packages/core) | **Ядро** — движок `nuckty build`. Этот пакет. |
-| [`codestyle`](https://github.com/nuckty/nuckty/tree/main/codestyle) | Общие правила кода и документации. |
-| [`@nuckty/ext-block-root`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-root) | Расширение: обёртка страницы (`root`). |
-| [`@nuckty/ext-block-gallery`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-gallery) | Расширение: галерея изображений + лайтбокс. |
-| [`@nuckty/ext-command-deploy-ftp`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-deploy-ftp) | Расширение: публикация по FTP с синхронизацией по манифесту. |
-| [`@nuckty/ext-command-serve`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-serve) | Расширение: локальный просмотр `nuckty serve` и остановка `nuckty stop` (nginx). |
-| [`@nuckty/ext-command-validate-vnu`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-validate-vnu) | Расширение: W3C Nu Html Checker (необязательно, JVM). |
+| [`@nuckty/ext-block-gallery`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-gallery) | Галерея изображений с лайтбоксом (`:::gallery`). |
 | [`@nuckty/ext-block-grid`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-grid) | Адаптивная многоколоночная сетка (`:::grid`). |
-| [`@nuckty/ext-markdown-video`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-video) | Видео в Markdown. |
-| [`@nuckty/ext-markdown-typography-ru`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-typography-ru) | Русская типографика. |
+| [`@nuckty/ext-block-root`](https://github.com/nuckty/nuckty/tree/main/packages/ext-block-root) | Блок-обёртка страницы (`root`). |
 | [`@nuckty/ext-command-content-external`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-content-external) | Подготовка внешних репозиториев контента. |
 | [`@nuckty/ext-command-convert-images`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-convert-images) | Подготовка вариантов AVIF/WebP. |
-| [`demo`](https://github.com/nuckty/nuckty/tree/main/demo) | Витрина возможностей, собранная из всех официальных пакетов. |
+| [`@nuckty/ext-command-deploy-ftp`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-deploy-ftp) | Публикация по FTP/FTPS с синхронизацией по манифесту. |
+| [`@nuckty/ext-command-serve`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-serve) | Локальный просмотр: `nuckty serve` и `nuckty stop` (nginx). |
+| [`@nuckty/ext-command-validate-vnu`](https://github.com/nuckty/nuckty/tree/main/packages/ext-command-validate-vnu) | Проверка HTML через W3C Nu Html Checker (JVM). |
+| [`@nuckty/ext-markdown-typography-ru`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-typography-ru) | Русская типографика. |
+| [`@nuckty/ext-markdown-video`](https://github.com/nuckty/nuckty/tree/main/packages/ext-markdown-video) | Видео в Markdown. |
+| [`codestyle`](https://github.com/nuckty/nuckty/tree/main/codestyle) | Общие правила кода и документации. |
+| [`demo`](https://github.com/nuckty/nuckty/tree/main/demo) | Витрина возможностей, собранная из официальных пакетов. |
 | [`docs`](https://github.com/nuckty/nuckty/tree/main/docs) | Исходный контент сайта документации. |
 
 Официальные расширения следуют соглашению `@nuckty/ext-<тип>-<имя>`, где тип — один из `pipeline`, `markdown`, `block`, `command`, `document`. Имя пакета читается прямо из его URL в документации: `/ext/block/root` → `@nuckty/ext-block-root`.

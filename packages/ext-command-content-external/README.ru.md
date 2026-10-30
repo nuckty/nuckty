@@ -30,3 +30,28 @@ nuckty content-external [--dry-run]
 Запускайте `npx @nuckty/core content-external` из корня сайта, где пакет установлен и добавлен в `ext`. `--dry-run` использует локальные проверки Git, но не делает fetch, clone или запись.
 
 Команда не принимает имя таргета и читает только общий `config/external.json`. Если файла нет или массив пуст, она успешно завершится без подготовки репозиториев. При отдельных `configDir` согласуйте списки таргетов с общим файлом.
+
+## Как подключить
+
+Пример продолжает быстрый старт со стандартным обработчиком `@nuckty/ext-block-root`. Добавьте новое расширение в `ext` глобального `config/config-nuckty.ts`, сохранив остальные записи. Если обработчик документа собственный, оставьте его вместо `@nuckty/ext-block-root`.
+
+```ts
+import { defineNucktyConfig } from '@nuckty/core';
+
+export default defineNucktyConfig({
+    targets: { main: { configDir: 'config/', outDir: 'site/' } },
+    ext: ['@nuckty/ext-block-root', '@nuckty/ext-command-content-external'],
+});
+```
+
+## Контракт
+
+`register(env: NucktyEnv)` регистрирует команду через `env.commands.add`, объявляет `dry-run` булевым флагом и не принимает позиционных аргументов.
+
+## Спецификация
+
+Поведение закреплено в спецификации openspec `ext-command-content-external` (`openspec/specs/ext-command-content-external/spec.md`).
+
+## Лицензия
+
+MIT.
