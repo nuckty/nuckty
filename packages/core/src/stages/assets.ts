@@ -11,11 +11,9 @@ import { isDownload } from '../utils/downloads.js';
 /** Static config files copied verbatim into the site root. */
 const CONFIG_FILES = ['robots.txt'];
 
-
 interface AssetFile {
     filename: string;
     fullPath: string;
-    relativePath: string;
 }
 
 function assetSourcePath(root: string, fullPath: string): string {
@@ -43,11 +41,8 @@ function selectAssetSources(
     for (const [filename, files] of candidates) {
         const configuredPath = configuredSources[filename];
         if (configuredPath !== undefined) {
-            const match = files.find((file) => assetSourcePath(root, file.fullPath) === configuredPath);
-            if (match === undefined) {
-                throw new Error(`Configured asset source for "${filename}" does not match an available candidate: "${configuredPath}"`);
-            }
-            selected.push(match);
+            // The loop above proved that a configured path names one of the candidates.
+            selected.push(files.find((file) => assetSourcePath(root, file.fullPath) === configuredPath)!);
         } else if (files.length === 1) {
             selected.push(files[0]!);
         } else {
@@ -62,8 +57,8 @@ function selectAssetSources(
 /** Resolve the external repos declared in `config/external.json` (mapped to
  *  `external/<name>/`), including repos absent on disk — so an absent repo is
  *  classified as `missing` rather than silently dropped. Without
- *  `external.json`, every directory under `external/` is a source repo. A site's assets live in whichever repo carries them (docs,
- *  install, content), not only the content repo. */
+ *  `external.json`, every directory under `external/` is a source repo. Any
+ *  repo may carry assets, not only the content repo. */
 async function resolveSourceRepos(root: string, urls: string[] | undefined): Promise<Array<{ name: string; path: string }>> {
     if (urls === undefined) {
         const external = path.join(root, 'external');
@@ -85,8 +80,8 @@ async function resolveSourceRepos(root: string, urls: string[] | undefined): Pro
     });
 }
 
-/** Recursively find asset files (by extension) under a directory. */
-async function findAssetFiles(dirPath: string, basePath = dirPath): Promise<AssetFile[]> {
+/** Recursively find downloads and `.mp4` videos under a directory, skipping tooling directories. */
+async function findAssetFiles(dirPath: string): Promise<AssetFile[]> {
     const results: AssetFile[] = [];
     let entries: import('node:fs').Dirent[];
     try {
@@ -103,47 +98,8 @@ async function findAssetFiles(dirPath: string, basePath = dirPath): Promise<Asse
             if (isToolingDirectory(entry.name)) {
                 continue;
             }
-            const sub = await findAssetFiles(fullPath, basePath);
-            for (const f of sub) {
-                results.push(f);
-            }
-        } else if (
-            entry.isFile() &&
-            isDownload(entry.name)
-        ) {
-            results.push({
-                filename: entry.name,
-                fullPath,
-                relativePath: path.relative(basePath, fullPath),
-            });
-        }
-    }
-    return results;
-}
-
-/** Recursively find `.mp4` video files under a directory. */
-async function findVideoFiles(basePath: string): Promise<Array<{ filename: string; fullPath: string }>> {
-    const results: Array<{ filename: string; fullPath: string }> = [];
-    let entries: import('node:fs').Dirent[];
-    try {
-        entries = await fs.readdir(basePath, { withFileTypes: true });
-    } catch (error) {
-        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-            return results;
-        }
-        throw error;
-    }
-    for (const entry of entries) {
-        const fullPath = path.join(basePath, entry.name);
-        if (entry.isDirectory()) {
-            if (isToolingDirectory(entry.name)) {
-                continue;
-            }
-            const sub = await findVideoFiles(fullPath);
-            for (const f of sub) {
-                results.push(f);
-            }
-        } else if (entry.isFile() && entry.name.endsWith('.mp4')) {
+            results.push(...await findAssetFiles(fullPath));
+        } else if (entry.isFile() && (isDownload(entry.name) || entry.name.endsWith('.mp4'))) {
             results.push({ filename: entry.name, fullPath });
         }
     }
@@ -151,8 +107,7 @@ async function findVideoFiles(basePath: string): Promise<Array<{ filename: strin
 }
 
 /** Copy static config file (robots.txt) from config/ into site/. */
-async function copyConfigFiles(configDir: string, siteDir: string): Promise<string[]> {
-    const copied: string[] = [];
+async function copyConfigFiles(configDir: string, siteDir: string): Promise<void> {
     await fs.mkdir(siteDir, { recursive: true });
     for (const filename of CONFIG_FILES) {
         const sourcePath = path.join(configDir, filename);
@@ -168,13 +123,11 @@ async function copyConfigFiles(configDir: string, siteDir: string): Promise<stri
         }
         try {
             await fs.copyFile(sourcePath, destPath);
-            copied.push(filename);
         } catch (error) {
             await fs.rm(destPath, { force: true });
             throw error;
         }
     }
-    return copied;
 }
 
 /**
@@ -218,17 +171,9 @@ export const assetsStage: Stage<BuildContext> = async (ctx: BuildContext): Promi
         available.push(repo.name);
 
         // Defer copies until every configured source has been validated.
-        const assetFiles = await findAssetFiles(repo.path);
-        for (const fileInfo of assetFiles) {
+        for (const fileInfo of await findAssetFiles(repo.path)) {
             const files = candidates.get(fileInfo.filename) ?? [];
             files.push(fileInfo);
-            candidates.set(fileInfo.filename, files);
-        }
-
-        for (const fileInfo of await findVideoFiles(repo.path)) {
-            const files = candidates.get(fileInfo.filename) ?? [];
-
-            files.push({ ...fileInfo, relativePath: assetSourcePath(root, fileInfo.fullPath) });
             candidates.set(fileInfo.filename, files);
         }
     }
@@ -263,7 +208,7 @@ export const assetsStage: Stage<BuildContext> = async (ctx: BuildContext): Promi
             await fs.copyFile(fileInfo.fullPath, path.join(ctx.outDir, hashedFilename));
             videoHash[fileInfo.filename] = hashedFilename;
         } catch (error) {
-            throw new Error(`Asset video copy failed for ${fileInfo.fullPath}: ${String(error)}`);
+            throw new Error(`Asset video copy failed for ${fileInfo.fullPath}: ${String(error)}`, { cause: error });
         }
     }
     ctx.store.videoHash = videoHash;

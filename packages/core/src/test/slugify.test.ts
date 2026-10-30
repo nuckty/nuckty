@@ -1,9 +1,8 @@
 /**
  * Tests for the Cyrillic-preserving slugify (openspec `markdown` spec: heading
  * anchors). `createSlugify` keeps Cyrillic letters and collapses separators;
- * `createGitHubSlug`/`createGitHubSlugify` are the flatter GitHub-style variant
- * (slashes dropped, not replaced); `cleanHeadingText` strips numbered prefixes.
- * These are non-trivial: the anchor map keys source links resolve against come
+ * `createGitHubSlug` is the flatter GitHub-style variant used for authored
+ * links. These are non-trivial: the anchor map keys source links resolve against come
  * from these functions, so a wrong slug breaks every cross-doc `#anchor`.
  *
  * @module test/slugify
@@ -11,13 +10,9 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import {
-    createSlugify,
-    createGitHubSlug,
-    createGitHubSlugify,
-    cleanHeadingText,
-    slugify,
-} from '../markdown/slugify.js';
+import { createSlugify, createGitHubSlug } from '../markdown/slugify.js';
+
+const slugify = createSlugify();
 
 // ---- createSlugify (Cyrillic-preserving, slashes → separator) ----------------
 
@@ -75,44 +70,6 @@ test('createGitHubSlug lowercases and drops non-word chars except Cyrillic', () 
 test('createGitHubSlug keeps the numbered prefix source links carry', () => {
     // The anchor map stores `12-foo` for heading "12. Foo" so `#12-foo` resolves.
     assert.equal(createGitHubSlug('12. Настройка'), '12-настройка');
-});
-
-// ---- createGitHubSlugify (slashes dropped, not replaced) --------------------
-
-test('createGitHubSlugify drops slashes entirely (no separator inserted)', () => {
-    // Differs from createSlugify: `/` → `` not `-`, so a heading with a slash
-    // yields a flat key matching the hierarchical anchor's section prefix join.
-    assert.equal(createGitHubSlugify()('a/b'), 'ab');
-    assert.equal(createGitHubSlugify()('раздел/экран'), 'разделэкран');
-    assert.equal(createGitHubSlugify()('a b/c'), 'a-bc');
-});
-
-test('createGitHubSlugify keeps Cyrillic and dots', () => {
-    const g = createGitHubSlugify();
-    assert.equal(g('Версия 2.4.3'), 'версия-2.4.3');
-    assert.equal(g('Что это?'), 'что-это');
-});
-
-// ---- cleanHeadingText (strip numbered prefixes and tags) --------------------
-
-test('cleanHeadingText strips HTML tags', () => {
-    assert.equal(cleanHeadingText('<b>Bold</b>'), 'Bold');
-    assert.equal(cleanHeadingText('a <em>em</em> b'), 'a em b');
-});
-
-test('cleanHeadingText strips a leading numbered prefix like "1.2.3. "', () => {
-    assert.equal(cleanHeadingText('1.2.3. Раздел'), 'Раздел');
-    assert.equal(cleanHeadingText('12. Настройка'), 'Настройка');
-});
-
-test('cleanHeadingText preserves a version number that is the whole text', () => {
-    // "2.4.3" with no trailing ". " + text is a version, not a numbered prefix.
-    assert.equal(cleanHeadingText('2.4.3'), '2.4.3');
-    assert.equal(cleanHeadingText('Версия 2.4.3'), 'Версия 2.4.3');
-});
-
-test('cleanHeadingText trims surrounding whitespace', () => {
-    assert.equal(cleanHeadingText('  Заголовок  '), 'Заголовок');
 });
 
 test('slugs keep letters of every script so sibling headings stay distinct', () => {

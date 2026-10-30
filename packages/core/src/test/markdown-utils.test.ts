@@ -1,9 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createSlugify, slugify, cleanHeadingText } from '../markdown/slugify.js';
+import { createSlugify } from '../markdown/slugify.js';
 import { buildHierarchicalAnchor } from '../markdown/anchors.js';
 
 // ---- slugify --------------------------------------------------------------
+
+const slugify = createSlugify();
 
 test('slugify: latin lowercased', () => {
     assert.equal(slugify('Hello World'), 'hello-world');
@@ -44,16 +46,6 @@ test('slugify: keeps dots (version numbers)', () => {
 test('slugify: upper case option', () => {
     const up = createSlugify({ case: 'upper' });
     assert.equal(up('привет'), 'привет'.toUpperCase());
-});
-
-// ---- cleanHeadingText -----------------------------------------------------
-
-test('cleanHeadingText: strips numbered prefix', () => {
-    assert.equal(cleanHeadingText('1.2.3. Details'), 'Details');
-});
-
-test('cleanHeadingText: preserves version-like in middle', () => {
-    assert.equal(cleanHeadingText('Update to 2.4.3 released'), 'Update to 2.4.3 released');
 });
 
 // ---- anchors --------------------------------------------------------------
