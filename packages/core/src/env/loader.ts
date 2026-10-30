@@ -1,5 +1,5 @@
 /**
- * Plugin loader.
+ * Extension loader.
  *
  * Resolves extension specifiers (npm package names or local paths) declared in
  * `config/config-nuckty.ts` `ext[]`, imports each, and invokes its `register(env)`
@@ -20,9 +20,9 @@
  * Node resolves bare packages; local directory entries are selected explicitly.
  *
  * Each ext entry calls its named register or default function in the current
- * environment. The engine treats all extensions uniformly — first-party `@nuckty/ext-*` and
- * third-party packages are wired identically. No extension has engine-level
- * privilege.
+ * environment. The engine treats all extensions uniformly — first-party
+ * `@nuckty/ext-*` and third-party packages are wired identically. No extension
+ * has engine-level privilege.
  *
  * @module env/loader
  */
@@ -33,21 +33,21 @@ import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import type { NucktyEnv } from './env.js';
 
-/** A plugin module exports `register(env)` (named or default). */
+/** An extension module exports `register(env)` (named or default). */
 export interface PluginModule {
     register?: (env: NucktyEnv) => void | Promise<void>;
     default?: (env: NucktyEnv) => void | Promise<void>;
 }
 
 export interface LoadOptions {
-    /** Directory to resolve relative plugin paths against (the consumer root). */
+    /** Directory to resolve relative extension paths against (the consumer root). */
     cwd: string;
 }
 
 /**
- * Load and apply plugins to the environment.
+ * Load extensions and call their `register(env)`.
  *
- * @param env the environment plugins register into
+ * @param env the environment extensions register into
  * @param ext package names or local paths starting with ./, ../ or /
  * @param opts resolution options
  */
@@ -62,7 +62,7 @@ export async function loadPlugins(
         const register = mod.register ?? mod.default;
         if (typeof register !== 'function') {
             throw new Error(
-                `nuckty: plugin "${spec}" does not export a register function. ` +
+                `nuckty: extension "${spec}" does not export a register function. ` +
                     'Expected "export function register(env)" or a default function.',
             );
         }
@@ -70,9 +70,9 @@ export async function loadPlugins(
     }
 }
 
-/** Resolve a plugin specifier to a module path import() can handle. */
+/** Resolve an extension specifier to a module path import() can handle. */
 export function resolvePluginPath(spec: string, cwd: string): string {
-    // Absolute path or an explicit file → file URL.
+    // Absolute path → file URL.
     if (spec.startsWith('/')) {
         return toURL(path.resolve(spec)).href;
     }
