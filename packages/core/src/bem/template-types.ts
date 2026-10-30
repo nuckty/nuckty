@@ -3,7 +3,7 @@
  *
  * The authoring model:
  * - entry + sugar: `block('x')` (no `match` noise)
- * - fluent predicate: `.elem().mod().elemMod().when()`
+ * - fluent predicate: `.elem().mod().when()`
  * - terminal: a modes object literal `{ tag, content, attrs, ... }`
  * - chaining via a `next` parameter in mode functions (not a floating applyNext)
  *
@@ -57,10 +57,9 @@ export interface Modes<P = Record<string, unknown>> {
 export interface Template {
     block: string | '*';
     elem?: string | '*';
+    /** Modifier of the selected entity: block modifier, or element modifier when `elem` is set. */
     modName?: string;
     modVal?: string | true;
-    elemModName?: string;
-    elemModVal?: string | true;
     predicate?: Predicate;
     modes: Modes;
     /** Declaration order; higher = later = wins on equal specificity. */

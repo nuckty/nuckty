@@ -10,9 +10,9 @@ for (const element of [false, true]) {
         const templates = new Templates();
         const block = createBlockFor(templates);
         const base = element ? block('button').elem('icon') : block('button');
-        const original = element ? base.elemMod('theme', 'dark') : base.mod('theme', 'dark');
+        const original = base.mod('theme', 'dark');
         original({ tag: 'i' });
-        const refined = element ? original.elemMod('busy') : original.mod('busy');
+        const refined = original.mod('busy');
         refined({ tag: 'b' });
         const originalNode: BemNode = element
             ? { block: 'button', elem: 'icon', elemMods: { theme: 'dark' } }

@@ -19,7 +19,7 @@ for (const name of ['constructor', 'toString', '__proto__']) {
         assert.match(render({ block: 'button', mods: { [name]: true }, content: 'x' }, { templates }), /^<strong /);
 
         const elements = new Templates();
-        createBlockFor(elements)('menu').elem('item').elemMod(name)({ tag: 'strong' });
+        createBlockFor(elements)('menu').elem('item').mod(name)({ tag: 'strong' });
         assert.match(render({ block: 'menu', elem: 'item', content: 'x' }, { templates: elements }), /^<div /);
         assert.match(render({ block: 'menu', elem: 'item', elemMods: { [name]: true }, content: 'x' }, { templates: elements }), /^<strong /);
     });
@@ -27,7 +27,7 @@ for (const name of ['constructor', 'toString', '__proto__']) {
 
 test('wildcard element modifier selects modified elements and leaves block or unmodified elements unchanged', () => {
     const templates = new Templates();
-    createBlockFor(templates)('menu').elem('*').elemMod('active', true)({ tag: 'strong' });
+    createBlockFor(templates)('menu').elem('*').mod('active', true)({ tag: 'strong' });
     assert.match(render({ block: 'menu', elem: 'item', elemMods: { active: true } }, { templates }), /^<strong /);
     assert.match(render({ block: 'menu', elem: 'label', elemMods: { active: true } }, { templates }), /^<strong /);
     assert.match(render({ block: 'menu', elem: 'item' }, { templates }), /^<div /);

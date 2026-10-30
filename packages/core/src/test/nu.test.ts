@@ -14,10 +14,10 @@ import { block } from '../bem/api.js';
 import { runWithTemplates } from '../bem/template-context.js';
 import { Templates } from '../bem/templates.js';
 import { render } from '../bem/render.js';
-import type { BemNode, BEMTree } from '../bem/types.js';
+import type { BEMTree } from '../bem/types.js';
 
 /** Helper: render a tree against a fresh templates populated by `fn`. */
-function withTemplates(fn: () => void, tree: BemNode): string {
+function withTemplates(fn: () => void, tree: BEMTree): string {
     const reg = new Templates();
     runWithTemplates(reg, fn);
     return render(tree, { templates: reg });
@@ -270,4 +270,23 @@ test('output next reports an absent own value as undefined', () => {
     }, { block: 'x' });
 
     assert.equal(html, '<span class=x title=fallback></span>');
+});
+
+test('mod() after elem() selects an element modifier and outranks the plain element', () => {
+    const html = withTemplates(() => {
+        block('menu').elem('item')({ tag: 'li' });
+        block('menu').elem('item').mod('active')({ tag: 'b' });
+        block('menu').mod('active')({ tag: 'nav' });
+    }, [
+        { block: 'menu', elem: 'item', elemMods: { active: true } },
+        { block: 'menu', elem: 'item', mods: { active: true } },
+        { block: 'menu', mods: { active: true } },
+    ]);
+    assert.equal(html, '<b class="menu__item menu__item_active"></b><li class=menu__item></li><nav class="menu menu_active"></nav>');
+});
+
+test('elem() after mod() is rejected because block modifiers do not reach elements', () => {
+    withTemplates(() => {
+        assert.throws(() => block('menu').mod('open').elem('item'), /select the element first/);
+    }, null);
 });

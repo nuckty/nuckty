@@ -19,9 +19,24 @@ export default function templates(): void {
 
 A block declaration matches only the block node. Use `.elem('name')` or `.elem('*')` for elements; block declarations do not apply to them. An explicit `tag` in the source BEMJSON takes precedence over the `tag` mode, including callbacks. Other modes still apply. If the source tag is absent or `undefined`, the template determines it; `false` keeps a tagless fragment.
 
+### Modifiers
+
+Express a variant of a block or element as a modifier and declare it separately. `.mod('name')` matches a set modifier, `.mod('name', 'value')` a specific value. After `.elem()`, `.mod()` selects an element modifier:
+
+```ts
+block('link')({ tag: 'a' });
+block('link').mod('current')({
+    tag: 'span',
+    attrs: (n, next) => ({ ...next(), 'aria-current': 'page' }),
+});
+block('menu').elem('item').mod('state', 'open')({ tag: 'strong' });
+```
+
+The content passes the variant as data, `{ block: 'link', mods: { current: true } }`, and each declaration stays a plain object without conditions. A modifier selector cannot be followed by `.elem()`: block modifiers do not reach elements, so the engine rejects that form.
+
 ### Conditional predicate
 
-`.when(...)` is an arbitrary predicate. The template applies only when the predicate is true:
+`.when(...)` is an arbitrary predicate for conditions that a modifier cannot express. The template applies only when the predicate is true:
 
 ```ts
 block<{ submenu?: import('@nuckty/core').BEMTree }>('menu').elem('item').when((n) => Boolean(n.props?.submenu))({

@@ -15,12 +15,17 @@ The engine SHALL have exactly one template engine: a BEMJSON → HTML renderer w
 - **AND** ordinary template markup uses structured nodes, while literal HTML requires an explicit trusted `raw` node
 
 ### Requirement: block() authoring syntax
-A template SHALL be registered by calling `block` with a predicate and a definition inside the default `templates()` export of a `.nu.ts` file. `block('name')(def)` targets a whole block; `block('name').elem('e')(def)` targets an element; `.mod()`/`.elemMod()` narrow further; `.when(pred)` adds an arbitrary predicate. A mode value MAY be a literal or a function `(n, next) => ...`.
+A template SHALL be registered by calling `block` with a predicate and a definition inside the default `templates()` export of a `.nu.ts` file. `block('name')(def)` targets a whole block; `block('name').elem('e')(def)` targets an element; `.mod(name, value?)` narrows to a modifier of the selected entity — a block modifier on a block selector and an element modifier after `.elem()`; `.when(pred)` adds an arbitrary predicate. `.elem()` after `.mod()` SHALL be rejected when declared. A mode value MAY be a literal or a function `(n, next) => ...`.
 
 #### Scenario: Authoring a block and an element
 - **WHEN** a consumer writes `block('menu')({ tag: 'ul' })` and `block('menu').elem('item')({ tag: 'li' })`
 - **THEN** `menu` nodes render as `<ul>` and `menu__item` nodes as `<li>`
 - **AND** `.when((n) => Boolean(n.props?.submenu))` applies only when the predicate holds
+
+#### Scenario: Element modifier after elem
+- **WHEN** a consumer writes `block('menu').elem('item').mod('active')({ tag: 'b' })`
+- **THEN** a `menu__item` node with `elemMods: { active: true }` renders as `<b>`
+- **AND** a `menu__item` node with only block `mods: { active: true }` keeps its element template
 
 ### Requirement: Scoped template collection
 Each build SHALL create its own `Templates` collection. The block loader SHALL invoke every default `templates()` export inside an asynchronous scoped context, and `block()` SHALL add declarations to the collection in that context. Calling `block()` outside template loading SHALL fail. Concurrent contexts SHALL remain isolated, including when `nuckty` is loaded through different ESM identities.
@@ -106,7 +111,7 @@ The engine SHALL split rendering into two typed passes: `renderToBemJson(tree, {
 - **AND** empty positions do not throw or generate markup
 
 ### Requirement: Refining a modifier replaces its value condition
-Selector refinement SHALL replace the condition for that selector kind. A mod or elemMod call without a value SHALL clear an earlier value condition for that kind rather than carry it to the newly selected modifier name. Refinement SHALL preserve the original selector so separately registered branches remain independent.
+Selector refinement SHALL replace the condition for that selector kind. A mod call without a value SHALL clear an earlier value condition for that kind rather than carry it to the newly selected modifier name. Refinement SHALL preserve the original selector so separately registered branches remain independent.
 
 #### Scenario: Valued selector refines to an unvalued boolean modifier
 - **WHEN** a valued block or element modifier selector is refined with a new modifier name and no value

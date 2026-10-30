@@ -3,7 +3,7 @@ export * from './bem/types.js';
 
 // xjst authoring API: `block('x')({ tag: 'ul' })` etc.
 export { block } from './bem/api.js';
-export type { BlockEntry, Selector } from './bem/api.js';
+export type { BlockEntry } from './bem/api.js';
 export type { Modes, Predicate } from './bem/template-types.js';
 
 // BEMJSON composition for content code and attribute selection for nu.ts templates.

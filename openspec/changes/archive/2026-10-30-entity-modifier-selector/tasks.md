@@ -1,0 +1,3 @@
+- [x] Match `.mod()` against the selected entity's modifiers.
+- [x] Reject `.elem()` after `.mod()`.
+- [x] Document modifier selectors and update tests.
