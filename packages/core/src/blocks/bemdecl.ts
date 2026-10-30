@@ -3,7 +3,8 @@ import * as path from 'node:path';
 import { existsSync } from 'node:fs';
 
 /**
- * Read a BEM declaration for the given bundle as a flat array of block names.
+ * Read a BEM declaration for the given bundle as a flat array of block and
+ * `block__elem` entity names.
  * Missing declarations are optional. Existing invalid declarations fail rather
  * than silently dropping the bundle. Later levels override earlier ones.
  */

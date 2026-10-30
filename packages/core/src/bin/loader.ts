@@ -54,7 +54,7 @@ export async function resolve(
 /** Load hook: transpile `.ts` URLs to ESM via esbuild; pass through everything else. */
 export async function load(
     url: string,
-    _context: unknown,
+    context: unknown,
     nextLoad: (url: string, context: unknown) => Promise<{ format: string; source: string; shortCircuit?: boolean }>,
 ): Promise<{ format: string; source: string; shortCircuit?: boolean }> {
     if (url.startsWith('file:') && new URL(url).pathname.endsWith('.ts')) {
@@ -63,5 +63,5 @@ export async function load(
         const result = await transform(code, { loader: 'ts', format: 'esm', sourcefile: filePath });
         return { format: 'module', source: result.code, shortCircuit: true };
     }
-    return nextLoad(url, _context);
+    return nextLoad(url, context);
 }

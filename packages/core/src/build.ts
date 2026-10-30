@@ -69,10 +69,9 @@ async function buildOne(config: NucktyConfig, target: Target, cwd: string, env: 
     const templates = new Templates();
     runWithTemplates(templates, markdownTemplates);
 
-    // Load blocks by BEM deps (bemdecl-driven) — replaces the explicit block
-    // list in `ext[]`. Bundles come from config/site.json. `blockDeps` (the
-    // per-bundle block-name lists) feeds the CSS/JS stages so they bundle by
-    // deps without re-reading the bemdecl files.
+    // Load blocks by BEM deps (bemdecl-driven). Bundles come from
+    // config/site.json. `blockDeps` (the per-bundle entity lists) feeds the
+    // CSS/JS stages so they bundle by deps without re-reading the bemdecl files.
     const bundles = snapshot.site.bundles;
     const blockDeps = bundles.length > 0
         ? await loadBlocks(templates, cwd, env.levels.list(), bundles)

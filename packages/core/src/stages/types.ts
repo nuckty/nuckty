@@ -25,7 +25,7 @@ export interface SitemapPage {
     tree?: BEMTree;
     /** Headings collected during render, in document order. */
     headings?: Array<{ level: number; text: string; rawText: string; anchor: string }>;
-    /** Optional layout path from sitemap.yml meta. */
+    /** Optional layout name from sitemap.yml meta. */
     layout?: string;
     /** Source path relative to the consumer root, e.g. `./content/how/index.md`. */
     inputPath?: string;
@@ -81,7 +81,7 @@ export interface BuildStore {
     videoHash?: Record<string, string>;
     /** Available / missing external repos discovered by the assets stage. */
     assetRepos?: { available: string[]; missing: string[] };
-    /** Per-bundle BEM declaration (block-name lists) produced by the deps loader. */
+    /** Per-bundle BEM declaration (block and element names) produced by the deps loader. */
     blockDeps?: Record<string, string[]>;
     /** Published download filename → source path relative to the consumer root. */
     downloads?: Record<string, string>;

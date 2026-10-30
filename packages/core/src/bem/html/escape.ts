@@ -8,9 +8,9 @@
  * @module bem/html/escape
  */
 
-/** Escape quotes as well as text delimiters to retain the established serialization. */
-const TEXT_ESCAPE_RE = /[&<>"]/g;
-const TEXT_ESCAPE_MAP: Record<string, string> = {
+/** Text and attribute values share one escape set; quotes are escaped in text too to retain the established serialization. */
+const ESCAPE_RE = /[&<>"]/g;
+const ESCAPE_MAP: Record<string, string> = {
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
@@ -19,18 +19,15 @@ const TEXT_ESCAPE_MAP: Record<string, string> = {
 
 /** Escape text content (`&`/`<`/`>`/`"`). */
 export function escapeText(s: string): string {
-    return s.replace(TEXT_ESCAPE_RE, (c) => TEXT_ESCAPE_MAP[c]!);
+    return s.replace(ESCAPE_RE, (c) => ESCAPE_MAP[c]!);
 }
 
 /**
  * Attributes carry logical values. Encode once so an HTML parser recovers them
  * without introducing attributes or terminating data-bem JSON. Raw bypasses this.
  */
-const ATTR_ESCAPE_RE = /([&"<>])/g;
-const ATTR_MAP: Record<string, string> = { '&': '&amp;', '"': '&quot;', '<': '&lt;', '>': '&gt;' };
-
 export function escapeAttr(s: string): string {
-    return s.replace(ATTR_ESCAPE_RE, (c) => ATTR_MAP[c]!);
+    return s.replace(ESCAPE_RE, (c) => ESCAPE_MAP[c]!);
 }
 
 const QUOTE_TRIGGERS_RE = /[\s"'`<>=]/;
@@ -61,4 +58,3 @@ export const BOOLEAN_ATTRS: ReadonlySet<string> = new Set([
     'itemscope', 'loop', 'multiple', 'muted', 'nomodule', 'novalidate', 'open',
     'playsinline', 'readonly', 'required', 'reversed', 'selected', 'truespeed',
 ]);
-

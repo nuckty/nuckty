@@ -37,7 +37,7 @@ async function resolveVnuJar(): Promise<string> {
 }
 
 /**
- * vnu HTTP daemon validator: lazily spawns vnu.jar on `:8888`, health-checks,
+ * vnu HTTP daemon validator: lazily spawns vnu.jar (port 8888 by default), health-checks,
  * reuses across validations, parallel POSTs, content-hash cache. `stop()` kills
  * the daemon — the extension manages its own lifecycle (no env.daemons).
  */
