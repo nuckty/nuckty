@@ -1,4 +1,3 @@
-import { markdownCollection } from './helpers/markdown.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
@@ -11,6 +10,7 @@ import { render } from '../bem/render.js';
 import { serialize } from './helpers/serialize.js';
 import { resolveTarget, allTargets, defineNucktyConfig } from '../targets/config.js';
 import { inlineHashedSVGs, processImageReferences } from '../stages/css.js';
+import { markdownCollection } from './helpers/markdown.js';
 
 for (const name of ['constructor', 'toString', '__proto__']) {
     test(`modifier selector ignores inherited ${name} but accepts its own value`, () => {
@@ -85,7 +85,7 @@ test('inlined SVG produces parseable CSS and a lossless payload; suffixes and ex
 
 test('page URLs cannot occupy the hosting namespace while ordinary dotted routes remain valid', async () => {
     const { urlToFlat } = await import('../stages/html.js');
-    for (const url of ['/features.js', '/guide.HTML', '/image.png', '/sitemap.xml', '/robots.txt', '/__nuckty_404', '/_i123abc', '/_c123abc', '/brotli', '/gzip/private', '/css', '/html', '/xml']) {
+    for (const url of ['/features.js', '/guide.HTML', '/image.png', '/sitemap.xml', '/robots.txt', '/__nuckty_404', '/_i123abc', '/brotli', '/gzip/private', '/css', '/html', '/xml']) {
         assert.throws(() => urlToFlat(url), /reserved.*hosting/i, url);
     }
     assert.equal(urlToFlat('/release/1.0.0'), 'release_1.0.0.html');

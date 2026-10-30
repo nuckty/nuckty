@@ -24,7 +24,7 @@ Normalizing byte 9 of the gzip header removes one platform-dependent metadata fi
 
 ## Consequences
 
-Each selected, nonempty file receives one `.br` copy and one `.gz` copy in flat compression directories. Selection uses filenames: supported extensions and exact extensionless hashed names. Other names, `robots.txt`, and empty files are excluded. The originals remain available.
+Each selected, nonempty file receives one `.br` copy and one `.gz` copy in flat compression directories. Selection uses file extensions. Other names, `robots.txt`, and empty files are excluded. The originals remain available.
 
 Adding a codec is a change to the artifact and hosting contract. Benchmark results and client requirements should be recorded before making that change.
 

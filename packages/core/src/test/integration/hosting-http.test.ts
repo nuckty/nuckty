@@ -80,9 +80,6 @@ for (const server of ['nginx', 'apache']) {
             'nested/readme.txt': 'NESTED TEXT',
             'html/release.txt.html': '<title>DOTTED PAGE</title>',
             'html/nested_notes.txt.html': '<title>DOTTED PAGE WITH SHARED BASENAME</title>',
-            '_c5555555555555555': 'body{color:green}',
-            '_j6666666666666666': 'console.log(2)',
-            '_s7777777777777777': '<svg>LEGACY</svg>',
             'jpg/1111111111111111.jpeg': 'JPEG',
             '2222222222222222.gif': 'GIF',
             'png/3333333333333333.png': 'PNG',
@@ -97,7 +94,7 @@ for (const server of ['nginx', 'apache']) {
         };
         for (const [name, data] of Object.entries(files)) {
             await write(name, data);
-            if (/\.(html|css|js|svg|xml|txt)$/.test(name) || /^_[cjs][a-f0-9]{16}$/.test(name)) {
+            if (/\.(html|css|js|svg|xml|txt)$/.test(name)) {
                 await write(`brotli/${path.basename(name)}.br`, brotliCompressSync(data));
                 await write(`gzip/${path.basename(name)}.gz`, gzipSync(data));
             }
@@ -178,9 +175,6 @@ Options FollowSymLinks Indexes
                 }
             }
             for (const [url, source] of [
-                ['/_c5555555555555555', '_c5555555555555555'],
-                ['/_j6666666666666666', '_j6666666666666666'],
-                ['/_s7777777777777777', '_s7777777777777777'],
                 ['/notes.txt', 'notes.txt'],
                 ['/nested/readme.txt', 'nested/readme.txt'],
                 ['/release.txt', 'html/release.txt.html'],
@@ -222,7 +216,7 @@ Options FollowSymLinks Indexes
                 assert.equal(response.status, 200);
                 assert.equal(response.body, body);
             }
-            for (const url of ['/_c5555555555555555', '/_j6666666666666666', '/_s7777777777777777']) {
+            for (const url of ['/_i3333333333333333', '/dddddddddddddddd.css']) {
                 const hashed = await request(port, url, {});
                 assert.match(hashed.headers['cache-control'] ?? '', /immutable/, url);
                 assert.equal((hashed.headers['cache-control'] ?? '').match(/immutable/g)?.length, 1, url);
@@ -263,9 +257,6 @@ Options FollowSymLinks Indexes
                 ['/sitemap.xml', 'xml/sitemap.xml', 200],
                 ['/notes.txt', 'notes.txt', 200],
                 ['/nested/readme.txt', 'nested/readme.txt', 200],
-                ['/_c5555555555555555', '_c5555555555555555', 200],
-                ['/_j6666666666666666', '_j6666666666666666', 200],
-                ['/_s7777777777777777', '_s7777777777777777', 200],
                 ['/missing', 'html/404.html', 404],
             ] as const) {
                 await fs.rm(path.join(out, 'brotli', `${path.basename(source)}.br`));

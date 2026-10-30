@@ -90,12 +90,9 @@ function htmlLocationBody(): string {
 }
 
 /**
- * Generate the nginx.conf body for a site rooted at `root`. Pure string builder,
- * no template engine. Mirrors `config/config-nginx.njk` section by section.
- * `logPrefix` names the access/error log files (`/tmp/nginx-logs/<logPrefix>_access.log`).
- * `pidFile` is where nginx writes its master PID — the buildDir default makes
- * `serve`/`stop` project-scoped instead of machine-global (CMD-13: two
- * consumers/worktrees must not fight over one `/tmp/nginx.pid`).
+ * Generate the nginx.conf body for a site rooted at `root` as a plain string.
+ * `logPrefix` names the access/error log files in `logDir`; `pidFile` is where
+ * nginx writes its master PID, so callers keep previews of different projects apart.
  */
 export function generateNginxConfig(root: string, logPrefix = 'nuckty', pidFile?: string, port = 8080, logDir = '/tmp/nginx-logs'): string {
     if (!Number.isInteger(port) || port < 1 || port > 65535) {
@@ -177,7 +174,6 @@ http {
     map $request_uri $is_hashed_static {
         default                                 0;
         ~*^[^?]*\\.(css|js|svg|jpg|jpeg|png|gif|ico|avif|webp|mp4)(?:[?].*)?$ 1;
-        ~*^/_[cjs][a-f0-9]+(?:[?].*)?$          1;
     }
 
     map $is_hashed_static $expires_time {
@@ -473,7 +469,7 @@ http {
         location ~ ^/_i([a-f0-9]+)$ {
             set $hash $1;
 
-            try_files $avif_dir/$hash.avif $webp_dir/$hash.webp /png/$hash.png /jpg/$hash.jpg /jpg/$hash.jpeg /svg/$hash.svg /$hash.gif /$hash.ico /webp/$hash.webp =404;
+            try_files $avif_dir/$hash.avif $webp_dir/$hash.webp /png/$hash.png /jpg/$hash.jpg /jpg/$hash.jpeg /svg/$hash.svg /$hash.gif /webp/$hash.webp =404;
 
             expires 10y;
             add_header Cache-Control "public,immutable" always;

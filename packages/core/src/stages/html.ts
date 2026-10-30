@@ -104,7 +104,7 @@ export function urlToFlat(url: string): string {
     const artifactRoots = ['html', 'css', 'js', 'svg', 'xml', 'png', 'jpg', 'webp', 'avif'];
     if (/\.(?:html|css|js|svg|xml|jpg|jpeg|png|gif|ico|avif|webp|pdf|zip|ini|mp4)$/i.test(url)
         || /^\/(?:brotli|gzip)(?:\/|$)/.test(url)
-        || /^\/_[cjsi][a-f0-9]+$/.test(url)
+        || /^\/_i[a-f0-9]+$/.test(url)
         || ['/robots.txt', '/manifest.json', '/__nuckty_404'].includes(url)
         || (segments.length === 1 && artifactRoots.includes(segments[0]!))) {
         throw new Error(`nuckty: html — page URL "${url}" is reserved for hosting or artifact files`);

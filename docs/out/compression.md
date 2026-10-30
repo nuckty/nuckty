@@ -1,6 +1,6 @@
 # Compression
 
-The engine creates Brotli and Gzip copies of selected nonempty files in `brotli/` and `gzip/`. It selects `.html`, `.css`, `.js`, `.svg`, `.xml`, `.txt`, and extensionless names consisting of `_c`, `_j`, `_s`, or `_i` followed by exactly 16 lowercase hexadecimal characters. `robots.txt` is excluded. See the [compression decision](../why/compression.md).
+The engine creates Brotli and Gzip copies of selected nonempty files in `brotli/` and `gzip/`. It selects files with the extensions `.html`, `.css`, `.js`, `.svg`, `.xml` and `.txt`. `robots.txt` is excluded. See the [compression decision](../why/compression.md).
 
 ## Two codecs
 

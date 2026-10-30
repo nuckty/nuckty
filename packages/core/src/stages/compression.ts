@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import type { Dirent } from 'node:fs';
-import { brotliCompress, gzip } from 'node:zlib';
+import { brotliCompress, constants, gzip } from 'node:zlib';
 import { promisify } from 'node:util';
 import { assertArtifactPath } from './artifact-path.js';
 import type { Stage, BuildContext } from '../pipeline/pipeline.js';
@@ -10,7 +10,6 @@ const brotliCompressAsync = promisify(brotliCompress);
 const gzipAsync = promisify(gzip);
 
 const COMPRESSIBLE_EXTENSIONS = ['.html', '.css', '.js', '.svg', '.xml', '.txt'];
-const HASH_PREFIX_PATTERN = /^_[cjis][a-f0-9]{16}$/;
 const SKIP_DIRS = new Set(['brotli', 'gzip']);
 
 /** Collapses a relative path to its basename (flat compression layout). */
@@ -18,10 +17,9 @@ function getFlatFilename(file: string): string {
     return path.basename(file);
 }
 
-/** Is a file compressible? By extension or hashed-asset basename pattern. */
+/** Text artifacts are compressed; binary images and downloads are not. */
 function isCompressible(name: string): boolean {
-    const ext = path.extname(name);
-    return COMPRESSIBLE_EXTENSIONS.includes(ext) || HASH_PREFIX_PATTERN.test(name);
+    return COMPRESSIBLE_EXTENSIONS.includes(path.extname(name));
 }
 
 /** Recursively find compressible files under `siteDir`, skipping compression dirs. */
@@ -52,7 +50,7 @@ async function findCompressibleFiles(siteDir: string): Promise<string[]> {
             if (!entry.isFile()) {
                 throw new Error(`Compression requires regular artifact files: ${relativePath}`);
             }
-            // robots.txt is too small to benefit — skip (1:1 with the original).
+            // robots.txt is too small to benefit from compression.
             if (entry.name === 'robots.txt') {
                 return;
             }
@@ -93,9 +91,8 @@ async function compressFile(file: string, siteDir: string): Promise<void> {
     ]);
 }
 
-/** Brotli at quality 11 (maximum), 1:1 with the original. */
+/** Brotli at quality 11 (maximum). */
 async function compressBrotliQuality11(content: Buffer): Promise<Buffer> {
-    const { constants } = await import('node:zlib');
     return (await brotliCompressAsync(content, {
         params: { [constants.BROTLI_PARAM_QUALITY]: 11 },
     })) as Buffer;

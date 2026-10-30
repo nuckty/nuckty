@@ -118,16 +118,6 @@ RewriteRule ^([^/]+\\.svg)$ svg/$1 [L]
 RewriteCond %{DOCUMENT_ROOT}/xml/$1 -f
 RewriteRule ^([^/]+\\.xml)$ xml/$1 [L]
 
-# Legacy extensionless hashed assets.
-RewriteCond %{HTTP:Accept-Encoding} "(?:^|,)[ ]*br[ ]*(?:;[ ]*q=(?!0(?:[.]0*)?[ ]*(?:,|$))[01](?:[.][0-9]+)?)?[ ]*(?:,|$)" [NC]
-RewriteCond %{DOCUMENT_ROOT}/brotli/$1.br -f
-RewriteRule ^(_[cjs][a-f0-9]+)$ brotli/$1.br [L]
-
-# Legacy extensionless hashed assets.
-RewriteCond %{HTTP:Accept-Encoding} "(?:^|,)[ ]*gzip[ ]*(?:;[ ]*q=(?!0(?:[.]0*)?[ ]*(?:,|$))[01](?:[.][0-9]+)?)?[ ]*(?:,|$)" [NC]
-RewriteCond %{DOCUMENT_ROOT}/gzip/$1.gz -f
-RewriteRule ^(_[cjs][a-f0-9]+)$ gzip/$1.gz [L]
-
 # Existing public files (including robots.txt) need no page rewrite.
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
@@ -217,18 +207,18 @@ RewriteCond %{DOCUMENT_ROOT}/html/$1_$2_$3_$4_$5.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ html/$1_$2_$3_$4_$5.html [L,E=IS_HTML:1]
 
 # Identity responses participate in the same encoding negotiation.
-<FilesMatch "(\\.(html|css|js|svg|xml|txt)|^_[cjs][a-f0-9]+)(\\.br|\\.gz)?$">
+<FilesMatch "\\.(html|css|js|svg|xml|txt)(\\.br|\\.gz)?$">
     Header always merge Vary "Accept-Encoding"
 </FilesMatch>
 
-# Brotli compressed files (including hash-prefixed)
-<FilesMatch "(\\.(html|css|js|svg|xml|txt)|^_[cjs][a-f0-9]+)\\.br$">
+# Brotli compressed files
+<FilesMatch "\\.(html|css|js|svg|xml|txt)\\.br$">
     Header set Content-Encoding "br"
     Header always set Vary "Accept-Encoding"
 </FilesMatch>
 
-# Gzip compressed files (including hash-prefixed)
-<FilesMatch "(\\.(html|css|js|svg|xml|txt)|^_[cjs][a-f0-9]+)\\.gz$">
+# Gzip compressed files
+<FilesMatch "\\.(html|css|js|svg|xml|txt)\\.gz$">
     Header set Content-Encoding "gzip"
     Header always set Vary "Accept-Encoding"
 </FilesMatch>
@@ -256,16 +246,6 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ html/$1_$2_$3_$4_$5.html [
 
 <FilesMatch "\\.txt(\\.br|\\.gz)?$">
     Header set Content-Type "text/plain;charset=utf-8"
-</FilesMatch>
-
-# Hash-prefixed CSS files (_c*) - all compression formats
-<FilesMatch "^_c[a-f0-9]+(\\.br|\\.gz)?$">
-    Header set Content-Type "text/css;charset=utf-8"
-</FilesMatch>
-
-# Hash-prefixed JS files (_j*) - all compression formats
-<FilesMatch "^_j[a-f0-9]+(\\.br|\\.gz)?$">
-    Header set Content-Type "application/javascript;charset=utf-8"
 </FilesMatch>
 
 # Hash-prefixed SVG files (_s*) - all compression formats
@@ -339,8 +319,8 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ html/$1_$2_$3_$4_$5.html [
     Header always set Cache-Control "public,immutable"
 </FilesMatch>
 
-# Hash-prefixed files (_c*, _j*, _s*, _i*) - immutable
-<FilesMatch "^_[cjsi][a-f0-9]+(\\.br|\\.gz)?$">
+# Negotiated image URLs (_i*) - immutable
+<FilesMatch "^_i[a-f0-9]+$">
     Header always set Cache-Control "public,immutable"
 </FilesMatch>
 
@@ -356,8 +336,8 @@ ExpiresActive On
     ExpiresDefault "access plus 10 years"
 </FilesMatch>
 
-# Hash-prefixed files (_c*, _j*, _s*, _i*) - 10 years
-<FilesMatch "^_[cjsi][a-f0-9]+(\\.br|\\.gz)?$">
+# Negotiated image URLs (_i*) - 10 years
+<FilesMatch "^_i[a-f0-9]+$">
     ExpiresDefault "access plus 10 years"
 </FilesMatch>
 

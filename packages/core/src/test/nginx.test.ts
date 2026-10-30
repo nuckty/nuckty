@@ -68,11 +68,11 @@ test('nginx: compression suffix/content-encoding map (br/.gz)', () => {
 
 // ---- image negotiation order (AVIF → WebP → PNG → JPG → SVG → GIF → ICO) -----
 
-test('nginx: hashed-image location tries formats in AVIF→WebP→PNG→JPG→SVG→GIF→ICO order', () => {
+test('nginx: hashed-image location tries formats in AVIF→WebP→PNG→JPG→SVG→GIF order', () => {
     const c = cfg();
     const tryLine = c.split('\n').find((l) => l.includes('try_files $avif_dir/'));
     assert.ok(tryLine, 'no hashed-image try_files line');
-    assert.ok(tryLine!.includes('$avif_dir/$hash.avif $webp_dir/$hash.webp /png/$hash.png /jpg/$hash.jpg /jpg/$hash.jpeg /svg/$hash.svg /$hash.gif /$hash.ico /webp/$hash.webp =404'), tryLine);
+    assert.ok(tryLine!.includes('$avif_dir/$hash.avif $webp_dir/$hash.webp /png/$hash.png /jpg/$hash.jpg /jpg/$hash.jpeg /svg/$hash.svg /$hash.gif /webp/$hash.webp =404'), tryLine);
 });
 
 test('nginx: hashed images get immutable cache + Vary: Accept', () => {
@@ -132,7 +132,7 @@ test('nginx: root points at the outDir, pid defaults to /tmp/nginx.pid, listens 
     assert.ok(c.includes('listen 127.0.0.1:8080;'));
 });
 
-test('nginx: an explicit pidFile is used (project-scoped serve, CMD-13)', () => {
+test('nginx: an explicit pidFile is used (project-scoped serve)', () => {
     const c = generateNginxConfig('/var/www/site', 'p', '/proj/.build/nginx.pid');
     assert.ok(c.includes('pid "/proj/.build/nginx.pid";'));
     assert.ok(!c.includes('pid "/tmp/nginx.pid";'));
