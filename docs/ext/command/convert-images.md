@@ -34,7 +34,7 @@ nuckty convert-images <contentDir> [--dry-run] [--force]
 | `--dry-run` | Show what would be encoded, without writing files. |
 | `--force` | Re-encode even the files that are in the cache. |
 
-Starting quality levels are set in the command code: PNG — AVIF 50 and WebP 90; JPEG — AVIF 50 and WebP 90.
+Starting quality levels are set in the command code: AVIF 50 and WebP 90 for both PNG and JPEG.
 
 ## Installation
 

@@ -27,12 +27,12 @@ The stage writes a simple index of URLs, page titles, and headings:
 ```ts
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import type { DocumentData, NucktyEnv } from '@nuckty/core';
+import type { NucktyEnv } from '@nuckty/core';
 import { assertArtifactPath } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.pipeline.registerStage('search', async (ctx) => {
-        const sitemap = ctx.store['sitemap'] as DocumentData['sitemap'] | undefined;
+        const sitemap = ctx.store.sitemap;
         if (!sitemap) {
             throw new Error('The sitemap stage must run first');
         }
@@ -48,6 +48,7 @@ export function register(env: NucktyEnv): void {
     }, { phase: 'emit' });
 }
 ```
+
 Save the module as `ext/search.ts` and add `'./ext/search.ts'` to `ext` in the global configuration. After building, `search.json` appears in the artifact and manifest, but the default [compression](../../out/compression.md) stage does not create Brotli/Gzip copies of `.json`. Use `env.pipeline.after` or `before` with an existing stage name for hooks.
 
 ## Typical uses

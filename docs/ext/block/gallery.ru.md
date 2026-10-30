@@ -35,7 +35,7 @@ Markdown-расширение находит узел-контейнер и пр
 
 Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
-```
+```bash
 npm install --save-exact @nuckty/ext-block-gallery@1.0.0-rc.3
 ```
 

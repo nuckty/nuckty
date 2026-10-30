@@ -21,7 +21,6 @@ block<{ lang?: string }>('root').wrap((n) => ({
 }));
 ```
 
-
 ## The root and page contract
 
 This extension provides `root`, the outer wrapper. Site authors can structure its content with their own `page*` blocks:
@@ -39,13 +38,17 @@ Through `n.props`, the block receives the data the engine has collected:
 
 The block turns this data into title, metadata, hreflang and stylesheet links in `<head>`. It loads the JavaScript bundles with `defer` after the body content.
 
+Package registration calls `env.document.register`: the handler creates root with `DocumentData` in props. Core does not choose root from the sitemap. `assets` contains bundle URLs; `target.data` contains consumer settings.
+
+The default root emits each non-empty URL in `assets.css` and `assets.js` once, preserving insertion order; scripts use `defer` after page content. It does not guess bundle names from the route. Use a custom document handler or root override for page-specific selection.
+
 ## Installation
 
 Add the package to `ext` in the global `config/config-nuckty.ts`. It registers the document handler; remove another handler registration before using it.
 
 Install the extension from npm in the extracted [starter project](../../how/start.md):
 
-```
+```bash
 npm install --save-exact @nuckty/ext-block-root@1.0.0-rc.3
 ```
 
@@ -65,7 +68,3 @@ And add `root` to the page bundle's bemdecl (for example, `blocks/page/page.bemd
 ## Overriding
 
 Place your own `blocks/root/root.nu.ts` on a later [level](../../how/blocks/levels.md). The engine picks the file from the latest level. This lets you set a different `<head>` structure, your own meta tags, or analytics counters without forking the extension.
-
-Package registration calls `env.document.register`: the handler creates root with `DocumentData` in props. Core does not choose root from the sitemap. `assets` contains bundle URLs; `target.data` contains consumer settings.
-
-The default root emits each non-empty URL in `assets.css` and `assets.js` once, preserving insertion order; scripts use `defer` after page content. It does not guess bundle names from the route. Use a custom document handler or root override for page-specific selection.

@@ -23,8 +23,6 @@ The serializer evaluates resolved children after flattening arrays and `tag: fal
 6. `<name attributes>` — **without `/>`**.
 7. Inside SVG, empty `path`, `circle`, `ellipse`, `line`, `polygon`, `polyline`, `rect`, `use`, and `stop` elements use `/>`. Other SVG elements retain an end tag. `foreignObject` restores HTML rules for its descendants; a nested `svg` restores SVG rules.
 
-The supported void-tag set also includes legacy `param`.
-
 Tag and boolean-attribute matching ignores ASCII letter case while preserving authored spelling. Thus `IMG` remains a void tag; mixed-case SVG and `foreignObject` preserve their serialization contexts. Unicode attribute names are not folded into known boolean names.
 
 ### Boolean attributes

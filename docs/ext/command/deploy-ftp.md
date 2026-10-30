@@ -19,6 +19,8 @@ The command reads [manifest.json](../../out/assets.md) from the built artifact, 
 7. **Verify and retry** — after the transfer, the command runs `LIST` again and retries the upload on failure.
 8. **Manifest last** — before the first change on the server the old `manifest.json` is removed, and the new one is uploaded after all files have been transferred successfully. An interrupted deploy leaves no manifest, so the next run uploads every file instead of trusting stale hashes.
 
+Before connecting, the command verifies every local file size and MD5 against the manifest. It repeats verification before the final manifest transfer and rejects a changed artifact. Remote verification uses LIST and size; it does not independently verify remote content hashes. Do not modify an artifact during deployment.
+
 ## Options
 
 ```
@@ -51,6 +53,8 @@ Credentials come from `config/auth-ftp.json` or a complete set of `FTP_HOST`, `F
 
 In CI, supply credentials through environment variables. If you use `auth-ftp.json`, keep it out of version control: the file contains real credentials.
 
+FTPS with certificate verification is the default; TLS failure never falls back to plain FTP. `secure: false` or `FTP_SECURE=false` selects plain FTP, which sends the password unencrypted; the command then prints a warning. `port` defaults to 21 and must be an integer from 1 to 65535. `progress: false` in `auth-ftp.json` turns off progress output; environment configuration always prints it.
+
 ## Target hosting constraints
 
 The server must provide FTP or FTPS access. SSH, rsync, and Git on the server are not required. The extension uses:
@@ -67,7 +71,7 @@ This example extends the quickstart with the standard `@nuckty/ext-block-root` d
 
 Install the extension from npm in the extracted [starter project](../../how/start.md):
 
-```
+```bash
 npm install --save-exact @nuckty/ext-command-deploy-ftp@1.0.0-rc.3
 ```
 
@@ -81,7 +85,3 @@ export default defineNucktyConfig({
 ```
 
 The core does not depend on basic-ftp — the dependency lives only in this extension.
-
-Before connecting, the command verifies every local file size and MD5 against the manifest. It repeats verification before the final manifest transfer and rejects a changed artifact. Remote verification uses LIST and size; it does not independently verify remote content hashes. Do not modify an artifact during deployment.
-
-FTPS with certificate verification is the default; TLS failure never falls back to plain FTP. `secure: false` or `FTP_SECURE=false` selects plain FTP, which sends the password unencrypted; the command then prints a warning. `port` defaults to 21 and must be an integer from 1 to 65535. `progress: false` in `auth-ftp.json` turns off progress output; environment configuration always prints it.

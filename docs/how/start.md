@@ -28,6 +28,8 @@ npm run build
 npm run serve
 ```
 
+After a local install, npm scripts can invoke `nuckty` directly. In a terminal, use `npx @nuckty/core …`.
+
 Open `http://localhost:8080`. The build wrote `site/html/index.html`, and nginx serves it at `/`. To stop the preview, run `npm run stop` in another terminal from the same directory.
 
 ## 3. Edit the content
@@ -96,5 +98,3 @@ The artifact can be copied to a compatible server. Apache needs the required mod
 - [nu.ts templates](templates.md) — define your block's markup.
 - [Markdown](markdown.md) — links, anchors and constructs.
 - [Extensions](ext/index.md) — add capabilities.
-
-After a local install, npm scripts can invoke `nuckty` directly. In a terminal, use `npx @nuckty/core …`.

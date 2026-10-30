@@ -31,7 +31,7 @@
 
 Установите расширение из npm в распакованном [стартовом проекте](../../how/start.ru.md):
 
-```
+```bash
 npm install --save-exact @nuckty/ext-markdown-typography-ru@1.0.0-rc.3
 ```
 

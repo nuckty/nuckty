@@ -27,12 +27,12 @@ interface NucktyEnv {
 ```ts
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import type { DocumentData, NucktyEnv } from '@nuckty/core';
+import type { NucktyEnv } from '@nuckty/core';
 import { assertArtifactPath } from '@nuckty/core';
 
 export function register(env: NucktyEnv): void {
     env.pipeline.registerStage('search', async (ctx) => {
-        const sitemap = ctx.store['sitemap'] as DocumentData['sitemap'] | undefined;
+        const sitemap = ctx.store.sitemap;
         if (!sitemap) {
             throw new Error('The sitemap stage must run first');
         }
@@ -48,6 +48,7 @@ export function register(env: NucktyEnv): void {
     }, { phase: 'emit' });
 }
 ```
+
 Сохраните модуль как `ext/search.ts` и добавьте `'./ext/search.ts'` в `ext` глобальной конфигурации. После сборки `search.json` появится в артефакте и манифесте, но `.json` не получает Brotli/Gzip в стандартной стадии [сжатия](../../out/compression.ru.md). Для хука используйте `env.pipeline.after` или `before` с именем существующей стадии.
 
 ## Типичные применения
