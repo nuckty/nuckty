@@ -3,14 +3,15 @@ import type { BEMTree } from '../bem/types.js';
 import type { SitemapArtifact, SitemapPage, BundleHashEntry } from '../stages/types.js';
 import type { Alternates, Target } from '../targets/config.js';
 
-export interface DocumentAssets {
+/** Type aliases rather than interfaces, so document data is assignable to `BemNode.props`. */
+export type DocumentAssets = {
     css: Record<string, BundleHashEntry>;
     js: Record<string, BundleHashEntry>;
     images: Record<string, string>;
     videos: Record<string, string>;
-}
+};
 
-export interface DocumentData {
+export type DocumentData = {
     page: SitemapPage;
     content: BEMTree;
     sitemap: SitemapArtifact;
@@ -18,7 +19,7 @@ export interface DocumentData {
     alternates: Alternates;
     target?: Target;
     lang?: string;
-}
+};
 
 export type DocumentHandler = (data: DocumentData) => BEMTree | Promise<BEMTree>;
 
