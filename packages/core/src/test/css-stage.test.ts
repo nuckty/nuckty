@@ -3,8 +3,7 @@
  * orchestration: bemdecl-driven `@import` generation across multiple levels,
  * Lightning CSS `bundle` (inline `@import`, vendor prefixes, minification),
  * `url()` image-reference rewriting against the images-stage mapping, hashed
- * SVG inlining, content-hash output filename, `ctx.store.cssHash`, and the
- * `.build/hash-css.json` record. Runs `cssStage` against a real temp project
+ * SVG inlining, content-hash output filename and `ctx.store.cssHash`. Runs `cssStage` against a real temp project
  * tree, not only the pure `processImageReferences` post-processor (which the
  * css.test.ts suite already covers).
  *
@@ -85,9 +84,6 @@ test('cssStage bundles block CSS across two levels with later-level priority and
         assert.ok(css.includes('color:#00f'), 'later-level blue (#00f) wins');
         // Both the padding (content) and color (blocks) rules are present.
         assert.ok(css.includes('padding:4px'), 'content-level padding preserved');
-        // hash-css.json persisted with the entry.
-        const hashFile = JSON.parse(await readFile(path.join(ctx.buildDir, 'hash-css.json'), 'utf8'));
-        assert.equal(hashFile.page.hash, cssHash.page!.hash);
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
@@ -207,8 +203,7 @@ test('cssStage produces no entry for an empty bundle (bemdecl is empty)', async 
 
         const cssHash = ctx.store['cssHash'] as Record<string, unknown>;
         assert.ok(!cssHash.page, 'no hash entry for an empty bundle');
-        // hash-css.json is not written when there is nothing to record.
-        await assert.rejects(() => access(path.join(ctx.buildDir, 'hash-css.json')));
+        await assert.rejects(() => access(path.join(ctx.outDir, 'css')));
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
@@ -297,25 +292,17 @@ test('cssStage keeps a missing SVG reference as a url() (inlineHashedSVGs skips 
     }
 });
 
-test('cssStage preserves a previously written hash-css.json entry across bundles', async () => {
+test('cssStage publishes nothing for a bundle whose blocks have no CSS files', async () => {
     const { ctx, dir } = await makeCtx();
     try {
-        // Seed an existing entry for a different bundle; the stage must merge,
-        // not overwrite, so a multi-bundle build keeps every bundle's record.
-        await mkdir(ctx.buildDir, { recursive: true });
-        const preExisting = { other: { hash: '0123456789abcdef', filename: '0123456789abcdef.css', url: '/0123456789abcdef.css', source: ['blocks/other/other.css'] } };
-        await writeFile(path.join(ctx.buildDir, 'hash-css.json'), JSON.stringify(preExisting));
-
         await mkdir(path.join(dir, 'blocks', 'a'), { recursive: true });
-        await writeFile(path.join(dir, 'blocks', 'a', 'a.css'), '.a{color:red}');
         ctx.store['blockDeps'] = { page: ['a'] };
         ctx.env.levels.add('blocks');
 
         await cssStage(ctx);
 
-        const hashFile = JSON.parse(await readFile(path.join(ctx.buildDir, 'hash-css.json'), 'utf8'));
-        assert.ok(hashFile.other, 'previous bundle entry preserved');
-        assert.ok(hashFile.page, 'new bundle entry added');
+        assert.deepEqual({ ...(ctx.store['cssHash'] as Record<string, unknown>) }, {});
+        await assert.rejects(() => access(path.join(ctx.outDir, 'css')));
     } finally {
         await rm(dir, { recursive: true, force: true });
     }

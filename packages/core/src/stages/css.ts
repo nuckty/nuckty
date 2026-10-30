@@ -1,24 +1,11 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
-import process from 'node:process';
 import { bundle as lightningBundle, transform as lightningTransform } from 'lightningcss';
 import type { Image, Url } from 'lightningcss';
 import { assertArtifactPath, resolveBuildFile } from './artifact-path.js';
 import type { Stage, BuildContext } from '../pipeline/pipeline.js';
-import { generateHash } from '../utils/hash.js';
-import { getBuildConfig } from '../utils/build-config.js';
+import { blockFiles, bundleInputs, writeBundle } from './bundle.js';
 import type { BundleHashEntry } from './types.js';
-
-/** Resolve the absolute path to a block's CSS file (block or element form). */
-function blockCssPath(sourcePath: string, block: string): string {
-    const parts = block.split('__');
-    const blockName = parts[0]!;
-    const elementName = parts[1];
-    if (elementName) {
-        return path.join(sourcePath, blockName, `__${elementName}`, `${block}.css`);
-    }
-    return path.join(sourcePath, block, `${block}.css`);
-}
 
 interface CssUrlToken {
     value: string;
@@ -147,9 +134,9 @@ export async function inlineHashedSVGs(css: string, siteDir: string): Promise<st
             const dataUri = `data:image/svg+xml,${encodeURIComponent(svgContent).replace(/'/g, '%27')}`;
             processed.set(hashedFilename, dataUri);
         } catch (error) {
-            const code = (error as NodeJS.ErrnoException).code;
-            if (code !== 'ENOENT' && process.env.NODE_ENV !== 'test') {
-                console.warn(`Warning: Could not inline hashed SVG ${hashedFilename}: ${(error as Error).message}`);
+            // A reference to an SVG the build did not produce stays a URL; other read errors fail the build.
+            if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+                throw error;
             }
         }
     }
@@ -160,133 +147,52 @@ export async function inlineHashedSVGs(css: string, siteDir: string): Promise<st
     });
 }
 
-/**
- * Build a single CSS bundle and return its hash entry.
- */
-async function buildBundle(
-    bundle: string,
-    root: string,
-    buildDir: string,
-    siteDir: string,
-    imageMapping: Record<string, string>,
-    bemdecl: string[],
-    levels: string[],
-): Promise<BundleHashEntry | null> {
-    const sourcePaths = levels.map((level) => path.resolve(root, level));
-    if (bemdecl.length === 0) {
+/** Lightning CSS packs browser versions as major << 16 | minor << 8 | patch. */
+const BROWSER_TARGETS = {
+    android: 110 << 16,
+    chrome: 110 << 16,
+    edge: 110 << 16,
+    firefox: 79 << 16,
+    ios_saf: 16 << 16,
+    safari: 16 << 16,
+    samsung: 20 << 16,
+    opera: 100 << 16,
+};
+
+/** Build one CSS bundle from the declared blocks' files, or return null when there are none. */
+async function buildBundle(ctx: BuildContext, bundle: string, files: string[], imageMapping: Record<string, string>): Promise<BundleHashEntry | null> {
+    if (files.length === 0) {
         return null;
     }
+    const imports = files.map((file) => `@import "${file.replace(/["\\\n\r\f]/g, (character) => (character === '"' || character === '\\'
+        ? `\\${character}`
+        : `\\${character.charCodeAt(0).toString(16)} `))}";\n`).join('');
+    const entry = await resolveBuildFile(ctx.buildDir, `${bundle}.css`);
+    await fs.writeFile(entry, imports);
 
-    // 1. Generate @import list.
-    let cssImports = '';
-    const sourceFiles: string[] = [];
-    for (const block of bemdecl) {
-        let hasImports = false;
-        for (const sourcePath of sourcePaths) {
-            const blockPath = blockCssPath(sourcePath, block);
-            try {
-                await fs.access(blockPath);
-                const importPath = blockPath.replace(/["\\\n\r\f]/g, (character) => {
-                    return character === '"' || character === '\\'
-                        ? `\\${character}`
-                        : `\\${character.charCodeAt(0).toString(16)} `;
-                });
-                cssImports += `@import "${importPath}";\n`;
-                sourceFiles.push(blockPath);
-                hasImports = true;
-            } catch {
-                // skip missing
-            }
-        }
-        if (hasImports) {
-            cssImports += '\n';
-        }
-    }
-    const mainCssPath = await resolveBuildFile(buildDir, `${bundle}.css`);
-    await fs.writeFile(mainCssPath, cssImports);
-
-    // 2. Lightning CSS: inline @import, apply vendor prefixes (targets), minify
-    //    — one pass replacing PostCSS (postcss-import + autoprefixer) + CSSO.
-    //    Lightning CSS packs browser versions as major << 16 | minor << 8 | patch.
-    const bundled = lightningBundle({
-        filename: mainCssPath,
-        minify: true,
-        sourceMap: false,
-        targets: {
-            android: 110 << 16,
-            chrome: 110 << 16,
-            edge: 110 << 16,
-            firefox: 79 << 16,
-            ios_saf: 16 << 16,
-            safari: 16 << 16,
-            samsung: 20 << 16,
-            opera: 100 << 16,
-        },
-        errorRecovery: false,
-    });
+    // Inline imports, add vendor prefixes for the targets and minify in one pass.
+    const bundled = lightningBundle({ filename: entry, minify: true, sourceMap: false, targets: BROWSER_TARGETS, errorRecovery: false });
     let css = new TextDecoder('utf8').decode(bundled.code);
 
-    // 3. Rewrite parsed URL source spans and inline hashed SVG resources.
     css = await processImageReferences(css, imageMapping);
-    css = await inlineHashedSVGs(css, siteDir);
+    css = await inlineHashedSVGs(css, ctx.outDir);
 
-    const hash = generateHash(css);
-    const hashedFilename = `${hash}.css`;
-
-    const buildHashPath = await resolveBuildFile(buildDir, 'hash-css.json');
-    let allHashes: Record<string, BundleHashEntry> = Object.create(null);
-    try {
-        const existing = await fs.readFile(buildHashPath, 'utf8');
-        if (existing.trim()) {
-            allHashes = JSON.parse(existing) as Record<string, BundleHashEntry>;
-        }
-    } catch {
-        // start fresh
-    }
-    const entry: BundleHashEntry = {
-        hash,
-        filename: hashedFilename,
-        url: `/${hash}.css`,
-        source: sourceFiles.map((file) => path.relative(root, file)),
-    };
-    Object.defineProperty(allHashes, bundle, { value: entry, enumerable: true, configurable: true });
-    await fs.writeFile(buildHashPath, JSON.stringify(allHashes, null, 2));
-
-    const cssDir = path.join(siteDir, 'css');
-    await assertArtifactPath(siteDir, path.join(cssDir, hashedFilename));
-    await fs.mkdir(cssDir, { recursive: true });
-    await fs.writeFile(path.join(cssDir, hashedFilename), css);
-
-    return entry;
+    return writeBundle(ctx.outDir, ctx.cwd, 'css', css, files);
 }
 
-/**
- * CSS stage. Builds every configured bundle and stores the per-bundle hash map
- * in `ctx.store.cssHash`.
- */
+/** CSS stage. Builds every configured bundle and stores the per-bundle hash map in `ctx.store.cssHash`. */
 export const cssStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<void> => {
-    const root = ctx.cwd;
     await fs.mkdir(ctx.buildDir, { recursive: true });
     await assertArtifactPath(ctx.outDir);
     await fs.mkdir(ctx.outDir, { recursive: true });
 
-    const bundles = getBuildConfig(ctx).site.bundles;
+    const { bundles, levels, entities } = bundleInputs(ctx);
     const imageMapping = (ctx.store['imageMapping'] as Record<string, string> | undefined) ?? {};
-    const blockDeps = (ctx.store['blockDeps'] as Record<string, string[]> | undefined) ?? {};
-    const registeredLevels = ctx.env.levels.list();
-    const levels = registeredLevels.length > 0 ? registeredLevels : getBuildConfig(ctx).levels;
-
     const cssHash: Record<string, BundleHashEntry> = Object.create(null);
+
     for (const bundle of bundles) {
-        const entry = await buildBundle(
-            bundle,
-            root,
-            ctx.buildDir,
-            ctx.outDir,
-            imageMapping,
-            (Object.hasOwn(blockDeps, bundle) ? blockDeps[bundle] : undefined) ?? [],
-            levels,
-        );
+        const entry = await buildBundle(ctx, bundle, await blockFiles(ctx.cwd, levels, entities(bundle), 'css'), imageMapping);
+
         if (entry) {
             cssHash[bundle] = entry;
         }
@@ -294,4 +200,3 @@ export const cssStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<
 
     ctx.store['cssHash'] = cssHash;
 };
-

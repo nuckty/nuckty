@@ -178,13 +178,13 @@ test('CLI build: full pipeline produces HTML, CSS, JS, images, manifest, and com
         assert.equal(code, 0, `build failed: ${stderr || stdout}`);
         assert.match(stdout, /built target "default"/);
 
-        // --- CSS + JS hash files ---
-        const hashCss = JSON.parse(await readFile(path.join(dir, '.build', 'hash-css.json'), 'utf8'));
-        const hashJs = JSON.parse(await readFile(path.join(dir, '.build', 'hash-js.json'), 'utf8'));
-        assert.ok(hashCss.page.hash, 'page CSS bundle hashed');
-        assert.ok(hashJs.page.hash, 'page JS bundle hashed');
-        const cssUrl = hashCss.page.url; // /<hash>.css
-        const jsUrl = hashJs.page.url;
+        // --- Hashed CSS + JS bundles ---
+        const [cssFile] = await readdir(path.join(dir, 'site', 'css'));
+        const [jsFile] = await readdir(path.join(dir, 'site', 'js'));
+        assert.match(cssFile ?? '', /^[0-9a-f]{16}\.css$/, 'page CSS bundle hashed');
+        assert.match(jsFile ?? '', /^[0-9a-f]{16}\.js$/, 'page JS bundle hashed');
+        const cssUrl = `/${cssFile}`;
+        const jsUrl = `/${jsFile}`;
 
         // --- HTML references the generated CSS/JS hashes ---
         const homeHtml = await readFile(path.join(dir, 'site', 'html', 'index.html'), 'utf8');
@@ -221,12 +221,6 @@ test('CLI build: full pipeline produces HTML, CSS, JS, images, manifest, and com
         const nginx = await readFile(path.join(dir, '.build', 'nginx.conf'), 'utf8');
         assert.match(nginx, /html\//, 'nginx config references the html/ layout');
 
-        // --- CSS/JS output files exist on disk ---
-        const cssFiles = await readdir(path.join(dir, 'site', 'css'));
-        assert.ok(cssFiles.some((f) => f === hashCss.page.filename), 'CSS file written under site/css/');
-        const jsFiles = await readdir(path.join(dir, 'site', 'js'));
-        assert.ok(jsFiles.some((f) => f === hashJs.page.filename), 'JS file written under site/js/');
-
         // --- Two pages were rendered (Home + About) ---
         await access(path.join(dir, 'site', 'html', 'about.html'));
     } finally {
@@ -239,15 +233,15 @@ test('CLI build: a second run is deterministic — identical hashes and output b
     try {
         const first = await runNuckty(['build'], dir);
         assert.equal(first.code, 0);
-        const firstHashCss = JSON.parse(await readFile(path.join(dir, '.build', 'hash-css.json'), 'utf8'));
+        const firstHashCss = await readdir(path.join(dir, 'site', 'css'));
         const firstHome = await readFile(path.join(dir, 'site', 'html', 'index.html'), 'utf8');
 
         const second = await runNuckty(['build'], dir);
         assert.equal(second.code, 0);
-        const secondHashCss = JSON.parse(await readFile(path.join(dir, '.build', 'hash-css.json'), 'utf8'));
+        const secondHashCss = await readdir(path.join(dir, 'site', 'css'));
         const secondHome = await readFile(path.join(dir, 'site', 'html', 'index.html'), 'utf8');
 
-        assert.equal(secondHashCss.page.hash, firstHashCss.page.hash, 'CSS hash stable across runs');
+        assert.deepEqual(secondHashCss, firstHashCss, 'CSS hash stable across runs');
         assert.equal(secondHome, firstHome, 'HTML byte-identical across runs');
     } finally {
         await rm(dir, { recursive: true, force: true });

@@ -46,7 +46,7 @@ export interface SitemapArtifact {
     url2md: Record<string, string>;
 }
 
-/** One CSS/JS bundle's hash record. Mirrors hash-css.json / hash-js.json entries. */
+/** One published CSS or JS bundle. */
 export interface BundleHashEntry {
     hash: string;
     filename: string;

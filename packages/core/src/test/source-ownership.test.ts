@@ -37,13 +37,11 @@ for (const bundle of ['normal', '__proto__', 'constructor']) {
         await write(cwd, 'blocks/widget/widget.js', 'globalThis.reviewWidget=1;');
         await runBuild({ cwd, command: 'build' });
 
-        for (const kind of ['css', 'js']) {
-            const hashes = JSON.parse(await readFile(path.join(cwd, `.build/hash-${kind}.json`), 'utf8')) as Record<string, { hash: string; filename: string; source: string[] }>;
+        for (const [kind, marker] of [['css', 'color:red'], ['js', 'reviewWidget']] as const) {
+            const files = await readdir(path.join(cwd, 'site', kind));
 
-            assert.ok(Object.hasOwn(hashes, bundle));
-            assert.notEqual(hashes[bundle]?.hash, 'empty');
-            assert.deepEqual(hashes[bundle]?.source, [`blocks/widget/widget.${kind}`]);
-            assert.equal((await readdir(path.join(cwd, 'site', kind))).length, 1);
+            assert.equal(files.length, 1);
+            assert.match(await readFile(path.join(cwd, 'site', kind, files[0]!), 'utf8'), new RegExp(marker));
         }
     });
 }

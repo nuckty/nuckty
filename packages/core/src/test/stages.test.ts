@@ -448,43 +448,27 @@ test('js stage bundles declared blocks, hashes, and writes site/js/<hash>.js', a
         // esbuild IIFE-minified: an IIFE wrapper around the bundled code.
         assert.ok(written.length > 0);
         assert.ok(!written.includes('export '), 'esbuild IIFE minify drops the export');
-        // hash-js.json persisted with the bundle entry.
-        const hashFile = JSON.parse(await readFile(path.join(ctx.buildDir, 'hash-js.json'), 'utf8'));
-        assert.equal(hashFile.page.hash, jsHash.page!.hash);
-        assert.deepEqual(hashFile.page.source, ['blocks/page/page.js']);
+        assert.deepEqual(jsHash.page!.source, ['blocks/page/page.js']);
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
 });
 
-test('js stage writes an empty entry for a bundle with no JS files', async () => {
+test('js stage publishes nothing for a bundle with no JS files', async () => {
     const { ctx, dir } = await makeProject();
     try {
         await writeFile(path.join(dir, 'package.json'), JSON.stringify({ name: 'fixture', type: 'module' }));
         await mkdir(path.join(dir, 'config'), { recursive: true });
-        await writeFile(path.join(dir, 'config', 'site.json'), JSON.stringify({
-            baseUrl: 'https://example.com',
-            rootTitle: 'Nuckty',
-            contentRepo: 'content',
-            assetRepos: [],
-            githubRawBase: null,
-            bundles: ['page'],
-        }));
+        await writeFile(path.join(dir, 'config', 'site.json'), JSON.stringify({ bundles: ['page'] }));
         await writeFile(path.join(dir, 'config', 'levels.json'), JSON.stringify(['blocks']));
         ctx.env.levels.add('blocks');
         // blockDeps declares a block, but no .js file exists on disk.
         ctx.store['blockDeps'] = { page: ['page'] };
-        ctx.env.levels.add('blocks');
 
         await jsStage(ctx);
 
-        // No real hash entry in the store (only bundles with output go there)…
-        const jsHash = ctx.store['jsHash'] as Record<string, unknown> | undefined;
-        assert.ok(!jsHash || !jsHash.page);
-        // …but an empty placeholder is written to hash-js.json.
-        const hashFile = JSON.parse(await readFile(path.join(ctx.buildDir, 'hash-js.json'), 'utf8'));
-        assert.equal(hashFile.page.hash, 'empty');
-        assert.equal(hashFile.page.url, '/empty.js');
+        assert.deepEqual({ ...(ctx.store['jsHash'] as Record<string, unknown>) }, {});
+        assert.equal(existsSync(path.join(ctx.outDir, 'js')), false);
     } finally {
         await rm(dir, { recursive: true, force: true });
     }

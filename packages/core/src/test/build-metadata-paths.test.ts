@@ -14,10 +14,7 @@ import type { BuildContext } from '../pipeline/pipeline.js';
 
 const cases = [
     { file: 'page.css', stage: cssStage, empty: false },
-    { file: 'hash-css.json', stage: cssStage, empty: false },
     { file: 'page-entry.js', stage: jsStage, empty: false },
-    { file: 'hash-js.json', stage: jsStage, empty: false },
-    { file: 'hash-js.json', stage: jsStage, empty: true },
     { file: 'image-mapping.json', stage: imagesStage, empty: false },
     { file: 'sitemap.json', stage: sitemapStage, empty: false },
 ];
