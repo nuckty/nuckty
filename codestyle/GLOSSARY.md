@@ -76,7 +76,7 @@ Shared reference for the nuckty monorepository and its external consumers; paire
 
 | Term | Meaning | Do not use |
 |---|---|---|
-| markdown construct | Markdown syntax expanding into a block (`:::gallery`, `:::callout`). Tied to a markdown extension | content construct |
+| markdown construct | Markdown syntax expanding into a block (`:::gallery`, `:::grid`). Tied to a markdown extension | content construct |
 | editor | In user hints, the tool the user edits in (any editor or IDE) | development environment |
 
 ---
