@@ -136,8 +136,8 @@ test('html stage rejects /a/b vs /a_b collision before writing either file', asy
             sitemap: {
                 sitemap: [],
                 pages: {
-                    '/a/b': { url: '/a/b', name: 'A/B', title: 'A/B', section: null, breadcrumbs: [], tree: [] },
-                    '/a_b': { url: '/a_b', name: 'A_B', title: 'A_B', section: null, breadcrumbs: [], tree: [] },
+                    '/a/b': { file: 'a/b.md', url: '/a/b', name: 'A/B', title: 'A/B', section: null, breadcrumbs: [], tree: [] },
+                    '/a_b': { file: 'a_b.md', url: '/a_b', name: 'A_B', title: 'A_B', section: null, breadcrumbs: [], tree: [] },
                 },
                 md2url: {},
                 md2urls: {},
@@ -170,7 +170,7 @@ test('html stage without typography preserves raw code and ordinary spacing', as
     const ctx: BuildContext = {
         cwd: dir, configDir: path.join(dir, 'config'), buildDir: path.join(dir, '.build'),
         outDir: path.join(dir, 'site'), target: 'default', env, templates: new Templates(),
-        store: { sitemap: { pages: { '/': { url: '/', tree: [{ raw: original }] } } } },
+        store: { sitemap: { sitemap: [], md2url: {}, md2urls: {}, url2md: {}, pages: { '/': { file: 'index.md', url: '/', name: 'Home', title: 'Home', section: null, breadcrumbs: [], tree: [{ raw: original }] } } } },
         cache: new Map(),
     };
     try {
@@ -204,7 +204,7 @@ test('html stage links alternates only to sibling pages that exist, with their t
             cwd: dir, configDir: path.join(dir, 'config/ru'), buildDir: path.join(dir, '.build'), outDir: path.join(dir, 'site/ru'),
             target: 'ru', env, templates: new Templates(), cache: new Map(),
             store: {
-                currentTarget: targets[0], allTargets: targets,
+                currentTarget: targets[0]!, allTargets: targets,
                 sitemap: { sitemap: [], pages: { '/shared': page('/shared', 'Общая'), '/only-ru': page('/only-ru', 'Только') }, md2url: {}, md2urls: {}, url2md: {} },
             },
         });

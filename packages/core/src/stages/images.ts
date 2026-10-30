@@ -65,8 +65,8 @@ export const imagesStage: Stage<BuildContext> = async (ctx: BuildContext): Promi
 
     const mapping: Record<string, string> = Object.fromEntries(state.imageMapping);
     const stats: Record<string, ImageStatEntry> = Object.fromEntries(state.imageStats);
-    ctx.store['imageMapping'] = mapping;
-    ctx.store['imageStats'] = stats;
+    ctx.store.imageMapping = mapping;
+    ctx.store.imageStats = stats;
 };
 
 async function ensureOutputDirs(state: ImageBuilderState): Promise<void> {

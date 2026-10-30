@@ -50,5 +50,5 @@ export const jsStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<v
         }
     }
 
-    ctx.store['jsHash'] = jsHash;
+    ctx.store.jsHash = jsHash;
 };

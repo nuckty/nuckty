@@ -249,11 +249,11 @@ export const assetsStage: Stage<BuildContext> = async (ctx: BuildContext): Promi
         }
         downloads[fileInfo.filename] = assetSourcePath(root, fileInfo.fullPath);
     }
-    ctx.store['downloads'] = downloads;
+    ctx.store.downloads = downloads;
 
     // Copy MP4 videos with content-hash filenames.
     const videoHash: Record<string, string> =
-        (ctx.store['videoHash'] as Record<string, string> | undefined) ?? {};
+        ctx.store.videoHash ?? {};
     for (const fileInfo of selectedAssets.filter((file) => file.filename.endsWith('.mp4'))) {
         try {
             const hash = await generateFileHash(fileInfo.fullPath);
@@ -266,11 +266,11 @@ export const assetsStage: Stage<BuildContext> = async (ctx: BuildContext): Promi
             throw new Error(`Asset video copy failed for ${fileInfo.fullPath}: ${String(error)}`);
         }
     }
-    ctx.store['videoHash'] = videoHash;
+    ctx.store.videoHash = videoHash;
 
     // Copy static config files.
     await copyConfigFiles(configDir, ctx.outDir);
 
-    ctx.store['assetRepos'] = { available, missing };
+    ctx.store.assetRepos = { available, missing };
 };
 

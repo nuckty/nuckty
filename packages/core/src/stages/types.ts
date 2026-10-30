@@ -3,13 +3,15 @@
  *
  * Stages write typed artifacts into `ctx.store` for later stages to consume.
  * These interfaces document the contract between stages (e.g. the css stage
- * reads `imageMapping` produced by the images stage). The pipeline store is
- * Record<string, unknown>; stages narrow their artifacts when reading them.
+ * reads `imageMapping` produced by the images stage). `BuildContext.store` is
+ * typed as `BuildStore`; extensions may keep further artifacts under other keys.
  *
  * @module stages/types
  */
 
 import type { BEMTree } from '../bem/types.js';
+import type { Target } from '../targets/config.js';
+import type { BuildConfigSnapshot } from '../utils/build-config.js';
 
 /** Per-page metadata produced by the sitemap stage. */
 export interface SitemapPage {
@@ -81,5 +83,13 @@ export interface BuildStore {
     assetRepos?: { available: string[]; missing: string[] };
     /** Per-bundle BEM declaration (block-name lists) produced by the deps loader. */
     blockDeps?: Record<string, string[]>;
+    /** Published download filename → source path relative to the consumer root. */
+    downloads?: Record<string, string>;
+    /** The target being built and every declared target. */
+    currentTarget?: Target;
+    allTargets?: Target[];
+    /** Configuration captured once for this target build. */
+    configSnapshot?: BuildConfigSnapshot;
+    /** Further artifacts of extension stages. */
     [k: string]: unknown;
 }

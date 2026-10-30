@@ -15,6 +15,7 @@
 
 import type { NucktyEnv } from '../env/env.js';
 import type { Templates } from '../bem/templates.js';
+import type { BuildStore } from '../stages/types.js';
 
 /** Ordered build phases. */
 export type Phase = 'clean' | 'prepare' | 'render' | 'resolve' | 'emit';
@@ -41,8 +42,8 @@ export interface BuildContext {
     env: NucktyEnv;
     /** Templates loaded for this build and used by the HTML stage. */
     templates: Templates;
-    /** Arbitrary per-build data; stages may stash artifacts here for later stages. */
-    store: Record<string, unknown>;
+    /** Per-build artifacts that stages hand to later stages. */
+    store: BuildStore;
     /** Scratch cache shared by stages of this target build; recreated per build. */
     cache: Map<string, unknown>;
 }

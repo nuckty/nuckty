@@ -352,8 +352,8 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
             }
             const content = await fs.readFile(realPath, 'utf8');
             const relativePath = path.relative(contentDir, fullPath);
-            const imageMapping = ctx.store['imageMapping'] as Record<string, string> | undefined;
-            const downloads = ctx.store['downloads'] as Record<string, string> | undefined;
+            const imageMapping = ctx.store.imageMapping;
+            const downloads = ctx.store.downloads;
             const { tree, headings } = createMarkdown({
                 md2url: result.md2url,
                 md2urls: result.md2urls,
@@ -419,7 +419,7 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
             'utf8',
         );
 
-        ctx.store['sitemap'] = result;
+        ctx.store.sitemap = result;
     } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         throw new Error(`Sitemap generation failed: ${msg}`, { cause: error });

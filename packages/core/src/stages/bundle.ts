@@ -10,7 +10,7 @@ import type { BundleHashEntry } from './types.js';
 /** Bundles to build and the levels to search, from the build context. */
 export function bundleInputs(ctx: BuildContext): { bundles: string[]; levels: string[]; entities: (bundle: string) => string[] } {
     const config = getBuildConfig(ctx);
-    const blockDeps = (ctx.store['blockDeps'] as Record<string, string[]> | undefined) ?? {};
+    const blockDeps = ctx.store.blockDeps ?? {};
     const registered = ctx.env.levels.list();
 
     return {

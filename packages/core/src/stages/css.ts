@@ -187,7 +187,7 @@ export const cssStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<
     await fs.mkdir(ctx.outDir, { recursive: true });
 
     const { bundles, levels, entities } = bundleInputs(ctx);
-    const imageMapping = (ctx.store['imageMapping'] as Record<string, string> | undefined) ?? {};
+    const imageMapping = ctx.store.imageMapping ?? {};
     const cssHash: Record<string, BundleHashEntry> = Object.create(null);
 
     for (const bundle of bundles) {
@@ -198,5 +198,5 @@ export const cssStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<
         }
     }
 
-    ctx.store['cssHash'] = cssHash;
+    ctx.store.cssHash = cssHash;
 };

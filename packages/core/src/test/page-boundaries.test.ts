@@ -41,7 +41,7 @@ test('HTML passes the page content tree to the document and renders it with the 
         await htmlStage({
             cwd: directory, configDir: directory, buildDir: path.join(directory, '.build'),
             outDir, target: 'main', env, templates, cache: new Map(),
-            store: { sitemap: { pages: { '/': { url: '/', file: 'index.md', tree } } } },
+            store: { sitemap: { sitemap: [], md2url: {}, md2urls: {}, url2md: {}, pages: { '/': { url: '/', file: 'index.md', name: 'Home', title: 'Home', section: null, breadcrumbs: [], tree } } } },
         });
 
         assert.equal(prepared, tree);

@@ -66,12 +66,12 @@ export function loadBuildConfig(cwd: string, configDir: string): BuildConfigSnap
 }
 
 export function getBuildConfig(ctx: Pick<BuildContext, 'cwd' | 'configDir' | 'store'>): BuildConfigSnapshot {
-    const existing = ctx.store['configSnapshot'] as BuildConfigSnapshot | undefined;
+    const existing = ctx.store.configSnapshot;
     if (existing) {
         return existing;
     }
     const snapshot = loadBuildConfig(ctx.cwd, ctx.configDir);
-    ctx.store['configSnapshot'] = snapshot;
+    ctx.store.configSnapshot = snapshot;
     return snapshot;
 }
 

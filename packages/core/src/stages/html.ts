@@ -16,22 +16,22 @@ import { assertArtifactPath } from './artifact-path.js';
 import type { Stage, BuildContext } from '../pipeline/pipeline.js';
 import { render } from '../bem/render.js';
 import { resolveAlternates, type Target, type Alternates } from '../targets/config.js';
-import type { SitemapArtifact, SitemapPage, BundleHashEntry } from './types.js';
+import type { SitemapPage } from './types.js';
 import { parseIndentedSitemap, processSitemap } from './sitemap.js';
 import { loadBuildConfig } from '../utils/build-config.js';
 import type { DocumentData } from '../document/document.js';
 
 export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<void> => {
-    const sitemap = ctx.store['sitemap'] as SitemapArtifact | undefined;
+    const sitemap = ctx.store.sitemap;
     if (!sitemap || !sitemap.pages) {
         return;
     }
 
     const assets = {
-        css: (ctx.store['cssHash'] as Record<string, BundleHashEntry> | undefined) ?? {},
-        js: (ctx.store['jsHash'] as Record<string, BundleHashEntry> | undefined) ?? {},
-        images: (ctx.store['imageMapping'] as Record<string, string> | undefined) ?? {},
-        videos: (ctx.store['videoHash'] as Record<string, string> | undefined) ?? {},
+        css: ctx.store.cssHash ?? {},
+        js: ctx.store.jsHash ?? {},
+        images: ctx.store.imageMapping ?? {},
+        videos: ctx.store.videoHash ?? {},
     };
 
     const htmlDir = path.join(ctx.outDir, 'html');
@@ -52,8 +52,8 @@ export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise
     }
 
     for (const [url, page] of Object.entries(sitemap.pages)) {
-        const currentTarget = ctx.store['currentTarget'] as Target | undefined;
-        const allTargetsList = ctx.store['allTargets'] as Target[] | undefined;
+        const currentTarget = ctx.store.currentTarget;
+        const allTargetsList = ctx.store.allTargets;
         const alternates: Alternates = currentTarget && allTargetsList
             ? resolveAlternates(currentTarget, allTargetsList, url, await siblingPages(ctx, currentTarget, allTargetsList))
             : new Map();
