@@ -1,0 +1,3 @@
+- [x] Read sibling sitemaps in the HTML stage and filter alternates.
+- [x] Change the resolver input to sibling pages.
+- [x] Update tests and documentation.

@@ -52,7 +52,7 @@ test('resolveTarget undefined → first', () => {
 
 test('resolveAlternates: ru finds en sibling within group', () => {
     const current = resolveTarget(syntheticSites, 'main-ru');
-    const alts = resolveAlternates(current, allTargets(syntheticSites), '/features', { 'main-en': 'Features' });
+    const alts = resolveAlternates(current, allTargets(syntheticSites), '/features', { 'main-en': { '/features': { title: 'Features' } } });
     assert.equal(alts.size, 1);
     const en = alts.get('en')!;
     assert.equal(en.host, 'en.example.com');
@@ -96,14 +96,22 @@ test('alternate titles use only explicitly supplied own dictionary keys', () => 
     for (const name of ['constructor', 'toString', '__proto__']) {
         const current = { name: 'main', configDir: 'config', outDir: 'site', lang: 'ru', host: 'example.ru', group: 'site' };
         const sibling = { ...current, name, lang: 'en', host: 'example.com' };
-        const inherited = Object.create({ [name]: 'Inherited title' }) as Record<string, string>;
-        const explicit: Record<string, string> = Object.create(null);
-        explicit[name] = 'Translated title';
+        const inherited = Object.create({ [name]: { '/page': { title: 'Inherited title' } } }) as Record<string, Record<string, { title: string }>>;
+        const explicit: Record<string, Record<string, { title: string }>> = Object.create(null);
+        explicit[name] = { '/page': { title: 'Translated title' } };
 
         assert.equal(resolveAlternates(current, [current, sibling], '/page', {}).get('en')?.title, '', name);
         assert.equal(resolveAlternates(current, [current, sibling], '/page', inherited).get('en')?.title, '', name);
         assert.equal(resolveAlternates(current, [current, sibling], '/page', explicit).get('en')?.title, 'Translated title', name);
     }
+});
+
+test('resolveAlternates skips a sibling whose sitemap lacks the route', () => {
+    const current = resolveTarget(syntheticSites, 'main-ru');
+    const pages = { 'main-en': { '/other': { title: 'Other' } } };
+
+    assert.equal(resolveAlternates(current, allTargets(syntheticSites), '/features', pages).size, 0);
+    assert.equal(resolveAlternates(current, allTargets(syntheticSites), '/other', pages).get('en')?.title, 'Other');
 });
 
 test('alternate languages ignore ASCII case while retaining distinct regional tags', () => {

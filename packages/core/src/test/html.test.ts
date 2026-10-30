@@ -15,7 +15,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { htmlStage, urlToFlat } from '../stages/html.js';
@@ -176,6 +176,41 @@ test('html stage without typography preserves raw code and ordinary spacing', as
     try {
         await htmlStage(ctx);
         assert.ok((await readFile(path.join(ctx.outDir, 'html', 'index.html'), 'utf8')).includes(original));
+    } finally {
+        await rm(dir, { recursive: true, force: true });
+    }
+});
+
+test('html stage links alternates only to sibling pages that exist, with their titles', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-html-alternates-'));
+    const targets = [
+        { name: 'ru', configDir: 'config/ru/', outDir: 'site/ru/', lang: 'ru', host: 'example.ru', group: 'site' },
+        { name: 'en', configDir: 'config/en/', outDir: 'site/en/', lang: 'en', host: 'example.com', group: 'site' },
+    ];
+    const received = new Map<string, unknown>();
+    const env = new NucktyEnv();
+    env.document.register((data) => {
+        received.set(data.page.url, [...data.alternates]);
+
+        return { tag: 'main', content: data.page.name };
+    });
+    const page = (url: string, name: string) => ({ file: `${name}.md`, url, name, title: name, section: null, breadcrumbs: [], tree: [] });
+
+    try {
+        await mkdir(path.join(dir, 'config/en'), { recursive: true });
+        await writeFile(path.join(dir, 'config/en/site.json'), JSON.stringify({ rootTitle: 'Site' }));
+        await writeFile(path.join(dir, 'config/en/sitemap.yml'), 'sitemap:\n  - Home [/, index.md]\n  - Shared [/shared, shared.md]\n');
+        await htmlStage({
+            cwd: dir, configDir: path.join(dir, 'config/ru'), buildDir: path.join(dir, '.build'), outDir: path.join(dir, 'site/ru'),
+            target: 'ru', env, templates: new Templates(), cache: new Map(),
+            store: {
+                currentTarget: targets[0], allTargets: targets,
+                sitemap: { sitemap: [], pages: { '/shared': page('/shared', 'Общая'), '/only-ru': page('/only-ru', 'Только') }, md2url: {}, md2urls: {}, url2md: {} },
+            },
+        });
+
+        assert.deepEqual(received.get('/shared'), [['en', { url: 'https://example.com/shared', title: 'Shared | Home', host: 'example.com' }]]);
+        assert.deepEqual(received.get('/only-ru'), []);
     } finally {
         await rm(dir, { recursive: true, force: true });
     }

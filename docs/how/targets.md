@@ -35,17 +35,17 @@ The content root is not configured in the target: the engine reads `.md` from th
 
 ## Related targets and hreflang
 
-Targets with the same `group` and different `lang` values are considered related. Targets without a `group` are not matched with anything. The engine constructs the same route on related hosts and passes these URLs (`alternates`) into the rendering context. It does not read the other target's sitemap or verify that the page exists. Only group targets whose routes correspond; titles are empty unless explicitly supplied to the resolver:
+Targets with the same `group` and different `lang` values are considered related. Targets without a `group` are not matched with anything. The engine constructs the same route on related hosts and passes these URLs (`alternates`) into the rendering context. It reads the related target's `sitemap.yml`: a page that is missing there gets no alternate, and an existing one contributes its title. A related target without a `sitemap.yml` is linked without a check and with an empty title:
 
 ```ts
 type Alternates = Map<string, { url: string; title: string; host: string }>;
 ```
 
-For example, the page `/catalog` exists in both `site-ru` and `site-en` (both targets in one group). While building `site-ru`, the engine constructs `/catalog` on `site-en` and passes into the context:
+For example, the page `/catalog` exists in both `site-ru` and `site-en` (both targets in one group). While building `site-ru`, the engine finds `/catalog` in the `site-en` sitemap and passes into the context:
 
 ```
 const alternates = new Map([
-    ['en', { url: 'https://example.com/catalog', title: '', host: 'example.com' }],
+    ['en', { url: 'https://example.com/catalog', title: 'Catalog | Home', host: 'example.com' }],
 ]);
 ```
 

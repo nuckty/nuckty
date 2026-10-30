@@ -98,8 +98,9 @@ export type Alternates = Map<string, AlternateEntry>;
 
 /**
  * Construct HTTPS URLs for this route on sibling hosts in the same group with
- * a different language. Page existence is not checked. Returns a map keyed by
- * language; titles come from titleByTarget and otherwise remain empty.
+ * a different language. When `pagesByTarget` lists a sibling's pages, the
+ * sibling is included only if it has the route, with that page's title;
+ * siblings absent from `pagesByTarget` keep an empty title.
  *
  * The engine does NOT emit hreflang itself — it only provides this data. The
  * consumer's head block consumes it.
@@ -107,13 +108,13 @@ export type Alternates = Map<string, AlternateEntry>;
  * @param current the target being built
  * @param all every target in the config
  * @param route the page route (e.g. `/features`)
- * @param titleByTarget optional map `{targetName → title}` for the page in each sibling
+ * @param pagesByTarget optional map `{targetName → {route → page}}` of sibling sitemaps
  */
 export function resolveAlternates(
     current: Target,
     all: Target[],
     route: string,
-    titleByTarget?: Record<string, string>,
+    pagesByTarget?: Record<string, Record<string, { title: string }>>,
 ): Alternates {
     const out: Alternates = new Map();
     if (!current.group) {
@@ -125,7 +126,13 @@ export function resolveAlternates(
     );
 
     for (const s of siblings) {
-        const title = titleByTarget && Object.hasOwn(titleByTarget, s.name) ? titleByTarget[s.name] ?? '' : '';
+        const pages = pagesByTarget && Object.hasOwn(pagesByTarget, s.name) ? pagesByTarget[s.name] : undefined;
+        const page = pages && Object.hasOwn(pages, route) ? pages[route] : undefined;
+
+        if (pages && !page) {
+            continue;
+        }
+        const title = page?.title ?? '';
         out.set(s.lang!, {
             url: `https://${s.host}${route}`,
             title,

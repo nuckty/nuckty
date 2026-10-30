@@ -16,7 +16,9 @@ import { assertArtifactPath } from './artifact-path.js';
 import type { Stage, BuildContext } from '../pipeline/pipeline.js';
 import { render } from '../bem/render.js';
 import { resolveAlternates, type Target, type Alternates } from '../targets/config.js';
-import type { SitemapArtifact, BundleHashEntry } from './types.js';
+import type { SitemapArtifact, SitemapPage, BundleHashEntry } from './types.js';
+import { parseIndentedSitemap, processSitemap } from './sitemap.js';
+import { loadBuildConfig } from '../utils/build-config.js';
 import type { DocumentData } from '../document/document.js';
 
 export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise<void> => {
@@ -52,11 +54,9 @@ export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise
     for (const [url, page] of Object.entries(sitemap.pages)) {
         const currentTarget = ctx.store['currentTarget'] as Target | undefined;
         const allTargetsList = ctx.store['allTargets'] as Target[] | undefined;
-        let alternates: Alternates = new Map();
-
-        if (currentTarget && allTargetsList) {
-            alternates = resolveAlternates(currentTarget, allTargetsList, url);
-        }
+        const alternates: Alternates = currentTarget && allTargetsList
+            ? resolveAlternates(currentTarget, allTargetsList, url, await siblingPages(ctx, currentTarget, allTargetsList))
+            : new Map();
 
         const data: DocumentData = {
             page,
@@ -80,6 +80,38 @@ export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise
         await fs.writeFile(file, html, 'utf8');
     }
 };
+
+/**
+ * Pages of the targets that share the current target's group, read from their
+ * own `sitemap.yml`; a target without a sitemap file is left out. Cached per build.
+ */
+async function siblingPages(ctx: BuildContext, current: Target, targets: Target[]): Promise<Record<string, Record<string, SitemapPage>>> {
+    const cached = ctx.cache.get('siblingPages') as Record<string, Record<string, SitemapPage>> | undefined;
+
+    if (cached) {
+        return cached;
+    }
+    const pages: Record<string, Record<string, SitemapPage>> = Object.create(null);
+
+    for (const target of targets) {
+        if (!current.group || target.group !== current.group || target.name === current.name) {
+            continue;
+        }
+        let source: string;
+        try {
+            source = await fs.readFile(path.join(ctx.cwd, target.configDir, 'sitemap.yml'), 'utf8');
+        } catch (error) {
+            if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+                continue;
+            }
+            throw error;
+        }
+        pages[target.name] = processSitemap(parseIndentedSitemap(source), loadBuildConfig(ctx.cwd, target.configDir).site.rootTitle).pages;
+    }
+    ctx.cache.set('siblingPages', pages);
+
+    return pages;
+}
 
 /**
  * Map a URL to a flat HTML filename: `/` → `index.html`, `/a/b` → `a_b.html`.

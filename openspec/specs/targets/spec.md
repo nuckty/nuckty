@@ -15,17 +15,21 @@ Targets SHALL be declared in config/config-nuckty.ts with configDir and outDir a
 - **AND** `nuckty build site-ru` builds only that target
 
 ### Requirement: Sibling targets and alternates
-The engine SHALL provide an alternates map only for targets in the same explicit nonempty `group` that have language and host metadata and a language different from the current target. Language-tag comparison SHALL ignore ASCII letter case while preserving authored tags in the returned map. It SHALL omit the current target and use each sibling's host with the same route. The optional title comes from a caller-provided title map and is empty if no translated title is provided. The current resolver does not inspect another target's sitemap to prove that route exists; consumers requiring only real sibling pages SHALL verify or filter the final URLs.
+The engine SHALL provide an alternates map only for targets in the same explicit nonempty `group` that have language and host metadata and a language different from the current target. Language-tag comparison SHALL ignore ASCII letter case while preserving authored tags in the returned map. It SHALL omit the current target and use each sibling's host with the same route. During a build the engine SHALL read each sibling's `sitemap.yml`: a route missing there SHALL get no alternate, and an existing page SHALL supply its title. A sibling without a `sitemap.yml` SHALL be linked with an empty title.
 
 #### Scenario: Resolver returns explicit group siblings
-- **WHEN** `site-ru` and `site-en` share a group and the resolver receives `/catalog` for `site-ru`
-- **THEN** it returns the `site-en` host and route, with its title if supplied
+- **WHEN** `site-ru` and `site-en` share a group and both sitemaps contain `/catalog`
+- **THEN** the alternates of `/catalog` in `site-ru` contain the `site-en` URL with the `site-en` page title
 - **AND** an ungrouped target adds no alternate
 
+#### Scenario: Missing sibling page
+- **WHEN** `/only-ru` exists in `site-ru` but not in the `site-en` sitemap
+- **THEN** `/only-ru` gets no `en` alternate
+
 #### Scenario: Title dictionary owns target keys
-- **WHEN** no own title entry is supplied for a sibling named constructor, toString or __proto__
+- **WHEN** no own page entry is supplied for a sibling named constructor, toString or __proto__
 - **THEN** its alternate title is empty rather than an inherited property
-- **AND** an explicitly supplied own translated title remains supported
+- **AND** an explicitly supplied own page title remains supported
 
 #### Scenario: Language tag case does not create a different language
 - **WHEN** the current tag is en-US and a sibling tag is EN-us
