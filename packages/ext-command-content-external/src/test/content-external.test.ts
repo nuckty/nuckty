@@ -1,7 +1,6 @@
 /**
  * Tests for the content-external command-extension's pure helpers (openspec
- * `ext-command-content-external`): `getRepoName` (SSH + HTTPS URL forms, with/without
- * `.git`), `planRepos` (clone vs update decision from an injected status check),
+ * `ext-command-content-external`): `planRepos` (clone vs update decision from an injected status check),
  * and `runPlan` (dry-run reports without touching disk; clone/update dispatch;
  * a failing repo records an error but does not abort the rest). The git execution
  * runner itself is tested through an injected `GitRunner`; the filesystem
@@ -15,8 +14,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import fs from 'node:fs';
-import { getRepoName, planRepos, runPlan, type CheckoutOptions, type GitRunner, type RepoStatus } from '../content-external.js';
+import { fsStatus, makeGitRunner, planRepos, runPlan, type CheckoutOptions, type GitRunner, type RepoStatus } from '../content-external.js';
 import { register } from '../index.js';
+import { mkdtemp, mkdir, symlink, rm, readFile, writeFile, readdir } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import type { simpleGit } from 'simple-git';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import type { CommandArgs, CommandHandler, CommandOptions, NucktyEnv } from '@nuckty/core';
 
 test('content-external validates arguments before reading config', async (t) => {
@@ -66,41 +70,6 @@ test('content-external validates arguments before reading config', async (t) => 
         assert.equal(configChecks, 3, 'supported dry-run forms proceed to config handling');
     } finally {
         process.stderr.write = originalWrite;
-    }
-});
-
-// ---- getRepoName -----------------------------------------------------------
-
-test('getRepoName: SSH form with .git', () => {
-    assert.equal(getRepoName('git@github.com:voyahchat/voyahchat-content.git'), 'voyahchat-content');
-});
-
-test('getRepoName: HTTPS form with .git', () => {
-    assert.equal(getRepoName('https://github.com/voyahchat/voyahchat-content.git'), 'voyahchat-content');
-});
-
-test('getRepoName: HTTPS form without .git', () => {
-    assert.equal(getRepoName('https://github.com/voyahchat/voyahchat-content'), 'voyahchat-content');
-});
-
-test('getRepoName: SSH form with a port in the host still yields the repo name', () => {
-    assert.equal(getRepoName('ssh://git@gitlab.example.com:2222/org/repo.git'), 'repo');
-});
-
-test('getRepoName: throws on a URL with no parseable name', () => {
-    assert.throws(() => getRepoName(''), /Could not parse/);
-});
-
-test('getRepoName rejection does not disclose query or fragment values', () => {
-    for (const url of [
-        'https://host/org/repo.git?token=SYNTHETIC_SECRET',
-        'https://host/org/repo.git#SYNTHETIC_SECRET',
-    ]) {
-        assert.throws(() => getRepoName(url), (error: Error) => {
-            assert.match(error.message, /Unsafe repository name/);
-            assert.doesNotMatch(error.message, /SYNTHETIC_SECRET/);
-            return true;
-        });
     }
 });
 
@@ -251,14 +220,6 @@ test('runPlan redacts URL credentials from runner errors', async () => {
     assert.match(results[0]!.error ?? '', /git@github\.com:owner\/repo\.git/);
 });
 
-// ---- CMD-08: adversarial names and duplicate destinations -------------------
-
-test('getRepoName rejects `..`, `.`, and separator-containing names', () => {
-    assert.throws(() => getRepoName('https://h/o/..'), /Unsafe repository name/);
-    assert.throws(() => getRepoName('https://h/o/.'), /Unsafe repository name/);
-    assert.throws(() => getRepoName('https://h/o/repo\\nested.git'), /Unsafe repository name/);
-});
-
 test('planRepos rejects duplicate destinations from same-basename URLs', async () => {
     await assert.rejects(
         () => planRepos(['https://h/o/photo.git', 'https://h/p/photo.git'], '/tmp/external', () => 'none'),
@@ -267,17 +228,11 @@ test('planRepos rejects duplicate destinations from same-basename URLs', async (
 });
 
 test('planRepos containment: a dir escaping externalDir is refused pre-runner', async () => {
-    // Even if a name slipped past getRepoName, the resolve check must hold.
     await assert.rejects(
         () => planRepos(['https://h/o/..'], '/tmp/external', () => 'none'),
         /Unsafe repository name/,
     );
 });
-
-import { makeGitRunner, fsStatus } from '../content-external.js';
-import { mkdtemp, mkdir, symlink, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import type { simpleGit } from 'simple-git';
 
 for (const mode of ['empty', 'list-error', 'pull-error'] as const) {
     test(`real git runner propagates LFS ${mode}`, async () => {
@@ -320,14 +275,11 @@ test('ownership refuses repository symlinks and whitespace names', async () => {
         await symlink(path.join(dir, 'other'), path.join(dir, 'external', 'repo'));
         await assert.rejects(planRepos(['https://host/repo'], path.join(dir, 'external'), () => 'clean'), /symbolic link/);
         assert.equal(await fsStatus(path.join(dir, 'external', 'repo')), 'unknown');
-        assert.throws(() => getRepoName('https://host/   '), /Unsafe/);
     } finally {
         await rm(dir, { recursive: true, force: true });
     }
 });
 
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 const git = promisify(execFile);
 
 test('filesystem ownership requires repository root and same configured origin', async () => {
@@ -358,20 +310,20 @@ test('filesystem ownership with no origin is unknown and remains guarded', async
 
 test('filesystem ownership accepts HTTPS CI clone of configured GitHub SSH repository', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-content-github-origin-'));
-    const configured = 'git@github.com:voyahchat/voyahchat-content.git';
+    const configured = 'git@github.com:acme/content.git';
     try {
         await git('git', ['init', '-q', dir]);
-        await git('git', ['-C', dir, 'remote', 'add', 'origin', 'https://github.com/voyahchat/voyahchat-content.git']);
+        await git('git', ['-C', dir, 'remote', 'add', 'origin', 'https://github.com/acme/content.git']);
         assert.equal(await fsStatus(dir, configured), 'clean');
 
-        await git('git', ['-C', dir, 'remote', 'set-url', 'origin', 'ssh://git@github.com/voyahchat/voyahchat-content.git']);
+        await git('git', ['-C', dir, 'remote', 'set-url', 'origin', 'ssh://git@github.com/acme/content.git']);
         assert.equal(await fsStatus(dir, configured), 'clean');
 
-        await git('git', ['-C', dir, 'remote', 'set-url', 'origin', 'https://github.com/other-owner/voyahchat-content.git']);
+        await git('git', ['-C', dir, 'remote', 'set-url', 'origin', 'https://github.com/other-owner/content.git']);
         assert.equal(await fsStatus(dir, configured), 'identity-mismatch');
-        await git('git', ['-C', dir, 'remote', 'set-url', 'origin', 'https://github.com/voyahchat/other-repo.git']);
+        await git('git', ['-C', dir, 'remote', 'set-url', 'origin', 'https://github.com/acme/other-repo.git']);
         assert.equal(await fsStatus(dir, configured), 'identity-mismatch');
-        await git('git', ['-C', dir, 'remote', 'set-url', 'origin', 'https://github.com.evil.invalid/voyahchat/voyahchat-content.git']);
+        await git('git', ['-C', dir, 'remote', 'set-url', 'origin', 'https://github.com.evil.invalid/acme/content.git']);
         assert.equal(await fsStatus(dir, configured), 'identity-mismatch');
     } finally {
         await rm(dir, { recursive: true, force: true });
@@ -388,8 +340,6 @@ test('filesystem ownership does not normalize SSH and HTTPS for non-GitHub hosts
         await rm(dir, { recursive: true, force: true });
     }
 });
-
-import { readFile, writeFile, readdir } from 'node:fs/promises';
 
 for (const mode of ['failed-clone', 'destination-appeared'] as const) {
     test(`clone ownership: ${mode} cleans only its temporary sibling`, async () => {

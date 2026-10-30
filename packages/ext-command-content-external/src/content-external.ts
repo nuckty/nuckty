@@ -6,7 +6,7 @@
  * configured levels and may query local Git for commit timestamps. Offline
  * operation also requires extensions that do not access the network.
  *
- * Split for testability: pure planning (`getRepoName`, `planRepos`) is separated
+ * Split for testability: pure planning (`planRepos`) is separated
  * from git execution (`runPlan` against an injected `GitRunner`), so the pure
  * helpers are tested without spawning git.
  *
@@ -15,13 +15,13 @@
 
 import path from 'node:path';
 import fs from 'node:fs';
-import type { ExternalSource } from '@nuckty/core';
+import { externalRepoName, type ExternalSource } from '@nuckty/core';
 
 /** One repo URL parsed into its target directory name (without `.git`). */
 export interface RepoPlan {
     /** The original git URL as listed in `external.json`. */
     url: string;
-    /** Repo name: the last path segment without `.git` (e.g. `voyahchat-content`). */
+    /** Repo name: the last path segment without `.git` (e.g. `content`). */
     name: string;
     /** Destination `<externalDir>/<name>`; absolute when externalDir is absolute. */
     dir: string;
@@ -119,31 +119,6 @@ function sanitizeRemoteUrls(message: string): string {
     return withoutHttpQuery.replace(/((?:[\w.-]+@)?[a-z0-9.-]+:[^\s?#]+)(?:[?#][^\s]*)/gi, '$1');
 }
 
-/**
- * Extract the repository name from a git URL. Accepts SSH scp, `ssh://`, and
- * HTTPS path forms, with or without a trailing `.git`. Throws on a URL that has
- * no parseable name.
- */
-export function getRepoName(repoUrl: string): string {
-    // SSH form `git@host:org/repo.git`: drop the `host:` prefix first, then split.
-    // HTTPS form `https://host/org/repo.git`: no `:`, split on `/`. Strip `.git`.
-    const noGit = repoUrl.replace(/\.git$/, '');
-    const afterColon = noGit.lastIndexOf(':') >= 0 ? noGit.slice(noGit.lastIndexOf(':') + 1) : noGit;
-    const name = afterColon.split('/').pop()!;
-    if (!name) {
-        throw new Error('Could not parse repository name from URL');
-    }
-    // CMD-08: a parsed `.` or `..` (e.g. from `https://h/o/..`) makes `external/`
-    // resolve to itself or its PARENT — the runner must never touch it. The
-    // same applies to names with path separators or empty/whitespace.
-    if (!name.trim() || /[?#%]/.test(name) || name === '.' || name === '..' || name !== path.basename(name) || /[\\/]/.test(name)) {
-        throw new Error(
-            'Unsafe repository name parsed from URL — the name must be a plain directory segment (no ., .., / or \\)',
-        );
-    }
-    return name;
-}
-
 /** Ownership and working-tree status for an existing destination. Async: the
  *  real `fsStatus` goes through simple-git; tests inject a sync map. */
 export type RepoStatusCheck = (dir: string, url?: string) => Promise<RepoStatus> | RepoStatus;
@@ -173,24 +148,20 @@ export async function planRepos(
     const dirsByUrl = new Map<string, string>();
     for (const source of sources) {
         const { url, ref, path: subdirectory } = typeof source === 'string' ? { url: source } as ExternalSource : source;
-        const name = getRepoName(url);
+        const name = externalRepoName(url);
         const dir = path.join(externalDir, name);
-        // CMD-08: containment — the planned directory must stay inside
-        // `externalDir` (getRepoName rejects .., but resolve too, so the
-        // invariant holds no matter what the name check allows).
+        // The planned directory must stay inside `externalDir` whatever the name check allows.
         const resolved = path.resolve(dir);
         if (!resolved.startsWith(path.resolve(externalDir) + path.sep)) {
             throw new Error(
                 `Planned directory "${dir}" escapes the external directory "${externalDir}"`,
             );
         }
-        // CMD-08: two URLs with the same basename plan the SAME destination —
-        // the second clone would delete the first. Reject duplicates before
-        // any runner executes.
+        // Two URLs with the same basename would share one destination; reject before any runner executes.
         const seen = dirsByUrl.get(resolved);
         if (seen !== undefined) {
             throw new Error(
-                `Duplicate repository destination "${dir}" for repositories ${getRepoName(seen)} and ${name} — ` +
+                `Duplicate repository destination "${dir}" for repositories ${externalRepoName(seen)} and ${name} — ` +
                     'two repos may not share one external directory',
             );
         }

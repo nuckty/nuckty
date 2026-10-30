@@ -48,4 +48,22 @@ test('external repository names follow the URL path after an scp host', () => {
     assert.equal(externalRepoName('git@host:content.git'), 'content');
     assert.equal(externalRepoName('https://github.com/nuckty/nuckty'), 'nuckty');
     assert.equal(externalRepoName('ssh://git@host:22/acme/assets.git'), 'assets');
+    assert.equal(externalRepoName('https://github.com/acme/content'), 'content');
+});
+
+test('external repository names must be plain directory segments', () => {
+    assert.throws(() => externalRepoName(''), /Could not parse/);
+    for (const url of ['https://h/o/..', 'https://h/o/.', 'https://h/o/repo\\nested.git', 'https://host/   ']) {
+        assert.throws(() => externalRepoName(url), /Unsafe repository name/);
+    }
+});
+
+test('rejected repository names do not disclose query or fragment values', () => {
+    for (const url of ['https://host/org/repo.git?token=SYNTHETIC_SECRET', 'https://host/org/repo.git#SYNTHETIC_SECRET']) {
+        assert.throws(() => externalRepoName(url), (error: Error) => {
+            assert.match(error.message, /Unsafe repository name/);
+            assert.doesNotMatch(error.message, /SYNTHETIC_SECRET/);
+            return true;
+        });
+    }
 });

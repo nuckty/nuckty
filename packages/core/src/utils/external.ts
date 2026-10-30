@@ -26,13 +26,21 @@ function validPath(value: string): boolean {
 /**
  * Directory name of an external repository under `external/`: the last path segment of the URL without `.git`,
  * after the host of an SSH scp URL. `git@host:acme/content.git` and `https://host/acme/content` both give `content`.
+ * Throws when the segment is empty or is not a plain directory name, so `external/` itself or its parent is never selected.
  */
 export function externalRepoName(url: string): string {
     const withoutSuffix = url.replace(/\.git$/, '');
     const colon = withoutSuffix.lastIndexOf(':');
-    const repositoryPath = colon >= 0 ? withoutSuffix.slice(colon + 1) : withoutSuffix;
+    const name = (colon >= 0 ? withoutSuffix.slice(colon + 1) : withoutSuffix).split('/').pop() ?? '';
 
-    return repositoryPath.split('/').pop() ?? '';
+    if (!name) {
+        throw new Error('Could not parse repository name from URL');
+    }
+    if (!name.trim() || name === '.' || name === '..' || /[\\?#%\x00-\x1f\x7f]/.test(name)) {
+        throw new Error('Unsafe repository name parsed from URL — the name must be a plain directory segment (no ., .., / or \\)');
+    }
+
+    return name;
 }
 
 /**

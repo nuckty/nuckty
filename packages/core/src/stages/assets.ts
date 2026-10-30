@@ -81,7 +81,7 @@ async function resolveSourceRepos(root: string, urls: string[] | undefined): Pro
         }
     }
     return urls.map((url) => {
-        const name = externalRepoName(url) || url;
+        const name = externalRepoName(url);
         return { name, path: path.join(root, 'external', name) };
     });
 }

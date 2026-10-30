@@ -1,9 +1,8 @@
 import { promises as fs, constants, readFileSync, existsSync, statSync } from 'node:fs';
 import * as path from 'node:path';
 import { Writable } from 'node:stream';
-import { createHash } from 'node:crypto';
-import { createReadStream } from 'node:fs';
 import * as ftp from 'basic-ftp';
+import { generateFileHash } from '@nuckty/core';
 
 const MANIFEST_FILE = 'manifest.json';
 
@@ -26,7 +25,7 @@ export interface DeployDependencies {
     retryDelayMs?: number;
 }
 
-/** One manifest entry — size + MD5 hash (16 hex chars). */
+/** One manifest entry: size and the core content hash. */
 export interface ManifestEntry {
     size: number;
     hash: string;
@@ -285,12 +284,8 @@ async function preflightFiles(outDir: string, manifest: Manifest): Promise<Map<s
 
     for (const [name, info] of Object.entries(manifest)) {
         const file = await preflightArtifactFile(root, name, info.size);
-        const hash = createHash('md5');
 
-        for await (const chunk of createReadStream(file)) {
-            hash.update(chunk);
-        }
-        if (hash.digest('hex').slice(0, 16) !== info.hash) {
+        if (await generateFileHash(file) !== info.hash) {
             throw new Error(`Invalid local artifact file: ${name} (manifest hash mismatch)`);
         }
         files.set(name, file);

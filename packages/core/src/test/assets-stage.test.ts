@@ -403,7 +403,7 @@ test('unsafe external names fail before cleaning or copying project-root files',
         ]) {
             await writeFile(path.join(dir, 'config/external.json'), JSON.stringify([url]));
             const rejected = (error: Error): boolean => {
-                assert.match(error.message, /Unsafe external repository directory/);
+                assert.match(error.message, /repository name/);
                 assert.doesNotMatch(error.message, /SYNTHETIC_SECRET/);
 
                 return true;

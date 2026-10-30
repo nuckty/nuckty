@@ -27,6 +27,8 @@ export type { MarkdownOptions, MarkdownResult } from './markdown/index.js';
 // that rewrite image URLs (e.g. a gallery directive handler).
 export { transformImagePathShared } from './markdown/image-mapping.js';
 export type { ImageMappingEnv } from './markdown/image-mapping.js';
+// Manifest content hash, shared with deployment extensions.
+export { generateFileHash } from './utils/hash.js';
 // Entries of config/external.json, shared with the content-external command.
 export { externalRepoName, parseExternalSources } from './utils/external.js';
 export type { ExternalSource } from './utils/external.js';

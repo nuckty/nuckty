@@ -50,10 +50,10 @@ export function loadBuildConfig(cwd: string, configDir: string): BuildConfigSnap
     const externalUrls = readExternalUrls(path.join(directory, 'external.json'));
 
     for (const [index, url] of (externalUrls ?? []).entries()) {
-        const name = externalRepoName(url);
-
-        if (!name || name === '.' || name === '..' || /[\\\x00-\x1f\x7f]/.test(name)) {
-            throw new Error(`nuckty: Unsafe external repository directory at entry ${index + 1}`);
+        try {
+            externalRepoName(url);
+        } catch (error) {
+            throw new Error(`nuckty: ${path.join(directory, 'external.json')} entry ${index + 1}: ${(error as Error).message}`, { cause: error });
         }
     }
     return {

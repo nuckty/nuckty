@@ -41,7 +41,7 @@ async function runBuildTargets(config: NucktyConfig, cmd: BuildCommand): Promise
     const prepared: Array<{ target: Target; env: NucktyEnv; snapshot: BuildConfigSnapshot }> = [];
     const inputs = declaredTargets.flatMap((target) => {
         const snapshot = snapshots.get(target.name)!;
-        const externalDirs = (snapshot.externalUrls ?? []).map((url) => path.join('external', externalRepoName(url) || url));
+        const externalDirs = (snapshot.externalUrls ?? []).map((url) => path.join('external', externalRepoName(url)));
         return [target.configDir, ...snapshot.levels, ...externalDirs];
     });
 
