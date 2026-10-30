@@ -168,8 +168,7 @@ export function processSitemap(items: unknown[], rootTitleFallback = 'Site'): Si
         }
         if (crossSection) {
             crossOnly.add(fullUrl);
-        }
-        else {
+        } else {
             crossOnly.delete(fullUrl);
         }
         const pageData: SitemapPage = {

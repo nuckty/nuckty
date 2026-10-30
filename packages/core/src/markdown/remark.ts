@@ -229,8 +229,7 @@ function blocksToBem(
                 const rendered = invokeDirective(d, 'containerDirective', env);
                 if (rendered) {
                     out.push(rendered);
-                }
-                else if (d.children && d.children.length > 0) {
+                } else if (d.children && d.children.length > 0) {
                     for (const c of blocksToBem(d.children, env, false)) {
                         out.push(c);
                     }
@@ -244,8 +243,7 @@ function blocksToBem(
                 const rendered = invokeDirective(d, 'leafDirective', env);
                 if (rendered) {
                     out.push(rendered);
-                }
-                else if (d.children && d.children.length > 0) {
+                } else if (d.children && d.children.length > 0) {
                     // The label is phrasing content: render it as the paragraph it stands in for.
                     out.push(...blocksToBem([{ type: 'paragraph', children: d.children as unknown as PhrasingContent[] }], env, insideListItem));
                 }

@@ -81,8 +81,7 @@ export class VnuHttpValidator {
             }
             if (r.errors.length === 0) {
                 passed.push(file);
-            }
-            else {
+            } else {
                 failed.push(file);
                 for (const e of r.errors) {
                     errors.push({ ...e, file: e.file ?? file });

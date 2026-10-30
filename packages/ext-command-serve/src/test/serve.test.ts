@@ -200,8 +200,7 @@ appendFileSync(process.env.NUCKTY_TEST_CALLS, JSON.stringify({ command: 'kill', 
         process.env.PATH = `${binDir}${path.delimiter}${original.path ?? ''}`;
         if (localeCase.all === undefined) {
             delete process.env.LC_ALL;
-        }
-        else {
+        } else {
             process.env.LC_ALL = localeCase.all;
         }
         process.env.LC_CTYPE = localeCase.ctype;
@@ -233,44 +232,37 @@ appendFileSync(process.env.NUCKTY_TEST_CALLS, JSON.stringify({ command: 'kill', 
         } finally {
             if (original.path === undefined) {
                 delete process.env.PATH;
-            }
-            else {
+            } else {
                 process.env.PATH = original.path;
             }
             if (original.all === undefined) {
                 delete process.env.LC_ALL;
-            }
-            else {
+            } else {
                 process.env.LC_ALL = original.all;
             }
             if (original.ctype === undefined) {
                 delete process.env.LC_CTYPE;
-            }
-            else {
+            } else {
                 process.env.LC_CTYPE = original.ctype;
             }
             if (original.time === undefined) {
                 delete process.env.LC_TIME;
-            }
-            else {
+            } else {
                 process.env.LC_TIME = original.time;
             }
             if (original.config === undefined) {
                 delete process.env.NUCKTY_TEST_CONFIG;
-            }
-            else {
+            } else {
                 process.env.NUCKTY_TEST_CONFIG = original.config;
             }
             if (original.calls === undefined) {
                 delete process.env.NUCKTY_TEST_CALLS;
-            }
-            else {
+            } else {
                 process.env.NUCKTY_TEST_CALLS = original.calls;
             }
             if (original.testCtype === undefined) {
                 delete process.env.NUCKTY_TEST_CTYPE;
-            }
-            else {
+            } else {
                 process.env.NUCKTY_TEST_CTYPE = original.testCtype;
             }
             await rm(dir, { recursive: true, force: true });
