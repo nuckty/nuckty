@@ -1,10 +1,10 @@
+import { markdownCollection } from './helpers/markdown.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMarkdown } from '../markdown/index.js';
+import { createMarkdown } from '../markdown/remark.js';
 import { render } from '../bem/render.js';
-import { Templates } from '../bem/templates.js';
 
-const NO_TEMPLATES = { templates: new Templates() };
+const TEMPLATES = { templates: markdownCollection() };
 
 function mdToHtml(src: string, opts: Parameters<typeof createMarkdown>[0] = {}): string {
     // Markdown-bridge golden fixtures (structural contract — BEM classes, anchor
@@ -13,7 +13,7 @@ function mdToHtml(src: string, opts: Parameters<typeof createMarkdown>[0] = {}):
     // asserts typographic output lives in the extension.
     const { render: renderMd } = createMarkdown(opts);
     const { tree } = renderMd(src);
-    return render({ block: 'article', content: tree }, NO_TEMPLATES);
+    return render({ block: 'article', content: tree }, TEMPLATES);
 }
 
 // Fixture 1 — common_account.html: paragraph, ordered list of anchor links,
@@ -53,16 +53,9 @@ test('golden free_12v: blockquote uses article__blockquote and wraps <p>', () =>
     assert.ok(!html.includes('article__quote'), 'article__quote must not appear');
 });
 
-// Fixture 3 — common_cable.html: fenced code block with the copy button.
-test('golden common_cable: code block with copy button (article__code-copy)', () => {
-    const md = '```\nadb connect 192.168.43.1:5578\n```\n';
-    const html = mdToHtml(md);
-    assert.ok(html.includes('<pre class=article__code>'), 'pre class=article__code');
-    assert.ok(html.includes('<code>adb connect 192.168.43.1:5578\n</code>'), 'inner code (bem:false, no class, trailing \\n kept per markdown-it)');
-    assert.ok(
-        html.includes('<button type=button class=article__code-copy aria-label="Copy code to clipboard" title="Copy code"></button>'),
-        'copy button with attrs type,class,aria-label,title in that order',
-    );
+test('fenced code renders pre and code without interface controls', () => {
+    const html = mdToHtml('```\nadb connect 192.168.43.1:5578\n```\n');
+    assert.ok(html.includes('<pre class=article__code><code>adb connect 192.168.43.1:5578\n</code></pre>'), html);
 });
 
 // Fixture 4 — dreamer_models.html: GFM table with header cells.
@@ -95,7 +88,7 @@ test('golden common_account: inline code inside list item', () => {
     const md = '1. В поле поиска наверху написать `esender`';
     const html = mdToHtml(md);
     assert.ok(html.includes('<li class=article__list-item>'), 'list item');
-    assert.ok(html.includes('<code class="article__inline-code">esender</code>'), 'inline code inside list item');
+    assert.ok(html.includes('<code class=article__inline-code>esender</code>'), 'inline code inside list item');
 });
 
 // Fixture 8 — external links with parens (common_account: apkpure / apple).

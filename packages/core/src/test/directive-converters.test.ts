@@ -1,6 +1,7 @@
+import { markdownCollection } from './helpers/markdown.js';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createMarkdown, render, Templates } from '../index.js';
+import { createMarkdown, render } from '../index.js';
 import type { DirectiveHandler } from '../index.js';
 
 function parse(handler: DirectiveHandler, source: string, imageMapping: Record<string, string> = {}) {
@@ -14,7 +15,7 @@ test('a handler that converts children and then declines does not duplicate head
     }, ':::box\n## Intro\n:::\n');
 
     assert.deepEqual(result.headings.map((heading) => heading.anchor), ['intro']);
-    assert.match(render(result.tree, { templates: new Templates() }), /id=intro/);
+    assert.match(render(result.tree, { templates: markdownCollection() }), /id=intro/);
 });
 
 test('convert.inline rejects block nodes and renders images with the page mapping', () => {
@@ -25,7 +26,7 @@ test('convert.inline rejects block nodes and renders images with the page mappin
         return { block: 'x', content: convert.inline(paragraph.children) };
     }, ':::box\n![Logo](logo.png)\n:::\n', { 'logo.png': 'abcdef0123456789.png' });
 
-    assert.match(render(result.tree, { templates: new Templates() }), /<img [^>]*src=\/abcdef0123456789\.png alt=Logo>/);
+    assert.match(render(result.tree, { templates: markdownCollection() }), /<img [^>]*src=\/abcdef0123456789\.png alt=Logo>/);
 });
 
 test('handlers receive the directive form', () => {

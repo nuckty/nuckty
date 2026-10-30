@@ -1,3 +1,4 @@
+import { markdownCollection } from './helpers/markdown.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
@@ -92,8 +93,8 @@ test('page URLs cannot occupy the hosting namespace while ordinary dotted routes
 });
 
 test('Markdown keeps authored spacing around inline HTML and adjacent links', async () => {
-    const { createMarkdown } = await import('../markdown/index.js');
-    const output = (source: string): string => render(createMarkdown().render(source).tree, { templates: new Templates() });
+    const { createMarkdown } = await import('../markdown/remark.js');
+    const output = (source: string): string => render(createMarkdown().render(source).tree, { templates: markdownCollection() });
     assert.equal(output('Hello <em>world</em>!'), '<p class=article__paragraph>Hello <em>world</em>!</p>');
     assert.equal(output('<span>Hello </span>world'), '<p class=article__paragraph><span>Hello </span>world</p>');
     assert.equal(output('x[link](/target)'), '<p class=article__paragraph>x<a class=article__link href=/target>link</a></p>');

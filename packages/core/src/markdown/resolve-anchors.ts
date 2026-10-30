@@ -20,25 +20,20 @@ export function buildAnchorMap(headings: Heading[] | undefined): Map<string, str
         if (!h.anchor) {
             continue;
         }
-        // `createGitHubSlug` keeps numbered prefixes (`12. Foo` → `12-foo`),
-        // matching the source-link form (`#12-foo`) the legacy anchor map keys
-        // on (markdown.js:891 uses `createGitHubSlug` on the raw heading text).
+        // `createGitHubSlug` keeps numbered prefixes (`12. Foo` → `12-foo`), the form source links use.
         const base = createGitHubSlug(h.rawText);
         if (!base) {
             continue;
         }
 
-        // GitHub-style dedup: first occurrence keeps the bare slug, the 2nd gets
-        // `-1`, the 3rd `-2`, … (markdown.js:894-907: occurrenceCount > 1 →
-        // `${base}-${occurrenceCount - 1}`). Track the 1-based occurrence count.
+        // GitHub-style dedup: the first occurrence keeps the bare slug, the second gets `-1`, the third `-2`.
         const occurrence = (seen.get(base) ?? 0) + 1;
         seen.set(base, occurrence);
         const key = occurrence > 1 ? `${base}-${occurrence - 1}` : base;
 
         map.set(key, h.anchor);
 
-        // Version-pattern: `2.0.5` is also keyable as `205` (dots removed), so a
-        // source link `#205` resolves to the `2.0.5` heading (markdown.js:258-267).
+        // A version heading `2.0.5` is also keyed as `205`, the form GitHub gives its anchor.
         const trimmed = h.rawText.trim();
         if (/^\d+\.\d+(\.\d+)?$/.test(trimmed)) {
             const versionKey = trimmed.replace(/\./g, '');
@@ -53,7 +48,7 @@ function resolveAnchor(anchor: string, pageMap: Map<string, string> | undefined)
     if (!pageMap || !anchor) {
         return anchor;
     }
-    // Direct lookup, then URL-decoded (legacy tries decodeURIComponent, line 193).
+    // Direct lookup, then URL-decoded.
     let hit = pageMap.get(anchor);
     if (!hit) {
         try {
@@ -69,13 +64,13 @@ function resolveAnchor(anchor: string, pageMap: Map<string, string> | undefined)
 }
 
 /**
- * Rewrite anchor links in a page's BemNode tree in place. For each `<a>` whose
- * `href` carries a `#anchor`:
+ * Rewrite anchor links in a page's BemNode tree in place. For each Markdown
+ * link whose `href` carries a `#anchor`:
  *   - same-doc (`#anchor` or `<thisUrl>#anchor`): resolve against this page's map;
  *   - cross-doc (`<url>#anchor`): resolve against the target page's map (if the
  *     target is in the sitemap).
  * Generated heading self-links are skipped: they already point at final ids.
- * Unresolved anchors pass through verbatim (matches the legacy fallback).
+ * Unresolved anchors pass through verbatim.
  */
 export function resolvePageAnchors(page: SitemapPage, sitemap: SitemapArtifact, anchorMaps: Map<string, Map<string, string>>): void {
     if (!page.tree) {
@@ -83,14 +78,12 @@ export function resolvePageAnchors(page: SitemapPage, sitemap: SitemapArtifact, 
     }
     const thisMap = anchorMaps.get(page.url);
     walk(page.tree, (node) => {
-        if (node.tag !== 'a' || !node.attrs || !node.attrs['href']) {
-            return;
-        }
         // Heading self-links already carry final ids; their GitHub-slug keys may name another heading.
-        if (node.block === 'article' && node.elem === 'heading-anchor') {
+        if (node.block !== 'article' || node.elem !== 'link' || typeof node.props?.['href'] !== 'string') {
             return;
         }
-        const href = String(node.attrs['href']);
+        const props = node.props;
+        const href = node.props['href'];
         if (!href.includes('#')) {
             return;
         }
@@ -107,12 +100,12 @@ export function resolvePageAnchors(page: SitemapPage, sitemap: SitemapArtifact, 
         if (pathname === '' || pathname === page.url) {
             // same-document anchor
             const resolved = resolveAnchor(anchor, thisMap);
-            node.attrs['href'] = `${query}#${resolved}`;
+            props['href'] = `${query}#${resolved}`;
         } else if (sitemap.pages[pathname]) {
             // cross-document anchor: target page exists in the sitemap
             const targetMap = anchorMaps.get(pathname);
             const resolved = resolveAnchor(anchor, targetMap);
-            node.attrs['href'] = `${base}#${resolved}`;
+            props['href'] = `${base}#${resolved}`;
         }
         // else: external/unknown target — leave verbatim.
     });

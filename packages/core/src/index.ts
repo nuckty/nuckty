@@ -20,9 +20,10 @@ export { runWithTemplates } from './bem/template-context.js';
 export { render } from './bem/render.js';
 export type { RenderOptions } from './bem/render.js';
 
-// markdown → BemNode bridge.
-export { createMarkdown } from './markdown/index.js';
-export type { MarkdownOptions, MarkdownResult } from './markdown/index.js';
+// markdown → BemNode bridge and the default templates of its `article` entities.
+export { createMarkdown } from './markdown/remark.js';
+export type { MarkdownOptions, MarkdownResult } from './markdown/remark.js';
+export { default as markdownTemplates } from './markdown/templates.js';
 // Image-path resolver shared by the markdown bridge and markdown-extensions
 // that rewrite image URLs (e.g. a gallery directive handler).
 export { transformImagePathShared } from './markdown/image-mapping.js';
@@ -40,7 +41,7 @@ export { generateNginxConfig } from './stages/nginx.js';
 
 // Plugin environment.
 export { NucktyEnv } from './env/env.js';
-export type { CommandArgs, CommandHandler, CommandEntry, CommandOptions, DirectiveNode, DirectiveHandler, DirectiveConverters } from './env/env.js';
+export type { CommandArgs, CommandHandler, CommandEntry, CommandOptions, DirectiveNode, DirectiveHandler, DirectiveConverters, MarkdownNode, MarkdownNodeHandler } from './env/env.js';
 export { loadPlugins } from './env/loader.js';
 export type { PluginModule, LoadOptions } from './env/loader.js';
 

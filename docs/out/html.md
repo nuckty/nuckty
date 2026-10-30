@@ -52,7 +52,7 @@ A logical `"`, `<`, or `>` becomes an HTML entity before this check and does not
 ### Omitting optional closing tags
 
 13. `</html>` and `</body>` are omitted unless a following comment would move to another parent. `</head>` stays before ASCII whitespace or a comment. Opaque `raw` boundaries are handled conservatively.
-14. `</li>` is omitted before another `li` and at the end of `ul`, `ol` or `menu`. This applies equally to Markdown and template lists. The legacy `tightList` field no longer changes serialization.
+14. `</li>` is omitted before another `li` and at the end of `ul`, `ol` or `menu`. This applies equally to Markdown and template lists.
 15. `</td>` and `</th>` are omitted before another `td`/`th` or at the end of a row.
 16. `</tr>` is omitted before another `tr` or at the end of its table or row group.
 17. `</thead>` is omitted immediately before `tbody` or `tfoot`.

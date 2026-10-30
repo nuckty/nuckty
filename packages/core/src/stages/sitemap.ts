@@ -1,8 +1,7 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import type { Stage, BuildContext } from '../pipeline/pipeline.js';
-import { createMarkdown } from '../markdown/index.js';
-import type { MarkdownOptions } from '../markdown/index.js';
+import { createMarkdown } from '../markdown/remark.js';
 import { buildAnchorMap, resolvePageAnchors } from '../markdown/resolve-anchors.js';
 import { resolveBuildFile } from './artifact-path.js';
 import { getBuildConfig } from '../utils/build-config.js';
@@ -355,7 +354,9 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
             }
             const content = await fs.readFile(realPath, 'utf8');
             const relativePath = path.relative(contentDir, fullPath);
-            const mdOpts: MarkdownOptions = {
+            const imageMapping = ctx.store['imageMapping'] as Record<string, string> | undefined;
+            const downloads = ctx.store['downloads'] as Record<string, string> | undefined;
+            const { tree, headings } = createMarkdown({
                 md2url: result.md2url,
                 md2urls: result.md2urls,
                 currentUrl: url,
@@ -364,27 +365,13 @@ export const sitemapStage: Stage<BuildContext> = async (ctx: BuildContext): Prom
                 slugify: { case: 'lower' },
                 inputPath: `${relativePrefix}${relativePath}`,
                 githubRawBase: config.site.githubRawBase,
-            };
-            const imageMapping = ctx.store['imageMapping'] as Record<string, string> | undefined;
-            if (imageMapping) {
-                mdOpts.imageMapping = imageMapping;
-            }
-            const downloads = ctx.store['downloads'] as Record<string, string> | undefined;
-            if (downloads) {
-                mdOpts.downloads = downloads;
-            }
-            // Pass extension-registered remark plugins (env.markdown.use) and
-            // generic-directive mappings (env.markdown.directive) into the bridge.
-            const remarkPlugins = ctx.env.markdown.list();
-            if (remarkPlugins.length > 0) {
-                mdOpts.remarkPlugins = remarkPlugins as MarkdownOptions['remarkPlugins'];
-            }
-            const directives = ctx.env.markdown.directiveMappings();
-            if (directives.size > 0) {
-                mdOpts.directiveMappings = directives;
-            }
-            const renderer = createMarkdown(mdOpts);
-            const { tree, headings } = renderer.render(content);
+                remarkPlugins: ctx.env.markdown.list(),
+                directiveMappings: ctx.env.markdown.directiveMappings(),
+                nodeMappings: ctx.env.markdown.nodeMappings(),
+                ...(imageMapping ? { imageMapping } : {}),
+                ...(downloads ? { downloads } : {}),
+                ...(ctx.lang ? { lang: ctx.lang } : {}),
+            }).render(content);
             const updated: SitemapPage = {
                 ...pageData,
                 tree,

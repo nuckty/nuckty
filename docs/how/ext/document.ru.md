@@ -6,7 +6,7 @@
 
 `env.document.register(handler)` принимает функцию `(data: DocumentData) => BEMTree | Promise<BEMTree>`. В данных есть `page`, `content`, `sitemap`, `assets`, `alternates`, необязательные `target` и `lang`. Настройки сайта доступны через `target?.data`. `page.lastUpdated` — время последнего коммита исходника страницы в секундах Unix или `null`; форматирует его шаблон.
 
-Текущая стадия HTML сначала применяет [шаблоны](../templates.ru.md) к контенту и сериализует его. Поэтому `data.content` содержит узел `raw` с готовой разметкой; исходное дерево доступно через `data.page.tree`.
+`data.content` — дерево контента страницы (`data.page.tree`). Поместите его в документ: движок рендерит документ вместе с контентом, поэтому все [шаблоны](../templates.ru.md) применяются к обоим.
 
 ## Минимальный обработчик
 

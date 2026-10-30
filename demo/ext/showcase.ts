@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { createMarkdown, type BEMTree, type BemNode, type MarkdownOptions, type NucktyEnv } from '@nuckty/core';
+import { createMarkdown, type BemNode, type MarkdownOptions, type NucktyEnv } from '@nuckty/core';
 
 const samples = new Set(['basics', 'gfm', 'gallery', 'grid', 'typography']);
 
@@ -26,51 +26,21 @@ export function register(env: NucktyEnv): void {
         await collect(ctx.outDir);
         await writeFile(path.join(ctx.outDir, 'build-files.txt'), JSON.stringify(files, null, 2));
     });
-    function language(bridge: unknown): string {
-        return (bridge as MarkdownOptions).sourceFile?.endsWith('.en.md') ? 'en' : 'ru';
+    function language(options: Readonly<MarkdownOptions>): string {
+        return options.lang === 'en' ? 'en' : 'ru';
     }
 
-    function text(tree: BEMTree): string {
-        if (Array.isArray(tree)) {
-            return tree.map(text).join('');
-        }
-
-        if (tree && typeof tree === 'object') {
-            return 'content' in tree ? text(tree.content) : '';
-        }
-
-        return typeof tree === 'string' || typeof tree === 'number' ? String(tree) : '';
-    }
-
-    function localize(tree: BEMTree, lang: string): void {
-        if (Array.isArray(tree)) {
-            const label = text(tree).trim();
-
-            for (const child of tree) {
-                if (child && typeof child === 'object' && !Array.isArray(child) && 'tag' in child && child.tag === 'input' && child.attrs?.['type'] === 'checkbox') {
-                    child.attrs = { ...child.attrs, 'aria-label': label };
-                }
-                localize(child, lang);
-            }
-        } else if (tree && typeof tree === 'object' && !('raw' in tree)) {
-            tree.props = { ...tree.props, lang };
-            localize(tree.content, lang);
-        }
-    }
-
-    function sampleNode(sample: string, bridge: unknown): BemNode {
-        const lang = language(bridge);
+    function sampleNode(sample: string, options: Readonly<MarkdownOptions>): BemNode {
+        const lang = language(options);
         const suffix = lang === 'en' ? '.en' : '';
         const source = readFileSync(new URL(`../content/examples/${sample}${suffix}.md`, import.meta.url), 'utf8');
-        const options = bridge as MarkdownOptions;
         const { tree } = createMarkdown({
             ...options,
             sourceFile: `examples/${sample}${suffix}.md`,
             remarkPlugins: env.markdown.list(),
             directiveMappings: env.markdown.directiveMappings(),
+            nodeMappings: env.markdown.nodeMappings(),
         }).render(source);
-
-        localize(tree, lang);
 
         return { block: 'example', props: { sample, source, lang }, content: tree };
     }
@@ -87,6 +57,6 @@ export function register(env: NucktyEnv): void {
             throw new Error(`Unknown showcase sample: ${sample}`);
         }
 
-        return { ...sampleNode(sample, bridge) };
+        return sampleNode(sample, bridge);
     });
 }

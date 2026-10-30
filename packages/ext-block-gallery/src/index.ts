@@ -13,12 +13,11 @@
  */
 
 import type { DirectiveHandler, NucktyEnv } from '@nuckty/core';
-import type { ImageMappingEnv } from '@nuckty/core';
 import { fileURLToPath } from 'node:url';
-import { extractImages, galleryNode } from './gallery.js';
+import { extractImages, galleryNode, type MdastNode } from './gallery.js';
 
 export { extractImages, galleryNode } from './gallery.js';
-export type { GalleryImage, GalleryOptions, MdastNode } from './gallery.js';
+export type { GalleryImage, MdastNode } from './gallery.js';
 
 /**
  * Map the `:::gallery` container to the gallery tree. Returns `null` for a
@@ -26,13 +25,9 @@ export type { GalleryImage, GalleryOptions, MdastNode } from './gallery.js';
  * plain content.
  */
 export const galleryHandler: DirectiveHandler = (node, env) => {
-    const images = extractImages((node.children ?? []) as import('./gallery.js').MdastNode[]);
-    if (images.length === 0) {
-        return null;
-    }
-    // The engine's handler contract is structural ({ raw?, ...unknown }); the
-    // built BemNode satisfies it shape-wise, the cast bridges the interface.
-    return galleryNode(images, env as ImageMappingEnv) as unknown as { raw?: string; [k: string]: unknown };
+    const images = extractImages((node.children ?? []) as MdastNode[]);
+
+    return images.length === 0 ? null : galleryNode(images, env);
 };
 
 export function register(env: NucktyEnv): void {

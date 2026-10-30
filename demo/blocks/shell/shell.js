@@ -122,7 +122,7 @@ for (const pre of document.querySelectorAll('pre')) {
         continue;
     }
 
-    const button = pre.querySelector('.article__code-copy') ?? document.createElement('button');
+    const button = document.createElement('button');
     button.className = 'code-copy';
     button.type = 'button';
     const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

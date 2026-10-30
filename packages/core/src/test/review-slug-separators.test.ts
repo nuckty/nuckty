@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createMarkdown } from '../markdown/index.js';
+import { createMarkdown } from '../markdown/remark.js';
 import { createSlugify, createGitHubSlugify } from '../markdown/slugify.js';
 
 for (const separator of ['', '--', '..', '.*', '$&', '🟢']) {

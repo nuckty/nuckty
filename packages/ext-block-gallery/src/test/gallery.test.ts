@@ -3,8 +3,7 @@
  * - `extractImages` collects `![]()` images from container paragraphs (a run
  *   of images collapses into one paragraph; blank lines split paragraphs);
  * - `galleryNode` rewrites image srcs through the shared image-mapping, marks
- *   every image except the first `loading=lazy`, groups items by `data-group`,
- *   and appends the `lightbox` container;
+ *   every image except the first lazy, and appends the `lightbox` with the page language;
  * - `galleryHandler` returns `null` for a container without images (plain
  *   content fallback) and the gallery tree otherwise;
  * - `register` adds the `blocks/` level and maps the `gallery` directive;
@@ -46,22 +45,17 @@ test('extractImages collects images from collapsed runs and separate paragraphs'
 test('galleryNode rewrites srcs via image-mapping, lazies all but the first, appends lightbox', () => {
     const node = galleryNode(
         [{ src: 'free/light.png', alt: 'Light' }, { src: 'free/seats.png', alt: 'Seats' }, { src: 'free/door.png', alt: 'Door' }],
-        { imageMapping: { 'free/light.png': '/_i62e5723492d14dc0', 'free/seats.png': '/_i9f8e7d6a1b2c3d4', 'free/door.png': '/_i0123456789abcdef' } },
-        { groupId: 'g-gallery' },
+        { imageMapping: { 'free/light.png': '/_i62e5723492d14dc0', 'free/seats.png': '/_i9f8e7d6a1b2c3d4', 'free/door.png': '/_i0123456789abcdef' }, lang: 'ru' },
     );
-    assert.equal(node.block, 'gallery');
-    const items = node.content as import('@nuckty/core').BemNode[];
-    assert.equal(items.length, 4);  // three items + the lightbox container
-    assert.equal(items[3]!.block, 'lightbox');
-
-    const first = items[0]! as { attrs: Record<string, string>; content: { attrs: Record<string, string> } };
-    assert.equal(first.attrs.href, '/_i62e5723492d14dc0');
-    assert.equal(first.attrs['data-group'], 'g-gallery');
-    assert.equal(first.content.attrs.src, '/_i62e5723492d14dc0');
-    assert.equal(first.content.attrs.loading, undefined);  // first stays eager
-
-    assert.equal((items[1]!.content as { attrs: Record<string, string> }).attrs.loading, 'lazy');
-    assert.equal((items[2]!.content as { attrs: Record<string, string> }).attrs.loading, 'lazy');
+    assert.deepEqual(node, {
+        block: 'gallery',
+        content: [
+            { block: 'gallery', elem: 'item', props: { src: '/_i62e5723492d14dc0', alt: 'Light', lazy: false } },
+            { block: 'gallery', elem: 'item', props: { src: '/_i9f8e7d6a1b2c3d4', alt: 'Seats', lazy: true } },
+            { block: 'gallery', elem: 'item', props: { src: '/_i0123456789abcdef', alt: 'Door', lazy: true } },
+            { block: 'lightbox', props: { lang: 'ru' } },
+        ],
+    });
 });
 
 const convert = { inline: () => [], blocks: () => [] };
@@ -89,7 +83,7 @@ test('register adds the blocks level and maps the gallery directive', () => {
     assert.equal(env.markdown.directiveMappings().get('gallery'), galleryHandler);
 });
 
-test('gallery blocks render the construct tree into gallery HTML', () => {
+test('gallery blocks render the construct tree into gallery HTML with localized lightbox labels', () => {
     const templateSet = new Templates();
 
     runWithTemplates(templateSet, () => {
@@ -97,22 +91,14 @@ test('gallery blocks render the construct tree into gallery HTML', () => {
         lightboxTemplates();
     });
 
-    const tree = galleryNode(
+    const html = (lang?: string): string => render(galleryNode(
         [{ src: 'a.png', alt: 'A' }, { src: 'b.png', alt: 'B' }],
-        { imageMapping: { 'a.png': '/_ia1', 'b.png': '/_ib2' } },
-    );
-    const html = render(tree, { templates: templateSet });
+        { imageMapping: { 'a.png': '/_ia1', 'b.png': '/_ib2' }, lang },
+    ), { templates: templateSet });
 
-    assert.ok(html.includes('class=gallery'));
-    assert.ok(html.includes('gallery__item'));
-    assert.ok(html.includes('href=/_ia1'));
-    assert.ok(html.includes('alt=A>'));                    // first stays eager (no loading attr)
-    assert.ok(html.includes('alt=B loading=lazy'));
-    assert.ok(html.includes('<dialog class=lightbox'));
-    assert.ok(html.includes('aria-label="Image viewer"'));
-    assert.ok(html.includes('<button class=lightbox__close'));
-    assert.ok(html.includes('aria-label="Close image"'));
-    assert.ok(html.includes('autofocus'));
+    assert.equal(html('en'), '<div class=gallery><a class=gallery__item href=/_ia1><img class=gallery__image src=/_ia1 alt=A></a><a class=gallery__item href=/_ib2><img class=gallery__image src=/_ib2 alt=B loading=lazy></a><dialog class=lightbox aria-label="Image viewer"><button class=lightbox__close type=button autofocus aria-label="Close image">×</button></dialog></div>');
+    assert.match(html('ru'), /<dialog class=lightbox aria-label="Просмотр изображения"><button class=lightbox__close type=button autofocus aria-label="Закрыть изображение">/);
+    assert.match(html(), /aria-label="Image viewer"/);
 });
 
 test('extractImages rejects captions, links and other content instead of dropping them', () => {

@@ -1,18 +1,18 @@
+import { markdownCollection } from './helpers/markdown.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { createMarkdown } from '../markdown/index.js';
+import { createMarkdown } from '../markdown/remark.js';
 import { transformImagePathShared } from '../markdown/image-mapping.js';
 import { postprocessHtml } from '../markdown/html-postprocess.js';
 import { render } from '../bem/render.js';
-import { Templates } from '../bem/templates.js';
 import { runBuild } from './helpers/build.js';
 import { parseIndentedSitemap, processSitemap } from '../stages/sitemap.js';
 
 function html(source: string, options: Parameters<typeof createMarkdown>[0]): string {
-    return render(createMarkdown(options).render(source).tree, { templates: new Templates() });
+    return render(createMarkdown(options).render(source).tree, { templates: markdownCollection() });
 }
 
 test('content references: source-relative links do not depend on the content directory', () => {

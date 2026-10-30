@@ -10,6 +10,8 @@ import { loadBuildConfig, type BuildConfigSnapshot } from './utils/build-config.
 import { preflightOutDirs } from './utils/outdir-preflight.js';
 import { externalRepoName } from './utils/external.js';
 import { Templates } from './bem/templates.js';
+import { runWithTemplates } from './bem/template-context.js';
+import markdownTemplates from './markdown/templates.js';
 
 export interface BuildCommand {
     command: 'build';
@@ -65,6 +67,7 @@ async function buildOne(config: NucktyConfig, target: Target, cwd: string, env: 
     // Each build owns its template collection. The loader invokes block
     // declarations inside a scoped context read by the public `block()` API.
     const templates = new Templates();
+    runWithTemplates(templates, markdownTemplates);
 
     // Load blocks by BEM deps (bemdecl-driven) — replaces the explicit block
     // list in `ext[]`. Bundles come from config/site.json. `blockDeps` (the

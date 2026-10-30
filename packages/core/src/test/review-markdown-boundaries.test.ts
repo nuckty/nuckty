@@ -1,13 +1,13 @@
+import { markdownCollection } from './helpers/markdown.js';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createMarkdown } from '../markdown/index.js';
+import { createMarkdown } from '../markdown/remark.js';
 import { buildAnchorMap } from '../markdown/resolve-anchors.js';
 import { postprocessHtml } from '../markdown/html-postprocess.js';
 import { render } from '../bem/render.js';
-import { Templates } from '../bem/templates.js';
 
 function html(source: string, options: Parameters<typeof createMarkdown>[0] = {}): string {
-    return render(createMarkdown(options).render(source).tree, { templates: new Templates() });
+    return render(createMarkdown(options).render(source).tree, { templates: markdownCollection() });
 }
 
 test('raw asset prefixes own only the start of a URL and preserve whole filenames', () => {
@@ -32,11 +32,11 @@ test('heading IDs come from plain suffixes while code and formatted literals rem
     const renderer = createMarkdown();
     const source = '# First `{#sample}`\n\n# Second `{#sample}`\n\n# Formatted **text {#sample}**\n\n# Custom **text** {#explicit}';
     const result = renderer.render(source);
-    const output = render(result.tree, { templates: new Templates() });
+    const output = render(result.tree, { templates: markdownCollection() });
 
     assert.deepEqual(result.headings.map(heading => heading.anchor), ['first-sample', 'second-sample', 'formatted-text-sample', 'explicit']);
     assert.deepEqual(result.headings.map(heading => heading.text), ['First {#sample}', 'Second {#sample}', 'Formatted text {#sample}', 'Custom text']);
-    assert.equal((output.match(/<code class="article__inline-code">\{#sample\}<\/code>/g) ?? []).length, 2);
+    assert.equal((output.match(/<code class=article__inline-code>\{#sample\}<\/code>/g) ?? []).length, 2);
     assert.ok(output.includes('<strong>text {#sample}</strong>'));
     assert.ok(output.includes('id=explicit'));
     assert.doesNotMatch(output, /\{#explicit\}/);
@@ -132,7 +132,7 @@ test('literal angle-bracket heading content keeps metadata and distinct anchors'
         { text: '<One> props', anchor: 'one-props' },
         { text: '<Two> props', anchor: 'two-props' },
     ]);
-    const output = render(result.tree, { templates: new Templates() });
+    const output = render(result.tree, { templates: markdownCollection() });
 
     assert.ok(output.includes('&lt;One&gt;'));
     assert.ok(output.includes('&lt;Two&gt;'));

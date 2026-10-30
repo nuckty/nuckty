@@ -1,0 +1,5 @@
+- [x] Emit data-only `article` entities and register default Markdown templates per build.
+- [x] Map raw HTML image paths in the bridge and pass the content tree to the document handler.
+- [x] Type directive handlers and add `env.markdown.node`.
+- [x] Move gallery markup into templates with localized lightbox labels.
+- [x] Update tests and documentation.

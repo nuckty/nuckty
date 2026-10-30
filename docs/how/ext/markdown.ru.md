@@ -16,7 +16,7 @@ Markdown-расширение добавляет [конструкции markdow
 
 ## API и пример
 
-`env.markdown.directive(name, handler)` принимает `DirectiveHandler`: `(node: DirectiveNode, env: unknown, convert: DirectiveConverters) => { raw?: string; [key: string]: unknown } | null`. `node.type` — форма директивы: `containerDirective`, `leafDirective` или `textDirective`. Второй аргумент — окружение моста. `convert.inline(children)` и `convert.blocks(children)` преобразуют дочерние узлы директивы в BEMJSON так же, как страница преобразует обычный Markdown, с разрешением ссылок и изображений. `null` включает обычное преобразование содержимого.
+`env.markdown.directive(name, handler)` принимает `DirectiveHandler`: `(node: DirectiveNode, env: MarkdownOptions, convert: DirectiveConverters) => BEMTree | null`. `node.type` — форма директивы: `containerDirective`, `leafDirective` или `textDirective`. Второй аргумент — параметры Markdown страницы: карта изображений, исходный файл и язык таргета `lang`. `convert.inline(children)` и `convert.blocks(children)` преобразуют дочерние узлы директивы в BEMJSON так же, как страница преобразует обычный Markdown, с разрешением ссылок и изображений. `null` включает обычное преобразование содержимого.
 
 В примере обработчик намеренно сводит текст к строке; оформление и ссылки не сохраняются. Для сложного содержимого реализуйте собственное преобразование узлов.
 
@@ -51,4 +51,6 @@ export function register(env: NucktyEnv): void {
 
 Используйте `:::callout{.warning}` с абзацем внутри или `::badge[1.2]{type=new}`. Добавьте `callout` и `badge` в [bemdecl](../blocks/deps.ru.md) и предоставьте их [шаблоны](../templates.ru.md) и стили на [уровнях](../blocks/levels.ru.md). Само появление узла не добавляет блок в декларацию.
 
-`env.markdown.use(plugin)` принимает remark-плагин для произвольного преобразования mdast. Например, [видео](../../ext/markdown/video.ru.md) использует ссылки `@[provider](id)`. Директивы галереи и сетки совмещают markdown- и block-расширение в одном пакете; готовые реализации перечислены в [каталоге](../../ext/markdown.ru.md).
+`env.markdown.node(type, handler)` превращает каждый узел mdast типа `type` в BEMJSON до того, как ядро преобразует этот тип; у обработчика те же аргументы, что у обработчика директивы, а `null` оставляет преобразование ядра. remark-плагин может вставить узлы собственного типа для такого обработчика. Обработчики возвращают узлы блоков, а не строки HTML: разметку дают шаблоны блока.
+
+`env.markdown.use(plugin)` принимает remark-плагин для произвольного преобразования mdast. Например, [видео](../../ext/markdown/video.ru.md) превращает ссылки `@[provider](id)` в узлы `video`. Директивы галереи и сетки совмещают markdown- и block-расширение в одном пакете; готовые реализации перечислены в [каталоге](../../ext/markdown.ru.md).

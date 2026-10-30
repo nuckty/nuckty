@@ -26,7 +26,7 @@ The markdown extension finds the container node and turns it into the [BEMJSON](
 ## Behavior
 
 - **Grid** — the block's CSS lays the images out in a responsive grid.
-- **Lightbox** — clicking an image opens the full-size version (the `lightbox` block). The implementation is its own, with no external JS dependencies like tobii: the engine does not pull in frontend libraries.
+- **Lightbox** — clicking an image opens the full-size version (the `lightbox` block). The implementation is its own, with no external JS dependencies like tobii: the engine does not pull in frontend libraries. The dialog and its close button are labelled in Russian on `ru` targets and in English on other targets.
 - **Lazy loading** — the first image in each gallery has no `loading=lazy`; the others do. This does not determine whether it is visible without scrolling.
 
 ## Installation

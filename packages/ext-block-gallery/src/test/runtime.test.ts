@@ -16,7 +16,7 @@ test('gallery runtime preserves native links and manages one modal with focus re
         const box = {
             modal: false,
             classList: { add(value: string) { classes.add(value); }, remove(value: string) { classes.delete(value); } },
-            querySelector(selector: string) { return selector === 'img' ? image : button; },
+            querySelector(selector: string) { return selector === '.lightbox__image' ? image : button; },
             showModal() { this.modal = true; },
             close() { this.modal = false; },
         };

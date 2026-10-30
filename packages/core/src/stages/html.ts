@@ -3,10 +3,9 @@
  * to the consumer, and writes minimal HTML to `<outDir>/html/`.
  *
  * For each page in `ctx.store.sitemap.pages`:
- *   1. take the page's content tree (markdown → BemNode, produced by sitemap);
- *   2. pass page, content, assets, target and alternates to `env.document`;
- *   3. serialize via the two-pass engine (`renderToBemJson` → `renderToHtml`);
- *   4. write `<outDir>/html/<flat>.html` (URL → flat filename mapping).
+ *   1. pass the page, its content tree, assets, target and alternates to `env.document`;
+ *   2. render the returned document tree, content included, in one two-pass render;
+ *   3. write `<outDir>/html/<flat>.html` (URL → flat filename mapping).
  *
  * @module stages/html
  */
@@ -17,8 +16,6 @@ import { assertArtifactPath } from './artifact-path.js';
 import type { Stage, BuildContext } from '../pipeline/pipeline.js';
 import { render } from '../bem/render.js';
 import { resolveAlternates, type Target, type Alternates } from '../targets/config.js';
-import { postprocessHtml } from '../markdown/html-postprocess.js';
-import type { ImageMappingEnv } from '../markdown/image-mapping.js';
 import type { SitemapArtifact, BundleHashEntry } from './types.js';
 import type { DocumentData } from '../document/document.js';
 
@@ -53,27 +50,6 @@ export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise
     }
 
     for (const [url, page] of Object.entries(sitemap.pages)) {
-        const content = page.tree ?? [];
-
-        // Resolve raw HTML image references in content. Typography belongs to
-        // opt-in markdown extensions; page chrome bypasses this mapping pass.
-        const contentHtml = render(content, { templates, document: false });
-        let contentForLayout: DocumentData['content'] = [];
-        if (contentHtml !== '') {
-            // The image-mapping env carries the page's inputPath so raw-HTML
-            // `<img>` tags embedded in the markdown source (text-with-icon)
-            // are rewritten through the same section-aware resolver as
-            // markdown `![](...)` images.
-            const imageEnv: ImageMappingEnv = {
-                imageMapping: assets.images,
-                sourceFile: page.file,
-            };
-            if (page.inputPath !== undefined) {
-                imageEnv.inputPath = page.inputPath;
-            }
-            contentForLayout = [{ raw: postprocessHtml(contentHtml, imageEnv) }];
-        }
-
         const currentTarget = ctx.store['currentTarget'] as Target | undefined;
         const allTargetsList = ctx.store['allTargets'] as Target[] | undefined;
         let alternates: Alternates = new Map();
@@ -84,7 +60,7 @@ export const htmlStage: Stage<BuildContext> = async (ctx: BuildContext): Promise
 
         const data: DocumentData = {
             page,
-            content: contentForLayout,
+            content: page.tree ?? [],
             sitemap,
             assets,
             alternates,

@@ -613,10 +613,6 @@ body:has(.menu-toggle[aria-expanded='true']) > .footer {
     min-width: 0;
 }
 
-.article__code-copy {
-    display: none;
-}
-
 .article > .code-block {
     margin-block: 1.5rem;
 }

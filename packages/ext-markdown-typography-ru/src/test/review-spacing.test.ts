@@ -1,8 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { applyRussianTypography } from '../index.js';
-import { createMarkdown, render, Templates } from '@nuckty/core';
+import { createMarkdown, render, Templates, markdownTemplates, runWithTemplates } from '@nuckty/core';
 import { remarkTypographyRu } from '../index.js';
+
+/** A template collection with the default Markdown templates. */
+function withMarkdown(): Templates {
+    const templates = new Templates();
+
+    runWithTemplates(templates, markdownTemplates);
+
+    return templates;
+}
 
 test('horizontal em-dash spacing converges from NBSP, tabs and repeated spaces', () => {
     const canonical = 'слово\u00a0— текст';
@@ -25,7 +34,7 @@ test('line boundaries, dialogue indentation and numeric ranges remain authored',
 
 test('Markdown link and literal-code spacing survive the typography bridge', () => {
     const parser = createMarkdown({ remarkPlugins: [remarkTypographyRu] });
-    const html = render(parser.render('слово\u00a0—[ссылка](/x) и `код — без замен`').tree, { templates: new Templates() });
+    const html = render(parser.render('слово\u00a0—[ссылка](/x) и `код — без замен`').tree, { templates: withMarkdown() });
 
     assert(html.includes('слово\u00a0— <a'));
     assert(html.includes('код — без замен'));
@@ -33,7 +42,7 @@ test('Markdown link and literal-code spacing survive the typography bridge', () 
 
 test('a dash after inline markup gets a non-breaking space before it', () => {
     const parser = createMarkdown({ remarkPlugins: [remarkTypographyRu] });
-    const html = render(parser.render('[ссылка](/x) — описание, *слово*  —текст, `код` — после кода\\\n— реплика').tree, { templates: new Templates() });
+    const html = render(parser.render('[ссылка](/x) — описание, *слово*  —текст, `код` — после кода\\\n— реплика').tree, { templates: withMarkdown() });
 
     assert(html.includes('</a>\u00a0— описание'));
     assert(html.includes('</em>\u00a0— текст'));

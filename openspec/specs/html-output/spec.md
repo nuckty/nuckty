@@ -133,15 +133,6 @@ The serializer SHALL use one minimization mode in development and production. Id
 - **THEN** the HTML is identical byte-for-byte
 - **AND** there is no formatted-HTML dev mode
 
-### Requirement: Page content shape does not change preparation
-HTML emission SHALL render every supported BEMTree content shape through the content templates and image-mapping pass before handing prepared content to the document handler. A single node SHALL NOT bypass the preparation applied to an equivalent one-item array. Empty content SHALL remain empty for the handler, and the original page tree SHALL remain available unchanged.
-
-#### Scenario: Single raw content maps like array content
-- **WHEN** a page carries one raw image node or an equivalent one-item array with a logical source path
-- **THEN** both handler inputs contain the same prepared hashed-image markup
-- **AND** both published HTML outputs agree
-- **AND** empty or false content remains empty
-
 ### Requirement: Contextual paragraph end-tag omission
 The serializer SHALL omit a paragraph end tag before a resolved HTML sibling named address, article, aside, blockquote, details, dialog, div, dl, fieldset, figcaption, figure, footer, form, h1 through h6, header, hgroup, hr, main, menu, nav, ol, p, pre, search, section, table or ul. It SHALL also omit the tag at the end of a known HTML parent other than a, audio, del, ins, map, noscript, video or an autonomous custom element. It SHALL retain the tag before inline, text or opaque raw successors, in foreign content and when the parent of a trailing fragment is unknown. Document-mode trailing newlines SHALL remain outside a trailing body paragraph.
 
@@ -156,3 +147,11 @@ The serializer SHALL omit a paragraph end tag before a resolved HTML sibling nam
 #### Scenario: Document formatting retains its position
 - **WHEN** document mode ends a body with a paragraph
 - **THEN** the paragraph closes before the two document-formatting newline characters
+
+### Requirement: Content reaches the document as a tree
+HTML emission SHALL hand the page's BEMTree content to the document handler unchanged, whatever its shape, and SHALL render the returned document with the build's templates in one render. Empty content SHALL remain empty for the handler.
+
+#### Scenario: Content templates apply inside the document
+- **WHEN** a page's content contains a `note` block and the build has a `note` template
+- **THEN** the handler receives the content tree itself
+- **AND** the published HTML contains the `note` template output inside the document

@@ -17,7 +17,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildAnchorMap, resolvePageAnchors } from '../markdown/resolve-anchors.js';
-import { createMarkdown } from '../markdown/index.js';
+import { createMarkdown } from '../markdown/remark.js';
 import type { SitemapArtifact, SitemapPage } from '../stages/types.js';
 import type { BemNode, BEMTree } from '../bem/types.js';
 
@@ -26,9 +26,9 @@ function heading(level: number, text: string, anchor: string) {
     return { level, text, rawText: text, anchor };
 }
 
-/** A `<a href>` BemNode. */
+/** A Markdown link node. */
 function link(href: string, content: BEMTree = 'x'): BemNode {
-    return { tag: 'a', attrs: { href }, content };
+    return { block: 'article', elem: 'link', props: { href }, content };
 }
 
 function page(url: string, tree: BEMTree): SitemapPage {
@@ -125,7 +125,7 @@ test('resolvePageAnchors: same-document anchor is resolved against this page map
     const sitemap = sitemapOf([p]);
     const maps = new Map([['/docs', buildAnchorMap([heading(2, 'Getting Started', 'getting-started')])]]);
     resolvePageAnchors(p, sitemap, maps);
-    assert.equal((tree.content as BemNode[])[0]!.attrs!['href'], '#getting-started');
+    assert.equal((tree.content as BemNode[])[0]!.props!['href'], '#getting-started');
 });
 
 test('resolvePageAnchors: same-document anchor with explicit this-url base resolves', () => {
@@ -134,7 +134,7 @@ test('resolvePageAnchors: same-document anchor with explicit this-url base resol
     const sitemap = sitemapOf([p]);
     const maps = new Map([['/docs', buildAnchorMap([heading(2, 'Notes', 'notes')])]]);
     resolvePageAnchors(p, sitemap, maps);
-    assert.equal((tree.content as BemNode[])[0]!.attrs!['href'], '#notes');
+    assert.equal((tree.content as BemNode[])[0]!.props!['href'], '#notes');
 });
 
 test('resolvePageAnchors: cross-document anchor resolves against the target page map', () => {
@@ -147,7 +147,7 @@ test('resolvePageAnchors: cross-document anchor resolves against the target page
         ['/other', buildAnchorMap([heading(2, 'Section', 'section')])],
     ]);
     resolvePageAnchors(p, sitemap, maps);
-    assert.equal((tree.content as BemNode[])[0]!.attrs!['href'], '/other#section');
+    assert.equal((tree.content as BemNode[])[0]!.props!['href'], '/other#section');
 });
 
 test('resolvePageAnchors: URL-encoded anchor is decoded before lookup', () => {
@@ -159,7 +159,7 @@ test('resolvePageAnchors: URL-encoded anchor is decoded before lookup', () => {
     const targetMap = new Map([['а', 'a-anchor']]);
     const maps = new Map([['/docs', new Map()], ['/other', targetMap]]);
     resolvePageAnchors(p, sitemap, maps);
-    assert.equal((tree.content as BemNode[])[0]!.attrs!['href'], '/other#a-anchor');
+    assert.equal((tree.content as BemNode[])[0]!.props!['href'], '/other#a-anchor');
 });
 
 test('resolvePageAnchors: malformed percent-encoded anchor falls back to the raw anchor', () => {
@@ -172,7 +172,7 @@ test('resolvePageAnchors: malformed percent-encoded anchor falls back to the raw
     const maps = new Map([['/docs', new Map()], ['/other', new Map()]]);
     resolvePageAnchors(p, sitemap, maps);
     // No matching key → the anchor passes through unchanged.
-    assert.equal((tree.content as BemNode[])[0]!.attrs!['href'], '/other#%E0%A4%A');
+    assert.equal((tree.content as BemNode[])[0]!.props!['href'], '/other#%E0%A4%A');
 });
 
 test('resolvePageAnchors: empty anchor (href ends with #) is left unchanged', () => {
@@ -182,7 +182,7 @@ test('resolvePageAnchors: empty anchor (href ends with #) is left unchanged', ()
     const sitemap = sitemapOf([p, other]);
     const maps = new Map([['/docs', new Map()], ['/other', buildAnchorMap([heading(2, 'X', 'x')])]]);
     resolvePageAnchors(p, sitemap, maps);
-    assert.equal((tree.content as BemNode[])[0]!.attrs!['href'], '/other#');
+    assert.equal((tree.content as BemNode[])[0]!.props!['href'], '/other#');
 });
 
 test('resolvePageAnchors: unknown target page leaves the href verbatim', () => {
@@ -191,7 +191,7 @@ test('resolvePageAnchors: unknown target page leaves the href verbatim', () => {
     const sitemap = sitemapOf([p]);
     const maps = new Map([['/docs', new Map()]]);
     resolvePageAnchors(p, sitemap, maps);
-    assert.equal((tree.content as BemNode[])[0]!.attrs!['href'], '/missing#anchor');
+    assert.equal((tree.content as BemNode[])[0]!.props!['href'], '/missing#anchor');
 });
 
 test('resolvePageAnchors: unresolved anchor on a known page passes through verbatim', () => {
@@ -201,7 +201,7 @@ test('resolvePageAnchors: unresolved anchor on a known page passes through verba
     const sitemap = sitemapOf([p, other]);
     const maps = new Map([['/docs', new Map()], ['/other', buildAnchorMap([heading(2, 'Real', 'real')])]]);
     resolvePageAnchors(p, sitemap, maps);
-    assert.equal((tree.content as BemNode[])[0]!.attrs!['href'], '/other#nope');
+    assert.equal((tree.content as BemNode[])[0]!.props!['href'], '/other#nope');
 });
 
 test('resolvePageAnchors: links without a # are left untouched', () => {
@@ -210,8 +210,8 @@ test('resolvePageAnchors: links without a # are left untouched', () => {
     const sitemap = sitemapOf([p, page('/other', { tag: 'div' })]);
     const maps = new Map([['/docs', new Map()]]);
     resolvePageAnchors(p, sitemap, maps);
-    assert.equal((tree.content as BemNode[])[0]!.attrs!['href'], '/other');
-    assert.equal((tree.content as BemNode[])[1]!.attrs!['href'], 'https://ex.com/x');
+    assert.equal((tree.content as BemNode[])[0]!.props!['href'], '/other');
+    assert.equal((tree.content as BemNode[])[1]!.props!['href'], 'https://ex.com/x');
 });
 
 test('resolvePageAnchors: non-anchor nodes (<div>, text) are walked but not rewritten', () => {
@@ -230,7 +230,7 @@ test('resolvePageAnchors: non-anchor nodes (<div>, text) are walked but not rewr
     const arr = tree.content as BemNode[];
     assert.equal(arr[0]!.tag, 'p');
     assert.equal(arr[2], 'plain text');
-    assert.equal(arr[1]!.attrs!['href'], '#notes');
+    assert.equal(arr[1]!.props!['href'], '#notes');
 });
 
 test('resolvePageAnchors: nested arrays and nested content are walked recursively', () => {
@@ -254,10 +254,10 @@ test('resolvePageAnchors: nested arrays and nested content are walked recursivel
     resolvePageAnchors(p, sitemap, maps);
     const top = tree.content as unknown[];
     const first = top[0] as BemNode[];
-    assert.equal(first[0]!.attrs!['href'], '#a');
-    assert.equal((first[1]!.content as BemNode).attrs!['href'], '#b');
+    assert.equal(first[0]!.props!['href'], '#a');
+    assert.equal((first[1]!.content as BemNode).props!['href'], '#b');
     const second = top[1] as BemNode;
-    assert.equal(((second.content as BemNode[])[0]!.content as BemNode).attrs!['href'], '#c');
+    assert.equal(((second.content as BemNode[])[0]!.content as BemNode).props!['href'], '#c');
 });
 
 test('resolvePageAnchors: a page with no tree is a no-op', () => {
@@ -277,7 +277,7 @@ test('resolvePageAnchors: same-doc anchor resolves when the page has no map entr
     const sitemap = sitemapOf([p]);
     const maps = new Map<string, Map<string, string>>(); // no entry for /docs
     resolvePageAnchors(p, sitemap, maps);
-    assert.equal((tree.content as BemNode[])[0]!.attrs!['href'], '#lonely');
+    assert.equal((tree.content as BemNode[])[0]!.props!['href'], '#lonely');
 });
 
 test('resolvePageAnchors: a string child of content is walked without error', () => {
@@ -292,7 +292,7 @@ test('resolvePageAnchors: a string child of content is walked without error', ()
     resolvePageAnchors(p, sitemap, maps);
     const arr = tree.content as unknown[];
     assert.equal(arr[0], 'a plain string');
-    assert.equal((arr[1] as BemNode).attrs!['href'], '#notes');
+    assert.equal((arr[1] as BemNode).props!['href'], '#notes');
 });
 
 test('resolvePageAnchors resolves fragments using pathname while retaining queries', () => {
@@ -305,8 +305,8 @@ test('resolvePageAnchors resolves fragments using pathname while retaining queri
     ]);
     resolvePageAnchors(source, sitemap, maps);
     const nodes = source.tree as BemNode[];
-    assert.equal(nodes[0]!.attrs!['href'], '/target?q=1#target-child');
-    assert.equal(nodes[1]!.attrs!['href'], '?q=2#source-child');
+    assert.equal(nodes[0]!.props!['href'], '/target?q=1#target-child');
+    assert.equal(nodes[1]!.props!['href'], '?q=2#source-child');
 });
 
 test('resolvePageAnchors leaves generated heading self-links on their final ids', () => {
@@ -319,8 +319,8 @@ test('resolvePageAnchors leaves generated heading self-links on their final ids'
         if (!node || typeof node !== 'object') {
             return;
         }
-        if (node.tag === 'a') {
-            hrefs.push(String(node.attrs?.['href']));
+        if (node.elem === 'link' || node.elem === 'heading-anchor') {
+            hrefs.push(String(node.props?.['href']));
         }
         if (node.content) {
             collect(node.content);

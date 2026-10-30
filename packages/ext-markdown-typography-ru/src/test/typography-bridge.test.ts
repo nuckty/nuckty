@@ -15,17 +15,26 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMarkdown, render, Templates } from '@nuckty/core';
+import { createMarkdown, render, Templates, markdownTemplates, runWithTemplates } from '@nuckty/core';
 import { remarkTypographyRu } from '../index.js';
 
-const NO_TEMPLATES = { templates: new Templates() };
+/** A template collection with the default Markdown templates. */
+function withMarkdown(): Templates {
+    const templates = new Templates();
+
+    runWithTemplates(templates, markdownTemplates);
+
+    return templates;
+}
+
+const TEMPLATES = { templates: withMarkdown() };
 
 /** Render markdown → BemNode → HTML with the typography plugin attached, the
  *  way a consumer wires it via `ext[]` → `env.markdown.use(remarkTypographyRu)`. */
 function mdToHtml(src: string): string {
     const { render: renderMd } = createMarkdown({ remarkPlugins: [remarkTypographyRu] });
     const { tree } = renderMd(src);
-    return render({ block: 'article', content: tree }, NO_TEMPLATES);
+    return render({ block: 'article', content: tree }, TEMPLATES);
 }
 
 test('bridge: prose em-dash gets nbsp before, regular space after', () => {

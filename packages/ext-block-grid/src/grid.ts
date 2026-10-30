@@ -3,9 +3,7 @@
  * children into the `grid` BemNode tree — each child paragraph becomes one
  * grid item (cell) rendered like an ordinary paragraph's inline content.
  *
- * Children arrive as mdast nodes (the engine hands the raw directive node to
- * the handler); we duck-type on `node.type` to stay free of mdast deps, the
- * same way the reference consumer handlers do.
+ * Children arrive as mdast nodes, read through the structural `MdastNode` view.
  *
  * @module grid
  */
@@ -21,7 +19,7 @@ export interface MdastNode {
     children?: MdastNode[];
 }
 
-/** Flatten a paragraph's inline children to plain text (soft breaks kept as `\n`, images as their alt text). */
+/** Plain text of a paragraph's inline children, used to detect cells without text. */
 export function paragraphText(paragraph: MdastNode): string {
     let out = '';
     for (const c of paragraph.children ?? []) {

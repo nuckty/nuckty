@@ -1,10 +1,10 @@
+import { markdownCollection } from './helpers/markdown.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMarkdown } from '../markdown/index.js';
+import { createMarkdown } from '../markdown/remark.js';
 import { render } from '../bem/render.js';
-import { Templates } from '../bem/templates.js';
 
-const NO_TEMPLATES = { templates: new Templates() };
+const TEMPLATES = { templates: markdownCollection() };
 
 function mdToHtml(src: string, opts: Parameters<typeof createMarkdown>[0] = {}): string {
     // Markdown-bridge contract only. Typography is an extension
@@ -13,7 +13,7 @@ function mdToHtml(src: string, opts: Parameters<typeof createMarkdown>[0] = {}):
     // registers it in `ext[]`.
     const { render: renderMd } = createMarkdown(opts);
     const { tree } = renderMd(src);
-    return render({ block: 'article', content: tree }, NO_TEMPLATES);
+    return render({ block: 'article', content: tree }, TEMPLATES);
 }
 
 test('heading: h1 with cyrillic anchor', () => {
@@ -63,12 +63,12 @@ test('list: paragraph wrapper skipped inside list item', () => {
 
 test('code: fenced block', () => {
     const html = mdToHtml('```\ncode here\n```\n');
-    assert.ok(html.includes('<pre class=article__code><code>code here\n</code><button type=button class=article__code-copy aria-label="Copy code to clipboard" title="Copy code"></button></pre>'));
+    assert.ok(html.includes('<pre class=article__code><code>code here\n</code></pre>'));
 });
 
 test('code: inline', () => {
     const html = mdToHtml('Use `npm` to install.');
-    assert.ok(html.includes('<code class="article__inline-code">npm</code>'));
+    assert.ok(html.includes('<code class=article__inline-code>npm</code>'));
 });
 
 test('link: external passes through', () => {

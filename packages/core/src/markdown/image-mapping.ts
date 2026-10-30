@@ -2,13 +2,15 @@
 import path from 'node:path';
 
 export interface ImageMappingEnv {
-    imageMapping: Record<string, string>;
-    /** Current file relative to the content root; inputPath is the legacy fallback. */
-    sourceFile?: string;
-    inputPath?: string;
+    imageMapping?: Record<string, string> | undefined;
+    /** Current file relative to the content root. */
+    sourceFile?: string | undefined;
+    /** Source path relative to the consumer root, used when `sourceFile` is absent. */
+    inputPath?: string | undefined;
 }
 
 export function transformImagePathShared(originalPath: string, env: ImageMappingEnv): string {
+    const mapping = env.imageMapping ?? {};
     const inputUrl = originalPath.replace(/^[\x00-\x20]+|[\x00-\x20]+$/g, '').replace(/[\t\n\r]/g, '');
 
     if (!inputUrl || /^[a-z][a-z\d+.-]*:/i.test(inputUrl) || inputUrl.startsWith('//')) {
@@ -25,7 +27,7 @@ export function transformImagePathShared(originalPath: string, env: ImageMapping
     }
     const normalized = path.posix.normalize(pathname.replace(/\\/g, '/').replace(/^\/+/, ''));
     const mappedUrl = (key: string): string | undefined => {
-        const value = Object.hasOwn(env.imageMapping, key) ? env.imageMapping[key] : undefined;
+        const value = Object.hasOwn(mapping, key) ? mapping[key] : undefined;
 
         return value ? (value.startsWith('/') ? value : '/' + value) + suffix : undefined;
     };
@@ -44,7 +46,7 @@ export function transformImagePathShared(originalPath: string, env: ImageMapping
         return originalPath;
     }
 
-    const keys = Object.keys(env.imageMapping).filter(key => path.posix.basename(key) === normalized);
+    const keys = Object.keys(mapping).filter(key => path.posix.basename(key) === normalized);
     if (keys.length > 1) {
         throw new Error(`Ambiguous image "${originalPath}" in ${env.inputPath ?? 'unknown file'}: ${keys.sort().join(', ')}`);
     }

@@ -10,7 +10,6 @@
         if (!activeBox) {
             return;
         }
-        activeBox.classList.remove('is-open');
         activeBox.close();
         activeBox = null;
         document.body.style.overflow = previousOverflow;
@@ -33,9 +32,10 @@
             }
             event.preventDefault();
             close();
-            var img = box.querySelector('img');
+            var img = box.querySelector('.lightbox__image');
             if (!img) {
                 img = document.createElement('img');
+                img.className = 'lightbox__image';
                 box.appendChild(img);
             }
             img.src = item.getAttribute('href');
@@ -45,7 +45,6 @@
             activeBox = box;
             previousOverflow = document.body.style.overflow;
             document.body.style.overflow = 'hidden';
-            box.classList.add('is-open');
             box.oncancel = function (cancelEvent) {
                 cancelEvent.preventDefault();
                 close();

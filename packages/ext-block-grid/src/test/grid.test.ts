@@ -14,11 +14,20 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { NucktyEnv, Templates, createMarkdown, render, runWithTemplates } from '@nuckty/core';
+import { NucktyEnv, Templates, createMarkdown, render, runWithTemplates, markdownTemplates } from '@nuckty/core';
 import { register as registerExtension, gridHandler } from '../index.js';
 import { extractItems, gridNode } from '../grid.js';
 import type { MdastNode } from '../grid.js';
 import gridTemplates from '../../blocks/grid/grid.nu.ts';
+
+/** A template collection with the default Markdown templates. */
+function withMarkdown(): Templates {
+    const templates = new Templates();
+
+    runWithTemplates(templates, markdownTemplates);
+
+    return templates;
+}
 
 function paragraph(...children: MdastNode[]): MdastNode {
     return { type: 'paragraph', children };
@@ -48,11 +57,11 @@ test('gridNode wraps item texts into grid__item cells', () => {
 
 test('gridHandler maps a container with items and falls back on an empty one', () => {
     const convert = { inline: (children: unknown[]) => children.length ? 'cell' : '', blocks: () => [] };
-    const withItems = gridHandler({ name: 'grid', children: [paragraph({ type: 'text', value: 'Cell' })] }, undefined, convert);
+    const withItems = gridHandler({ type: 'containerDirective', name: 'grid', children: [paragraph({ type: 'text', value: 'Cell' })] }, {}, convert);
     assert.ok(withItems);
     assert.equal((withItems as { block?: string }).block, 'grid');
 
-    const empty = gridHandler({ name: 'grid', children: [] }, undefined, convert);
+    const empty = gridHandler({ type: 'containerDirective', name: 'grid', children: [] }, {}, convert);
     assert.equal(empty, null);
 });
 
@@ -67,7 +76,7 @@ test('register adds the blocks level and maps the grid directive', () => {
 });
 
 test('grid block templates render the tree with escaped item text', () => {
-    const templateSet = new Templates();
+    const templateSet = withMarkdown();
 
     runWithTemplates(templateSet, gridTemplates);
 
@@ -81,7 +90,7 @@ test('grid block templates render the tree with escaped item text', () => {
 test('grid cells render links, emphasis, code and images like paragraphs and reject other blocks', () => {
     const env = new NucktyEnv();
     registerExtension(env);
-    const templateSet = new Templates();
+    const templateSet = withMarkdown();
     runWithTemplates(templateSet, gridTemplates);
     const parser = createMarkdown({ directiveMappings: env.markdown.directiveMappings(), imageMapping: { 'logo.png': 'abcdef0123456789.png' }, sourceFile: 'index.md' });
     const html = render(parser.render(':::grid\n![Logo](logo.png)\n\n[Docs](https://example.com/docs) and *em* `code`\n:::').tree, { templates: templateSet });
@@ -96,7 +105,7 @@ test('leaf and text grid directives fall back to plain content instead of failin
     const env = new NucktyEnv();
     registerExtension(env);
     const parser = createMarkdown({ directiveMappings: env.markdown.directiveMappings() });
-    const html = render(parser.render('Текст :grid[в строке] и\n\n::grid[лист]\n\n:::grid\nячейка\n:::').tree, { templates: new Templates() });
+    const html = render(parser.render('Текст :grid[в строке] и\n\n::grid[лист]\n\n:::grid\nячейка\n:::').tree, { templates: withMarkdown() });
 
     assert.match(html, /в строке/);
     assert.match(html, /лист/);
@@ -106,7 +115,7 @@ test('leaf and text grid directives fall back to plain content instead of failin
 test('cells holding only a reference image or inline img HTML are kept', () => {
     const env = new NucktyEnv();
     registerExtension(env);
-    const templateSet = new Templates();
+    const templateSet = withMarkdown();
     runWithTemplates(templateSet, gridTemplates);
     const parser = createMarkdown({ directiveMappings: env.markdown.directiveMappings(), imageMapping: { 'logo.png': 'abcdef0123456789.png' }, sourceFile: 'index.md' });
     const html = render(parser.render(':::grid\n![Logo][logo]\n\n<img src="x.png" alt="X">\n:::\n\n[logo]: logo.png\n').tree, { templates: templateSet });

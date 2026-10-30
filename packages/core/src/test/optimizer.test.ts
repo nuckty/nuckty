@@ -4,10 +4,10 @@ import { render } from '../bem/render.js';
 import { Templates } from '../bem/templates.js';
 import type { BEMTree } from '../bem/types.js';
 
-const NO_TEMPLATES = { templates: new Templates() };
+const TEMPLATES = { templates: new Templates() };
 
 function r(tree: BEMTree): string {
-    return render(tree, NO_TEMPLATES);
+    return render(tree, TEMPLATES);
 }
 
 test('rule 9-11: single-token class unquoted', () => {
@@ -164,7 +164,7 @@ test('attribute value with quotes is entity-escaped (RENDER-01 parser round-trip
 test('document mode prepends <!doctype html> and appends \\n\\n', () => {
     // Document-level render emits `<!doctype html>` as the first bytes and
     // terminates with `\n\n`. div is not an omissible-close tag → close emitted.
-    const html = render({ block: 'p' }, { ...NO_TEMPLATES, document: true });
+    const html = render({ block: 'p' }, { ...TEMPLATES, document: true });
     assert.equal(html, '<!doctype html><div class=p></div>\n\n');
 });
 
@@ -272,7 +272,7 @@ test('document wrapper ends preserve opaque comment sibling positions', () => {
         { raw: '<!--after-root-->' },
     ];
 
-    assert.equal(render(tree, { ...NO_TEMPLATES, document: true }), '<!doctype html><title>T</title></head><!--after-head-->X</body><!--after-body--></html><!--after-root-->\n\n');
+    assert.equal(render(tree, { ...TEMPLATES, document: true }), '<!doctype html><title>T</title></head><!--after-head-->X</body><!--after-body--></html><!--after-root-->\n\n');
 });
 
 test('head closes before literal whitespace outside its content', () => {

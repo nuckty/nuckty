@@ -10,14 +10,14 @@
  * @module test/markdown-edge
  */
 
+import { markdownCollection } from './helpers/markdown.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMarkdown } from '../markdown/index.js';
+import { createMarkdown } from '../markdown/remark.js';
 import { postprocessHtml } from '../markdown/html-postprocess.js';
 import { render } from '../bem/render.js';
-import { Templates } from '../bem/templates.js';
 
-const NO_TEMPLATES = { templates: new Templates() };
+const TEMPLATES = { templates: markdownCollection() };
 
 function mdToHtml(src: string, opts: Parameters<typeof createMarkdown>[0] = {}): string {
     // Markdown-bridge edge cases only. Typography is an extension
@@ -25,7 +25,7 @@ function mdToHtml(src: string, opts: Parameters<typeof createMarkdown>[0] = {}):
     // edge cases live in the extension.
     const { render: renderMd } = createMarkdown(opts);
     const { tree } = renderMd(src);
-    return render({ block: 'article', content: tree }, NO_TEMPLATES);
+    return render({ block: 'article', content: tree }, TEMPLATES);
 }
 
 // ---- Tables (openspec: CommonMark + GFM tables map to BEMTree) --------------
@@ -42,8 +42,8 @@ test('table: empty body cell renders empty <td>', () => {
 test('table: cell with inline code + link keeps both', () => {
     const html = mdToHtml('| H |\n| --- |\n| [`x`](/y) `code` |\n');
     // The link wraps the inline code: <a href=/y><code>x</code></a>.
-    assert.ok(html.includes('<a class=article__link href=/y><code class="article__inline-code">x</code></a>'));
-    assert.ok(html.includes('<code class="article__inline-code">code</code>'));
+    assert.ok(html.includes('<a class=article__link href=/y><code class=article__inline-code>x</code></a>'));
+    assert.ok(html.includes('<code class=article__inline-code>code</code>'));
 });
 
 test('table: cyrillic header preserved verbatim', () => {
@@ -95,7 +95,7 @@ test('inline: emphasis inside link', () => {
 
 test('inline: code_inline HTML-escapes special chars', () => {
     const html = mdToHtml('use `<a>` safely');
-    assert.ok(html.includes('<code class="article__inline-code">&lt;a&gt;</code>'));
+    assert.ok(html.includes('<code class=article__inline-code>&lt;a&gt;</code>'));
 });
 
 test('code: raw asset URLs in copied code stay absolute on the configured site', () => {
@@ -105,7 +105,7 @@ test('code: raw asset URLs in copied code stay absolute on the configured site',
         'Run `curl https://github.com/acme/docs/raw/main/files/file.zip`\n\n```sh\ncurl https://github.com/acme/docs/raw/main/files/file.zip\n```',
         options,
     );
-    assert.ok(html.includes('<code class="article__inline-code">curl https://example.test/files/file.zip</code>'), html);
+    assert.ok(html.includes('<code class=article__inline-code>curl https://example.test/files/file.zip</code>'), html);
     assert.ok(html.includes('<code>curl https://example.test/files/file.zip\n</code>'), html);
     assert.ok(mdToHtml('[asset](https://github.com/acme/docs/raw/main/files/file.zip)', options).includes('href=/files/file.zip'));
 });
@@ -115,7 +115,7 @@ test('code: raw asset URLs stay absolute when no site base URL is configured', (
     const html = mdToHtml(`Run \`curl ${rawUrl}\`\n\n\`\`\`sh\ncurl ${rawUrl}\n\`\`\``, {
         githubRawBase: 'https://github.com/acme/docs/raw/main/',
     });
-    assert.ok(html.includes(`<code class="article__inline-code">curl ${rawUrl}</code>`), html);
+    assert.ok(html.includes(`<code class=article__inline-code>curl ${rawUrl}</code>`), html);
     assert.ok(html.includes(`<code>curl ${rawUrl}\n</code>`), html);
     assert.ok(mdToHtml(`[asset](${rawUrl})`, {
         githubRawBase: 'https://github.com/acme/docs/raw/main/',
@@ -127,7 +127,7 @@ test('code: unrelated curl URLs ending in zip are not rewritten as site paths', 
         githubRawBase: 'https://github.com/acme/docs/raw/main/',
         baseUrl: 'https://example.test',
     });
-    assert.ok(html.includes('<code class="article__inline-code">curl https://downloads.example.test/file.zip</code>'), html);
+    assert.ok(html.includes('<code class=article__inline-code>curl https://downloads.example.test/file.zip</code>'), html);
     assert.ok(!html.includes('curl /file.zip'), html);
 });
 
@@ -360,7 +360,7 @@ test('postprocess: authored prose whitespace is preserved without typography ext
 test('relative download links point at the flat artifact root where the assets stage copies them', () => {
     const downloads = { 'tool.zip': 'external/docs/docs/files/tool.zip', 'manual.pdf': 'external/docs/manual.pdf', 'setup.ini': 'external/docs/docs/setup.ini', 'my#a.zip': 'external/docs/docs/my#a.zip' };
     const md = createMarkdown({ sourceFile: 'docs/guide.md', inputPath: './external/docs/docs/guide.md', downloads, md2url: { 'docs/guide.md': '/docs/guide' }, currentUrl: '/docs/guide' });
-    const html = render(md.render('[tool](files/tool.zip) [manual](../manual.pdf) [cfg](setup.ini?v=2) [hash](my%23a.zip)').tree, { templates: new Templates() });
+    const html = render(md.render('[tool](files/tool.zip) [manual](../manual.pdf) [cfg](setup.ini?v=2) [hash](my%23a.zip)').tree, { templates: markdownCollection() });
     assert.ok(html.includes('href=/tool.zip>'), html);
     assert.ok(html.includes('href=/manual.pdf>'), html);
     assert.ok(html.includes('href="/setup.ini?v=2"') || html.includes('href=/setup.ini?v=2>'), html);

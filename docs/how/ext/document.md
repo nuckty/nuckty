@@ -6,7 +6,7 @@ A document handler turns engine-prepared data into a [BEMTree](../bemjson.md). I
 
 `env.document.register(handler)` accepts `(data: DocumentData) => BEMTree | Promise<BEMTree>`. The data includes `page`, `content`, `sitemap`, `assets`, `alternates`, and optional `target` and `lang`. Site settings are available through `target?.data`. `page.lastUpdated` is the Unix time in seconds of the last Git commit of the page source, or `null`; the template formats it.
 
-The current HTML stage applies [templates](../templates.md) to content and serializes it first. Therefore `data.content` contains a `raw` node with ready markup; the original tree is available through `data.page.tree`.
+`data.content` is the page's content tree (`data.page.tree`). Place it into the document; the engine renders the document and the content together, so all [templates](../templates.md) apply to both.
 
 ## Minimal handler
 

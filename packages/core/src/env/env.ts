@@ -10,6 +10,7 @@
 
 import type { NucktyConfig } from '../targets/config.js';
 import type { BEMTree } from '../bem/types.js';
+import type { MarkdownOptions } from '../markdown/remark.js';
 import { DocumentFacade } from '../document/document.js';
 
 /**
@@ -93,12 +94,7 @@ export class Levels {
  */
 export type RemarkPlugin = import('unified').Plugin<[], import('mdast').Root>;
 
-/**
- * Minimal view of a remark directive node handed to a directive handler. The
- * handler maps the directive to a `BemNode` (or returns `null` to fall back to
- * the node's plain content). Kept structural so an extension does not depend on
- * mdast internals.
- */
+/** A directive node handed to a directive handler. */
 export interface DirectiveNode {
     /** Directive form: container `:::name`, leaf `::name` or text `:name`. */
     type?: 'containerDirective' | 'leafDirective' | 'textDirective';
@@ -110,7 +106,13 @@ export interface DirectiveNode {
     attributes?: Record<string, string>;
 }
 
-/** Converters a directive handler uses to render its mdast children with the page's link and image resolution. */
+/** An mdast node handed to a node handler; its fields depend on `type`. */
+export interface MarkdownNode {
+    type: string;
+    [field: string]: unknown;
+}
+
+/** Converters a handler uses to render mdast children with the page's link and image resolution. */
 export interface DirectiveConverters {
     /** Render inline (phrasing) children: text, emphasis, links, images, inline code. */
     inline(children: unknown[]): BEMTree;
@@ -119,19 +121,24 @@ export interface DirectiveConverters {
 }
 
 /**
- * A directive handler maps a directive node to a `BemNode`. Returns `null` to
- * fall back to the directive's plain content (openspec `markdown` spec:
- * unknown directive → plain content, no break). The `env` is the markdown
- * bridge environment the remark processor carries (image mapping, page input
- * path, …) — opaque to the core contract. `convert` renders the directive's
- * children with the page's link and image resolution; `inline` rejects block
- * nodes. When the handler returns `null`, page state from conversions is reset.
+ * Map a directive to BEMJSON. `env` carries the page's Markdown options
+ * (image mapping, source file, language, …); `convert` renders the directive's
+ * children, and `inline` rejects block nodes. Returning `null` falls back to
+ * the directive's plain content; page state from conversions is then reset.
  */
-export type DirectiveHandler = (node: DirectiveNode, env: unknown, convert: DirectiveConverters) => { raw?: string; [k: string]: unknown } | null;
+export type DirectiveHandler = (node: DirectiveNode, env: Readonly<MarkdownOptions>, convert: DirectiveConverters) => BEMTree | null;
+
+/**
+ * Map an mdast node of one type to BEMJSON before the core conversion of that
+ * type. Returning `null` keeps the core conversion. Remark plugins may insert
+ * nodes of their own types for a handler to map.
+ */
+export type MarkdownNodeHandler = (node: MarkdownNode, env: Readonly<MarkdownOptions>, convert: DirectiveConverters) => BEMTree | null;
 
 export class MarkdownFacade {
     private readonly plugins: RemarkPlugin[] = [];
     private readonly directiveMap = new Map<string, DirectiveHandler>();
+    private readonly nodeMap = new Map<string, MarkdownNodeHandler>();
 
     /** Register a remark plugin (mdast transform) — applied after the core parse. */
     use(plugin: RemarkPlugin): void {
@@ -160,6 +167,16 @@ export class MarkdownFacade {
      */
     directiveMappings(): Map<string, DirectiveHandler> {
         return new Map(this.directiveMap);
+    }
+
+    /** Map mdast nodes of `type` to BEMJSON before the core conversion; a later registration replaces an earlier one. */
+    node(type: string, handler: MarkdownNodeHandler): void {
+        this.nodeMap.set(type, handler);
+    }
+
+    /** Snapshot of the node handlers (type → handler) for the Markdown bridge. */
+    nodeMappings(): Map<string, MarkdownNodeHandler> {
+        return new Map(this.nodeMap);
     }
 }
 

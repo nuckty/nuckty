@@ -22,11 +22,11 @@
     background: rgba(0, 0, 0, 0.85);
 }
 
-.lightbox.is-open {
+.lightbox[open] {
     display: flex;
 }
 
-.lightbox img {
+.lightbox__image {
     max-width: 92vw;
     max-height: 92vh;
 }

@@ -1,13 +1,13 @@
+import { markdownCollection } from './helpers/markdown.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMarkdown } from '../markdown/index.js';
+import { createMarkdown } from '../markdown/remark.js';
 import { postprocessHtml } from '../markdown/html-postprocess.js';
 import { transformImagePathShared } from '../markdown/image-mapping.js';
 import { render } from '../bem/render.js';
-import { Templates } from '../bem/templates.js';
 
 function html(source: string, options: Parameters<typeof createMarkdown>[0] = {}): string {
-    return render(createMarkdown(options).render(source).tree, { templates: new Templates() });
+    return render(createMarkdown(options).render(source).tree, { templates: markdownCollection() });
 }
 
 test('Markdown preserves references, delete, task state, start, alignment and footnote text', () => {
@@ -56,16 +56,9 @@ test('image mapping gives exact paths priority, preserves suffix and rejects amb
     assert.throws(() => transformImagePathShared('logo.png', env), /Ambiguous image.*a\/logo.png, b\/logo.png/);
 });
 
-test('block embed HTML splits surrounding paragraph prose', () => {
-    const plugin: import('unified').Plugin<[], import('mdast').Root> = () => tree => {
-        const paragraph = tree.children[0];
-        if (paragraph?.type === 'paragraph') {
-            paragraph.children = [{ type: 'text', value: 'Before' }, { type: 'html', value: '<div class=video>Video</div>' }, { type: 'text', value: 'After' }];
-        }
-    };
-    assert.equal(html('placeholder', { remarkPlugins: [plugin] }), '<p class=article__paragraph>Before</p><div class=video>Video</div><p class=article__paragraph>After</p>');
+test('raw HTML images in Markdown go through the image mapping of the page', () => {
+    assert.equal(html('Icon <img src="icon.svg" alt="x">', { imageMapping: { 'docs/icon.svg': '0123456789abcdef.svg' }, sourceFile: 'docs/index.md' }), '<p class=article__paragraph>Icon <img src="/0123456789abcdef.svg" alt="x"></p>');
 });
-
 
 test('raw image mapping preserves logical ampersands in query values', () => {
     assert.equal(postprocessHtml('<img src="x.png?a=1&amp;b=2">', { imageMapping: { 'x.png': 'image' } }), '<img src="/image?a=1&amp;b=2">');

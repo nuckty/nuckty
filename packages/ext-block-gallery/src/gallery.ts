@@ -1,12 +1,8 @@
 /**
  * `:::gallery` construct logic (openspec `ext-block-gallery`): collect the
- * container's images, rewrite their URLs through the shared image-mapping, and
- * build the `gallery` BemNode tree — a responsive grid of links, each opening
- * the lightbox; every image except the first in that gallery carries `loading=lazy`.
- *
- * Children arrive as mdast nodes (the engine hands the raw directive node to
- * the handler); we duck-type on `node.type` to stay free of mdast deps, the
- * same way the reference consumer handlers do.
+ * container's images, rewrite their URLs through the shared image mapping and
+ * build the `gallery` tree; every image except the first is lazy-loaded.
+ * Children arrive as mdast nodes, read through the structural `MdastNode` view.
  *
  * @module gallery
  */
@@ -64,35 +60,19 @@ export function extractImages(children: MdastNode[]): GalleryImage[] {
     return images;
 }
 
-export interface GalleryOptions {
-    /** Optional data-group tag for consumers; the runtime uses the nearest gallery. */
-    groupId?: string;
-}
-
 /**
- * Build the gallery tree: `gallery__item` links with `gallery__image` inside,
- * plus the trailing `lightbox` container the gallery script toggles.
+ * Build the gallery tree as data: one `gallery__item` per image with its
+ * mapped URL, alt text and lazy-loading flag, then the `lightbox` the gallery
+ * script opens. The templates own the markup; `lang` selects the lightbox labels.
  */
-export function galleryNode(images: GalleryImage[], env: ImageMappingEnv, opts: GalleryOptions = {}): BemNode {
-    const groupId = opts.groupId ?? 'gallery';
-    const content: BemNode[] = images.map((image, i) => {
-        const src = transformImagePathShared(image.src, env);
-        const imgAttrs: Record<string, string> = { src, alt: image.alt };
-        if (i > 0) {
-            imgAttrs.loading = 'lazy';
-        }
-        return {
-            block: 'gallery',
-            elem: 'item',
-            tag: 'a',
-            attrs: { href: src, 'data-group': groupId },
-            content: { block: 'gallery', elem: 'image', tag: 'img', attrs: imgAttrs },
-        };
-    });
-    content.push({
-        block: 'lightbox',
-        attrs: { 'aria-label': 'Image viewer' },
-        content: { block: 'lightbox', elem: 'close', attrs: { type: 'button', autofocus: true, 'aria-label': 'Close image' }, content: '×' },
-    });
+export function galleryNode(images: GalleryImage[], env: ImageMappingEnv & { lang?: string | undefined }): BemNode {
+    const content: BemNode[] = images.map((image, i) => ({
+        block: 'gallery',
+        elem: 'item',
+        props: { src: transformImagePathShared(image.src, env), alt: image.alt, lazy: i > 0 },
+    }));
+
+    content.push({ block: 'lightbox', props: { lang: env.lang } });
+
     return { block: 'gallery', content };
 }

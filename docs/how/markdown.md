@@ -66,9 +66,35 @@ Gallery, grid, callout, and video constructs are **not in the core**. The core k
 
 Here `:::gallery` is markdown extension syntax. Without the extension, the engine unwraps the directive and renders its Markdown children normally. See the [markdown extensions](../ext/markdown.md) catalog.
 
+## Markup of Markdown content
+
+The bridge produces elements of the `article` block and keeps their data in `props`; it sets no HTML tags or attributes. Every build registers default templates for these elements before the site's templates:
+
+| Element | Default markup |
+|---|---|
+| `paragraph` | `p` |
+| `heading` (`heading_level_1` … `heading_level_6`), `heading-anchor` | `h1`…`h6` with `id`, a self-link `a` |
+| `list` (`list_ordered`), `list-item`, `task` | `ul`/`ol` with `start`, `li`, a disabled checkbox |
+| `code`, `code-text`, `inline-code` | `pre`, `code` without a class, `code` |
+| `blockquote`, `rule`, `break` | `blockquote`, `hr`, `br` |
+| `table`, `table-head`, `table-body`, `table-row`, `table-cell` (`table-cell_header`) | `table`, `thead`, `tbody`, `tr`, `td`/`th` with alignment |
+| `link`, `image` | `a` with `href` and `title`, `img` with `src`, `alt` and `title` |
+| `strong`, `emphasis`, `delete` | `strong`, `em`, `del` without classes |
+| `footnote`, `footnote-ref`, `footnote-link` | `div` with `id`, `sup`, `a` |
+
+To change the markup, declare the element in the site's `blocks/article/article.nu.ts`. The site declaration comes later, wins, and reaches the default through `next()`:
+
+```ts
+block('article').elem('code')({
+    content: (n, next) => [next(), { block: 'copy-button' }],
+});
+```
+
+The core adds no interface controls such as a copy button; add them in templates.
+
 ## Inline HTML
 
-Inline HTML from Markdown (for example, a `<span>` in text) is preserved as `raw`: the serializer does not escape or minimize it. The parser does not sanitize HTML or validate document structure. A separate pass does rewrite logical `img src` paths through the [image mapping](../out/images.md). Supply only trusted HTML.
+Inline HTML from Markdown (for example, a `<span>` in text) is preserved as `raw`: the serializer does not escape or minimize it. The parser does not sanitize HTML or validate document structure. The bridge does rewrite logical `img src` paths in it through the [image mapping](../out/images.md). Supply only trusted HTML.
 
 Image mapping changes actual `img src` values, whether quoted or unquoted. Image-shaped text inside attributes, comments, scripts, styles, and literal elements is preserved.
 

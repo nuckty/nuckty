@@ -45,20 +45,12 @@ The render entry point SHALL support `output: 'bemjson'`, returning the resolved
 - **AND** no HTML serialization has occurred
 
 ### Requirement: Two tree sources converge
-Markdown through the remark mdast → BEMJSON bridge and layout through block templates SHALL use the same `BEMTree` model and renderer. The build HTML stage MAY serialize content first and pass it as a trusted `raw` node to the registered document handler. The standard root extension wraps that content in an HTML document; a consumer MAY supply another document handler.
+Markdown through the remark mdast → BEMJSON bridge and layout through block templates SHALL use the same `BEMTree` model and renderer. The build HTML stage SHALL pass the page content tree to the registered document handler and render the returned document, content included, in one render. The standard root extension wraps that content in an HTML document; a consumer MAY supply another document handler.
 
 #### Scenario: Content and layout share the model
 - **WHEN** a Markdown document and a layout block are rendered for one page
 - **THEN** both produce `BEMTree` nodes handled by the same engine
-- **AND** the build MAY pass serialized content through an explicit trusted raw node
-
-### Requirement: Entity stringification respects modifier ownership
-Stringification of a BemEntity element SHALL select its element modifiers rather than block modifiers. Block entities SHALL retain block-modifier selection. A chosen false, null or undefined modifier SHALL be skipped while selecting the first supported modifier for the single entity string.
-
-#### Scenario: An element modifier survives stringification
-- **WHEN** an entity has block menu, element item and an active element modifier
-- **THEN** stringification returns menu__item_active
-- **AND** supplying unrelated block modifiers does not substitute them for the element’s modifier
+- **AND** templates of the document apply to the content nodes
 
 ### Requirement: Composition helpers
 The core SHALL export `b(block, elem?, content?, props?, entity?)`, which returns a BemNode with the block, the element only when given, the entity fields `mods`, `elemMods` and `mix`, the content (null by default) and `props` only when nonempty. It SHALL export `attributes(node, names)`, which returns the listed props whose values are strings or booleans and omits every other prop.
