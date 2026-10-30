@@ -58,7 +58,7 @@ async function runNuckty(args: string[], cwd: string): Promise<{ stdout: string;
     try {
         const { stdout, stderr } = await execFileAsync(process.execPath, [NUCKTY_BIN, ...args], {
             cwd,
-            env: { ...process.env, NODE_ENV: 'test' },
+            env: process.env,
         });
         return { stdout, stderr, code: 0 };
     } catch (e) {

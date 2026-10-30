@@ -9,7 +9,10 @@
  */
 
 import type { NucktyConfig } from '../targets/config.js';
+import type { Plugin } from 'unified';
+import type { Root } from 'mdast';
 import type { BEMTree } from '../bem/types.js';
+import type { Phase, Pipeline, Stage } from '../pipeline/pipeline.js';
 import type { MarkdownOptions } from '../markdown/remark.js';
 import { DocumentFacade } from '../document/document.js';
 
@@ -92,7 +95,7 @@ export class Levels {
  * construct (gallery, callout, grid, …) — only the fallback for an unmapped
  * directive (plain content, openspec `markdown` spec).
  */
-export type RemarkPlugin = import('unified').Plugin<[], import('mdast').Root>;
+export type RemarkPlugin = Plugin<[], Root>;
 
 /** A directive node handed to a directive handler. */
 export interface DirectiveNode {
@@ -180,46 +183,39 @@ export class MarkdownFacade {
     }
 }
 
-/** A pending pipeline registration recorded by `env.pipeline` before the real Pipeline exists. */
-interface PendingStageReg {
-    kind: 'stage' | 'before' | 'after';
-    name: string;
-    fn: import('../pipeline/pipeline.js').Stage;
-    phase?: import('../pipeline/pipeline.js').Phase;
-}
+/** A pipeline registration recorded by `env.pipeline` before the real Pipeline exists. */
+type PendingStageReg =
+    | { kind: 'stage'; name: string; fn: Stage; phase: Phase }
+    | { kind: 'before' | 'after'; name: string; fn: Stage };
 
 /**
  * `env.pipeline` facade — the pipeline-extension entry point (openspec
  * `extensions` spec). Extensions call `env.pipeline.before/after/registerStage`
- * at register time (before the real `Pipeline` is constructed in `buildOne`).
- * The calls buffer here; `buildOne` flushes them onto the live `Pipeline`.
+ * at register time; the calls are buffered and flushed onto the build's
+ * `Pipeline` before it runs.
  */
 export class PipelineFacade {
     private readonly pending: PendingStageReg[] = [];
 
-    registerStage(name: string, fn: import('../pipeline/pipeline.js').Stage, opts: { phase: import('../pipeline/pipeline.js').Phase }): void {
+    registerStage(name: string, fn: Stage, opts: { phase: Phase }): void {
         this.pending.push({ kind: 'stage', name, fn, phase: opts.phase });
     }
 
-    before(stageName: string, fn: import('../pipeline/pipeline.js').Stage): void {
+    before(stageName: string, fn: Stage): void {
         this.pending.push({ kind: 'before', name: stageName, fn });
     }
 
-    after(stageName: string, fn: import('../pipeline/pipeline.js').Stage): void {
+    after(stageName: string, fn: Stage): void {
         this.pending.push({ kind: 'after', name: stageName, fn });
     }
 
-    /** Flush buffered registrations onto a real pipeline (called by `buildOne`). */
-    flush(pipeline: { registerStage: (n: string, fn: import('../pipeline/pipeline.js').Stage, opts: { phase: import('../pipeline/pipeline.js').Phase }) => void; before: (n: string, fn: import('../pipeline/pipeline.js').Stage) => void; after: (n: string, fn: import('../pipeline/pipeline.js').Stage) => void }): void {
+    /** Apply the buffered registrations to a pipeline. */
+    flush(pipeline: Pick<Pipeline, 'registerStage' | 'before' | 'after'>): void {
         for (const reg of this.pending) {
             if (reg.kind === 'stage') {
-                if (reg.phase !== undefined) {
-                    pipeline.registerStage(reg.name, reg.fn, { phase: reg.phase });
-                }
-            } else if (reg.kind === 'before') {
-                pipeline.before(reg.name, reg.fn);
+                pipeline.registerStage(reg.name, reg.fn, { phase: reg.phase });
             } else {
-                pipeline.after(reg.name, reg.fn);
+                pipeline[reg.kind](reg.name, reg.fn);
             }
         }
     }
@@ -236,6 +232,5 @@ export class NucktyEnv {
     readonly markdown: MarkdownFacade = new MarkdownFacade();
     /** CLI command registry — `build` is core; every other command is an extension. */
     readonly commands: Commands = new Commands();
-
 }
 
