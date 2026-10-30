@@ -69,15 +69,15 @@ function playgroundTree(
                         b('playground', 'option', t['Button with a modifier'], { value: 'button' }),
                         b('playground', 'option', t['Escaping'], { value: 'escaping' }),
                     ]),
-                    b('playground', 'tab', t['Reset'], { id: 'playground-reset' }),
-                    b('playground', 'tab', t['Copy HTML'], {
+                    b('playground', 'action', t['Reset'], { id: 'playground-reset' }),
+                    b('playground', 'action', t['Copy HTML'], {
                         id: 'playground-copy',
                         'aria-label': t['Copy example HTML'],
                     }),
                     b('playground', 'status', t['Loading the engine…']),
                 ],
             },
-            { elem: 'columns', attrs: { hidden: true }, content: compact ? [input, output, preview] : [input, output] },
+            { elem: 'columns', content: compact ? [input, output, preview] : [input, output] },
             b('playground', 'error', ''),
             ...(compact ? [] : [preview]),
         ],
@@ -150,7 +150,7 @@ export default function templates(): void {
         tag: 'select',
         attrs: (node, next) => ({ id: 'playground-preset', ...next(), ...attributes(node, ['id']) }),
     });
-    block('playground').elem('tab')({
+    block('playground').elem('action')({
         tag: 'button',
         attrs: (node, next) => ({ type: 'button', ...next(), ...attributes(node, ['type', 'id', 'aria-label']) }),
     });

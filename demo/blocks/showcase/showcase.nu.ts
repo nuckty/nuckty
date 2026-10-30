@@ -4,6 +4,7 @@ import { cardExample } from '../playground/card-example.js';
 import { block, type BEMTree, type BemNode, b, attributes } from '@nuckty/core';
 
 const arrow = (): BemNode => b('demo-arrow', undefined, b('showcase', 'arrow-path'));
+
 function showcaseContent(
     node: Omit<BemNode, 'props'> & {
         props?: {
@@ -244,7 +245,5 @@ export default function templates(): void {
     block('showcase')({
         tag: 'div',
     });
-    block<{ lang?: string; gallery?: import('@nuckty/core').BEMTree; grid?: import('@nuckty/core').BEMTree }>(
-        'showcase',
-    ).when((node) => Boolean(node.props))({ content: showcaseContent });
+    block<{ lang?: string; gallery?: BEMTree; grid?: BEMTree }>('showcase').when((node) => Boolean(node.props))({ content: showcaseContent });
 }

@@ -26,6 +26,7 @@ export function register(env: NucktyEnv): void {
         await collect(ctx.outDir);
         await writeFile(path.join(ctx.outDir, 'build-files.txt'), JSON.stringify(files, null, 2));
     });
+
     function language(options: Readonly<MarkdownOptions>): string {
         return options.lang === 'en' ? 'en' : 'ru';
     }

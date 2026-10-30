@@ -8,7 +8,7 @@
 
 [Download the file list](/build-files.txt). Sizes and hashes come from the current artifact. Compressed copies are shown for comparison; nginx selects them using `Accept-Encoding`, while direct access to `brotli/` and `gzip/` is blocked.
 
-This snapshot is taken before manifest generation and excludes `build-files.txt` itself and the final `manifest.json`. The deployment manifest is available locally in `site-en/manifest.json`.
+This snapshot is taken before manifest generation and excludes `build-files.txt` itself and the final `manifest.json`. The publication manifest is available locally in `site-en/manifest.json`.
 
 ## From a Markdown file to a URL
 
@@ -41,22 +41,22 @@ sitemap:
 | `svg/` and raster-format directories | Images with hashed filenames |
 | `brotli/` and `gzip/` | Compressed pages and assets |
 | `.htaccess` | Apache configuration |
-| `manifest.json` | File sizes and hashes for deployment |
+| `manifest.json` | File sizes and hashes for publication |
 
 The nginx configuration is generated separately under `.build/`. It supports local preview and is not part of the output root.
 
 ## Build, preview and validate
 
-Run these commands from the demo directory. Preview requires nginx; HTML validation requires Java. Use `default` for Russian and `en` for English.
+Run these commands from the demo directory. Preview requires nginx; HTML validation requires Java.
 
 ```bash
 npm run build
-npx @nuckty/core serve en --port 8094
-npx @nuckty/core validate en
-npx @nuckty/core stop en
+npm run serve:en
+npm run validate
+npm run stop:en
 ```
 
-The core provides `build`; extensions provide `serve` and `validate`. FTP/FTPS publication is available through `deploy-ftp` after server configuration. The demo never deploys automatically.
+The core provides `build`; extensions provide `serve` and `validate`. FTP/FTPS publication is available through `deploy-ftp` after server configuration; the demo does not run it automatically.
 
 Other extensions prepare AVIF/WebP, fetch content repositories or add video. They are documented in the nuckty extension catalog and are not run by this demo.
 

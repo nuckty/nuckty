@@ -1,4 +1,5 @@
 import { messages } from './artifact-viewer.i18n/index.js';
+
 const locale = document.documentElement.lang;
 const t = messages(locale);
 const viewer = document.querySelector('.artifact-viewer');
@@ -16,8 +17,7 @@ if (viewer) {
                 throw new Error(`HTTP ${response.status}`);
             }
 
-            const manifest = await response.json();
-            const files = manifest.files ?? manifest;
+            const files = await response.json();
             const entries = Object.entries(files).filter(
                 ([, value]) => value && typeof value === 'object' && typeof value.size === 'number',
             );

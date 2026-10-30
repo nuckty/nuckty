@@ -1,4 +1,5 @@
 import { messages } from './shell.i18n/index.js';
+
 const locale = document.documentElement.lang;
 const t = messages(locale);
 const themeButton = document.querySelector('.theme-toggle');
@@ -77,12 +78,10 @@ menuToggle?.addEventListener('click', () => {
     }
 });
 menuToggle?.removeAttribute('hidden');
-document.querySelector('.header')?.setAttribute('data-navigation-ready', '');
 
 const header = document.querySelector('.header');
-const headerSize = new ResizeObserver(() => {
-    document.documentElement.style.setProperty('--header-offset', `${header.getBoundingClientRect().height}px`);
-
+header?.setAttribute('data-navigation-ready', '');
+const brandScale = new ResizeObserver(() => {
     const footerBrand = document.querySelector('.footer__brand');
     const footerMade = document.querySelector('.footer__made');
 
@@ -92,7 +91,7 @@ const headerSize = new ResizeObserver(() => {
         footerBrand.style.setProperty('--footer-brand-scale', String(scale));
     }
 });
-headerSize.observe(header);
+brandScale.observe(header);
 
 document.addEventListener('click', (event) => {
     if (

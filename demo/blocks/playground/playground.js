@@ -1,7 +1,7 @@
 import { messages } from './playground.i18n/index.js';
 // The public browser entry is bundled into the static demo by nuckty's JS stage.
 import { Templates, render } from '@nuckty/core/browser';
-import { cardExample } from './card-example.ts';
+import { cardExample } from './card-example.js';
 
 const locale = document.documentElement.lang;
 const t = messages(locale);

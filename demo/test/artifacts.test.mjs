@@ -6,9 +6,7 @@ import { createHash } from 'node:crypto';
 import { brotliDecompressSync, gunzipSync } from 'node:zlib';
 
 const root = path.resolve(import.meta.dirname, '..');
-const manifestPackage = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
-const website = manifestPackage.name === '@nuckty/site';
-const targets = website ? ['ru', 'en'] : ['', 'en'];
+const targets = ['', 'en'];
 const entities = { amp: '&', quot: '"', '#39': "'", lt: '<', gt: '>' };
 const decode = (value) => value.replace(/&(amp|quot|#39|lt|gt);/g, (_, key) => entities[key]);
 
@@ -17,12 +15,12 @@ function attributes(tag) {
 }
 
 for (const target of targets) {
-    const site = website ? path.join(root, 'site', target) : path.join(root, target === 'en' ? 'site-en' : 'site');
+    const site = path.join(root, target === 'en' ? 'site-en' : 'site');
 
     test(`${target || 'demo'}: pages, links, assets, manifest and compression`, async () => {
         const manifest = JSON.parse(await readFile(path.join(site, 'manifest.json'), 'utf8'));
         const pageNames = (await readdir(path.join(site, 'html'))).filter((file) => file.endsWith('.html'));
-        assert.ok(pageNames.length >= (website ? 50 : 5));
+        assert.equal(pageNames.length, 5);
         const pages = new Map();
         const assetRoutes = new Set(['/robots.txt', '/build-files.txt']);
 
@@ -87,7 +85,7 @@ for (const target of targets) {
         assert.deepEqual(problems, []);
         const homePage = pages.get('/');
 
-        for (const control of ['theme-toggle', 'menu-toggle', 'search-trigger']) {
+        for (const control of ['theme-toggle', 'menu-toggle']) {
             const button = homePage.tags.find(({ attrs }) => attrs.class?.split(' ').includes(control));
 
             if (button) {
@@ -101,47 +99,35 @@ for (const target of targets) {
         const logoHash = createHash('md5').update(logo).digest('hex').slice(0, 16);
         assert.match(pages.get('/').html, new RegExp(`src=/${logoHash}\\.svg`));
 
-        if (website) {
-            const other = target === 'ru' ? 'en' : 'ru';
-            assert.match(pages.get('/how/start').html, new RegExp(`hreflang=${other}`));
-            assert.ok(pages.get('/how/start').tags.some(({ attrs }) => attrs.class === 'page-navigation__link' && attrs.href === '/how/bemjson'), 'start guide must continue to the data model');
-            const home = pages.get('/').html;
-            const panelCode = (id) => decode(home.slice(home.indexOf(`id=${id}`)).match(/<code\b[^>]*>([\s\S]*?)<\/code>/)[1]);
-            assert.equal(panelCode('home-nu-panel'), await readFile(path.join(root, 'blocks/card/card.nu.ts'), 'utf8'), 'template source must be the actual block file');
-            assert.equal(JSON.parse(panelCode('home-bemjson-panel')).block, 'card');
-            assert.ok(home.includes(panelCode('home-html-panel')), 'the displayed HTML must equal the rendered card');
-            assert.match(pages.get('/').html, /STATIC SITE GENERATOR|ГЕНЕРАТОР СТАТИЧЕСКИХ САЙТОВ/);
-        } else {
-            const gallery = pages.get('/media').html;
-            assert.match(pages.get('/').html, /id=playground-input/);
-            assert.match(pages.get('/').html, /class=playground__fallback/);
-            assert.ok(pages.get('/').tags.some(({ attrs, tag }) => attrs.class === 'playground__toolbar' && /\shidden(?:\s|>)/.test(tag)), 'empty editor controls must stay hidden before initialization');
-            assert.equal(pages.get('/').tags.filter(({ attrs }) => attrs.class === 'gallery__image').length, 3, 'home must include the actual gallery');
-            assert.equal((gallery.match(/class=gallery__image/g) ?? []).length, 3);
-            assert.equal(pages.get('/media').tags.filter(({ attrs }) => attrs.class === 'gallery__image' && attrs.loading === 'lazy').length, 2);
-            assert.ok(pages.get('/playground').tags.some(({ tag, attrs }) => tag.startsWith('<iframe') && attrs.sandbox === ''), 'preview must use an empty sandbox');
-            assert.ok(pages.get('/playground').tags.some(({ attrs }) => attrs.id === 'playground-html' && attrs.class?.split(' ').includes('code_wrap_soft')), 'HTML output must wrap while the BEMJSON editor keeps its formatting');
-            assert.match(pages.get('/markdown').html, /data-view=source/);
-            const tasks = pages.get('/markdown').tags.filter(({ attrs }) => attrs.type === 'checkbox');
-            assert.equal(tasks.length, 3);
-            assert.ok(tasks.every(({ attrs }) => attrs['aria-label']?.trim()), 'task checkboxes need accessible names');
-            assert.match(pages.get('/markdown').html, target === 'en' ? /Text is content/ : /Текст\u00a0— это контент/);
-            const origin = target === 'en' ? 'https://demo.nuckty.com' : 'https://demo.nuckty.ru';
-            const alternate = target === 'en' ? 'https://demo.nuckty.ru' : 'https://demo.nuckty.com';
+        const gallery = pages.get('/media').html;
+        assert.match(pages.get('/').html, /id=playground-input/);
+        assert.match(pages.get('/').html, /class=playground__fallback/);
+        assert.ok(pages.get('/').tags.some(({ attrs, tag }) => attrs.class === 'playground__toolbar' && /\shidden(?:\s|>)/.test(tag)), 'empty editor controls must stay hidden before initialization');
+        assert.equal(pages.get('/').tags.filter(({ attrs }) => attrs.class === 'gallery__image').length, 3, 'home must include the actual gallery');
+        assert.equal((gallery.match(/class=gallery__image/g) ?? []).length, 3);
+        assert.equal(pages.get('/media').tags.filter(({ attrs }) => attrs.class === 'gallery__image' && attrs.loading === 'lazy').length, 2);
+        assert.ok(pages.get('/playground').tags.some(({ tag, attrs }) => tag.startsWith('<iframe') && attrs.sandbox === ''), 'preview must use an empty sandbox');
+        assert.ok(pages.get('/playground').tags.some(({ attrs }) => attrs.id === 'playground-html' && attrs.class?.split(' ').includes('code_wrap_soft')), 'HTML output must wrap while the BEMJSON editor keeps its formatting');
+        assert.match(pages.get('/markdown').html, /data-view=source/);
+        const tasks = pages.get('/markdown').tags.filter(({ attrs }) => attrs.type === 'checkbox');
+        assert.equal(tasks.length, 3);
+        assert.ok(tasks.every(({ attrs }) => attrs['aria-label']?.trim()), 'task checkboxes need accessible names');
+        assert.match(pages.get('/markdown').html, target === 'en' ? /Text is content/ : /Текст\u00a0— это контент/);
+        const origin = target === 'en' ? 'https://demo.nuckty.com' : 'https://demo.nuckty.ru';
+        const alternate = target === 'en' ? 'https://demo.nuckty.ru' : 'https://demo.nuckty.com';
 
-            for (const [route, page] of pages) {
-                assert.ok(page.tags.some(({ attrs }) => attrs.rel === 'canonical' && attrs.href === `${origin}${route}`));
-                assert.ok(page.tags.some(({ attrs }) => attrs.rel === 'alternate' && attrs.href === `${alternate}${route}`));
+        for (const [route, page] of pages) {
+            assert.ok(page.tags.some(({ attrs }) => attrs.rel === 'canonical' && attrs.href === `${origin}${route}`));
+            assert.ok(page.tags.some(({ attrs }) => attrs.rel === 'alternate' && attrs.href === `${alternate}${route}`));
 
-                if (target === 'en') {
-                    assert.doesNotMatch(page.html, /[А-Яа-яЁё]/, `${route}: English HTML must not contain untranslated Russian`);
-                }
+            if (target === 'en') {
+                assert.doesNotMatch(page.html, /[А-Яа-яЁё]/, `${route}: English HTML must not contain untranslated Russian`);
             }
-            const snapshot = JSON.parse(await readFile(path.join(site, 'build-files.txt'), 'utf8'));
+        }
+        const snapshot = JSON.parse(await readFile(path.join(site, 'build-files.txt'), 'utf8'));
 
-            for (const [file, entry] of Object.entries(snapshot)) {
-                assert.deepEqual(entry, manifest[file], `snapshot ${file}`);
-            }
+        for (const [file, entry] of Object.entries(snapshot)) {
+            assert.deepEqual(entry, manifest[file], `snapshot ${file}`);
         }
     });
 }

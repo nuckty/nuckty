@@ -41,7 +41,6 @@ function exampleTree(
             ),
             b('example', 'result', node.content, {
                 id: `${id}-result`,
-
                 'aria-labelledby': `${id}-result-tab`,
             }),
             b(
@@ -54,7 +53,6 @@ function exampleTree(
                 ),
                 {
                     id: `${id}-source`,
-
                     'aria-labelledby': `${id}-source-tab`,
                 },
             ),

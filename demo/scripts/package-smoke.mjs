@@ -25,9 +25,9 @@ try {
     mkdirSync(consumer);
     for (const name of ['config', 'content', 'blocks', 'ext']) {
         cpSync(path.join(demo, name), path.join(consumer, name), {
-        recursive: true,
-        filter: sourceCopyFilter(demo),
-    });
+            recursive: true,
+            filter: sourceCopyFilter(demo),
+        });
     }
     const manifest = JSON.parse(readFileSync(path.join(demo, 'package.json'), 'utf8'));
     const rootManifest = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));

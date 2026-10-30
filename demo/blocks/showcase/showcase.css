@@ -398,6 +398,7 @@
         grid-template-columns: 3fr 2fr;
     }
 }
+
 @media (min-width: 80rem) {
     .demo-nav {
         grid-template-columns: repeat(4, minmax(0, 1fr));

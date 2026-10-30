@@ -1,6 +1,6 @@
 # nuckty demo
 
-An interactive showcase built with the public nuckty CLI. Five pages in each language demonstrate Markdown/GFM, exact sample sources, gallery/lightbox, grid, typography, a live BEMJSON editor and actual build files. The supplied new logo has light/dark variants; a separate square favicon uses its mark. `blocks/package.json` keeps `.bemdecl.js` in CommonJS; templates load through the page declaration.
+An interactive showcase built with the public nuckty CLI. Five pages in each language demonstrate Markdown/GFM, exact sample sources, gallery/lightbox, grid, typography, a live BEMJSON editor and actual build files. The logo has light and dark variants; a separate square favicon uses its mark. `blocks/page/package.json` keeps `page.bemdecl.js` in CommonJS; templates load through the page bundle declaration.
 
 The editor and actual gallery/grid samples are available directly on the landing page. Dedicated pages provide detailed instructions and exact sources.
 
@@ -18,6 +18,6 @@ Run `npm run build`, `npm run lint`, `npm test` and `npm run validate`. Artifact
 
 Run `npm run test:package` with access to public npm. The script installs all eleven official packages at the versions of the workspace manifests from the public registry into an isolated consumer whose path contains spaces and Unicode, verifies registry URLs and integrity in its lockfile, checks public types and CLI, then builds HTML plus gallery/grid assets. It retries the installation for up to ten minutes while new versions propagate. Failed fixtures are preserved with their paths.
 
-## Deployment
+## Publication
 
-The repository release workflow runs the published package check after npm publication, then builds the demo from the release commit and deploys both languages. Pushes without a release do not deploy the demo.
+The repository release workflow runs the published package check after npm publication, then builds the demo from the release commit and publishes both languages. Pushes without a release do not publish the demo.

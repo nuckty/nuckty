@@ -14,7 +14,7 @@ export default defineNucktyConfig({
         },
     },
     ext: [
-        // Block-extension: the page wrapper (published as @nuckty/ext-block-root).
+        // Block extension with the document handler and the page wrapper.
         '@nuckty/ext-block-root',
         './ext/highlight.ts',
         '@nuckty/ext-block-gallery',
