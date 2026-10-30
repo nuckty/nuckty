@@ -4,7 +4,8 @@ import * as fs from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { convertImages } from '../index.js';
+import { NucktyEnv, validateCommandArgs } from '@nuckty/core';
+import { convertImages, register } from '../index.js';
 import type { Encoder } from '../convert-images.js';
 
 async function snapshot(dir: string): Promise<Record<string, string>> {
@@ -56,14 +57,18 @@ test('handler image safety and cache contracts', async (t) => {
         const stdout = t.mock.method(process.stdout, 'write', () => true);
         const stderr = t.mock.method(process.stderr, 'write', () => true);
         try {
+            const env = new NucktyEnv();
+            register(env);
+            const entry = env.commands.get('convert-images')!;
             const parsed = parseArgs(['convert-images', ...tokens], { booleanFlags: ['dry-run', 'force'] });
+            let args: ReturnType<typeof validateCommandArgs>;
+            try {
+                args = validateCommandArgs(entry, { positional: parsed.positional.slice(1), flags: parsed.flags });
+            } catch {
+                return 1;
+            }
 
-            return await convertImages({
-                positional: parsed.positional.slice(1),
-                flags: parsed.flags,
-                cwd: dir,
-                config: { targets: {} },
-            }, { encoder });
+            return await convertImages({ ...args, cwd: dir, config: { targets: {} } }, { encoder });
         } finally {
             stdout.mock.restore();
             stderr.mock.restore();
@@ -89,16 +94,7 @@ test('handler image safety and cache contracts', async (t) => {
             assert.deepEqual(await snapshot(dir), before);
         });
     });
-    await t.test('invalid boolean values abort before writing or encoding', async () => {
-        for (const flags of [{ force: 'maybe' }, { 'dry-run': 'maybe' }]) {
-            await fixture(async (dir) => {
-                const before = await snapshot(dir);
-                assert.equal(await run(dir, async () => { assert.fail('encoder called'); }, flags), 1);
-                assert.deepEqual(await snapshot(dir), before);
-            });
-        }
-    });
-    await t.test('parser and handler reject unknown flags and extra positionals before writes', async () => {
+    await t.test('the declared arguments reject unknown or invalid flags and extra positionals before writes', async () => {
         await fixture(async (dir) => {
             const before = await snapshot(dir);
             assert.equal(await runCli(dir, ['--dry-run', '.'], async () => { assert.fail('encoder called'); }), 0);

@@ -1,0 +1,3 @@
+- [x] Validate declared arguments in the CLI and export the check.
+- [x] Declare the arguments of every first-party command and remove their own checks.
+- [x] Update tests and documentation.

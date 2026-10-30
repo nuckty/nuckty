@@ -30,18 +30,24 @@ export interface CommandArgs {
 /** A CLI command handler returns an exit code (0 success, non-zero error). */
 export type CommandHandler = (args: CommandArgs) => Promise<number>;
 
-/** Optional CLI parsing metadata for a registered command. */
+/** An accepted option: a switch (`--force`, `--force=false`) or an option with a value (`--port 8080`). */
+export type FlagKind = 'boolean' | 'string';
+
+/** Arguments a command accepts; the CLI rejects everything else before calling the handler. */
 export interface CommandOptions {
-    /** Flags that take no value and must leave the next token positional. */
-    booleanFlags?: readonly string[];
+    /** Accepted options by name. Boolean options reach the handler as booleans. */
+    flags?: Readonly<Record<string, FlagKind>>;
+    /** Largest number of positional arguments; unlimited when absent. */
+    maxPositionals?: number;
 }
 
-/** A registered CLI command (name, description, handler). */
+/** A registered CLI command (name, description, handler, accepted arguments). */
 export interface CommandEntry {
     name: string;
     description: string;
     handler: CommandHandler;
-    booleanFlags: readonly string[];
+    flags: Readonly<Record<string, FlagKind>>;
+    maxPositionals: number;
 }
 
 /** `env.commands` registry — CLI command extension point (openspec `extensions`). */
@@ -49,7 +55,7 @@ export class Commands {
     private readonly map = new Map<string, CommandEntry>();
 
     add(name: string, description: string, handler: CommandHandler, options: CommandOptions = {}): void {
-        this.map.set(name, { name, description, handler, booleanFlags: options.booleanFlags ?? [] });
+        this.map.set(name, { name, description, handler, flags: options.flags ?? {}, maxPositionals: options.maxPositionals ?? Infinity });
     }
 
     has(name: string): boolean {

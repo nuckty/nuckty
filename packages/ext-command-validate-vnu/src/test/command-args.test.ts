@@ -1,32 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { register } from '../index.js';
-import type { CommandArgs, NucktyEnv } from '@nuckty/core';
-
-function validateHandler(): (args: CommandArgs) => Promise<number> {
-    let handler: ((args: CommandArgs) => Promise<number>) | undefined;
-    const env = {
-        commands: {
-            add(_name: string, _description: string, command: (args: CommandArgs) => Promise<number>): void {
-                handler = command;
-            },
-        },
-    } as unknown as NucktyEnv;
-    register(env);
-    assert.ok(handler);
-    return handler;
-}
-
-async function captureStderr<T>(run: () => Promise<T>): Promise<{ result: T; output: string }> {
-    const original = process.stderr.write;
-    let output = '';
-    process.stderr.write = ((chunk: string) => { output += chunk; return true; }) as typeof original;
-    try {
-        return { result: await run(), output };
-    } finally {
-        process.stderr.write = original;
-    }
-}
+import { NucktyEnv, validateCommandArgs, type CommandArgs } from '@nuckty/core';
 
 function args(overrides: Partial<CommandArgs> = {}): CommandArgs {
     return {
@@ -38,56 +13,16 @@ function args(overrides: Partial<CommandArgs> = {}): CommandArgs {
     };
 }
 
-test('validate: rejects --target before reading the target or starting validation', async () => {
-    let cwdRead = false;
-    const invalid = args({ flags: { target: 'second' } });
-    Object.defineProperty(invalid, 'cwd', {
-        get() {
-            cwdRead = true;
-            throw new Error('cwd was read');
-        },
-    });
-    const handler = validateHandler();
-    const { result, output } = await captureStderr(() => handler(invalid));
+test('validate declares --port and at most one target', () => {
+    const env = new NucktyEnv();
+    register(env);
+    const entry = env.commands.get('validate')!;
 
-    assert.equal(result, 1);
-    assert.match(output, /validate does not support --target/);
-    assert.equal(cwdRead, false);
+    assert.throws(() => validateCommandArgs(entry, { positional: [], flags: { target: 'second' } }), /unknown option --target/);
+    assert.throws(() => validateCommandArgs(entry, { positional: [], flags: { '': true } }), /unknown option --$/);
+    assert.throws(() => validateCommandArgs(entry, { positional: ['first', 'second'], flags: {} }), /at most 1 argument/);
+    assert.deepEqual(validateCommandArgs(entry, { positional: ['en'], flags: { port: '9999' } }).flags, { port: '9999' });
 });
-
-test('validate: rejects more than one target before reading the artifact', async () => {
-    let cwdRead = false;
-    const invalid = args({ positional: ['first', 'second'] });
-    Object.defineProperty(invalid, 'cwd', {
-        get() {
-            cwdRead = true;
-            throw new Error('cwd was read');
-        },
-    });
-    const handler = validateHandler();
-    const { result, output } = await captureStderr(() => handler(invalid));
-
-    assert.equal(result, 1);
-    assert.match(output, /usage: validate \[target\]/);
-    assert.equal(cwdRead, false);
-});
-test('validate rejects an empty option key before accessing a valid target artifact', async () => {
-    let cwdRead = false;
-    const invalid = args({ flags: { '': true }, config: { targets: { main: { configDir: 'config', outDir: 'site' } } } });
-
-    Object.defineProperty(invalid, 'cwd', {
-        get() {
-            cwdRead = true;
-            throw new Error('cwd was read');
-        },
-    });
-    const { result, output } = await captureStderr(() => validateHandler()(invalid));
-
-    assert.equal(result, 1);
-    assert.match(output, /validate does not support --/);
-    assert.equal(cwdRead, false);
-});
-
 
 for (const port of [true, '', '0', '65536', '1.5', 'wrong']) {
     test(`validate rejects invalid port ${String(port)} before starting Java`, async () => {

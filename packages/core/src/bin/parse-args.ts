@@ -88,3 +88,35 @@ function setFlag(flags: Record<string, string | boolean>, name: string, value: s
         value,
     });
 }
+
+/** Check parsed arguments against a command's declaration and normalize boolean options. */
+export function validateCommandArgs(
+    command: { flags: Readonly<Record<string, 'boolean' | 'string'>>; maxPositionals: number },
+    parsed: Pick<ParsedArgs, 'positional' | 'flags'>,
+): { positional: string[]; flags: Record<string, string | boolean> } {
+    const flags: Record<string, string | boolean> = {};
+
+    for (const [name, value] of Object.entries(parsed.flags)) {
+        const kind = Object.hasOwn(command.flags, name) ? command.flags[name] : undefined;
+
+        if (kind === undefined) {
+            throw new Error(`unknown option --${name}`);
+        }
+        if (kind === 'boolean') {
+            if (value !== true && value !== 'true' && value !== 'false') {
+                throw new Error(`--${name} accepts only true or false`);
+            }
+            setFlag(flags, name, value !== 'false');
+        } else {
+            if (value === true || value === '') {
+                throw new Error(`--${name} requires a value`);
+            }
+            setFlag(flags, name, value);
+        }
+    }
+    if (parsed.positional.length > command.maxPositionals) {
+        throw new Error(`expected at most ${command.maxPositionals} argument${command.maxPositionals === 1 ? '' : 's'}`);
+    }
+
+    return { positional: parsed.positional, flags };
+}

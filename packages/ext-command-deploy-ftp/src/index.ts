@@ -21,32 +21,10 @@ export async function deployFtp(args: CommandArgs, inject?: { ftpDeploy?: FtpDep
     // only an actual `nuckty deploy-ftp` invocation pays that import cost (and
     // needs basic-ftp installed in the consumer, not the core).
     const target = args.positional[0];
-    const unknownFlags = Object.keys(args.flags).filter((name) => !['force', 'allow-mass-delete', 'dry-run'].includes(name));
+    const force = args.flags['force'] === true;
+    const allowMassDelete = args.flags['allow-mass-delete'] === true;
+    const dryRun = args.flags['dry-run'] === true;
 
-    if (unknownFlags.length > 0) {
-        process.stderr.write(`nuckty: deploy-ftp failed: unknown option(s): ${unknownFlags.map((name) => `--${name}`).join(', ')}\n`);
-
-        return 1;
-    }
-
-    if (args.positional.length > 1) {
-        process.stderr.write('nuckty: deploy-ftp failed: expected at most one target argument\n');
-
-        return 1;
-    }
-    let force: boolean;
-    let allowMassDelete: boolean;
-    let dryRun: boolean;
-
-    try {
-        force = readBooleanFlag(args.flags, 'force');
-        allowMassDelete = readBooleanFlag(args.flags, 'allow-mass-delete');
-        dryRun = readBooleanFlag(args.flags, 'dry-run');
-    } catch (error) {
-        process.stderr.write(`nuckty: deploy-ftp failed: ${(error as Error).message}\n`);
-
-        return 1;
-    }
     // An unknown target fails before basic-ftp is imported or a connection opens.
     let outDir: string;
     try {
@@ -75,21 +53,6 @@ export async function deployFtp(args: CommandArgs, inject?: { ftpDeploy?: FtpDep
     }
 }
 
-function readBooleanFlag(flags: CommandArgs['flags'], name: 'force' | 'allow-mass-delete' | 'dry-run'): boolean {
-    const value = flags[name];
-
-    if (value === undefined) {
-        return false;
-    }
-    if (value === true || value === 'true') {
-        return true;
-    }
-    if (value === 'false') {
-        return false;
-    }
-    throw new Error(`--${name} accepts only true or false`);
-}
-
 /**
  * Resolve the target's `outDir` from the loaded config with the core target
  * rules: no argument selects the first declared target, and an explicit
@@ -114,7 +77,7 @@ export function register(env: NucktyEnv): void {
         'deploy-ftp',
         'deploy the built site over FTP/FTPS',
         deployFtp,
-        { booleanFlags: ['force', 'allow-mass-delete', 'dry-run'] },
+        { flags: { force: 'boolean', 'allow-mass-delete': 'boolean', 'dry-run': 'boolean' }, maxPositionals: 1 },
     );
 }
 

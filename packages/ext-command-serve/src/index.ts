@@ -15,13 +15,6 @@ export async function serve(args: CommandArgs, runtime: {
     resolveNginx?: () => Promise<string>;
 } = {}): Promise<number> {
     try {
-        if (args.positional.length > 1) {
-            throw new Error('Usage: nuckty serve [target] [--port N]');
-        }
-        const unsupportedFlag = Object.keys(args.flags).find((flag) => flag !== 'port');
-        if (unsupportedFlag !== undefined) {
-            throw new Error(`Unknown serve option --${unsupportedFlag}`);
-        }
         const rawPort = args.flags['port'];
         const port = rawPort === undefined ? 8080 : typeof rawPort === 'string' && /^\d+$/.test(rawPort) ? Number(rawPort) : NaN;
         if (!Number.isInteger(port) || port < 1 || port > 65535) {
@@ -68,10 +61,6 @@ export async function serve(args: CommandArgs, runtime: {
 
 /** `nuckty stop [target]` stops the preview of one target, or of every target without an argument. */
 export async function stop(args: CommandArgs, options: StopOptions = {}): Promise<number> {
-    if (args.positional.length > 1 || Object.keys(args.flags).length > 0) {
-        process.stderr.write('Usage: nuckty stop [target]\n');
-        return 1;
-    }
     let targets: string[];
 
     try {
@@ -220,8 +209,8 @@ function resolveNginxBin(): Promise<string> {
 }
 
 export function register(env: NucktyEnv): void {
-    env.commands.add('serve', 'serve the built site locally', serve);
-    env.commands.add('stop', 'stop the local preview of a target, or of every target', stop);
+    env.commands.add('serve', 'serve the built site locally', serve, { flags: { port: 'string' }, maxPositionals: 1 });
+    env.commands.add('stop', 'stop the local preview of a target, or of every target', stop, { maxPositionals: 1 });
 }
 
 export default register;

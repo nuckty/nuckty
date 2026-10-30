@@ -16,7 +16,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseArgs } from '../bin/parse-args.js';
+import { parseArgs, validateCommandArgs } from '../bin/parse-args.js';
 
 test('parseArgs: positional tokens are collected in order', () => {
     const r = parseArgs(['build', 'extra']);
@@ -130,4 +130,18 @@ test('parseArgs: unknown command positional is preserved for dispatch to reject'
     const r = parseArgs(['frobnicate', '--x']);
     assert.equal(r.positional[0], 'frobnicate');
     assert.equal(r.flags['x'], true);
+});
+
+test('validateCommandArgs rejects undeclared options and extra positionals and normalizes switches', () => {
+    const command = { flags: { force: 'boolean', port: 'string' } as const, maxPositionals: 1 };
+
+    assert.deepEqual(validateCommandArgs(command, { positional: ['en'], flags: { force: 'false', port: '8080' } }), { positional: ['en'], flags: { force: false, port: '8080' } });
+    assert.deepEqual(validateCommandArgs(command, { positional: [], flags: { force: true } }).flags, { force: true });
+    assert.throws(() => validateCommandArgs(command, { positional: [], flags: { forse: true } }), /unknown option --forse/);
+    assert.throws(() => validateCommandArgs(command, { positional: [], flags: { '': true } }), /unknown option --$/);
+    assert.throws(() => validateCommandArgs(command, { positional: [], flags: { force: 'maybe' } }), /--force accepts only true or false/);
+    assert.throws(() => validateCommandArgs(command, { positional: [], flags: { port: true } }), /--port requires a value/);
+    assert.throws(() => validateCommandArgs(command, { positional: ['a', 'b'], flags: {} }), /at most 1 argument$/);
+    assert.throws(() => validateCommandArgs({ flags: {}, maxPositionals: 0 }, { positional: ['a'], flags: {} }), /at most 0 arguments$/);
+    assert.deepEqual(validateCommandArgs({ flags: {}, maxPositionals: Infinity }, { positional: ['a', 'b'], flags: {} }).positional, ['a', 'b']);
 });

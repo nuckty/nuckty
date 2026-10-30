@@ -18,7 +18,7 @@
 
 const TAGLINE = 'All static site generators suck. This one just sucks less.';
 
-import { parseArgs } from './parse-args.js';
+import { parseArgs, validateCommandArgs } from './parse-args.js';
 
 async function main(): Promise<void> {
     // Register the ESM loader (src/bin/loader.ts → dist/bin/loader.js) before any
@@ -91,9 +91,16 @@ async function main(): Promise<void> {
         usage(commands.list());
         process.exit(1);
     }
-    const { positional, flags } = parseArgs(argv, { booleanFlags: entry.booleanFlags });
-    const rest = positional.slice(1);
-    const code = await entry.handler({ positional: rest, flags, config, cwd });
+    const booleanFlags = Object.keys(entry.flags).filter((name) => entry.flags[name] === 'boolean');
+    const parsedCommand = parseArgs(argv, { booleanFlags });
+    let commandArgs: { positional: string[]; flags: Record<string, string | boolean> };
+    try {
+        commandArgs = validateCommandArgs(entry, { positional: parsedCommand.positional.slice(1), flags: parsedCommand.flags });
+    } catch (error) {
+        process.stderr.write(`nuckty: ${cmd}: ${(error as Error).message}\n`);
+        process.exit(1);
+    }
+    const code = await entry.handler({ ...commandArgs, config, cwd });
     process.exit(code);
 }
 

@@ -13,7 +13,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import fs from 'node:fs';
 import { fsStatus, makeGitRunner, planRepos, runPlan, type CheckoutOptions, type GitRunner, type RepoStatus } from '../content-external.js';
 import { register } from '../index.js';
 import { mkdtemp, mkdir, symlink, rm, readFile, writeFile, readdir } from 'node:fs/promises';
@@ -21,56 +20,17 @@ import { tmpdir } from 'node:os';
 import type { simpleGit } from 'simple-git';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import type { CommandArgs, CommandHandler, CommandOptions, NucktyEnv } from '@nuckty/core';
+import { NucktyEnv, validateCommandArgs } from '@nuckty/core';
 
-test('content-external validates arguments before reading config', async (t) => {
-    let handler: CommandHandler | undefined;
-    let options: CommandOptions | undefined;
-    register({
-        commands: {
-            add(_name: string, _description: string, registered: CommandHandler, registeredOptions?: CommandOptions) {
-                handler = registered;
-                options = registeredOptions;
-            },
-        },
-    } as unknown as NucktyEnv);
-    assert.deepEqual(options?.booleanFlags, ['dry-run']);
-    assert.ok(handler);
+test('content-external declares only --dry-run and no positional arguments', async () => {
+    const env = new NucktyEnv();
+    register(env);
+    const entry = env.commands.get('content-external')!;
 
-    let configChecks = 0;
-    t.mock.method(fs, 'existsSync', () => {
-        configChecks++;
-        return false;
-    });
-
-    let stderr = '';
-    const originalWrite = process.stderr.write;
-    process.stderr.write = ((chunk: string | Uint8Array) => {
-        stderr += String(chunk);
-        return true;
-    }) as typeof process.stderr.write;
-    try {
-        const args: CommandArgs = {
-            positional: [],
-            flags: { 'dry-run': 'sometimes' },
-            config: {} as CommandArgs['config'],
-            cwd: '/tmp/nuckty-invalid-boolean',
-        };
-        assert.equal(await handler(args), 1);
-        assert.equal(await handler({ ...args, flags: { dryrun: true } }), 1);
-        assert.equal(await handler({ ...args, positional: ['staging'], flags: {} }), 1);
-        assert.equal(configChecks, 0, 'invalid arguments must be rejected before config filesystem checks');
-        assert.match(stderr, /--dry-run must be true or false/);
-        assert.match(stderr, /unknown flag/);
-        assert.match(stderr, /unexpected positional argument/);
-
-        assert.equal(await handler({ ...args, flags: { 'dry-run': true } }), 0);
-        assert.equal(await handler({ ...args, flags: { 'dry-run': 'true' } }), 0);
-        assert.equal(await handler({ ...args, flags: { 'dry-run': 'false' } }), 0);
-        assert.equal(configChecks, 3, 'supported dry-run forms proceed to config handling');
-    } finally {
-        process.stderr.write = originalWrite;
-    }
+    assert.deepEqual(validateCommandArgs(entry, { positional: [], flags: { 'dry-run': 'false' } }).flags, { 'dry-run': false });
+    assert.throws(() => validateCommandArgs(entry, { positional: [], flags: { dryrun: true } }), /unknown option --dryrun/);
+    assert.throws(() => validateCommandArgs(entry, { positional: [], flags: { 'dry-run': 'sometimes' } }), /accepts only true or false/);
+    assert.throws(() => validateCommandArgs(entry, { positional: ['staging'], flags: {} }), /at most 0 arguments/);
 });
 
 // ---- planRepos --------------------------------------------------------------

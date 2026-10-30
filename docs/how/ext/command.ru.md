@@ -8,7 +8,8 @@ Command-расширение добавляет команду в CLI: `nuckty <
 interface NucktyEnv {
     commands: {
         add(name: string, description: string, handler: CommandHandler, options?: {
-            booleanFlags?: readonly string[];
+            flags?: Record<string, 'boolean' | 'string'>;
+            maxPositionals?: number;
         }): void;
     };
 }
@@ -39,7 +40,7 @@ export function register(env: NucktyEnv): void {
             : `${name}: ${target.outDir}`;
         process.stdout.write(output + '\n');
         return 0;
-    }, { booleanFlags: ['json'] });
+    }, { flags: { json: 'boolean' }, maxPositionals: 1 });
 }
 ```
 
@@ -49,14 +50,14 @@ export function register(env: NucktyEnv): void {
 npx @nuckty/core target-info --json
 ```
 
-Обработчик выводит конфигурацию первого [таргета](../targets.ru.md). Чтобы выбрать другой, передайте его имя: `npx @nuckty/core target-info main --json`, где `main` — имя из вашей конфигурации. Пример принимает необязательное имя и флаг `--json`; проверку остальных аргументов можно добавить в обработчик.
+Обработчик выводит конфигурацию первого [таргета](../targets.ru.md). Чтобы выбрать другой, передайте его имя: `npx @nuckty/core target-info main --json`, где `main` — имя из вашей конфигурации. Пример принимает необязательное имя и флаг `--json`; другие флаги и второе имя ядро отклоняет до вызова обработчика.
 
 ## Контракт обработчика
 
 Обработчик получает:
 
 - `args.positional` — позиционные аргументы (таргеты, пути).
-- `args.flags` — объект флагов с ключами без `--`. Укажите флаги без значения в `options.booleanFlags`; следующий токен при этом остаётся позиционным. Для остальных флагов сохраняется форма `--name value`. Обе формы поддерживают `--name=value`, а `--` завершает разбор флагов. Например, при `booleanFlags: ['dry-run']` команда `nuckty deploy-ftp --dry-run staging` даст `positional = ['staging']` и `flags['dry-run'] = true`.
+- `args.flags` — объявленные флаги с ключами без `--`. Объявите каждый флаг в `options.flags`: переключатель `'boolean'` приходит в обработчик как `true` или `false` (`--dry-run`, `--dry-run=false`) и оставляет следующий токен позиционным; флаг `'string'` принимает значение (`--port 8080` или `--port=8080`). `--` завершает разбор флагов. Необъявленный флаг, булев флаг со значением кроме `true` и `false`, строковый флаг без значения и позиционных аргументов больше `options.maxPositionals` ядро отклоняет с кодом выхода 1, не вызывая обработчик. Например, при `flags: { 'dry-run': 'boolean' }` команда `nuckty deploy-ftp --dry-run staging` даст `positional = ['staging']` и `flags['dry-run'] = true`.
 - `args.config` — конфигурация пользователя, уже загруженная ядром, и `args.cwd` — корень проекта.
 
 Возвращает код завершения: `0` — успех, ненулевой код — ошибка. Этот код ядро передаёт процессу.

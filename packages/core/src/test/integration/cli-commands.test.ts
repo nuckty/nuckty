@@ -119,7 +119,7 @@ async function makeConsumer(): Promise<string> {
         `    const loud = args.flags['loud'] === true;\n` +
         `    process.stdout.write((loud ? 'HELLO ' : 'hello ') + name.toUpperCase() + '\\n');\n` +
         `    return 7;\n` +
-        `  }, { booleanFlags: ['loud'] });\n` +
+        `  }, { flags: { loud: 'boolean', name: 'string' }, maxPositionals: 1 });\n` +
         `}\n`);
     // A document handler extension so `build` can complete.
     await writeFile(path.join(dir, 'ext', 'doc.mjs'),

@@ -7,8 +7,8 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Writable } from 'node:stream';
 import type { AccessOptions } from 'basic-ftp';
-import type { CommandArgs } from '@nuckty/core';
-import { deployFtp } from '../index.js';
+import { NucktyEnv, validateCommandArgs, type CommandArgs } from '@nuckty/core';
+import { deployFtp, register } from '../index.js';
 import { ftpDeploy, loadAuthConfig, type FtpTransport, type Manifest } from '../ftp.js';
 
 const auth = { host: 'fixture.invalid', user: 'fixture', password: 'fixture', port: 21,
@@ -380,7 +380,7 @@ test('same-size remote content without a hash entry is uploaded rather than assu
     });
 });
 
-test('CLI parser and deploy handler preserve target order and reject unsafe boolean values', async (t) => {
+test('the declared arguments keep target order and reject unsafe boolean values', async (t) => {
     t.mock.method(process.stdout, 'write', () => true);
     t.mock.method(process.stderr, 'write', () => true);
     const parserPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../core/src/bin/parse-args.ts');
@@ -404,15 +404,19 @@ test('CLI parser and deploy handler preserve target order and reject unsafe bool
             comparison: { toUpload: [], toDelete: [], unchanged: [], totalToUpload: 0, totalToDelete: 0, totalUnchanged: 0 },
         };
     };
+    const env = new NucktyEnv();
+    register(env);
+    const entry = env.commands.get('deploy-ftp')!;
     const invoke = async (tokens: string[]) => {
         const parsed = parseArgs(['deploy-ftp', ...tokens], { booleanFlags: ['dry-run', 'force', 'allow-mass-delete'] });
+        let args: ReturnType<typeof validateCommandArgs>;
+        try {
+            args = validateCommandArgs(entry, { positional: parsed.positional.slice(1), flags: parsed.flags });
+        } catch {
+            return 1;
+        }
 
-        return deployFtp({
-            positional: parsed.positional.slice(1),
-            flags: parsed.flags,
-            config,
-            cwd: '/consumer',
-        }, { ftpDeploy: fakeFtpDeploy });
+        return deployFtp({ ...args, config, cwd: '/consumer' }, { ftpDeploy: fakeFtpDeploy });
     };
 
     assert.equal(await invoke(['staging', '--dry-run']), 0);

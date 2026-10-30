@@ -19,22 +19,7 @@ import { parseExternalSources, type NucktyEnv, type CommandArgs, type ExternalSo
 
 /** `nuckty content-external [--dry-run]` — clone or update external content repos. */
 async function contentExternal(args: CommandArgs): Promise<number> {
-    const unknownFlag = Object.keys(args.flags).find((name) => name !== 'dry-run');
-    if (unknownFlag !== undefined) {
-        process.stderr.write('nuckty: content-external: unknown flag\n');
-        return 1;
-    }
-    if (args.positional.length > 0) {
-        process.stderr.write('nuckty: content-external: unexpected positional argument\n');
-        return 1;
-    }
-
-    const dryRunFlag = args.flags['dry-run'];
-    if (typeof dryRunFlag === 'string' && dryRunFlag !== 'true' && dryRunFlag !== 'false') {
-        process.stderr.write('nuckty: content-external: --dry-run must be true or false\n');
-        return 1;
-    }
-    const dryRun = dryRunFlag === true || dryRunFlag === 'true';
+    const dryRun = args.flags['dry-run'] === true;
     const externalDir = path.resolve(args.cwd, 'external');
     const configPath = path.resolve(args.cwd, 'config', 'external.json');
 
@@ -86,7 +71,7 @@ export function register(env: NucktyEnv): void {
         'content-external',
         'clone or update external content repositories from config/external.json',
         contentExternal,
-        { booleanFlags: ['dry-run'] },
+        { flags: { 'dry-run': 'boolean' }, maxPositionals: 0 },
     );
 }
 

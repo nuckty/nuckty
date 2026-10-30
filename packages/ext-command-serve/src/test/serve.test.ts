@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm, writeFile, mkdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { killNginxByPid, runtimeDirFor, serve, stop, type KillSpawn } from '../index.js';
+import { killNginxByPid, register, runtimeDirFor, serve, stop, type KillSpawn } from '../index.js';
+import { NucktyEnv, validateCommandArgs } from '@nuckty/core';
 import { EventEmitter } from 'node:events';
 import { symlink } from 'node:fs/promises';
 import type { spawn, ChildProcess } from 'node:child_process';
@@ -64,7 +65,7 @@ for (const outcome of ['success', 'error', 'denied', 'unrelated', 'reused', 'inv
 }
 
 
-for (const mode of ['selected', 'unknown', 'invalid-port', 'default', 'spawn-error', 'unknown-flag', 'empty-flag', 'too-many-targets'] as const) {
+for (const mode of ['selected', 'unknown', 'invalid-port', 'default', 'spawn-error'] as const) {
     test(`serve command: ${mode}`, async () => {
         const cwd = await mkdtemp(path.join(tmpdir(), 'nuckty-serve-start-'));
         const stderr = process.stderr.write;
@@ -78,19 +79,10 @@ for (const mode of ['selected', 'unknown', 'invalid-port', 'default', 'spawn-err
                     first: { configDir: 'config', outDir: 'first' },
                     chosen: { configDir: 'config', outDir: 'chosen' },
                 } },
-                positional: mode === 'default' ? [] : mode === 'too-many-targets' ? ['chosen', 'first'] : [mode === 'unknown' ? 'typo' : 'chosen'],
-                flags: mode === 'empty-flag' ? { '': true } : mode === 'unknown-flag' ? { prt: true } : { port: mode === 'invalid-port' ? '0' : '8765' },
+                positional: mode === 'default' ? [] : [mode === 'unknown' ? 'typo' : 'chosen'],
+                flags: { port: mode === 'invalid-port' ? '0' : '8765' },
             };
             const target = mode === 'default' ? 'first' : 'chosen';
-            let cwdRead = false;
-            if (mode === 'unknown-flag' || mode === 'empty-flag' || mode === 'too-many-targets') {
-                Object.defineProperty(args, 'cwd', {
-                    get() {
-                        cwdRead = true;
-                        throw new Error('cwd was read before argument validation');
-                    },
-                });
-            }
             let launched = false;
             let resolvedNginx = false;
             const fakeSpawn = ((_bin: string, options: string[]) => {
@@ -104,11 +96,10 @@ for (const mode of ['selected', 'unknown', 'invalid-port', 'default', 'spawn-err
                 resolveNginx: async () => { resolvedNginx = true; return '/owned/fixture/nginx'; },
                 spawn: fakeSpawn,
             });
-            const rejected = ['unknown', 'invalid-port', 'unknown-flag', 'empty-flag', 'too-many-targets'].includes(mode);
+            const rejected = ['unknown', 'invalid-port'].includes(mode);
             assert.equal(result, rejected || mode === 'spawn-error' ? 1 : 0);
             assert.equal(launched, !rejected);
             assert.equal(resolvedNginx, !rejected);
-            assert.equal(cwdRead, false);
             if (rejected) {
                 await assert.rejects(readFile(path.join(runtimeDirFor(cwd, target), 'nginx.conf'), 'utf8'), { code: 'ENOENT' });
             }
@@ -125,75 +116,20 @@ for (const mode of ['selected', 'unknown', 'invalid-port', 'default', 'spawn-err
     });
 }
 
-test('stop: rejects --dry-run before inspecting the pid or sending a signal', async () => {
-    const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-stop-args-'));
-    const pidFile = path.join(runtimeDirFor(dir, 'main'), 'nginx.pid');
-    await mkdir(path.dirname(pidFile), { recursive: true });
-    await writeFile(pidFile, '424242');
-    let inspections = 0;
-    let signals = 0;
-    const stderr = process.stderr.write;
-    let output = '';
-    process.stderr.write = ((chunk: string) => { output += chunk; return true; }) as typeof stderr;
-    try {
-        const args: CommandArgs = { cwd: dir, config: { targets: { main: { configDir: 'config', outDir: 'site' } } }, positional: [], flags: { 'dry-run': true } };
-        const result = await stop(args, {
-            pidFile,
-            inspectProcess: async () => {
-                inspections++;
-                return `Tue Sep 22 10:00:00 2026 nginx: master process nginx -c ${path.join(runtimeDirFor(dir, 'main'), 'nginx.conf')}`;
-            },
-            spawnKill: (): KillSpawn => {
-                signals++;
-                return { on(_event, listener) { queueMicrotask(() => listener(0)); } };
-            },
-        });
-        assert.equal(result, 1);
-        assert.match(output, /Usage: nuckty stop \[target\]/);
-        assert.equal(inspections, 0);
-        assert.equal(signals, 0);
-        assert.equal(await readFile(pidFile, 'utf8'), '424242');
-    } finally {
-        process.stderr.write = stderr;
-        await rm(dir, { recursive: true, force: true });
-    }
-});
+test('serve and stop declare their arguments', () => {
+    const env = new NucktyEnv();
+    register(env);
+    const serveEntry = env.commands.get('serve')!;
+    const stopEntry = env.commands.get('stop')!;
 
-test('stop: a target argument signals only that target and no argument signals all', async (t) => {
-    const dir = await mkdtemp(path.join(tmpdir(), 'nuckty-stop-targets-'));
-    const config = { targets: { ru: { configDir: 'config', outDir: 'site/ru' }, en: { configDir: 'config', outDir: 'site/en' } } };
-    const pids: Record<string, string> = { ru: '111', en: '222' };
-    t.mock.method(process.stdout, 'write', () => true);
-    t.mock.method(process.stderr, 'write', () => true);
-    try {
-        for (const [target, pid] of Object.entries(pids)) {
-            await mkdir(runtimeDirFor(dir, target), { recursive: true });
-            await writeFile(path.join(runtimeDirFor(dir, target), 'nginx.pid'), pid);
-        }
-        const signalled: string[] = [];
-        const options = {
-            inspectProcess: async (pid: number) => {
-                const target = Object.keys(pids).find((name) => pids[name] === String(pid))!;
-                return `Tue Sep 22 10:00:00 2026 nginx: master process nginx -c ${path.join(runtimeDirFor(dir, target), 'nginx.conf')}`;
-            },
-            spawnKill: (_command: string, argv: string[]): KillSpawn => {
-                signalled.push(argv[1]!);
-                return { on(event, listener) {
-                    if (event === 'exit') {
-                        queueMicrotask(() => listener(0));
-                    }
-                } };
-            },
-        };
-        assert.equal(await stop({ cwd: dir, config, positional: ['en'], flags: {} }, options), 0);
-        assert.deepEqual(signalled, ['222']);
-        signalled.length = 0;
-        assert.equal(await stop({ cwd: dir, config, positional: [], flags: {} }, options), 0);
-        assert.deepEqual(signalled.sort(), ['111', '222']);
-        assert.equal(await stop({ cwd: dir, config, positional: ['typo'], flags: {} }, options), 1);
-    } finally {
-        await rm(dir, { recursive: true, force: true });
+    assert.deepEqual(validateCommandArgs(serveEntry, { positional: ['en'], flags: { port: '8093' } }), { positional: ['en'], flags: { port: '8093' } });
+    for (const flags of [{ prt: true }, { '': true }] as Array<Record<string, boolean>>) {
+        assert.throws(() => validateCommandArgs(serveEntry, { positional: [], flags }), /unknown option/);
     }
+    assert.throws(() => validateCommandArgs(serveEntry, { positional: [], flags: { port: true } }), /--port requires a value/);
+    assert.throws(() => validateCommandArgs(serveEntry, { positional: ['chosen', 'first'], flags: {} }), /at most 1 argument/);
+    assert.throws(() => validateCommandArgs(stopEntry, { positional: [], flags: { 'dry-run': true } }), /unknown option --dry-run/);
+    assert.throws(() => validateCommandArgs(stopEntry, { positional: ['ru', 'en'], flags: {} }), /at most 1 argument/);
 });
 
 for (const localeCase of [

@@ -45,29 +45,15 @@ export async function convertImages(
     args: CommandArgs,
     inject?: { encoder?: Encoder },
 ): Promise<number> {
-    const unknownFlags = Object.keys(args.flags).filter((name) => !['dry-run', 'force'].includes(name));
-
-    if (unknownFlags.length > 0) {
-        process.stderr.write(`nuckty: convert-images — unknown option(s): ${unknownFlags.map((name) => `--${name}`).join(', ')}\n`);
-
-        return 1;
-    }
     if (args.positional.length !== 1) {
         process.stderr.write('nuckty: convert-images — expected one content directory, e.g. nuckty convert-images content\n');
 
         return 1;
     }
 
-    let normalized: ReturnType<typeof normalizeArgs>;
-
-    try {
-        normalized = normalizeArgs(args);
-    } catch (error) {
-        process.stderr.write(`nuckty: convert-images — ${(error as Error).message}\n`);
-
-        return 1;
-    }
-    const { positionalPath, dryRun, force } = normalized;
+    const positionalPath = args.positional[0]!;
+    const dryRun = args.flags['dry-run'] === true;
+    const force = args.flags['force'] === true;
     const contentDir = path.resolve(args.cwd, positionalPath);
     const cachePath = path.join(contentDir, CACHE_FILE);
 
@@ -235,27 +221,6 @@ async function fileExists(p: string): Promise<boolean> {
     }
 }
 
-function normalizeArgs(args: CommandArgs): { positionalPath: string; dryRun: boolean; force: boolean } {
-    return {
-        positionalPath: args.positional[0] ?? '',
-        dryRun: readBooleanFlag(args.flags, 'dry-run'),
-        force: readBooleanFlag(args.flags, 'force'),
-    };
-}
-
-function readBooleanFlag(flags: CommandArgs['flags'], name: 'dry-run' | 'force'): boolean {
-    const value = flags[name];
-
-    if (value === undefined || value === 'false') {
-        return false;
-    }
-    if (value === true || value === 'true') {
-        return true;
-    }
-    throw new Error(`--${name} accepts only true or false`);
-}
-
-/** Remove an old variant; only an already absent file is harmless. */
 async function safeUnlink(p: string): Promise<void> {
     try {
         await fsp.unlink(p);
@@ -296,7 +261,7 @@ export function register(env: NucktyEnv): void {
         'convert-images',
         'encode content PNG/JPEG to AVIF and WebP next to the originals',
         convertImages,
-        { booleanFlags: ['dry-run', 'force'] },
+        { flags: { 'dry-run': 'boolean', force: 'boolean' }, maxPositionals: 1 },
     );
 }
 

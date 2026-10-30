@@ -43,8 +43,10 @@ export { generateNginxConfig } from './stages/nginx.js';
 
 // Plugin environment.
 export { NucktyEnv } from './env/env.js';
-export type { CommandArgs, CommandHandler, CommandEntry, CommandOptions, DirectiveNode, DirectiveHandler, DirectiveConverters, MarkdownNode, MarkdownNodeHandler } from './env/env.js';
+export type { CommandArgs, CommandHandler, CommandEntry, CommandOptions, FlagKind, DirectiveNode, DirectiveHandler, DirectiveConverters, MarkdownNode, MarkdownNodeHandler } from './env/env.js';
 export { loadPlugins } from './env/loader.js';
+// Argument check the CLI applies to a command declaration; extensions use it in tests.
+export { validateCommandArgs } from './bin/parse-args.js';
 export type { PluginModule, LoadOptions } from './env/loader.js';
 
 // Targets + consumer config.

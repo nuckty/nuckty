@@ -82,12 +82,16 @@ Directive-based constructs SHALL be authored as generic directives (`:name` / `:
 Block modules SHALL NOT receive `env`. Each `.nu.ts` module SHALL export default `templates()`, import `block` from `@nuckty/core`, and declare only its own block.
 
 ### Requirement: commands entry point
-`env.commands` SHALL provide `add(name, description, handler)`. The core knows only `build`; any other command is a command-extension. `handler` receives parsed `args.positional` and `args.flags` plus the already loaded `args.config` and project-root `args.cwd` and returns an exit code (`0` success, non-zero error) that the core passes to the process.
+`env.commands` SHALL provide `add(name, description, handler, options?)`. The core knows only `build`; any other command is a command-extension. `options.flags` SHALL declare each accepted option as `'boolean'` or `'string'`, and `options.maxPositionals` SHALL bound the positional arguments. Before calling the handler the CLI SHALL reject an undeclared option, a boolean option with a value other than `true` or `false`, a string option without a value and extra positional arguments, with exit code 1. `handler` receives `args.positional`, `args.flags` with boolean options as booleans, the already loaded `args.config` and the project-root `args.cwd`, and returns an exit code (`0` success, non-zero error) that the core passes to the process.
 
 #### Scenario: Command extension adds a command
-- **WHEN** an extension calls `env.commands.add('deploy-ftp', '...', handler)`
-- **THEN** `nuckty deploy-ftp site-ru --force` invokes the handler with those args
+- **WHEN** an extension calls `env.commands.add('deploy-ftp', '...', handler, { flags: { force: 'boolean' }, maxPositionals: 1 })`
+- **THEN** `nuckty deploy-ftp site-ru --force` invokes the handler with `positional = ['site-ru']` and `flags.force = true`
 - **AND** the handler's exit code becomes the process exit code
+
+#### Scenario: Undeclared option
+- **WHEN** a user runs `nuckty deploy-ftp --forse`
+- **THEN** the CLI reports `unknown option --forse` and exits with 1 without calling the handler
 
 ### Requirement: Extensions are independent packages
 Each independently packaged extension SHALL live in its own `packages/ext-<type>-<name>` workspace directory and share the monorepository release cycle and rules. The package name derives from the docs path (`/ext/block/root` → `@nuckty/ext-block-root`). The core SHALL NOT depend on any extension or its dependencies (basic-ftp, vnu, sharp, nginx).

@@ -300,16 +300,6 @@ export async function findHtmlFiles(dir: string, base: string[]): Promise<string
 
 /** `nuckty validate [target]` — validate the chosen target's artifact with vnu. */
 async function validate(args: CommandArgs): Promise<number> {
-    if (args.positional.length > 1) {
-        process.stderr.write('nuckty: usage: validate [target]\n');
-        return 1;
-    }
-    const unsupportedFlag = Object.keys(args.flags).find((name) => name !== 'port');
-    if (unsupportedFlag !== undefined) {
-        process.stderr.write(`nuckty: validate does not support --${unsupportedFlag}\n`);
-        return 1;
-    }
-
     const value = args.flags['port'];
     const port = value === undefined ? 8888 : (typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : NaN);
 
@@ -369,7 +359,7 @@ async function validate(args: CommandArgs): Promise<number> {
 }
 
 export function register(env: NucktyEnv): void {
-    env.commands.add('validate', 'validate built HTML with vnu.jar', validate);
+    env.commands.add('validate', 'validate built HTML with vnu.jar', validate, { flags: { port: 'string' }, maxPositionals: 1 });
 }
 
 export default register;

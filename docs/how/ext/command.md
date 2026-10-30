@@ -8,7 +8,8 @@ A command extension adds a command to the CLI: `nuckty <command>`. The entry poi
 interface NucktyEnv {
     commands: {
         add(name: string, description: string, handler: CommandHandler, options?: {
-            booleanFlags?: readonly string[];
+            flags?: Record<string, 'boolean' | 'string'>;
+            maxPositionals?: number;
         }): void;
     };
 }
@@ -39,7 +40,7 @@ export function register(env: NucktyEnv): void {
             : `${name}: ${target.outDir}`;
         process.stdout.write(output + '\n');
         return 0;
-    }, { booleanFlags: ['json'] });
+    }, { flags: { json: 'boolean' }, maxPositionals: 1 });
 }
 ```
 
@@ -49,14 +50,14 @@ Save the module as `ext/target-info.ts` and add `'./ext/target-info.ts'` to `ext
 npx @nuckty/core target-info --json
 ```
 
-The handler prints the first [target](../targets.md). To choose another, supply its name: `npx @nuckty/core target-info main --json`, where `main` is a name from your configuration. The example accepts an optional name and the `--json` flag; additional argument validation can be added in the handler.
+The handler prints the first [target](../targets.md). To choose another, supply its name: `npx @nuckty/core target-info main --json`, where `main` is a name from your configuration. The example accepts an optional name and the `--json` flag; the core rejects other options and a second name before calling the handler.
 
 ## Handler contract
 
 The handler receives:
 
 - `args.positional` — positional arguments ([targets](../targets.md), paths).
-- `args.flags` — a flags object keyed without `--`. Register flags that take no value in `options.booleanFlags`; these flags leave the next token positional. Other flags keep the generic `--name value` form. Both forms support `--name=value`, and `--` ends option parsing. For example, with `booleanFlags: ['dry-run']`, `nuckty deploy-ftp --dry-run staging` yields `positional = ['staging']` and `flags['dry-run'] = true`.
+- `args.flags` — the declared options keyed without `--`. Declare each option in `options.flags`: a `'boolean'` switch reaches the handler as `true` or `false` (`--dry-run`, `--dry-run=false`) and leaves the next token positional; a `'string'` option takes a value (`--port 8080` or `--port=8080`). `--` ends option parsing. The core rejects an undeclared option, a boolean option with a value other than `true` or `false`, a string option without a value and more positional arguments than `options.maxPositionals`, with exit code 1 and without calling the handler. For example, with `flags: { 'dry-run': 'boolean' }`, `nuckty deploy-ftp --dry-run staging` yields `positional = ['staging']` and `flags['dry-run'] = true`.
 - `args.config` — the user configuration, already loaded by the core, and `args.cwd` — the project root.
 
 It returns an exit code: `0` for success, a non-zero code for an error. The core passes this code to the process.

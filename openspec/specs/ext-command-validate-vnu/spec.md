@@ -41,13 +41,6 @@ The extension SHALL be optional and require java on PATH (JVM 17+). Startup and 
 - **THEN** builds run with no JVM requirement
 - **AND** the 30-rule minimization remains covered by engine unit tests
 
-### Requirement: Unknown option presence
-The command SHALL reject every unsupported option key, including an empty key, before accessing cwd or invoking filesystem/runtime operations. Supported argument behavior SHALL remain unchanged.
-
-#### Scenario: Empty unknown key
-- **WHEN** flags contains an unsupported empty-string key
-- **THEN** the command reports an option error before cwd access
-
 ### Requirement: Validation port
 The validate command SHALL accept `--port` with an integer from 1 through 65535, default to 8888 and reject invalid values before starting Java.
 
