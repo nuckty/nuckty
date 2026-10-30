@@ -20,7 +20,7 @@ The intermediate representation determines how templates compose, how the compil
 
 `BemNode` describes a node's structure and template data. `BEMTree` is a recursive union of nodes, text, arrays, and empty positions. [nu.ts templates](../how/templates.md) can replace or wrap a node before serialization, and the resolved tree can be obtained with `render(tree, { templates, output: 'bemjson' })`.
 
-The same renderer processes Markdown content and document blocks. In the current HTML stage, content is rendered first and passed to the document handler as a `raw` node; this is a shared rendering model, not a guarantee that the entire page remains one tree until the final serialization.
+The same renderer processes Markdown content and document blocks. The HTML stage passes the content tree to the document handler, and the whole page stays one tree until serialization, so site templates can change content nodes as well as layout.
 
 The serializer centralizes text and attribute escaping and [HTML minimization](../out/html.md). Template authors still need to choose valid HTML structures and treat `raw` as trusted input.
 

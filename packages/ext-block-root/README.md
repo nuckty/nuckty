@@ -13,10 +13,12 @@ The block uses the `wrap` mode to form the document. The engine does not know th
 The block reads page data from `n.props`:
 
 - `page` — URL, title, source and sitemap metadata;
-- `content` — a BEMTree containing already serialized content in a `raw` node;
+- `content` — the page's content tree, rendered together with the document;
+- `sitemap` — the parsed sitemap with every page of the target;
 - `assets` — CSS, JS, image, and video maps;
 - `lang` — the current target's language;
-- `alternates` — `Map<lang, { url, title, host }>` for hreflang.
+- `alternates` — `Map<lang, { url, title, host }>` for hreflang;
+- `target` — the current target, with site settings in `target.data`.
 
 The standard block emits the title, viewport, hreflang links, all nonempty CSS bundles, and JavaScript bundles with `defer`. A site override can select bundles, add metadata, and place inner layout blocks. The core does not select a block from `page.layout`.
 
