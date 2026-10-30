@@ -56,7 +56,7 @@ Since it is an extension and not part of the core, an English-language site does
 
 ## Markdown constructs come from extensions
 
-Gallery, grid, callout, and video constructs are **not in the core**. The core knows no specific `:::gallery` or `:::callout` construct. [Markdown extensions](ext/markdown.md) add them: a handler converts the construct into BEMJSON nodes of the corresponding block.
+Gallery, grid and video constructs are **not in the core**. The core knows no specific `:::gallery` or `:::callout` construct. [Markdown extensions](ext/markdown.md) add them: a handler converts the construct into BEMJSON nodes of the corresponding block.
 
 ```md
 :::gallery

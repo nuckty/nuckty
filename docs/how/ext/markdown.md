@@ -1,6 +1,6 @@
 # Markdown extension
 
-A Markdown extension adds [Markdown constructs](../markdown.md) through `env.markdown`. It registers a directive handler or a remark plugin that transforms mdast before conversion to [BEMJSON](../bemjson.md).
+A Markdown extension adds [Markdown constructs](../markdown.md) through `env.markdown`. It registers a directive handler, a handler for an mdast node type or a remark plugin that transforms mdast before conversion to [BEMJSON](../bemjson.md).
 
 ## Directives
 

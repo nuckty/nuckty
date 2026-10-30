@@ -1,6 +1,6 @@
 # Markdown-расширение
 
-Markdown-расширение добавляет [конструкции markdown-разметки](../markdown.ru.md) через `env.markdown`. Оно регистрирует обработчик директивы или remark-плагин, который преобразует mdast до перехода в [BEMJSON](../bemjson.ru.md).
+Markdown-расширение добавляет [конструкции markdown-разметки](../markdown.ru.md) через `env.markdown`. Оно регистрирует обработчик директивы, обработчик типа узла mdast или remark-плагин, который преобразует mdast до перехода в [BEMJSON](../bemjson.ru.md).
 
 ## Директивы
 

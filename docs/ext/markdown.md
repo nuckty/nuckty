@@ -1,10 +1,10 @@
 # Markdown extensions
 
-The catalog of `markdown`-type extensions. They add [markdown constructs](../how/ext/markdown.md) to CommonMark: callouts, galleries, grids, video. Each is wired up through `env.markdown`.
+The catalog of `markdown`-type extensions. They add [markdown constructs](../how/ext/markdown.md) to CommonMark: galleries, grids, video. Each is wired up through `env.markdown`.
 
 ## How it works
 
-Directive-based constructs use [generic directives](../how/ext/markdown.md) (`:::name`, `::name`, `:name`). An extension maps a directive straight to a block node via `env.markdown.directive(...)`; for other syntax and arbitrary transforms there is the low-level `env.markdown.use(...)`. The full contract is in the [markdown extension guide](../how/ext/markdown.md).
+Directive-based constructs use [generic directives](../how/ext/markdown.md) (`:::name`, `::name`, `:name`). An extension maps a directive straight to a block node via `env.markdown.directive(...)` and any other mdast node type via `env.markdown.node(...)`; for other syntax and arbitrary transforms there is the low-level `env.markdown.use(...)`. The full contract is in the [markdown extension guide](../how/ext/markdown.md).
 
 See the [guide](../how/ext/markdown.md) for an explicit MDAST conversion example. `node.children` is MDAST, not [BEMTree](../how/bemjson.md): do not assign it directly to `content`.
 

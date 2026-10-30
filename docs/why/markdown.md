@@ -20,7 +20,7 @@ nuckty needs structural Markdown output for its template engine, plus extension 
 
 remark-parse builds mdast; remark-gfm and remark-directive add the syntax nuckty supports. unified composes parsing and transformations. The bridge then produces nodes for the same [nu renderer](../how/templates.md) that processes document blocks.
 
-[Markdown extensions](../how/ext/markdown.md) can register a remark plugin or a directive handler. Content-specific features such as videos, galleries, and Russian typography remain separate packages.
+[Markdown extensions](../how/ext/markdown.md) can register a remark plugin, a directive handler or a handler for an mdast node type. Content-specific features such as videos, galleries, and Russian typography remain separate packages.
 
 The choice is based on the structure and extension contract. This documentation does not claim a speed advantage without a reproducible benchmark of the complete build.
 
