@@ -182,8 +182,8 @@ test('runPlan redacts URL credentials from runner errors', async () => {
 
 test('planRepos rejects duplicate destinations from same-basename URLs', async () => {
     await assert.rejects(
-        () => planRepos(['https://h/o/photo.git', 'https://h/p/photo.git'], '/tmp/external', () => 'none'),
-        /Duplicate repository destination/,
+        () => planRepos(['https://token@h/o/photo.git', 'https://h/p/photo.git'], '/tmp/external', () => 'none'),
+        (error: Error) => /Duplicate repository destination .* for repositories https:\/\/\[redacted\]@h\/o\/photo\.git and https:\/\/h\/p\/photo\.git — /.test(error.message) && !error.message.includes('token'),
     );
 });
 

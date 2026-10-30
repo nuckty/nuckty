@@ -33,14 +33,14 @@ async function contentExternal(args: CommandArgs): Promise<number> {
         }
     }
 
-    // Lazy-import so `register(env)` does not pull simple-git — only an actual
-    // invocation pays that cost (and needs simple-git installed in the consumer).
+    // Lazy-import so `register(env)` does not load simple-git — only an actual
+    // invocation pays that cost.
     const { planRepos, runPlan, fsStatus, makeGitRunner } = await import('./content-external.js');
 
     // Resolve each repo's status (clean → update, absent → clone, dirty,
     // mismatched, or unknown → refuse; existing copies are never deleted)
-    // via the shared
-    // `planRepos` with the real `fsStatus` (async through simple-git).
+    // via the shared `planRepos` with the real `fsStatus` (async through
+    // simple-git).
     let plan;
     try {
         plan = await planRepos(sources, externalDir, fsStatus);

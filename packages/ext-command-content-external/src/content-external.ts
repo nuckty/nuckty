@@ -146,6 +146,9 @@ export async function planRepos(
 ): Promise<RepoPlan[]> {
     const plans: RepoPlan[] = [];
     const dirsByUrl = new Map<string, string>();
+    if (fs.lstatSync(externalDir, { throwIfNoEntry: false })?.isSymbolicLink()) {
+        throw new Error('External directory must not be a symbolic link');
+    }
     for (const source of sources) {
         const { url, ref, path: subdirectory } = typeof source === 'string' ? { url: source } as ExternalSource : source;
         const name = externalRepoName(url);
@@ -161,14 +164,11 @@ export async function planRepos(
         const seen = dirsByUrl.get(resolved);
         if (seen !== undefined) {
             throw new Error(
-                `Duplicate repository destination "${dir}" for repositories ${externalRepoName(seen)} and ${name} — ` +
+                sanitizeRemoteUrls(`Duplicate repository destination "${dir}" for repositories ${seen} and ${url} — `) +
                     'two repos may not share one external directory',
             );
         }
         dirsByUrl.set(resolved, url);
-        if (fs.lstatSync(externalDir, { throwIfNoEntry: false }) && fs.lstatSync(externalDir).isSymbolicLink()) {
-            throw new Error('External directory must not be a symbolic link');
-        }
         if (fs.lstatSync(dir, { throwIfNoEntry: false }) && fs.lstatSync(dir).isSymbolicLink()) {
             throw new Error(`Repository destination must not be a symbolic link: ${dir}`);
         }
