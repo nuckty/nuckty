@@ -1,12 +1,12 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 const args = process.argv.slice(2);
 const fix = args.includes('--fix');
 const supplied = args.filter((arg) => arg !== '--fix');
 const files = supplied.length > 0 ? supplied : execFileSync('git', [
     'ls-files', '--cached', '--others', '--exclude-standard', '-z', '--', '*.md', ':!vendor/**',
-], { encoding: 'utf8' }).split('\0').filter(Boolean);
+], { encoding: 'utf8' }).split('\0').filter((file) => file && existsSync(file));
 
 for (const file of new Set(files)) {
     const original = readFileSync(file, 'utf8');

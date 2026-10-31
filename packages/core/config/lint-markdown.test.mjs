@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -31,6 +31,24 @@ test('Markdown EOF lint rejects invalid endings and fix preserves the content', 
             assert.equal(valid.status, 0, valid.stderr);
             assert.equal(valid.stdout + valid.stderr, '');
         }
+    } finally {
+        rmSync(dir, { recursive: true, force: true });
+    }
+});
+
+test('Markdown EOF lint skips tracked files deleted from the working tree', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'nuckty-markdown-eof-'));
+
+    try {
+        execFileSync('git', ['init', '--quiet'], { cwd: dir });
+        writeFileSync(path.join(dir, 'kept.md'), '# Kept\n');
+        writeFileSync(path.join(dir, 'removed.md'), '# Removed\n');
+        execFileSync('git', ['add', '.'], { cwd: dir });
+        unlinkSync(path.join(dir, 'removed.md'));
+        const lint = spawnSync(process.execPath, [script], { cwd: dir, encoding: 'utf8' });
+
+        assert.equal(lint.status, 0, lint.stderr);
+        assert.equal(lint.stdout + lint.stderr, '');
     } finally {
         rmSync(dir, { recursive: true, force: true });
     }
