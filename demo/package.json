@@ -27,14 +27,14 @@
         "lint:fix": "prettier \"blocks/**/*.css\" --write --config config/config-prettier.json && stylelint \"blocks/**/*.css\" --config config/config-stylelint.mjs --fix"
     },
     "dependencies": {
-        "@nuckty/core": "1.0.0-rc.4",
-        "@nuckty/ext-block-gallery": "1.0.0-rc.4",
-        "@nuckty/ext-block-grid": "1.0.0-rc.4",
-        "@nuckty/ext-block-root": "1.0.0-rc.4",
-        "@nuckty/ext-command-deploy-ftp": "1.0.0-rc.4",
-        "@nuckty/ext-command-serve": "1.0.0-rc.4",
-        "@nuckty/ext-command-validate-vnu": "1.0.0-rc.4",
-        "@nuckty/ext-markdown-typography-ru": "1.0.0-rc.4"
+        "@nuckty/core": "1.0.0-rc.5",
+        "@nuckty/ext-block-gallery": "1.0.0-rc.5",
+        "@nuckty/ext-block-grid": "1.0.0-rc.5",
+        "@nuckty/ext-block-root": "1.0.0-rc.5",
+        "@nuckty/ext-command-deploy-ftp": "1.0.0-rc.5",
+        "@nuckty/ext-command-serve": "1.0.0-rc.5",
+        "@nuckty/ext-command-validate-vnu": "1.0.0-rc.5",
+        "@nuckty/ext-markdown-typography-ru": "1.0.0-rc.5"
     },
     "devDependencies": {
         "@stylistic/stylelint-plugin": "3.1.2",

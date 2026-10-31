@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-rc.5
+
+- The generated `.htaccess` gives MP4 videos the 10-year `Expires` of other hashed assets; before, they were marked immutable but expired under the host's default policy. It also drops `FilesMatch` blocks for `_i…` names, which Apache never matched, and environment flags that no rule read; headers are unchanged.
+- An `ext` entry without a `register` export fails with `nuckty: extension "<spec>" does not export a register function` instead of calling it a plugin.
+- `content-external`: two `external.json` entries that map to one `external/<name>/` directory fail with both repository URLs, credentials removed, instead of the shared name twice.
+
 ## 1.0.0-rc.4
 
 - The generated nginx configuration no longer routes extensionless `_s…`, `_c…` and `_j…` files, and `.htaccess` no longer probes a `.ico` variant for `/_i…` image URLs: the build never produces them.
