@@ -33,6 +33,8 @@
     "overrides": {
         "tsup": {
             "esbuild": "$esbuild"
-        }
+        },
+        "glob": "14.0.3",
+        "minimatch": "11.0.3"
     }
 }
